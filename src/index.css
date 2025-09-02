@@ -1,96 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Mitr:wght@200;300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* KidFast.net Design System - Vibrant & Kid-Friendly */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Main Background Gradients */
+    --bg-gradient: linear-gradient(135deg, hsl(251, 100%, 69%) 0%, hsl(225, 100%, 75%) 50%, hsl(213, 100%, 85%) 100%);
+    --bg-gradient-light: linear-gradient(135deg, hsl(251, 100%, 95%) 0%, hsl(225, 100%, 97%) 50%, hsl(213, 100%, 99%) 100%);
+    
+    /* Card Colors */
+    --card-primary: 0 0% 100%;
+    --card-secondary: 0 0% 98%;
+    --card-glass: 0 0% 100% / 0.95;
+    --card-shadow: 251 100% 69% / 0.15;
+    
+    /* Text Colors */
+    --text-primary: 222 84% 5%;
+    --text-secondary: 215 16% 47%;
+    --text-muted: 215 16% 65%;
+    --text-white: 0 0% 100%;
+    
+    /* Accent Colors for Grade Cards */
+    --grade-1: 354 100% 85%; /* Pink */
+    --grade-2: 171 100% 85%; /* Mint */
+    --grade-3: 36 100% 85%;  /* Orange */
+    --grade-4: 142 100% 85%; /* Green */
+    --grade-5: 251 100% 85%; /* Purple */
+    --grade-6: 213 100% 85%; /* Blue */
+    
+    /* Button Gradients */
+    --btn-primary: linear-gradient(135deg, hsl(36, 100%, 60%) 0%, hsl(354, 100%, 65%) 100%);
+    --btn-secondary: linear-gradient(135deg, hsl(213, 100%, 70%) 0%, hsl(251, 100%, 75%) 100%);
+    --btn-success: linear-gradient(135deg, hsl(142, 100%, 60%) 0%, hsl(171, 100%, 65%) 100%);
+    
+    /* Interactive States */
+    --active-ring: 251 100% 69%;
+    --focus-ring: 213 100% 75%;
+    --border-light: 220 13% 91%;
+    --border-active: 251 100% 69%;
+    
+    /* Shadows */
+    --shadow-soft: 0 4px 20px hsl(251 100% 69% / 0.1);
+    --shadow-card: 0 8px 30px hsl(251 100% 69% / 0.15);
+    --shadow-button: 0 4px 15px hsl(36 100% 60% / 0.3);
+    
+    /* Animation */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    
+    --radius: 1rem;
   }
 }
 
@@ -100,6 +62,78 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    font-family: 'Mitr', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    @apply text-primary antialiased;
+    background: var(--bg-gradient);
+    min-height: 100vh;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Mitr', sans-serif;
+  }
+}
+
+@layer components {
+  .card-glass {
+    @apply bg-white/95 backdrop-blur-sm rounded-2xl shadow-[0_8px_30px_hsl(251_100%_69%/0.15)] border border-white/20;
+  }
+  
+  .btn-primary {
+    background: var(--btn-primary);
+    @apply text-white font-medium rounded-full px-6 py-3 shadow-[0_4px_15px_hsl(36_100%_60%/0.3)] transition-all duration-300 hover:scale-105 hover:shadow-[0_6px_20px_hsl(36_100%_60%/0.4)] active:scale-95;
+  }
+  
+  .btn-secondary {
+    background: var(--btn-secondary);
+    @apply text-white font-medium rounded-full px-6 py-3 shadow-[0_4px_15px_hsl(213_100%_70%/0.3)] transition-all duration-300 hover:scale-105 hover:shadow-[0_6px_20px_hsl(213_100%_70%/0.4)] active:scale-95;
+  }
+  
+  .grade-card {
+    @apply rounded-2xl p-6 shadow-[0_4px_20px_hsl(251_100%_69%/0.1)] transition-all duration-300 hover:scale-105 hover:shadow-[0_8px_30px_hsl(251_100%_69%/0.2)] cursor-pointer;
+  }
+  
+  .grade-card.active {
+    @apply ring-2 ring-[hsl(var(--active-ring))] scale-105;
+  }
+  
+  .stepper-circle {
+    @apply w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg transition-all duration-300;
+  }
+  
+  .stepper-circle.active {
+    @apply bg-[hsl(var(--active-ring))] text-white shadow-[0_4px_15px_hsl(251_100%_69%/0.3)];
+  }
+  
+  .stepper-circle.inactive {
+    @apply bg-gray-300 text-gray-600;
+  }
+  
+  .progress-bar {
+    @apply bg-gray-200 rounded-full h-3 overflow-hidden;
+  }
+  
+  .progress-fill {
+    @apply h-full rounded-full transition-all duration-500 ease-out;
+    background: var(--btn-success);
+  }
+  
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[hsl(var(--focus-ring))] focus:ring-2 focus:ring-[hsl(var(--focus-ring))]/20 transition-all duration-200 bg-white/90 backdrop-blur-sm;
+  }
+  
+  .avatar-option {
+    @apply w-16 h-16 rounded-full flex items-center justify-center text-2xl cursor-pointer transition-all duration-300 hover:scale-110 bg-white/80 backdrop-blur-sm border-2 border-transparent;
+  }
+  
+  .avatar-option.selected {
+    @apply border-[hsl(var(--active-ring))] bg-[hsl(var(--active-ring))]/10 scale-110;
+  }
+  
+  .chip {
+    @apply px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 bg-white/60 backdrop-blur-sm border border-white/30 hover:bg-white/80;
+  }
+  
+  .chip.active {
+    @apply bg-[hsl(var(--active-ring))] text-white border-[hsl(var(--active-ring))];
   }
 }
