@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { ToastManager } from '../components/Toast';
@@ -96,15 +97,39 @@ const Signup = () => {
     setCurrentStep(prev => prev - 1);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validateStep(3)) {
-      // Save to localStorage
-      localStorage.setItem('kidfast_signup', JSON.stringify(formData));
-      ToastManager.show({
-        message: 'สมัครเรียบร้อย! ลองเข้าสู่ระบบเลย',
-        type: 'success'
-      });
-      navigate('/login');
+      try {
+        // บันทึกข้อมูลลง Supabase
+        const { error } = await supabase
+          .from('user_registrations')
+          .insert({
+            nickname: formData.nickname,
+            age: parseInt(formData.age),
+            grade: `ป.${formData.grade}`,
+            avatar: formData.avatar,
+            learning_style: formData.learningStyle,
+            parent_email: formData.parentEmail,
+            parent_phone: formData.parentPhone || null,
+            password_hash: formData.password, // In real app, hash this properly
+            status: 'pending'
+          });
+
+        if (error) throw error;
+
+        ToastManager.show({
+          message: 'สมัครเรียบร้อย! รอการอนุมัติจากผู้ดูแล',
+          type: 'success'
+        });
+        
+        navigate('/login');
+      } catch (error) {
+        console.error('Error during signup:', error);
+        ToastManager.show({
+          message: 'เกิดข้อผิดพลาดในการสมัครสมาชิก',
+          type: 'error'
+        });
+      }
     }
   };
 
