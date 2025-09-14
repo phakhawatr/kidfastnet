@@ -148,6 +148,10 @@ export type Database = {
         Args: { admin_id: string; registration_id: string }
         Returns: boolean
       }
+      reject_user_registration: {
+        Args: { admin_id: string; registration_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
