@@ -14,13 +14,140 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      admins: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string
+          password_hash: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          password_hash: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          password_hash?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          age: number
+          avatar: string
+          created_at: string
+          grade: string
+          id: string
+          is_approved: boolean
+          learning_style: string | null
+          nickname: string
+          parent_email: string
+          parent_phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          age: number
+          avatar?: string
+          created_at?: string
+          grade: string
+          id?: string
+          is_approved?: boolean
+          learning_style?: string | null
+          nickname: string
+          parent_email: string
+          parent_phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          age?: number
+          avatar?: string
+          created_at?: string
+          grade?: string
+          id?: string
+          is_approved?: boolean
+          learning_style?: string | null
+          nickname?: string
+          parent_email?: string
+          parent_phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_registrations: {
+        Row: {
+          age: number
+          approved_at: string | null
+          approved_by: string | null
+          avatar: string
+          created_at: string
+          grade: string
+          id: string
+          learning_style: string | null
+          nickname: string
+          parent_email: string
+          parent_phone: string | null
+          password_hash: string
+          status: string
+        }
+        Insert: {
+          age: number
+          approved_at?: string | null
+          approved_by?: string | null
+          avatar: string
+          created_at?: string
+          grade: string
+          id?: string
+          learning_style?: string | null
+          nickname: string
+          parent_email: string
+          parent_phone?: string | null
+          password_hash: string
+          status?: string
+        }
+        Update: {
+          age?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          avatar?: string
+          created_at?: string
+          grade?: string
+          id?: string
+          learning_style?: string | null
+          nickname?: string
+          parent_email?: string
+          parent_phone?: string | null
+          password_hash?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_registrations_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "admins"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      approve_user_registration: {
+        Args: { admin_id: string; registration_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
