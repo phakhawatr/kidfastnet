@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useAuth } from '../hooks/useAuth';
@@ -37,7 +38,7 @@ const Profile = () => {
       color: 'bg-blue-100'
     },
     {
-      title: 'การลบ',
+      title: 'การลบ 2 หลัก',
       progress: 50,
       lessons: '2/4 บทเรียน',
       difficulty: 'ง่าย', 
@@ -105,9 +106,9 @@ const Profile = () => {
             <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
               มาฝึกบวกเลข 2 หลักให้เก่งขึ้น เพราะเป็นพื้นฐานสำคัญของคณิตศาสตร์!
             </p>
-            <button className="btn-primary text-sm">
-              เริ่มเรียนเลย!
-            </button>
+            <Link to="/subtraction" className="btn-primary text-sm inline-block">
+              เริ่มเรียนทันที!
+            </Link>
           </div>
         </div>
 
@@ -205,9 +206,17 @@ const Profile = () => {
 
               <div className="flex gap-3">
                 {subject.status === 'active' && (
-                  <button className="btn-primary text-sm flex-1">
-                    เรียนต่อ
-                  </button>
+                  <>
+                    {subject.title === 'การลบ 2 หลัก' ? (
+                      <Link to="/subtraction" className="btn-primary text-sm flex-1 text-center">
+                        เริ่มเรียนทันที
+                      </Link>
+                    ) : (
+                      <button className="btn-primary text-sm flex-1">
+                        เรียนต่อ
+                      </button>
+                    )}
+                  </>
                 )}
                 {subject.status === 'completed' && (
                   <button className="btn-secondary text-sm flex-1">

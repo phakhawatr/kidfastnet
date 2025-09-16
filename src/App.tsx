@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import SubtractionApp from "./pages/SubtractionApp";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
@@ -34,6 +35,14 @@ const App = () => (
             <AdminDashboard />
           </AdminProtectedRoute>
         } />
+        <Route 
+          path="/subtraction" 
+          element={
+            <ProtectedRoute>
+              <SubtractionApp />
+            </ProtectedRoute>
+          } 
+        />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <ToastContainer />
