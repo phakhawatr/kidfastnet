@@ -148,6 +148,32 @@ export type Database = {
         Args: { admin_id: string; registration_id: string }
         Returns: boolean
       }
+      authenticate_admin: {
+        Args: { admin_email: string; admin_password: string }
+        Returns: {
+          admin_id: string
+          email: string
+          is_valid: boolean
+          name: string
+        }[]
+      }
+      get_user_registrations: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          age: number
+          approved_at: string
+          approved_by: string
+          avatar: string
+          created_at: string
+          grade: string
+          id: string
+          learning_style: string
+          nickname: string
+          parent_email: string
+          parent_phone: string
+          status: string
+        }[]
+      }
       reject_user_registration: {
         Args: { admin_id: string; registration_id: string }
         Returns: boolean

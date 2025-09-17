@@ -41,10 +41,8 @@ const AdminDashboard = () => {
   const fetchRegistrations = async () => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from('user_registrations')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Use secure function to get registrations
+      const { data, error } = await supabase.rpc('get_user_registrations');
 
       if (error) throw error;
       setRegistrations((data || []) as UserRegistration[]);

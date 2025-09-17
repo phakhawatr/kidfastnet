@@ -29,38 +29,38 @@ export const useAdmin = () => {
 
   const login = async (email: string, password: string) => {
     try {
-      // Simple password check for demo (in real app, use proper hashing)
-      const { data: admin, error } = await supabase
-        .from('admins')
-        .select('*')
-        .eq('email', email)
-        .single();
+      // Use secure authentication function
+      const { data: authResult, error } = await supabase.rpc('authenticate_admin', {
+        admin_email: email,
+        admin_password: password
+      });
 
-      if (error || !admin) {
+      if (error) {
+        console.error('Authentication error:', error);
         ToastManager.show({
-          message: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
+          message: 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ',
           type: 'error'
         });
         return false;
       }
 
-      // For demo purposes, accept simple password
-      if (password === 'admin123') {
-        const newAdminState: AdminState = {
+      const result = authResult?.[0];
+      if (result?.is_valid) {
+        const adminState: AdminState = {
           loggedIn: true,
-          adminId: admin.id,
-          name: admin.name,
-          email: admin.email
+          adminId: result.admin_id,
+          name: result.name,
+          email: result.email
         };
-        
-        setAdminState(newAdminState);
-        localStorage.setItem('kidfast_admin_auth', JSON.stringify(newAdminState));
-        
+
+        setAdminState(adminState);
+        localStorage.setItem('kidfast_admin_auth', JSON.stringify(adminState));
+
         ToastManager.show({
-          message: 'เข้าสู่ระบบผู้ดูแลเรียบร้อย!',
+          message: `ยินดีต้อนรับ ${result.name}!`,
           type: 'success'
         });
-        
+
         navigate('/admin');
         return true;
       } else {
@@ -70,7 +70,8 @@ export const useAdmin = () => {
         });
         return false;
       }
-    } catch (error) {
+    } catch (err) {
+      console.error('Login error:', err);
       ToastManager.show({
         message: 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ',
         type: 'error'
