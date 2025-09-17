@@ -23,6 +23,7 @@ export const useAuth = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [authRefresh, setAuthRefresh] = useState(0); // Force refresh trigger
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -95,7 +96,10 @@ export const useAuth = () => {
           type: 'success'
         });
         
-        navigate('/profile');
+        setTimeout(() => {
+          setAuthRefresh(prev => prev + 1);
+          navigate('/profile');
+        }, 500);
         return { success: true };
       }
 
@@ -111,23 +115,29 @@ export const useAuth = () => {
 
         if (!error && authResult && authResult.length > 0) {
           const result = authResult[0];
-          console.log('User found:', result);
-          if (result.is_valid) {
-            const authState: AuthState = { 
-              loggedIn: true, 
-              username: result.nickname,
-              isDemo: false
-            };
-            localStorage.setItem('kidfast_auth', JSON.stringify(authState));
-            
-            ToastManager.show({
-              message: `ยินดีต้อนรับ ${result.nickname}!`,
-              type: 'success'
-            });
-            
-            navigate('/profile');
-            return { success: true };
-          }
+            console.log('User found:', result);
+            if (result.is_valid) {
+              const authState: AuthState = { 
+                loggedIn: true, 
+                username: result.nickname,
+                isDemo: false
+              };
+              localStorage.setItem('kidfast_auth', JSON.stringify(authState));
+              
+              ToastManager.show({
+                message: `ยินดีต้อนรับ ${result.nickname}!`,
+                type: 'success'
+              });
+              
+              // Force navigation after a small delay to ensure state is updated
+              setTimeout(() => {
+                console.log('Navigating to profile...');
+                setAuthRefresh(prev => prev + 1); // Trigger re-render
+                navigate('/profile');
+              }, 500);
+              
+              return { success: true };
+            }
         }
       } catch (dbError) {
         console.log('User authentication failed:', dbError);
@@ -147,7 +157,10 @@ export const useAuth = () => {
           type: 'success'
         });
         
-        navigate('/profile');
+        setTimeout(() => {
+          setAuthRefresh(prev => prev + 1);
+          navigate('/profile');
+        }, 500);
         return { success: true };
       }
 
@@ -171,7 +184,10 @@ export const useAuth = () => {
           type: 'success'
         });
         
-        navigate('/profile');
+        setTimeout(() => {
+          setAuthRefresh(prev => prev + 1);
+          navigate('/profile');
+        }, 500);
         return { success: true };
       }
 
@@ -264,8 +280,22 @@ export const useAuth = () => {
     return false;
   };
 
-  const isLoggedIn = user !== null || isDemoMode();
-  const username = profile?.nickname || user?.email || (isDemoMode() ? 'นักเรียนทดลอง' : '');
+  // Check if user is logged in
+  const getAuthState = () => {
+    try {
+      const stored = localStorage.getItem('kidfast_auth');
+      if (stored) {
+        return JSON.parse(stored);
+      }
+    } catch (e) {
+      localStorage.removeItem('kidfast_auth');
+    }
+    return null;
+  };
+
+  const authState = getAuthState();
+  const isLoggedIn = (user !== null) || (authState?.loggedIn === true);
+  const username = profile?.nickname || user?.email || authState?.username || '';
   const isDemo = isDemoMode();
 
   return {
