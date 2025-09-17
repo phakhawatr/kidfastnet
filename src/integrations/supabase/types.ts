@@ -157,6 +157,14 @@ export type Database = {
           name: string
         }[]
       }
+      create_auth_user_from_registration: {
+        Args: { admin_id: string; registration_id: string }
+        Returns: {
+          auth_user_id: string
+          error_message: string
+          success: boolean
+        }[]
+      }
       get_user_registrations: {
         Args: Record<PropertyKey, never>
         Returns: {

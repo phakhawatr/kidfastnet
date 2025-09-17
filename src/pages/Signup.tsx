@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '../hooks/useAuth';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { ToastManager } from '../components/Toast';
@@ -37,6 +38,7 @@ const Signup = () => {
   });
 
   const navigate = useNavigate();
+  const { signup } = useAuth();
 
   const grades = [
     { id: '1', label: 'ป.1', color: 'bg-[hsl(var(--grade-1))]' },
@@ -100,8 +102,8 @@ const Signup = () => {
   const handleSubmit = async () => {
     if (validateStep(3)) {
       try {
-        // บันทึกข้อมูลลง Supabase
-        const { error } = await supabase
+        // First create registration request for admin approval
+        const { error: registrationError } = await supabase
           .from('user_registrations')
           .insert({
             nickname: formData.nickname,
@@ -111,14 +113,14 @@ const Signup = () => {
             learning_style: formData.learningStyle,
             parent_email: formData.parentEmail,
             parent_phone: formData.parentPhone || null,
-            password_hash: formData.password, // In real app, hash this properly
+            password_hash: formData.password, // Will be hashed by trigger
             status: 'pending'
           });
 
-        if (error) throw error;
+        if (registrationError) throw registrationError;
 
         ToastManager.show({
-          message: 'สมัครเรียบร้อย! รอการอนุมัติจากผู้ดูแล',
+          message: 'ส่งคำขอสมัครเรียบร้อย! กรุณารอการอนุมัติจากผู้ดูแล คุณจะได้รับอีเมลเมื่อได้รับการอนุมัติแล้ว',
           type: 'success'
         });
         

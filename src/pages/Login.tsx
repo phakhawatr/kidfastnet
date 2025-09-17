@@ -6,7 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',
     password: '',
     rememberMe: false
   });
@@ -14,13 +14,13 @@ const Login = () => {
 
   const { login, demoLogin } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    login(formData.username, formData.password);
+    await login(formData.email, formData.password);
   };
 
-  const handleQuickLogin = (username: string) => {
-    setFormData(prev => ({ ...prev, username, password: '123456' }));
+  const handleQuickLogin = (email: string) => {
+    setFormData(prev => ({ ...prev, email, password: '123456' }));
   };
 
   const avatars = [
@@ -59,17 +59,17 @@ const Login = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Username */}
+              {/* Email */}
               <div>
                 <label className="flex items-center gap-2 text-lg font-medium mb-3">
-                  👤 <span>ชื่อผู้ใช้หรืออีเมล <span className="text-red-500">*</span></span>
+                  📧 <span>อีเมลผู้ปกครอง <span className="text-red-500">*</span></span>
                 </label>
                 <input
-                  type="text"
-                  placeholder="ชื่อเล่นหรืออีเมลผู้ปกครอง"
+                  type="email"
+                  placeholder="parent@email.com"
                   className="input-field"
-                  value={formData.username}
-                  onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
+                  value={formData.email}
+                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                   required
                 />
               </div>
@@ -124,9 +124,9 @@ const Login = () => {
                 {avatars.map((avatar) => (
                   <button
                     key={avatar.id}
-                    onClick={() => handleQuickLogin('user')}
+                    onClick={() => handleQuickLogin('demo@kidfast.net')}
                     className="avatar-option"
-                    title="คลิกเพื่อใส่ข้อมูลอัตโนมัติ"
+                    title="คลิกเพื่อใส่ข้อมูลทดสอบ"
                   >
                     {avatar.emoji}
                   </button>
