@@ -99,34 +99,38 @@ export const useAuth = () => {
         return { success: true };
       }
 
-      // First check if it's an approved user from our registration system
+      // Use secure authentication function to check approved users
       try {
-        const { data: registrations, error: regError } = await supabase
-          .from('user_registrations')
-          .select('*')
-          .eq('parent_email', email)
-          .eq('password_hash', password)
-          .eq('status', 'approved');
+        console.log('Attempting to authenticate user:', email);
+        const { data: authResult, error } = await supabase.rpc('authenticate_user', {
+          user_email: email,
+          user_password: password
+        });
 
-        if (!regError && registrations && registrations.length > 0) {
-          const user = registrations[0];
-          const authState: AuthState = { 
-            loggedIn: true, 
-            username: user.nickname,
-            isDemo: false
-          };
-          localStorage.setItem('kidfast_auth', JSON.stringify(authState));
-          
-          ToastManager.show({
-            message: `ยินดีต้อนรับ ${user.nickname}!`,
-            type: 'success'
-          });
-          
-          navigate('/profile');
-          return { success: true };
+        console.log('Authentication result:', authResult, 'Error:', error);
+
+        if (!error && authResult && authResult.length > 0) {
+          const result = authResult[0];
+          console.log('User found:', result);
+          if (result.is_valid) {
+            const authState: AuthState = { 
+              loggedIn: true, 
+              username: result.nickname,
+              isDemo: false
+            };
+            localStorage.setItem('kidfast_auth', JSON.stringify(authState));
+            
+            ToastManager.show({
+              message: `ยินดีต้อนรับ ${result.nickname}!`,
+              type: 'success'
+            });
+            
+            navigate('/profile');
+            return { success: true };
+          }
         }
       } catch (dbError) {
-        console.log('Database check failed, trying Supabase Auth:', dbError);
+        console.log('User authentication failed:', dbError);
       }
 
       // Check for test user credentials

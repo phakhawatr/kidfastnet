@@ -157,6 +157,15 @@ export type Database = {
           name: string
         }[]
       }
+      authenticate_user: {
+        Args: { user_email: string; user_password: string }
+        Returns: {
+          email: string
+          is_valid: boolean
+          nickname: string
+          user_id: string
+        }[]
+      }
       create_auth_user_from_registration: {
         Args: { admin_id: string; registration_id: string }
         Returns: {
