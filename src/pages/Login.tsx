@@ -97,6 +97,11 @@ const Login = () => {
                 📚 <span className="text-yellow-600">ลืมรหัส?</span>
                 😊 <Link to="/signup" className="text-blue-600 hover:underline">ยังไม่มีบัญชี?</Link>
               </div>
+              <div className="text-xs text-center text-[hsl(var(--text-muted))] mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                <p className="text-yellow-700"><strong>💡 คำแนะนำ:</strong></p>
+                <p className="text-yellow-600">ใช้อีเมลและรหัสผ่านที่ได้รับการอนุมัติแล้ว</p>
+                <p className="text-yellow-600">หรือ <Link to="/signup" className="underline font-medium">สมัครสมาชิกใหม่</Link> ที่นี่</p>
+              </div>
             </div>
           </div>
         </div>

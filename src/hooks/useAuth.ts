@@ -99,6 +99,36 @@ export const useAuth = () => {
         return { success: true };
       }
 
+      // First check if it's an approved user from our registration system
+      try {
+        const { data: registrations, error: regError } = await supabase
+          .from('user_registrations')
+          .select('*')
+          .eq('parent_email', email)
+          .eq('password_hash', password)
+          .eq('status', 'approved');
+
+        if (!regError && registrations && registrations.length > 0) {
+          const user = registrations[0];
+          const authState: AuthState = { 
+            loggedIn: true, 
+            username: user.nickname,
+            isDemo: false
+          };
+          localStorage.setItem('kidfast_auth', JSON.stringify(authState));
+          
+          ToastManager.show({
+            message: `ยินดีต้อนรับ ${user.nickname}!`,
+            type: 'success'
+          });
+          
+          navigate('/profile');
+          return { success: true };
+        }
+      } catch (dbError) {
+        console.log('Database check failed, trying Supabase Auth:', dbError);
+      }
+
       // Check for test user credentials
       if (email === 'test@kidfast.net' && password === '123456') {
         const demoAuthState: AuthState = { 
@@ -117,6 +147,7 @@ export const useAuth = () => {
         return { success: true };
       }
 
+      // Try Supabase Auth as fallback
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -124,7 +155,7 @@ export const useAuth = () => {
 
       if (error) {
         ToastManager.show({
-          message: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง หรือบัญชียังไม่ได้รับการอนุมัติ',
+          message: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบข้อมูลหรือสมัครสมาชิกใหม่',
           type: 'error'
         });
         return { success: false, error: error.message };
