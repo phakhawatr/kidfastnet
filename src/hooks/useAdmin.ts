@@ -61,7 +61,7 @@ export const useAdmin = () => {
           type: 'success'
         });
 
-        navigate('/admin');
+        navigate('/admin/dashboard');
         return true;
       } else {
         ToastManager.show({
