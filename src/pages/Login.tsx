@@ -12,23 +12,13 @@ const Login = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
 
-  const { login, demoLogin } = useAuth();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await login(formData.email, formData.password);
   };
 
-  const handleQuickLogin = (email: string) => {
-    setFormData(prev => ({ ...prev, email, password: '123456' }));
-  };
-
-  const avatars = [
-    { id: 'cat', emoji: '🐱' },
-    { id: 'dog', emoji: '🐶' },
-    { id: 'rabbit', emoji: '🐰' },
-    { id: 'unicorn', emoji: '🦄' }
-  ];
 
   return (
     <div className="min-h-screen">
@@ -44,20 +34,6 @@ const Login = () => {
           </div>
 
           <div className="card-glass p-8">
-            {/* Demo Button */}
-            <div className="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
-              <div className="flex items-center gap-3 mb-3">
-                🎮 <span className="font-medium text-blue-700">ทดลองใช้งานฟรี</span>
-              </div>
-              <p className="text-sm text-blue-600 mb-3">ลองเล่นคอมไพล์สมการทันที ไม่ต้องสมัครเลย!</p>
-              <button 
-                onClick={demoLogin}
-                className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200"
-              >
-                เข้าสู่โหมดทดลอง
-              </button>
-            </div>
-
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Email */}
               <div>
@@ -115,48 +91,11 @@ const Login = () => {
               </button>
             </form>
 
-            {/* Quick Login */}
-            <div className="mt-8">
-              <div className="flex items-center gap-2 text-lg font-medium mb-4">
-                ⚡ <span>ล็อกอินด่วน</span>
-              </div>
-              <div className="flex justify-center gap-4">
-                {avatars.map((avatar) => (
-                  <button
-                    key={avatar.id}
-                    onClick={() => handleQuickLogin('test@kidfast.net')}
-                    className="avatar-option"
-                    title="คลิกเพื่อใส่ข้อมูลทดสอบ"
-                  >
-                    {avatar.emoji}
-                  </button>
-                ))}
-              </div>
-              <p className="text-xs text-center text-[hsl(var(--text-muted))] mt-2">คลิกอวาตาร์เพื่อใส่ข้อมูลทดสอบ</p>
-            </div>
-
             {/* Footer Links */}
             <div className="text-center mt-6 space-y-2">
               <div className="flex items-center gap-2 justify-center text-sm text-[hsl(var(--text-muted))]">
                 📚 <span className="text-yellow-600">ลืมรหัส?</span>
                 😊 <Link to="/signup" className="text-blue-600 hover:underline">ยังไม่มีบัญชี?</Link>
-              </div>
-            </div>
-
-            {/* Demo Instructions */}
-            <div className="mt-8 p-4 bg-yellow-50 rounded-xl border border-yellow-200">
-              <div className="flex items-center gap-2 mb-2">
-                🌟 <span className="font-medium text-yellow-700">ทดสอบระบบ</span>
-              </div>
-              <div className="text-sm text-yellow-600 space-y-1">
-                <p><strong>บัญชีทดสอบ:</strong> test@kidfast.net / 123456</p>
-                <p><strong>โหมดทดลอง:</strong> กดปุ่มฟ้าข้างบน หรือคลิกอวาตาร์</p>
-                <Link 
-                  to="/signup" 
-                  className="inline-flex items-center gap-2 text-yellow-600 hover:text-yellow-800 font-medium"
-                >
-                  📝 สมัครสมาชิกใหม่
-                </Link>
               </div>
             </div>
           </div>
