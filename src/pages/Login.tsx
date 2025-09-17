@@ -124,7 +124,7 @@ const Login = () => {
                 {avatars.map((avatar) => (
                   <button
                     key={avatar.id}
-                    onClick={() => handleQuickLogin('demo@kidfast.net')}
+                    onClick={() => handleQuickLogin('test@kidfast.net')}
                     className="avatar-option"
                     title="คลิกเพื่อใส่ข้อมูลทดสอบ"
                   >
@@ -146,14 +146,18 @@ const Login = () => {
             {/* Demo Instructions */}
             <div className="mt-8 p-4 bg-yellow-50 rounded-xl border border-yellow-200">
               <div className="flex items-center gap-2 mb-2">
-                🌟 <span className="font-medium text-yellow-700">ยังไม่มีบัญชี?</span>
+                🌟 <span className="font-medium text-yellow-700">ทดสอบระบบ</span>
               </div>
-              <Link 
-                to="/signup" 
-                className="inline-flex items-center gap-2 text-sm text-yellow-600 hover:text-yellow-800"
-              >
-                📝 สมัครสมาชิกใหม่
-              </Link>
+              <div className="text-sm text-yellow-600 space-y-1">
+                <p><strong>บัญชีทดสอบ:</strong> test@kidfast.net / 123456</p>
+                <p><strong>โหมดทดลอง:</strong> กดปุ่มฟ้าข้างบน หรือคลิกอวาตาร์</p>
+                <Link 
+                  to="/signup" 
+                  className="inline-flex items-center gap-2 text-yellow-600 hover:text-yellow-800 font-medium"
+                >
+                  📝 สมัครสมาชิกใหม่
+                </Link>
+              </div>
             </div>
           </div>
         </div>

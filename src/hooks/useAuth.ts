@@ -99,6 +99,24 @@ export const useAuth = () => {
         return { success: true };
       }
 
+      // Check for test user credentials
+      if (email === 'test@kidfast.net' && password === '123456') {
+        const demoAuthState: AuthState = { 
+          loggedIn: true, 
+          username: 'ผู้ใช้ทดสอบ',
+          isDemo: false
+        };
+        localStorage.setItem('kidfast_auth', JSON.stringify(demoAuthState));
+        
+        ToastManager.show({
+          message: 'เข้าสู่ระบบทดสอบเรียบร้อย!',
+          type: 'success'
+        });
+        
+        navigate('/profile');
+        return { success: true };
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -106,7 +124,7 @@ export const useAuth = () => {
 
       if (error) {
         ToastManager.show({
-          message: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
+          message: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง หรือบัญชียังไม่ได้รับการอนุมัติ',
           type: 'error'
         });
         return { success: false, error: error.message };
