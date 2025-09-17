@@ -191,6 +191,10 @@ export type Database = {
           status: string
         }[]
       }
+      is_authenticated_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       reject_user_registration: {
         Args: { admin_id: string; registration_id: string }
         Returns: boolean
