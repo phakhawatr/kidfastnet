@@ -1,6 +1,8 @@
 import React, { useMemo, useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Printer } from "lucide-react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 // ================= Utilities =================
 function randInt(min: number, max: number): number {
@@ -408,9 +410,23 @@ const SubtractionApp: React.FC = () => {
     setElapsedMs(0);
   }
 
-  function applyNewCount(n: number) { if (startedAt && !showAnswers) finalizeAndLog(Date.now()); setCount(n); regenerate(n, level, digits, allowBorrow, operands); }
+  function applyNewCount(n: number) { 
+    if (startedAt && !showAnswers) finalizeAndLog(Date.now()); 
+    setCount(n); 
+    regenerate(n, level, digits, allowBorrow, operands); 
+    // Scroll to top after changing problem count
+    setTimeout(() => {
+      try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch {}
+    }, 100);
+  }
   function applyLevel(lv: string) { if (startedAt && !showAnswers) finalizeAndLog(Date.now()); setLevel(lv); regenerate(count, lv, digits, allowBorrow, operands); }
-  function applyDigits(d: number) { if (startedAt && !showAnswers) finalizeAndLog(Date.now()); setDigits(d); regenerate(count, level, d, allowBorrow, operands); }
+  function applyDigits(d: number) { 
+    if (startedAt && !showAnswers) finalizeAndLog(Date.now()); 
+    setDigits(d); 
+    // Reset answers array to prevent mismatch errors
+    setAnswers(problems.map(() => Array(d).fill("")));
+    regenerate(count, level, d, allowBorrow, operands); 
+  }
   function applyBorrow(val: boolean) { if (startedAt && !showAnswers) finalizeAndLog(Date.now()); setAllowBorrow(val); regenerate(count, level, digits, val, operands); }
   function applyOperands(k: number) { if (startedAt && !showAnswers) finalizeAndLog(Date.now()); setOperands(k); regenerate(count, level, digits, allowBorrow, k); }
 
@@ -451,6 +467,60 @@ const SubtractionApp: React.FC = () => {
   function onReset(idx: number) { setAnswers((prev) => prev.map((a, i) => (i === idx ? Array(digits).fill("") : a))); setResults((prev) => prev.map((r, i) => (i === idx ? "pending" : r))); }
 
   function clearHistory() { setHistory([]); try { localStorage.removeItem("sub1000_history"); } catch {} }
+
+  async function printToPDF() {
+    try {
+      // Hide unnecessary elements for print
+      const elementsToHide = document.querySelectorAll('.no-print, header, footer, .control-panel');
+      elementsToHide.forEach(el => {
+        (el as HTMLElement).style.display = 'none';
+      });
+
+      // Get the problems grid
+      const problemsGrid = document.querySelector('.problems-grid') as HTMLElement;
+      if (!problemsGrid) return;
+
+      const canvas = await html2canvas(problemsGrid, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff'
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pdfWidth - 20; // 10mm margin on each side
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      // Add title
+      pdf.setFontSize(16);
+      pdf.text('แบบฝึกหัดการลบ', pdfWidth / 2, 15, { align: 'center' });
+      
+      // Add image
+      let yPos = 25;
+      if (imgHeight > pdfHeight - 40) {
+        // Image too tall, need multiple pages
+        const pageHeight = pdfHeight - 40;
+        const ratio = pageHeight / imgHeight;
+        pdf.addImage(imgData, 'PNG', 10, yPos, imgWidth * ratio, pageHeight);
+      } else {
+        pdf.addImage(imgData, 'PNG', 10, yPos, imgWidth, imgHeight);
+      }
+
+      // Save the PDF
+      pdf.save(`แบบฝึกหัดการลบ-${new Date().toISOString().split('T')[0]}.pdf`);
+
+      // Show elements again
+      elementsToHide.forEach(el => {
+        (el as HTMLElement).style.display = '';
+      });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('เกิดข้อผิดพลาดในการสร้าง PDF');
+    }
+  }
 
   const Confetti = () => (
     <div className="pointer-events-none fixed inset-0 overflow-hidden flex items-center justify-center">
@@ -590,7 +660,7 @@ const SubtractionApp: React.FC = () => {
 
       <main className="max-w-6xl mx-auto p-6 pt-3">
         {/* === Control Panel === */}
-        <div className="flex flex-wrap items-center gap-2 mb-4">
+        <div className="control-panel flex flex-wrap items-center gap-2 mb-4">
           {/* จำนวนข้อ */}
           <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 shadow-sm">
             <span className="text-sm text-zinc-600">จำนวนข้อ:</span>
@@ -635,13 +705,17 @@ const SubtractionApp: React.FC = () => {
           <button onClick={resetAll} className="px-5 py-3 rounded-2xl text-lg bg-sky-600 text-white hover:bg-sky-700 shadow-lg">🔄 สุ่มชุดใหม่ (New Set)</button>
           <button onClick={checkAnswers} className="px-5 py-3 rounded-2xl text-lg bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg">✅ ตรวจคำตอบ (Check)</button>
           <button onClick={() => showAll({ openSummary: true })} className="px-5 py-3 rounded-2xl text-lg bg-amber-500 text-white hover:bg-amber-600 shadow-lg">👀 เฉลยทั้งหมด (Show Answers)</button>
+          <button onClick={printToPDF} className="px-5 py-3 rounded-2xl text-lg bg-purple-600 text-white hover:bg-purple-700 shadow-lg flex items-center gap-2">
+            <Printer size={20} />
+            🖨️ พิมพ์ PDF
+          </button>
 
           {/* Live timer */}
           <div className="ml-auto text-base bg-sky-50 border-2 border-sky-200 rounded-full px-4 py-2 font-semibold">⏱️ เวลา: <span className="font-semibold">{formatMS(elapsedMs)}</span>{startedAt && !finishedAt && <span className="text-zinc-400"> (นับอยู่)</span>}</div>
         </div>
 
         {/* Problems grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="problems-grid grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {problems.map((p, i) => (
             <ProblemCard
               key={i}
