@@ -49,15 +49,7 @@ export function useSubtractionGame() {
     try { window.scrollTo({ top: 0, left: 0, behavior: "auto" }); } catch {}
   }, []);
 
-  // Keep answers shape in sync with problems/digits
-  useEffect(() => {
-    setAnswers((prev) => {
-      if (!Array.isArray(prev) || prev.length !== problems.length) {
-        return problems.map(() => Array(digits).fill(""));
-      }
-      return prev.map((a) => (Array.isArray(a) && a.length === digits ? a : Array(digits).fill("")));
-    });
-  }, [problems, digits]);
+  // Keep answers shape in sync with problems/digits - handled by regenerate function
 
   // Live timer
   useEffect(() => {
