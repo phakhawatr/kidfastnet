@@ -247,7 +247,7 @@ const SubtractionApp: React.FC = () => {
           {/* จำนวนหลัก */}
           <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 shadow-sm">
             <span className="text-sm text-zinc-600">จำนวนหลัก:</span>
-            {[2, 3].map((d) => (
+            {[1, 2, 3].map((d) => (
               <button key={d} onClick={() => applyDigits(d)} className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${digits === d ? "bg-indigo-600 text-white border-indigo-600" : "bg-zinc-50 hover:bg-zinc-100"}`}>{d} หลัก</button>
             ))}
           </div>

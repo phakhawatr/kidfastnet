@@ -53,19 +53,34 @@ export function pickByDifficulty(level: string, digits: number, allowBorrow: boo
   const borrows = countBorrowsMulti(operands === 3 ? [a, b, c] : [a, b], digits);
 
   // Borrow toggle
-  if (allowBorrow) {
-    if (borrows < 1) return null;
-    if (operands === 2 && (a % 10) >= (b % 10)) return null; // ensure ones borrow for 2-operand mode
+  if (digits === 1) {
+    // For 1-digit numbers, borrowing doesn't apply
+    // Skip borrow checks for 1-digit problems
   } else {
-    if (borrows > 0) return null; // no borrow allowed
+    if (allowBorrow) {
+      if (borrows < 1) return null;
+      if (operands === 2 && (a % 10) >= (b % 10)) return null; // ensure ones borrow for 2-operand mode
+    } else {
+      if (borrows > 0) return null; // no borrow allowed
+    }
   }
 
   // Difficulty tiers (built on top of borrow presence)
-  if (level === "easy" && borrows > 0) return null;
-  if (level === "medium" && borrows < 1) return null;
-  if (level === "hard") {
-    if (borrows < 1) return null;
-    if (max >= 500 && val < 300) return null; // make hard a bit larger when digits allow
+  if (digits === 1) {
+    // For 1-digit numbers, borrowing doesn't apply in traditional sense
+    if (level === "medium" || level === "hard") {
+      // For medium/hard 1-digit, ensure larger numbers
+      if (a < 5 || b < 3) return null;
+    }
+    // Always return for 1-digit numbers (easy, medium, hard)
+    return operands === 3 ? { a, b, c } : { a, b };
+  } else {
+    if (level === "easy" && borrows > 0) return null;
+    if (level === "medium" && borrows < 1) return null;
+    if (level === "hard") {
+      if (borrows < 1) return null;
+      if (max >= 500 && val < 300) return null; // make hard a bit larger when digits allow
+    }
   }
 
   return operands === 3 ? { a, b, c } : { a, b };
@@ -99,8 +114,12 @@ export function generateSubtractionProblems(n = 15, level = "easy", digits = 2, 
     const val = operands === 3 ? a - b - c : a - b;
     if (val < 0 || val > 1000) continue;
     const borrows = countBorrowsMulti(operands === 3 ? [a, b, c] : [a, b], digits);
-    if (allowBorrow && borrows < 1) continue;
-    if (!allowBorrow && borrows > 0) continue;
+    if (digits === 1) {
+      // For 1-digit numbers, skip borrow checks in fallback
+    } else {
+      if (allowBorrow && borrows < 1) continue;
+      if (!allowBorrow && borrows > 0) continue;
+    }
     const key = operands === 3 ? `${a}-${b}-${c}` : `${a}-${b}`;
     if (used.has(key)) continue;
     used.add(key);
