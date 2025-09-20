@@ -65,7 +65,7 @@ const defaultSkills: Skill[] = [
   },
   {
     icon: Table,
-    title: 'คูณแบบตาราง',
+    title: 'ตาราง',
     desc: 'จดจำสูตรคูณด้วยตารางสีสันสวยงาม เรียนรู้แบบเป็นระบบ',
     from: 'from-sky-100',
     to: 'to-teal-100',
@@ -74,7 +74,7 @@ const defaultSkills: Skill[] = [
   },
   {
     icon: Clock,
-    title: 'บอกเวลา',
+    title: 'เวลา',
     desc: 'เรียนรู้การอ่านเวลา เข้าใจนาฬิกาและการจัดการเวลา',
     from: 'from-yellow-100',
     to: 'to-lime-100',
@@ -101,7 +101,7 @@ const defaultSkills: Skill[] = [
   },
   {
     icon: Zap,
-    title: 'คิดเร็วสไตล์สิงคโปร์',
+    title: 'คิดเร็ว',
     desc: 'ฝึกการคิดคำนวณแบบรวดเร็ว พัฒนาทักษะแก้ปัญหา',
     from: 'from-neutral-100',
     to: 'to-stone-100',
