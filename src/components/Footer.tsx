@@ -4,9 +4,7 @@ const Footer = () => {
       <div className="container mx-auto px-4 text-center">
         {/* CTA Button */}
         <div className="mb-8">
-          <Link to="/signup" className="btn-primary text-lg px-8 py-4 inline-flex items-center gap-2">
-            🚀 เริ่มเรียนเลย! ฟรี!
-          </Link>
+          <Link to="/signup" className="btn-primary text-lg px-8 py-4 inline-flex items-center gap-2">🚀 เริ่มเรียนเลย!</Link>
         </div>
 
         {/* Links */}
