@@ -55,7 +55,7 @@ const Landing = () => {
         </section>
 
         {/* Skills Section */}
-        <SkillsSection />
+        <SkillsSection buttonText="ดูตัวอย่างแบบฝึกหัด" />
 
         {/* Benefits Section */}
         <section className="mb-12">

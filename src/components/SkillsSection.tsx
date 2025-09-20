@@ -13,6 +13,7 @@ type Skill = {
 interface SkillsSectionProps {
   skills?: Skill[];
   onPreview?: (skill: Skill) => void;
+  buttonText?: string;
 }
 const defaultSkills: Skill[] = [{
   icon: Plus,
@@ -98,9 +99,11 @@ const defaultSkills: Skill[] = [{
 const SkillCard: React.FC<{
   skill: Skill;
   onPreview?: (skill: Skill) => void;
+  buttonText?: string;
 }> = ({
   skill,
-  onPreview
+  onPreview,
+  buttonText = 'เริ่มทำแบบฝึกหัด'
 }) => {
   const handlePreviewClick = (e: React.MouseEvent) => {
     if (onPreview) {
@@ -131,15 +134,16 @@ const SkillCard: React.FC<{
       </div>
 
       {/* Preview button */}
-      <Link to={skill.hrefPreview || '#'} onClick={handlePreviewClick} className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-fuchsia-500 to-indigo-500 hover:from-fuchsia-400 hover:to-indigo-400 text-white text-sm font-medium rounded-full shadow-md ring-1 ring-black/10 hover:-translate-y-0.5 transition-all duration-200" aria-label={`เริ่มทำแบบฝึกหัด ${skill.title}`}>
+      <Link to={skill.hrefPreview || '#'} onClick={handlePreviewClick} className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-fuchsia-500 to-indigo-500 hover:from-fuchsia-400 hover:to-indigo-400 text-white text-sm font-medium rounded-full shadow-md ring-1 ring-black/10 hover:-translate-y-0.5 transition-all duration-200" aria-label={`${buttonText} ${skill.title}`}>
         <Eye className="w-4 h-4" />
-        เริ่มทำแบบฝึกหัด
+        {buttonText}
       </Link>
     </div>;
 };
 const SkillsSection: React.FC<SkillsSectionProps> = ({
   skills = defaultSkills,
-  onPreview
+  onPreview,
+  buttonText = 'เริ่มทำแบบฝึกหัด'
 }) => {
   return <section className="mb-12">
       <div className="text-center mb-8">
@@ -151,7 +155,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({
 
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-          {skills.map((skill, index) => <SkillCard key={index} skill={skill} onPreview={onPreview} />)}
+          {skills.map((skill, index) => <SkillCard key={index} skill={skill} onPreview={onPreview} buttonText={buttonText} />)}
         </div>
       </div>
     </section>;
