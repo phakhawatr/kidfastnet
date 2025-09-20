@@ -1,52 +1,9 @@
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import SkillsSection from '../components/SkillsSection';
 
 const Landing = () => {
-  const grades = [
-    { 
-      id: '1', 
-      label: 'ป.1', 
-      title: 'ประถม 1',
-      description: 'การนับ บวก ลบ ง่ายๆ',
-      color: 'bg-[hsl(var(--grade-1))]'
-    },
-    { 
-      id: '2', 
-      label: 'ป.2', 
-      title: 'ประถม 2',
-      description: 'บวกเลข 2 หลัก คูณ หาร',
-      color: 'bg-[hsl(var(--grade-2))]'
-    },
-    { 
-      id: '3', 
-      label: 'ป.3', 
-      title: 'ประถม 3',
-      description: 'เตรียมทศนิยม เวลา',
-      color: 'bg-[hsl(var(--grade-3))]'
-    },
-    { 
-      id: '4', 
-      label: 'ป.4', 
-      title: 'ประถม 4',
-      description: 'เลขยาง ที่บวกลบ ปรับค่า',
-      color: 'bg-[hsl(var(--grade-4))]'
-    },
-    { 
-      id: '5', 
-      label: 'ป.5', 
-      title: 'ประถม 5',
-      description: 'ร้อยละ กราฟ สถิติ',
-      color: 'bg-[hsl(var(--grade-5))]'
-    },
-    { 
-      id: '6', 
-      label: 'ป.6', 
-      title: 'ประถม 6',
-      description: 'หัดสัดส่วน เรขาคณิต',
-      color: 'bg-[hsl(var(--grade-6))]'
-    }
-  ];
 
   const benefits = [
     {
@@ -96,30 +53,8 @@ const Landing = () => {
           </div>
         </section>
 
-        {/* Grade Selection */}
-        <section className="mb-12">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
-              🏠 เลือกชั้นเรียนของคุณ
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 max-w-4xl mx-auto">
-            {grades.map((grade) => (
-              <Link
-                key={grade.id}
-                to="/signup"
-                className={`grade-card ${grade.color} text-center group`}
-              >
-                <div className="w-10 h-10 bg-blue-600 text-white rounded-lg flex items-center justify-center font-bold text-lg mx-auto mb-3">
-                  {grade.id}
-                </div>
-                <h3 className="font-bold text-lg mb-2">{grade.title}</h3>
-                <p className="text-sm text-[hsl(var(--text-secondary))]">{grade.description}</p>
-              </Link>
-            ))}
-          </div>
-        </section>
+        {/* Skills Section */}
+        <SkillsSection />
 
         {/* Benefits Section */}
         <section className="mb-12">
