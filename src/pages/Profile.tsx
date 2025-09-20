@@ -9,7 +9,14 @@ const Profile = () => {
   const { username, isDemo, logout } = useAuth();
   const [selectedGrade, setSelectedGrade] = useState('1');
 
-  const grades = ['1', '2', '3', '4', '5', '6'];
+  const grades = [
+    { id: '1', label: 'การบวก' },
+    { id: '2', label: 'ป.2' },
+    { id: '3', label: 'ป.3' },
+    { id: '4', label: 'ป.4' },
+    { id: '5', label: 'ป.5' },
+    { id: '6', label: 'ป.6' }
+  ];
   
   const achievements = [
     { icon: '⚡', name: 'นักคิดเร็ว' },
@@ -84,13 +91,13 @@ const Profile = () => {
 
         {/* Grade Selection */}
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-          {grades.map((grade) => (
+        {grades.map((grade) => (
             <button
-              key={grade}
-              onClick={() => setSelectedGrade(grade)}
-              className={`chip whitespace-nowrap ${selectedGrade === grade ? 'active' : ''}`}
+              key={grade.id}
+              onClick={() => setSelectedGrade(grade.id)}
+              className={`chip whitespace-nowrap ${selectedGrade === grade.id ? 'active' : ''}`}
             >
-              ป.{grade}
+              {grade.label}
             </button>
           ))}
         </div>
