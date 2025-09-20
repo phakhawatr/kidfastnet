@@ -4,69 +4,82 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SkillsSection from '../components/SkillsSection';
 import { useAuth } from '../hooks/useAuth';
-
 const Profile = () => {
-  const { username, isDemo, logout } = useAuth();
+  const {
+    username,
+    isDemo,
+    logout
+  } = useAuth();
   const [selectedGrade, setSelectedGrade] = useState('1');
-
-  const grades = [
-    { id: '1', label: 'การบวก' },
-    { id: '2', label: 'การลบ' },
-    { id: '3', label: 'การคูณ' },
-    { id: '4', label: 'การหาร' },
-    { id: '5', label: 'บอกเวลา' },
-    { id: '6', label: 'บอกน้ำหนัก' }
-  ];
-  
-  const achievements = [
-    { icon: '⚡', name: 'นักคิดเร็ว' },
-    { icon: '🔥', name: 'ติดไฟ' }, 
-    { icon: '👑', name: 'ราชันย์' },
-    { icon: '❄️', name: 'เซียนน้ำแข็ง' },
-    { icon: '🐧', name: 'เพนกวินเก่ง' }
-  ];
-
-  const subjects = [
-    {
-      title: 'การนับเลข',
-      progress: 100,
-      lessons: '5/5 บทเรียน',
-      difficulty: 'ง่าย',
-      status: 'completed',
-      tags: ['นับ 1-10', 'นับ 11-50', 'นับ 51-100'],
-      color: 'bg-green-100'
-    },
-    {
-      title: 'การบวก',
-      progress: 75,
-      lessons: '3/4 บทเรียน', 
-      difficulty: 'ง่าย',
-      status: 'active',
-      tags: ['บวก 1-5', 'บวก 6-10', 'มากกว่า 10', 'บวก 2 หลัก'],
-      color: 'bg-blue-100'
-    },
-    {
-      title: 'การลบ 2 หลัก',
-      progress: 50,
-      lessons: '2/4 บทเรียน',
-      difficulty: 'ง่าย', 
-      status: 'active',
-      tags: ['ลบ 1-5', 'ลบ 6-10', 'ลบมากกว่า 10', 'ลบ 2 หลัก'],
-      color: 'bg-yellow-100'
-    },
-    {
-      title: 'รูปทรง',
-      progress: 0,
-      lessons: '0/3 บทเรียน',
-      difficulty: 'ปานกลาง',
-      status: 'locked',
-      tags: [],
-      color: 'bg-gray-100'
-    }
-  ];
-
-  return (
-    <div className="min-h-screen">
+  const grades = [{
+    id: '1',
+    label: 'การบวก'
+  }, {
+    id: '2',
+    label: 'การลบ'
+  }, {
+    id: '3',
+    label: 'การคูณ'
+  }, {
+    id: '4',
+    label: 'การหาร'
+  }, {
+    id: '5',
+    label: 'บอกเวลา'
+  }, {
+    id: '6',
+    label: 'บอกน้ำหนัก'
+  }];
+  const achievements = [{
+    icon: '⚡',
+    name: 'นักคิดเร็ว'
+  }, {
+    icon: '🔥',
+    name: 'ติดไฟ'
+  }, {
+    icon: '👑',
+    name: 'ราชันย์'
+  }, {
+    icon: '❄️',
+    name: 'เซียนน้ำแข็ง'
+  }, {
+    icon: '🐧',
+    name: 'เพนกวินเก่ง'
+  }];
+  const subjects = [{
+    title: 'การนับเลข',
+    progress: 100,
+    lessons: '5/5 บทเรียน',
+    difficulty: 'ง่าย',
+    status: 'completed',
+    tags: ['นับ 1-10', 'นับ 11-50', 'นับ 51-100'],
+    color: 'bg-green-100'
+  }, {
+    title: 'การบวก',
+    progress: 75,
+    lessons: '3/4 บทเรียน',
+    difficulty: 'ง่าย',
+    status: 'active',
+    tags: ['บวก 1-5', 'บวก 6-10', 'มากกว่า 10', 'บวก 2 หลัก'],
+    color: 'bg-blue-100'
+  }, {
+    title: 'การลบ 2 หลัก',
+    progress: 50,
+    lessons: '2/4 บทเรียน',
+    difficulty: 'ง่าย',
+    status: 'active',
+    tags: ['ลบ 1-5', 'ลบ 6-10', 'ลบมากกว่า 10', 'ลบ 2 หลัก'],
+    color: 'bg-yellow-100'
+  }, {
+    title: 'รูปทรง',
+    progress: 0,
+    lessons: '0/3 บทเรียน',
+    difficulty: 'ปานกลาง',
+    status: 'locked',
+    tags: [],
+    color: 'bg-gray-100'
+  }];
+  return <div className="min-h-screen">
       <Header />
       
       <main className="container mx-auto px-4 py-6">
@@ -91,15 +104,9 @@ const Profile = () => {
 
         {/* Grade Selection */}
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-        {grades.map((grade) => (
-            <button
-              key={grade.id}
-              onClick={() => setSelectedGrade(grade.id)}
-              className={`chip whitespace-nowrap ${selectedGrade === grade.id ? 'active' : ''}`}
-            >
+        {grades.map(grade => <button key={grade.id} onClick={() => setSelectedGrade(grade.id)} className={`chip whitespace-nowrap ${selectedGrade === grade.id ? 'active' : ''}`}>
               {grade.label}
-            </button>
-          ))}
+            </button>)}
         </div>
 
         {/* Recommendation Card */}
@@ -126,15 +133,9 @@ const Profile = () => {
             🏆 ความสำเร็จของคุณ
           </h2>
           <div className="flex gap-4 overflow-x-auto pb-2">
-            {achievements.map((achievement, index) => (
-              <div
-                key={index}
-                className="flex-shrink-0 bg-yellow-100 rounded-full w-16 h-16 flex items-center justify-center text-2xl border-2 border-yellow-300"
-                title={achievement.name}
-              >
+            {achievements.map((achievement, index) => <div key={index} className="flex-shrink-0 bg-yellow-100 rounded-full w-16 h-16 flex items-center justify-center text-2xl border-2 border-yellow-300" title={achievement.name}>
                 {achievement.icon}
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
 
@@ -151,7 +152,7 @@ const Profile = () => {
               <div className="text-sm text-[hsl(var(--text-muted))]">ความก้าวหน้า</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-orange-500 mb-1">12/15</div>
+              <div className="text-2xl font-bold text-orange-500 mb-1">10</div>
               <div className="text-sm text-[hsl(var(--text-muted))]">บทเรียน</div>
             </div>
             <div className="text-center">
@@ -167,8 +168,6 @@ const Profile = () => {
       </main>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Profile;
