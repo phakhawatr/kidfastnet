@@ -29,7 +29,7 @@ const defaultSkills: Skill[] = [{
   from: 'from-blue-100',
   to: 'to-cyan-100',
   sticker: '🧠',
-  hrefPreview: '#'
+  hrefPreview: '/subtraction'
 }, {
   icon: X,
   title: 'คูณ',
