@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Minus, X, Divide, Sigma, Table, Clock, Ruler, Scale, Zap, Eye } from 'lucide-react';
+import SubtractionModal from './SubtractionModal';
 type Skill = {
   icon: React.ComponentType<any>;
   title: string;
@@ -141,6 +142,16 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({
   skills = defaultSkills,
   onPreview
 }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleSkillClick = (skill: Skill) => {
+    if (skill.title === 'ลบ') {
+      setIsModalOpen(true);
+    } else if (onPreview) {
+      onPreview(skill);
+    }
+  };
+
   return <section className="mb-12">
       <div className="text-center mb-8">
         <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
@@ -151,9 +162,14 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({
 
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-          {skills.map((skill, index) => <SkillCard key={index} skill={skill} onPreview={onPreview} />)}
+          {skills.map((skill, index) => <SkillCard key={index} skill={skill} onPreview={handleSkillClick} />)}
         </div>
       </div>
+      
+      <SubtractionModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </section>;
 };
 export default SkillsSection;
