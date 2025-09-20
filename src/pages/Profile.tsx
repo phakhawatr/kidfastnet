@@ -11,11 +11,11 @@ const Profile = () => {
 
   const grades = [
     { id: '1', label: 'การบวก' },
-    { id: '2', label: 'ป.2' },
-    { id: '3', label: 'ป.3' },
-    { id: '4', label: 'ป.4' },
-    { id: '5', label: 'ป.5' },
-    { id: '6', label: 'ป.6' }
+    { id: '2', label: 'การลบ' },
+    { id: '3', label: 'การคูณ' },
+    { id: '4', label: 'การหาร' },
+    { id: '5', label: 'บอกเวลา' },
+    { id: '6', label: 'บอกน้ำหนัก' }
   ];
   
   const achievements = [
