@@ -2,34 +2,25 @@ import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SkillsSection from '../components/SkillsSection';
-
 const Landing = () => {
-
-  const benefits = [
-    {
-      icon: '🎮',
-      title: 'เรียนผ่านเกม',
-      description: 'เกมเลขง่ายๆ ช่วยให้การเรียนคณิตสนุกไม่น่าเบื่อ'
-    },
-    {
-      icon: '⚡',
-      title: 'คิดเร็ว แม่นยำ',
-      description: 'ฝึกใหม่การคิดคำนวณให้ไวขึ้นพร้อมความแม่นยำสูง'
-    },
-    {
-      icon: '🏆',
-      title: 'รางวัลและแต้ม',
-      description: 'ระบบสะสมแต้มและสะสมแบดจ์ เพิ่มแรงจูงใจในการเรียน'
-    },
-    {
-      icon: '🧑‍🏫',
-      title: 'ครูออนไลน์',
-      description: 'ผู้ช่วยเรียนซิ่งเข้าใจบริบทจะคอยช่วยส่วนที่เด็กยากจังหวะ'
-    }
-  ];
-
-  return (
-    <div className="min-h-screen">
+  const benefits = [{
+    icon: '🎮',
+    title: 'เรียนผ่านเกม',
+    description: 'เกมเลขง่ายๆ ช่วยให้การเรียนคณิตสนุกไม่น่าเบื่อ'
+  }, {
+    icon: '⚡',
+    title: 'คิดเร็ว แม่นยำ',
+    description: 'ฝึกใหม่การคิดคำนวณให้ไวขึ้นพร้อมความแม่นยำสูง'
+  }, {
+    icon: '🏆',
+    title: 'รางวัลและแต้ม',
+    description: 'ระบบสะสมแต้มและสะสมแบดจ์ เพิ่มแรงจูงใจในการเรียน'
+  }, {
+    icon: '🧑‍🏫',
+    title: 'ครูออนไลน์',
+    description: 'ผู้ช่วยเรียนซิ่งเข้าใจบริบทจะคอยช่วยส่วนที่เด็กยากจังหวะ'
+  }];
+  return <div className="min-h-screen">
       <Header />
       
       <main className="container mx-auto px-4 py-8">
@@ -45,11 +36,21 @@ const Landing = () => {
           
           {/* Emoji Icons */}
           <div className="flex justify-center gap-4 text-4xl mb-8">
-            <span className="animate-bounce" style={{animationDelay: '0s'}}>🎯</span>
-            <span className="animate-bounce" style={{animationDelay: '0.1s'}}>🏆</span>
-            <span className="animate-bounce" style={{animationDelay: '0.2s'}}>🎮</span>
-            <span className="animate-bounce" style={{animationDelay: '0.3s'}}>⭐</span>
-            <span className="animate-bounce" style={{animationDelay: '0.4s'}}>✍️</span>
+            <span className="animate-bounce" style={{
+            animationDelay: '0s'
+          }}>🎯</span>
+            <span className="animate-bounce" style={{
+            animationDelay: '0.1s'
+          }}>🏆</span>
+            <span className="animate-bounce" style={{
+            animationDelay: '0.2s'
+          }}>🎮</span>
+            <span className="animate-bounce" style={{
+            animationDelay: '0.3s'
+          }}>⭐</span>
+            <span className="animate-bounce" style={{
+            animationDelay: '0.4s'
+          }}>✍️</span>
           </div>
         </section>
 
@@ -66,11 +67,7 @@ const Landing = () => {
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {benefits.map((benefit, index) => (
-                <div 
-                  key={index} 
-                  className="text-center p-6 rounded-2xl bg-white/50 hover:bg-white/70 transition-all duration-300 hover:scale-105"
-                >
+              {benefits.map((benefit, index) => <div key={index} className="text-center p-6 rounded-2xl bg-white/50 hover:bg-white/70 transition-all duration-300 hover:scale-105">
                   <div className="text-4xl mb-4">{benefit.icon}</div>
                   <h3 className="font-bold text-lg mb-3 text-[hsl(var(--text-primary))]">
                     {benefit.title}
@@ -78,33 +75,31 @@ const Landing = () => {
                   <p className="text-sm text-[hsl(var(--text-secondary))]">
                     {benefit.description}
                   </p>
-                </div>
-              ))}
+                </div>)}
             </div>
           </div>
         </section>
 
         {/* CTA Section */}
         <section className="text-center">
-          <Link 
-            to="/signup" 
-            className="btn-primary text-xl px-12 py-6 inline-flex items-center gap-3"
-          >
-            🚀 เริ่มเรียนเลย! ฟรี! 🚀
-          </Link>
-          <p className="text-white/80 mt-4">ไม่มีค่าใช้จ่าย ทดลองเรียนฟรี 7 วัน!</p>
+          
+          
         </section>
       </main>
 
       {/* Floating Elements */}
       <div className="fixed top-20 left-4 text-4xl opacity-20 animate-pulse pointer-events-none">⭐</div>
-      <div className="fixed top-40 right-8 text-3xl opacity-20 animate-pulse pointer-events-none" style={{animationDelay: '1s'}}>📚</div>
-      <div className="fixed bottom-32 left-8 text-5xl opacity-20 animate-pulse pointer-events-none" style={{animationDelay: '2s'}}>✏️</div>
-      <div className="fixed top-60 left-1/4 text-2xl opacity-20 animate-pulse pointer-events-none" style={{animationDelay: '0.5s'}}>🎯</div>
+      <div className="fixed top-40 right-8 text-3xl opacity-20 animate-pulse pointer-events-none" style={{
+      animationDelay: '1s'
+    }}>📚</div>
+      <div className="fixed bottom-32 left-8 text-5xl opacity-20 animate-pulse pointer-events-none" style={{
+      animationDelay: '2s'
+    }}>✏️</div>
+      <div className="fixed top-60 left-1/4 text-2xl opacity-20 animate-pulse pointer-events-none" style={{
+      animationDelay: '0.5s'
+    }}>🎯</div>
       
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Landing;
