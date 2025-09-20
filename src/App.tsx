@@ -7,6 +7,7 @@ import Profile from "./pages/Profile";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import SubtractionApp from "./pages/SubtractionApp";
+import BackgroundRemoverPage from "./pages/BackgroundRemover";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
@@ -48,6 +49,7 @@ const App = () => (
             </ProtectedRoute>
           } 
         />
+        <Route path="/background-remover" element={<BackgroundRemoverPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <ToastContainer />

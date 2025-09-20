@@ -13,6 +13,12 @@ const Header = () => {
           </Link>
           
           <div className="flex items-center gap-3">
+            <Link 
+              to="/background-remover" 
+              className="px-3 py-1 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 text-sm"
+            >
+              🖼️ ลบพื้นหลัง
+            </Link>
             {isLoggedIn ? (
               <>
                 <Link 
