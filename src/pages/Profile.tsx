@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import SkillsSection from '../components/SkillsSection';
 import { useAuth } from '../hooks/useAuth';
 
 const Profile = () => {
@@ -153,90 +154,8 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Subject Cards */}
-        <div className="grid md:grid-cols-2 gap-6 mb-6">
-          {subjects.map((subject, index) => (
-            <div key={index} className="card-glass p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center text-2xl ${subject.color}`}>
-                    {subject.status === 'completed' ? '✅' : 
-                     subject.status === 'active' ? '📚' : 
-                     subject.status === 'locked' ? '🔒' : '➕'}
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg">{subject.title}</h3>
-                    <p className="text-sm text-[hsl(var(--text-secondary))]">{subject.lessons}</p>
-                  </div>
-                </div>
-                <div className="text-right text-xs">
-                  <div className="flex gap-1 mb-1">
-                    {'⭐'.repeat(3)}
-                  </div>
-                </div>
-              </div>
-
-              <div className="mb-4">
-                <div className="flex justify-between text-sm mb-1">
-                  <span>ความคืบหน้า</span>
-                  <span>{subject.progress}%</span>
-                </div>
-                <div className="progress-bar">
-                  <div 
-                    className="progress-fill"
-                    style={{ width: `${subject.progress}%` }}
-                  />
-                </div>
-              </div>
-
-              {subject.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {subject.tags.map((tag, tagIndex) => (
-                    <span
-                      key={tagIndex}
-                      className={`chip text-xs ${
-                        tagIndex < Math.floor(subject.progress / 25) ? 'bg-green-100 text-green-700' : ''
-                      }`}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              <div className="flex gap-3">
-                {subject.status === 'active' && (
-                  <>
-                    {subject.title === 'การลบ 2 หลัก' ? (
-                      <Link to="/subtraction" className="btn-primary text-sm flex-1 text-center">
-                        เริ่มเรียนทันที
-                      </Link>
-                    ) : (
-                      <button className="btn-primary text-sm flex-1">
-                        เรียนต่อ
-                      </button>
-                    )}
-                  </>
-                )}
-                {subject.status === 'completed' && (
-                  <button className="btn-secondary text-sm flex-1">
-                    ทบทวน
-                  </button>
-                )}
-                {subject.status === 'locked' && (
-                  <div className="text-center text-sm text-[hsl(var(--text-muted))] flex-1 py-2">
-                    🔒 ปลดล็อกเมื่อทำภารกิจครบตามแผน
-                  </div>
-                )}
-                {subject.status !== 'locked' && (
-                  <button className="chip text-sm">
-                    ทบทวน
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+        {/* Skills Section */}
+        <SkillsSection />
 
       </main>
 
