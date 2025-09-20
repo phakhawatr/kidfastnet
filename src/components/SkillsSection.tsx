@@ -147,9 +147,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({
 }) => {
   return <section className="mb-12">
       <div className="text-center mb-8">
-        <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
-          🎯 ความรู้และทักษะของคุณ
-        </h2>
+        <h2 className="text-2xl text-white mb-4 font-semibold md:text-4xl">🎯 เพิ่มพูนความรู้และทักษะของน้องๆ</h2>
         <p className="text-white/80 text-lg max-w-2xl mx-auto">— เลือกทักษะที่อยากฝึกฝน — </p>
       </div>
 
