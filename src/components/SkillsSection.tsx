@@ -89,7 +89,7 @@ const defaultSkills: Skill[] = [{
   hrefPreview: '/weighing'
 }, {
   icon: Zap,
-  title: 'คิดเร็ว',
+  title: 'การวัดด้วยไม้บันทัด',
   desc: 'ฝึกการวัดความยาวด้วยไม้บรรทัด เรียนรู้การแปลงหน่วย',
   from: 'from-neutral-100',
   to: 'to-stone-100',
