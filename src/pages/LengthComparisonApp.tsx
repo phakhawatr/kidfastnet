@@ -206,7 +206,7 @@ const LengthComparisonApp: React.FC = () => {
                     key={question.id}
                     onClick={() => handleLeftClick(question.id)}
                     className={`
-                      relative p-2 sm:p-4 rounded-lg border-2 cursor-pointer transition-all duration-200
+                      relative p-2 sm:p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 min-h-[60px] sm:min-h-[72px]
                       ${isSelected ? 'border-blue-500 bg-blue-50 shadow-md' : 'border-gray-200 bg-white hover:border-gray-300'}
                       ${isConnected ? (connection.isCorrect ? 'border-green-400 bg-green-50' : 'border-red-400 bg-red-50') : ''}
                     `}
@@ -239,13 +239,13 @@ const LengthComparisonApp: React.FC = () => {
                     key={answer.id}
                     onClick={() => handleRightClick(answer.id)}
                     className={`
-                      relative p-2 sm:p-4 rounded-lg border-2 cursor-pointer transition-all duration-200
+                      relative p-2 sm:p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 min-h-[60px] sm:min-h-[72px] flex items-center
                       ${selectedLeft && !isConnected ? 'hover:border-blue-300 hover:bg-blue-50' : ''}
                       ${isConnected ? (connection.isCorrect ? 'border-green-400 bg-green-50' : 'border-red-400 bg-red-50') : 'border-gray-200 bg-white'}
                       ${selectedLeft === null || isConnected ? 'cursor-not-allowed opacity-75' : ''}
                     `}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between w-full">
                       <span className="font-medium text-gray-800 text-xs sm:text-base">{answer.right}</span>
                       {isConnected && (
                         connection.isCorrect ? 
