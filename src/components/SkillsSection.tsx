@@ -134,7 +134,7 @@ const defaultSkills: Skill[] = [{
   from: 'from-orange-100',
   to: 'to-yellow-100',
   sticker: '↔️',
-  hrefPreview: '#'
+  hrefPreview: '/length-comparison'
 }];
 const SkillCard: React.FC<{
   skill: Skill;

@@ -13,6 +13,7 @@ import WeighingApp from "./pages/WeighingApp";
 import MeasurementApp from "./pages/MeasurementApp";
 import MultiplicationTable from "./pages/MultiplicationTable";
 import QuickMathApp from "./pages/QuickMathApp";
+import LengthComparisonApp from "./pages/LengthComparisonApp";
 import BackgroundRemoverPage from "./pages/BackgroundRemover";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -100,6 +101,14 @@ const App = () => (
           element={
             <ProtectedRoute>
               <QuickMathApp />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/length-comparison" 
+          element={
+            <ProtectedRoute>
+              <LengthComparisonApp />
             </ProtectedRoute>
           } 
         />
