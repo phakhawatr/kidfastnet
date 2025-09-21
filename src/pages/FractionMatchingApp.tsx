@@ -97,7 +97,7 @@ const FractionCard: React.FC<{
     <div
       onClick={onClick}
       className={`
-        relative p-3 sm:p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 min-h-[100px] sm:min-h-[120px] flex items-center justify-center
+        relative p-3 sm:p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 min-h-[120px] sm:min-h-[140px] flex items-center justify-center
         ${isSelected ? 'border-blue-500 bg-blue-50 shadow-md' : 'border-gray-200 bg-white hover:border-gray-300'}
         ${isConnected ? (isCorrect ? 'border-green-400 bg-green-50' : 'border-red-400 bg-red-50') : ''}
       `}
@@ -108,15 +108,15 @@ const FractionCard: React.FC<{
             totalParts={fraction.totalParts}
             filledParts={fraction.filledParts}
             color={fraction.color}
-            size={80}
+            size={90}
           />
         )}
         
         {side === 'right' && (
-          <div className="text-center">
-            <div className="text-2xl sm:text-3xl font-bold text-gray-800">
+          <div className="flex items-center justify-center h-full">
+            <div className="text-2xl sm:text-4xl font-bold text-gray-800">
               <div className="flex flex-col items-center">
-                <div className="border-b-2 border-gray-800 pb-1 mb-1 min-w-[40px] text-center">
+                <div className="border-b-2 border-gray-800 pb-1 mb-1 min-w-[50px] text-center">
                   {fraction.numerator}
                 </div>
                 <div className="text-center">
