@@ -1,8 +1,14 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SkillsSection from '../components/SkillsSection';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '../components/ui/dialog';
+import { X } from 'lucide-react';
+import subtractionExampleImage from '../assets/subtraction-examples.png';
 const Landing = () => {
+  const [showExamplePopup, setShowExamplePopup] = useState(false);
+  
   const benefits = [{
     icon: '🎮',
     title: 'เรียนผ่านเกม',
@@ -54,8 +60,20 @@ const Landing = () => {
           </div>
         </section>
 
-        {/* Skills Section */}
-        <SkillsSection buttonText="ดูตัวอย่างแบบฝึกหัด" />
+        {/* Skills Section - Show only "บวก" skill */}
+        <SkillsSection 
+          skills={[{
+            icon: () => <div className="text-2xl">+</div>,
+            title: 'บวก',
+            desc: 'ฝึกการบวกเลขพื้นฐาน เริ่มต้นจากเลขง่ายๆ ไปจนถึงเลขหลายหลัก',
+            from: 'from-pink-100',
+            to: 'to-red-100',
+            sticker: '🧮',
+            hrefPreview: '#'
+          }]}
+          onPreview={() => setShowExamplePopup(true)}
+          buttonText="ดูตัวอย่างแบบฝึกหัด" 
+        />
 
         {/* Benefits Section */}
         <section className="mb-12">
@@ -109,6 +127,29 @@ const Landing = () => {
     }}>🎯</div>
       
       <Footer />
+
+      {/* Example Popup Dialog */}
+      <Dialog open={showExamplePopup} onOpenChange={setShowExamplePopup}>
+        <DialogContent className="max-w-4xl w-full h-[80vh] p-0">
+          <DialogHeader className="p-6 pb-0">
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-xl font-bold">
+                ตัวอย่างแบบฝึกหัด
+              </DialogTitle>
+              <DialogClose className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+                <X className="h-4 w-4" />
+              </DialogClose>
+            </div>
+          </DialogHeader>
+          <div className="flex-1 p-6 overflow-auto">
+            <img 
+              src={subtractionExampleImage} 
+              alt="ตัวอย่างแบบฝึกหัดการลบ" 
+              className="w-full h-full object-contain rounded-lg"
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>;
 };
 export default Landing;
