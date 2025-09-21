@@ -38,7 +38,11 @@ const Header = () => {
                 </Link>
                 <Link 
                   to="/login" 
-                  className="px-4 py-2 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 text-sm"
+                  className="px-4 py-2 rounded-full text-white font-medium transition-all duration-300 hover:scale-105 text-sm"
+                  style={{ 
+                    background: 'linear-gradient(135deg, hsl(142, 100%, 60%) 0%, hsl(171, 100%, 65%) 100%)',
+                    boxShadow: '0 4px 15px hsl(142 100% 60% / 0.3)'
+                  }}
                 >
                   เข้าสู่ระบบ
                 </Link>
