@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Minus, X, Divide, Sigma, Table, Clock, Ruler, Scale, Zap, Eye } from 'lucide-react';
+import { Plus, Minus, X, Divide, Sigma, Table, Clock, Ruler, Scale, Zap, Eye, Hash, Shapes, Percent, ArrowLeftRight, Calculator } from 'lucide-react';
 type Skill = {
   icon: React.ComponentType<any>;
   title: string;
@@ -95,6 +95,46 @@ const defaultSkills: Skill[] = [{
   to: 'to-stone-100',
   sticker: '📏',
   hrefPreview: '/quick-math'
+}, {
+  icon: Hash,
+  title: 'การนับ',
+  desc: 'ฝึกทักษะการนับตัวเลข เรียนรู้การนับไปข้างหน้าและย้อนกลับ',
+  from: 'from-cyan-100',
+  to: 'to-blue-100',
+  sticker: '🔢',
+  hrefPreview: '#'
+}, {
+  icon: Shapes,
+  title: 'รูปทรง',
+  desc: 'จดจำรูปทรงเรขาคณิต เรียนรู้คุณสมบัติของรูปต่างๆ',
+  from: 'from-teal-100',
+  to: 'to-green-100',
+  sticker: '🔷',
+  hrefPreview: '#'
+}, {
+  icon: Calculator,
+  title: 'เศษส่วน',
+  desc: 'ทำความเข้าใจเศษส่วน เรียนรู้การแบ่งส่วนและเปรียบเทียบ',
+  from: 'from-purple-100',
+  to: 'to-violet-100',
+  sticker: '🍰',
+  hrefPreview: '#'
+}, {
+  icon: Percent,
+  title: 'ร้อยละ',
+  desc: 'เรียนรู้การคำนวณร้อยละ เข้าใจการแปลงเป็นทศนิยม',
+  from: 'from-red-100',
+  to: 'to-pink-100',
+  sticker: '💯',
+  hrefPreview: '#'
+}, {
+  icon: ArrowLeftRight,
+  title: 'เปรียบเทียบความยาว',
+  desc: 'เปรียบเทียบความยาวของวัตถุ เรียนรู้การเรียงลำดับ',
+  from: 'from-orange-100',
+  to: 'to-yellow-100',
+  sticker: '↔️',
+  hrefPreview: '#'
 }];
 const SkillCard: React.FC<{
   skill: Skill;
