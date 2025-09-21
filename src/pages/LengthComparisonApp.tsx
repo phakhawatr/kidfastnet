@@ -192,10 +192,10 @@ const LengthComparisonApp: React.FC = () => {
 
         {/* Game Area */}
         <div className="relative" ref={containerRef}>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 md:gap-6 lg:gap-8">
             {/* Left Side - Questions */}
-            <div className="space-y-3">
-              <h2 className="text-lg font-semibold text-gray-700 mb-4">โจทย์</h2>
+            <div className="space-y-2">
+              <h2 className="text-sm sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-4">โจทย์</h2>
               {questions.map((question, index) => {
                 const connection = getConnectionForLeft(question.id);
                 const isSelected = selectedLeft === question.id;
@@ -206,20 +206,20 @@ const LengthComparisonApp: React.FC = () => {
                     key={question.id}
                     onClick={() => handleLeftClick(question.id)}
                     className={`
-                      relative p-4 rounded-lg border-2 cursor-pointer transition-all duration-200
+                      relative p-2 sm:p-4 rounded-lg border-2 cursor-pointer transition-all duration-200
                       ${isSelected ? 'border-blue-500 bg-blue-50 shadow-md' : 'border-gray-200 bg-white hover:border-gray-300'}
                       ${isConnected ? (connection.isCorrect ? 'border-green-400 bg-green-50' : 'border-red-400 bg-red-50') : ''}
                     `}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center font-bold text-sm">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gray-800 text-white flex items-center justify-center font-bold text-xs sm:text-sm">
                         {index + 1}
                       </div>
-                      <span className="font-medium text-gray-800">{question.left}</span>
+                      <span className="font-medium text-gray-800 text-xs sm:text-base">{question.left}</span>
                       {isConnected && (
                         connection.isCorrect ? 
-                        <CheckCircle className="w-5 h-5 text-green-500 ml-auto" /> :
-                        <XCircle className="w-5 h-5 text-red-500 ml-auto" />
+                        <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 ml-auto" /> :
+                        <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 ml-auto" />
                       )}
                     </div>
                   </div>
@@ -228,8 +228,8 @@ const LengthComparisonApp: React.FC = () => {
             </div>
 
             {/* Right Side - Answers */}
-            <div className="space-y-3">
-              <h2 className="text-lg font-semibold text-gray-700 mb-4">คำตอบ</h2>
+            <div className="space-y-2">
+              <h2 className="text-sm sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-4">คำตอบ</h2>
               {shuffledAnswers.map((answer, index) => {
                 const connection = connections.find(conn => conn.rightId === answer.id);
                 const isConnected = connection !== undefined;
@@ -239,18 +239,18 @@ const LengthComparisonApp: React.FC = () => {
                     key={answer.id}
                     onClick={() => handleRightClick(answer.id)}
                     className={`
-                      relative p-4 rounded-lg border-2 cursor-pointer transition-all duration-200
+                      relative p-2 sm:p-4 rounded-lg border-2 cursor-pointer transition-all duration-200
                       ${selectedLeft && !isConnected ? 'hover:border-blue-300 hover:bg-blue-50' : ''}
                       ${isConnected ? (connection.isCorrect ? 'border-green-400 bg-green-50' : 'border-red-400 bg-red-50') : 'border-gray-200 bg-white'}
                       ${selectedLeft === null || isConnected ? 'cursor-not-allowed opacity-75' : ''}
                     `}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-medium text-gray-800">{answer.right}</span>
+                      <span className="font-medium text-gray-800 text-xs sm:text-base">{answer.right}</span>
                       {isConnected && (
                         connection.isCorrect ? 
-                        <CheckCircle className="w-5 h-5 text-green-500" /> :
-                        <XCircle className="w-5 h-5 text-red-500" />
+                        <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" /> :
+                        <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
                       )}
                     </div>
                   </div>
