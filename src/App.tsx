@@ -9,6 +9,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import SubtractionApp from "./pages/SubtractionApp";
 import AdditionApp from "./pages/AdditionApp";
 import TimeApp from "./pages/TimeApp";
+import WeighingApp from "./pages/WeighingApp";
 import MultiplicationTable from "./pages/MultiplicationTable";
 import BackgroundRemoverPage from "./pages/BackgroundRemover";
 import NotFound from "./pages/NotFound";
@@ -65,6 +66,14 @@ const App = () => (
           element={
             <ProtectedRoute>
               <TimeApp />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/weighing" 
+          element={
+            <ProtectedRoute>
+              <WeighingApp />
             </ProtectedRoute>
           } 
         />

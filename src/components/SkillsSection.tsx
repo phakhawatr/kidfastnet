@@ -86,7 +86,7 @@ const defaultSkills: Skill[] = [{
   from: 'from-rose-100',
   to: 'to-purple-100',
   sticker: '⚖️',
-  hrefPreview: '#'
+  hrefPreview: '/weighing'
 }, {
   icon: Zap,
   title: 'คิดเร็ว',
