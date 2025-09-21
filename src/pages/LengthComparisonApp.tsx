@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, RotateCcw, Clock, CheckCircle, XCircle, Trophy } from 'lucide-react';
+import { ArrowLeft, RotateCcw, Clock, CheckCircle, XCircle, Trophy, Shuffle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -135,6 +135,62 @@ const LengthComparisonApp: React.FC = () => {
 
   const resetGame = () => {
     initializeGame();
+  };
+
+  const generateRandomSet = () => {
+    // สร้างโจทย์แบบสุ่ม
+    const randomQuestions: MatchingPair[] = [];
+    const usedValues = new Set<number>();
+    
+    for (let i = 1; i <= 8; i++) {
+      let value;
+      do {
+        // สุ่มค่าระหว่าง 50-999 เซนติเมตร
+        value = Math.floor(Math.random() * 950) + 50;
+      } while (usedValues.has(value));
+      
+      usedValues.add(value);
+      
+      // แปลงเป็นเมตรและเซนติเมตร
+      const meters = Math.floor(value / 100);
+      const centimeters = value % 100;
+      
+      const leftText = meters > 0 
+        ? (centimeters > 0 ? `${meters} เมตร ${centimeters} เซนติเมตร` : `${meters} เมตร`)
+        : `${centimeters} เซนติเมตร`;
+      
+      const rightText = `${value} เซนติเมตร`;
+      
+      randomQuestions.push({
+        id: i,
+        left: leftText,
+        right: rightText,
+        leftValue: value,
+        rightValue: value
+      });
+    }
+    
+    return randomQuestions;
+  };
+
+  const handleRandomSet = () => {
+    const newQuestions = generateRandomSet();
+    setQuestions(newQuestions);
+    
+    // Shuffle answers
+    const answers = [...newQuestions];
+    for (let i = answers.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [answers[i], answers[j]] = [answers[j], answers[i]];
+    }
+    setShuffledAnswers(answers);
+    
+    setConnections([]);
+    setSelectedLeft(null);
+    setIsCompleted(false);
+    setScore(0);
+    setTimeElapsed(0);
+    setIsTimerRunning(true);
   };
 
   const nextSet = () => {
@@ -298,10 +354,14 @@ const LengthComparisonApp: React.FC = () => {
 
         {/* Controls */}
         {!isCompleted && (
-          <div className="flex justify-center mt-6">
+          <div className="flex justify-center gap-3 mt-6">
             <Button onClick={resetGame} variant="outline">
               <RotateCcw className="w-4 h-4 mr-2" />
               เริ่มใหม่
+            </Button>
+            <Button onClick={handleRandomSet} variant="default">
+              <Shuffle className="w-4 h-4 mr-2" />
+              สุ่มชุดใหม่
             </Button>
           </div>
         )}
