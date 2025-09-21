@@ -12,87 +12,122 @@ type MeasurementObject = {
   position: number; // starting position on ruler
 };
 
-// SVG Components for different objects
+// SVG Components for different objects - all designed to start from position 0
 const HandIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 100 40" className={className}>
-    <path d="M10 25 Q15 20 20 22 Q25 18 30 20 Q35 16 40 18 Q45 14 50 16 Q55 12 60 14 L75 18 Q80 20 78 25 L75 30 Q70 35 60 35 L20 35 Q12 32 10 25 Z" 
-          fill="#fbbf24" stroke="#92400e" strokeWidth="1"/>
-    <circle cx="15" cy="28" r="2" fill="#92400e"/>
-    <circle cx="25" cy="26" r="2" fill="#92400e"/>
-    <circle cx="35" cy="24" r="2" fill="#92400e"/>
+  <svg viewBox="0 0 140 30" className={className}>
+    {/* Palm */}
+    <ellipse cx="35" cy="15" rx="28" ry="12" fill="#fbbf24" stroke="#92400e" strokeWidth="1.5"/>
+    {/* Thumb */}
+    <ellipse cx="15" cy="18" rx="12" ry="8" fill="#fbbf24" stroke="#92400e" strokeWidth="1.5"/>
+    {/* Fingers */}
+    <ellipse cx="75" cy="8" rx="8" ry="6" fill="#fbbf24" stroke="#92400e" strokeWidth="1"/>
+    <ellipse cx="90" cy="6" rx="8" ry="5" fill="#fbbf24" stroke="#92400e" strokeWidth="1"/>
+    <ellipse cx="105" cy="8" rx="8" ry="6" fill="#fbbf24" stroke="#92400e" strokeWidth="1"/>
+    <ellipse cx="120" cy="12" rx="8" ry="7" fill="#fbbf24" stroke="#92400e" strokeWidth="1"/>
+    {/* Wrist connection */}
+    <rect x="5" y="12" width="15" height="6" rx="3" fill="#fbbf24" stroke="#92400e" strokeWidth="1"/>
+    {/* Details */}
+    <line x1="25" y1="10" x2="45" y2="8" stroke="#92400e" strokeWidth="1"/>
+    <line x1="25" y1="20" x2="45" y2="22" stroke="#92400e" strokeWidth="1"/>
   </svg>
 );
 
 const ChainIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 100 20" className={className}>
-    {Array.from({ length: 8 }).map((_, i) => (
-      <ellipse key={i} cx={12 + i * 10} cy="10" rx="4" ry="6" 
-               fill="none" stroke="#6b7280" strokeWidth="2" 
-               transform={`rotate(${i % 2 === 0 ? 0 : 90} ${12 + i * 10} 10)`}/>
+  <svg viewBox="0 0 170 20" className={className}>
+    {Array.from({ length: 12 }).map((_, i) => (
+      <ellipse key={i} cx={8 + i * 13} cy="10" rx="5" ry="7" 
+               fill="none" stroke="#6b7280" strokeWidth="2.5" 
+               transform={`rotate(${i % 2 === 0 ? 0 : 90} ${8 + i * 13} 10)`}/>
     ))}
+    {/* Chain clasp */}
+    <rect x="2" y="7" width="4" height="6" rx="2" fill="#6b7280"/>
   </svg>
 );
 
-const MilkIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 60 20" className={className}>
-    <text x="5" y="15" fontSize="16" fontWeight="bold" fill="#1f2937" fontFamily="Arial, sans-serif">MILK</text>
+const PencilEraserIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 120 18" className={className}>
+    {/* Pencil body */}
+    <rect x="5" y="6" width="80" height="6" fill="#fbbf24" stroke="#92400e" strokeWidth="1"/>
+    {/* Pencil tip */}
+    <polygon points="85,6 85,12 95,9" fill="#444" stroke="#222" strokeWidth="1"/>
+    {/* Metal ferrule */}
+    <rect x="95" y="5" width="8" height="8" fill="#c0c0c0" stroke="#888" strokeWidth="1"/>
+    {/* Eraser */}
+    <ellipse cx="108" cy="9" rx="8" ry="4" fill="#ff69b4" stroke="#d63384" strokeWidth="1"/>
+    {/* Pencil details */}
+    <line x1="15" y1="7" x2="75" y2="7" stroke="#92400e" strokeWidth="0.5"/>
+    <line x1="15" y1="11" x2="75" y2="11" stroke="#92400e" strokeWidth="0.5"/>
+    <text x="40" y="10" fontSize="4" fill="#92400e" textAnchor="middle">#2</text>
   </svg>
 );
 
-const GuitarIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 80 35" className={className}>
-    <ellipse cx="20" cy="17" rx="18" ry="15" fill="#8b4513" stroke="#654321" strokeWidth="1"/>
-    <circle cx="20" cy="17" r="6" fill="#f4a460"/>
-    <rect x="35" y="15" width="40" height="4" fill="#654321"/>
-    <line x1="35" y1="13" x2="75" y2="13" stroke="#333" strokeWidth="0.5"/>
-    <line x1="35" y1="21" x2="75" y2="21" stroke="#333" strokeWidth="0.5"/>
-    <rect x="70" y="12" width="8" height="10" fill="#8b4513"/>
+const SpoonIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 100 20" className={className}>
+    {/* Spoon bowl */}
+    <ellipse cx="15" cy="10" rx="12" ry="8" fill="#c0c0c0" stroke="#888" strokeWidth="1.5"/>
+    {/* Handle */}
+    <rect x="25" y="8" width="60" height="4" rx="2" fill="#c0c0c0" stroke="#888" strokeWidth="1"/>
+    {/* Handle end */}
+    <ellipse cx="88" cy="10" rx="6" ry="3" fill="#c0c0c0" stroke="#888" strokeWidth="1"/>
+    {/* Details */}
+    <ellipse cx="15" cy="10" rx="8" ry="5" fill="none" stroke="#888" strokeWidth="0.8"/>
   </svg>
 );
 
-const SpatulaIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 90 25" className={className}>
-    <rect x="5" y="8" width="25" height="8" rx="4" fill="#c0c0c0" stroke="#808080" strokeWidth="1"/>
-    <rect x="28" y="11" width="50" height="2" fill="#8b4513"/>
-    <circle cx="75" cy="12" r="3" fill="#654321"/>
+const KeyIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 110 20" className={className}>
+    {/* Key head */}
+    <circle cx="15" cy="10" r="10" fill="#ffd700" stroke="#b8860b" strokeWidth="1.5"/>
+    <circle cx="15" cy="10" r="5" fill="none" stroke="#b8860b" strokeWidth="1"/>
+    {/* Key shaft */}
+    <rect x="23" y="8" width="60" height="4" fill="#ffd700" stroke="#b8860b" strokeWidth="1"/>
+    {/* Key teeth */}
+    <rect x="80" y="6" width="8" height="3" fill="#ffd700" stroke="#b8860b" strokeWidth="1"/>
+    <rect x="88" y="4" width="6" height="5" fill="#ffd700" stroke="#b8860b" strokeWidth="1"/>
+    <rect x="94" y="8" width="4" height="4" fill="#ffd700" stroke="#b8860b" strokeWidth="1"/>
   </svg>
 );
 
-const FlashlightIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 80 25" className={className}>
-    <rect x="5" y="8" width="15" height="8" rx="2" fill="#fbbf24" stroke="#92400e" strokeWidth="1"/>
-    <rect x="18" y="10" width="35" height="4" fill="#4b5563"/>
-    <rect x="51" y="9" width="8" height="6" rx="3" fill="#6b7280"/>
-    <circle cx="67" cy="12" r="8" fill="#e5e7eb" stroke="#6b7280" strokeWidth="2"/>
-    <circle cx="67" cy="12" r="4" fill="#fbbf24"/>
+const ToothbrushIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 130 18" className={className}>
+    {/* Handle */}
+    <rect x="5" y="6" width="80" height="6" rx="3" fill="#4a90e2" stroke="#2171b5" strokeWidth="1"/>
+    {/* Brush head */}
+    <rect x="85" y="4" width="35" height="10" rx="5" fill="#e6f3ff" stroke="#4a90e2" strokeWidth="1"/>
+    {/* Bristles */}
+    {Array.from({ length: 15 }).map((_, i) => (
+      <line key={i} x1={88 + i * 2} y1="6" x2={88 + i * 2} y2="12" stroke="#87ceeb" strokeWidth="0.8"/>
+    ))}
+    {/* Handle grip */}
+    <ellipse cx="45" cy="9" rx="15" ry="2" fill="#2171b5" opacity="0.3"/>
   </svg>
 );
 
-// Available objects for measurement
+// Available objects for measurement - all start from position 0
 const measurementObjects: MeasurementObject[] = [
-  { id: 'hand', name: 'Hand', thaiName: 'มือ', svgComponent: HandIcon, actualLength: 3.5, position: 0.5 },
-  { id: 'chain', name: 'Chain', thaiName: 'สร้อยคอ', svgComponent: ChainIcon, actualLength: 4.2, position: 0.3 },
-  { id: 'milk', name: 'MILK Text', thaiName: 'คำว่า MILK', svgComponent: MilkIcon, actualLength: 2.8, position: 1.0 },
-  { id: 'guitar', name: 'Guitar', thaiName: 'กีตาร์', svgComponent: GuitarIcon, actualLength: 4.0, position: 0.8 },
-  { id: 'spatula', name: 'Spatula', thaiName: 'ไม้พาย', svgComponent: SpatulaIcon, actualLength: 4.5, position: 0.2 },
-  { id: 'flashlight', name: 'Flashlight', thaiName: 'ไฟฉาย', svgComponent: FlashlightIcon, actualLength: 3.8, position: 0.6 },
+  { id: 'hand', name: 'Hand', thaiName: 'มือ', svgComponent: HandIcon, actualLength: 5.5, position: 0 },
+  { id: 'chain', name: 'Chain', thaiName: 'สร้อยคอ', svgComponent: ChainIcon, actualLength: 4.2, position: 0 },
+  { id: 'pencil', name: 'Pencil with Eraser', thaiName: 'ดินสอและยางลบ', svgComponent: PencilEraserIcon, actualLength: 4.8, position: 0 },
+  { id: 'spoon', name: 'Spoon', thaiName: 'ช้อน', svgComponent: SpoonIcon, actualLength: 4.0, position: 0 },
+  { id: 'key', name: 'Key', thaiName: 'กุญแจ', svgComponent: KeyIcon, actualLength: 4.4, position: 0 },
+  { id: 'toothbrush', name: 'Toothbrush', thaiName: 'แปรงสีฟัน', svgComponent: ToothbrushIcon, actualLength: 5.2, position: 0 },
 ];
 
-// Ruler SVG Component
+// Ruler SVG Component - mathematically accurate
 const Ruler: React.FC<{ object: MeasurementObject; showAnswer?: boolean }> = ({ object, showAnswer }) => {
-  const rulerLength = 250; // 5cm ruler (50px per cm)
-  const objectStartPx = object.position * 50; // Convert cm to pixels
-  const objectLengthPx = object.actualLength * 50;
+  const rulerLength = 300; // 6cm ruler (50px per cm) for better visibility
+  const objectStartPx = 10; // Always start from 0 position (10px offset for ruler margin)
+  const objectLengthPx = object.actualLength * 50; // 50px per cm conversion
 
   return (
     <div className="relative">
-      <svg width={rulerLength + 20} height="80" className="border border-gray-300 bg-white rounded-lg">
+      <svg width={rulerLength + 20} height="100" className="border border-gray-300 bg-white rounded-lg shadow-sm">
         {/* Ruler background */}
-        <rect x="10" y="50" width={rulerLength} height="20" fill="#f8f9fa" stroke="#333" strokeWidth="1"/>
+        <rect x="10" y="60" width={rulerLength} height="25" fill="#f8f9fa" stroke="#333" strokeWidth="1.5"/>
         
-        {/* Ruler markings */}
-        {Array.from({ length: 51 }).map((_, i) => {
-          const x = 10 + (i * 5); // Every mm
+        {/* Ruler markings - every millimeter */}
+        {Array.from({ length: 61 }).map((_, i) => {
+          const x = 10 + (i * 5); // Every mm (5px per mm)
           const isCm = i % 10 === 0;
           const isHalfCm = i % 5 === 0;
           
@@ -100,14 +135,14 @@ const Ruler: React.FC<{ object: MeasurementObject; showAnswer?: boolean }> = ({ 
             <g key={i}>
               <line
                 x1={x}
-                y1="50"
+                y1="60"
                 x2={x}
-                y2={isCm ? "45" : isHalfCm ? "47" : "49"}
+                y2={isCm ? "52" : isHalfCm ? "55" : "58"}
                 stroke="#333"
-                strokeWidth={isCm ? "1.5" : "0.5"}
+                strokeWidth={isCm ? "2" : isHalfCm ? "1" : "0.5"}
               />
               {isCm && (
-                <text x={x} y="43" textAnchor="middle" fontSize="10" fill="#333">
+                <text x={x} y="50" textAnchor="middle" fontSize="12" fill="#333" fontWeight="bold">
                   {i / 10}
                 </text>
               )}
@@ -115,44 +150,67 @@ const Ruler: React.FC<{ object: MeasurementObject; showAnswer?: boolean }> = ({ 
           );
         })}
         
-        {/* Object positioned on ruler */}
-        <g transform={`translate(${10 + objectStartPx}, 25)`}>
-          <object.svgComponent className="w-auto h-6" />
+        {/* Object positioned from 0 */}
+        <g transform={`translate(${objectStartPx}, 30)`}>
+          <object.svgComponent className="w-auto h-8" />
         </g>
         
-        {/* Red measurement lines */}
+        {/* Red measurement lines - starting exactly at 0 */}
         <line
-          x1={10 + objectStartPx}
-          y1="15"
-          x2={10 + objectStartPx}
-          y2="75"
+          x1={objectStartPx}
+          y1="20"
+          x2={objectStartPx}
+          y2="90"
           stroke="#ef4444"
-          strokeWidth="1"
-          strokeDasharray="3,3"
+          strokeWidth="2"
+          strokeDasharray="4,2"
         />
         <line
-          x1={10 + objectStartPx + objectLengthPx}
-          y1="15"
-          x2={10 + objectStartPx + objectLengthPx}
-          y2="75"
+          x1={objectStartPx + objectLengthPx}
+          y1="20"
+          x2={objectStartPx + objectLengthPx}
+          y2="90"
           stroke="#ef4444"
-          strokeWidth="1"
-          strokeDasharray="3,3"
+          strokeWidth="2"
+          strokeDasharray="4,2"
+        />
+        
+        {/* Measurement arrow */}
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+                  refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444" />
+          </marker>
+        </defs>
+        <line
+          x1={objectStartPx}
+          y1="15"
+          x2={objectStartPx + objectLengthPx}
+          y2="15"
+          stroke="#ef4444"
+          strokeWidth="2"
+          markerEnd="url(#arrowhead)"
+          markerStart="url(#arrowhead)"
         />
         
         {/* Answer overlay */}
         {showAnswer && (
           <g>
-            <rect x="5" y="5" width="80" height="25" fill="#10b981" fillOpacity="0.1" stroke="#10b981" strokeWidth="1" rx="4"/>
-            <text x="10" y="20" fontSize="12" fill="#059669" fontWeight="bold">
-              {object.actualLength} เซนติเมตร
+            <rect x="5" y="5" width="120" height="35" fill="#10b981" fillOpacity="0.1" stroke="#10b981" strokeWidth="2" rx="6"/>
+            <text x="10" y="22" fontSize="14" fill="#059669" fontWeight="bold">
+              ✓ ความยาว: {object.actualLength} เซนติเมตร
             </text>
-            <text x="10" y="33" fontSize="11" fill="#059669">
-              {(object.actualLength * 10)} มิลลิเมตร
+            <text x="10" y="36" fontSize="12" fill="#059669">
+              = {(object.actualLength * 10)} มิลลิเมตร
             </text>
           </g>
         )}
       </svg>
+      
+      {/* Scale indicator */}
+      <div className="text-xs text-gray-500 mt-1 text-center">
+        ไม้บรรทัด (หน่วย: เซนติเมตร)
+      </div>
     </div>
   );
 };
@@ -291,9 +349,11 @@ export default function QuickMathApp() {
       const userCm = parseFloat(userAnswers[index].cm) || 0;
       const userMm = parseFloat(userAnswers[index].mm) || 0;
       
-      const correctCm = Math.abs(userCm - problem.actualLength) < 0.1;
-      const correctMm = Math.abs(userMm - (problem.actualLength * 10)) < 1;
+      // More precise checking with tolerance of 0.1 cm or 1 mm
+      const correctCm = Math.abs(userCm - problem.actualLength) <= 0.1;
+      const correctMm = Math.abs(userMm - (problem.actualLength * 10)) <= 1;
       
+      // Accept answer if either cm or mm is correct
       return (correctCm || correctMm) ? 'correct' : 'wrong';
     });
     
