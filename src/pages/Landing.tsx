@@ -63,6 +63,15 @@ const Landing = () => {
         <SkillsSection 
           buttonText="ดูตัวอย่างแบบฝึกหัด" 
           onPreview={() => setShowExampleModal(true)}
+          skills={[{
+            icon: () => <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" /></svg>,
+            title: 'บวก',
+            desc: 'ฝึกการบวกเลขพื้นฐาน เริ่มต้นจากเลขง่ายๆ ไปจนถึงเลขหลายหลัก',
+            from: 'from-pink-100',
+            to: 'to-red-100',
+            sticker: '🧮',
+            hrefPreview: '/addition'
+          }]}
         />
 
         {/* Benefits Section */}
