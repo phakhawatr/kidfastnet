@@ -62,14 +62,11 @@ const ShapeCard: React.FC<{
         ${isConnected ? (isCorrect ? 'border-green-400 bg-green-50' : 'border-red-400 bg-red-50') : ''}
       `}
     >
-      <div className="flex items-center gap-3 w-full">
+      <div className="flex items-center justify-center w-full">
         {side === 'left' && (
-          <>
-            <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-lg ${shape.shapeColor} flex items-center justify-center text-2xl sm:text-3xl`}>
-              {shape.shapeEmoji}
-            </div>
-            <span className="font-medium text-gray-800 text-sm sm:text-base">{shape.shapeName}</span>
-          </>
+          <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-lg ${shape.shapeColor} flex items-center justify-center text-2xl sm:text-3xl mx-auto`}>
+            {shape.shapeEmoji}
+          </div>
         )}
         
         {side === 'right' && (
