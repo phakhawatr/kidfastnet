@@ -216,25 +216,25 @@ const LengthComparisonApp: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 p-4 relative overflow-hidden">
-      {/* Floating cartoon decorations */}
-      <div className="absolute top-10 left-10 animate-bounce">
-        <img src={giraffeMascot} alt="Giraffe" className="w-16 h-16 opacity-30" />
+      {/* Floating cartoon decorations - gentler animations */}
+      <div className="absolute top-10 left-10 animate-pulse">
+        <img src={giraffeMascot} alt="Giraffe" className="w-16 h-16 opacity-40" />
       </div>
-      <div className="absolute top-20 right-20 animate-pulse">
-        <img src={elephantMascot} alt="Elephant" className="w-14 h-14 opacity-30" />
+      <div className="absolute top-20 right-20">
+        <img src={elephantMascot} alt="Elephant" className="w-14 h-14 opacity-40" />
       </div>
-      <div className="absolute bottom-20 left-20 animate-bounce delay-1000">
-        <img src={mouseMascot} alt="Mouse" className="w-12 h-12 opacity-30" />
+      <div className="absolute bottom-20 left-20 animate-pulse">
+        <img src={mouseMascot} alt="Mouse" className="w-12 h-12 opacity-40" />
       </div>
       
-      {/* Floating stars */}
-      <div className="absolute top-32 left-1/4 animate-spin text-yellow-400">
+      {/* Floating stars - slower rotation */}
+      <div className="absolute top-32 left-1/4 text-yellow-400">
         <Star className="w-6 h-6" fill="currentColor" />
       </div>
-      <div className="absolute top-40 right-1/3 animate-spin delay-500 text-pink-400">
+      <div className="absolute top-40 right-1/3 text-pink-400">
         <Star className="w-4 h-4" fill="currentColor" />
       </div>
-      <div className="absolute bottom-32 right-1/4 animate-spin delay-1000 text-blue-400">
+      <div className="absolute bottom-32 right-1/4 text-blue-400">
         <Star className="w-5 h-5" fill="currentColor" />
       </div>
 
@@ -249,7 +249,7 @@ const LengthComparisonApp: React.FC = () => {
               </Button>
             </Link>
             <div className="flex items-center gap-3">
-              <img src={giraffeMascot} alt="Giraffe Mascot" className="w-12 h-12 animate-bounce" />
+              <img src={giraffeMascot} alt="Giraffe Mascot" className="w-12 h-12" />
               <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                 🎯 จับคู่ความยาว
               </h1>
@@ -271,7 +271,7 @@ const LengthComparisonApp: React.FC = () => {
         <Card className="mb-6 border-2 border-pink-200 bg-gradient-to-r from-pink-50 to-purple-50 shadow-lg">
           <CardContent className="p-6">
             <div className="flex items-center justify-center gap-4">
-              <img src={elephantMascot} alt="Elephant" className="w-16 h-16 animate-pulse" />
+              <img src={elephantMascot} alt="Elephant" className="w-16 h-16" />
               <div className="text-center">
                 <p className="text-lg font-semibold text-purple-700 mb-2">
                   🎯 วิธีเล่นง่ายๆ นะจ๊ะ!
@@ -280,7 +280,7 @@ const LengthComparisonApp: React.FC = () => {
                   คลิกที่โจทย์ด้านซ้าย แล้วคลิกที่คำตอบด้านขวาที่มีความยาวเท่ากัน ✨
                 </p>
               </div>
-              <img src={mouseMascot} alt="Mouse" className="w-16 h-16 animate-bounce delay-500" />
+              <img src={mouseMascot} alt="Mouse" className="w-16 h-16" />
             </div>
           </CardContent>
         </Card>
@@ -306,9 +306,9 @@ const LengthComparisonApp: React.FC = () => {
                     key={question.id}
                     onClick={() => handleLeftClick(question.id)}
                     className={`
-                      relative p-3 sm:p-4 rounded-2xl border-3 cursor-pointer transition-all duration-300 min-h-[70px] sm:min-h-[80px] transform hover:scale-105
-                      ${isSelected ? 'border-blue-400 bg-gradient-to-r from-blue-100 to-purple-100 shadow-xl animate-pulse' : 'border-pink-200 bg-gradient-to-r from-white to-pink-50 hover:border-pink-300 shadow-md'}
-                      ${isConnected ? (connection.isCorrect ? 'border-green-400 bg-gradient-to-r from-green-100 to-green-50 animate-bounce' : 'border-red-400 bg-gradient-to-r from-red-100 to-red-50') : ''}
+                      relative p-3 sm:p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 min-h-[70px] sm:min-h-[80px]
+                      ${isSelected ? 'border-blue-400 bg-gradient-to-r from-blue-100 to-purple-100 shadow-lg' : 'border-pink-200 bg-gradient-to-r from-white to-pink-50 hover:border-pink-300 shadow-md'}
+                      ${isConnected ? (connection.isCorrect ? 'border-green-400 bg-gradient-to-r from-green-100 to-green-50' : 'border-red-400 bg-gradient-to-r from-red-100 to-red-50') : ''}
                     `}
                   >
                     <div className="flex items-center gap-2 sm:gap-3">
@@ -318,7 +318,7 @@ const LengthComparisonApp: React.FC = () => {
                       <span className="font-bold text-purple-800 text-sm sm:text-lg">{question.left}</span>
                       {isConnected && (
                         connection.isCorrect ? 
-                        <div className="ml-auto flex items-center gap-1 animate-bounce">
+                        <div className="ml-auto flex items-center gap-1">
                           <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-green-500" />
                           <span className="text-green-600 font-bold">✨</span>
                         </div> :
@@ -350,9 +350,9 @@ const LengthComparisonApp: React.FC = () => {
                     key={answer.id}
                     onClick={() => handleRightClick(answer.id)}
                     className={`
-                      relative p-3 sm:p-4 rounded-2xl border-3 cursor-pointer transition-all duration-300 min-h-[70px] sm:min-h-[80px] flex items-center transform hover:scale-105
+                      relative p-3 sm:p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 min-h-[70px] sm:min-h-[80px] flex items-center
                       ${selectedLeft && !isConnected ? 'hover:border-blue-400 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 shadow-lg' : ''}
-                      ${isConnected ? (connection.isCorrect ? 'border-green-400 bg-gradient-to-r from-green-100 to-green-50 animate-bounce' : 'border-red-400 bg-gradient-to-r from-red-100 to-red-50') : 'border-yellow-200 bg-gradient-to-r from-white to-yellow-50 shadow-md'}
+                      ${isConnected ? (connection.isCorrect ? 'border-green-400 bg-gradient-to-r from-green-100 to-green-50' : 'border-red-400 bg-gradient-to-r from-red-100 to-red-50') : 'border-yellow-200 bg-gradient-to-r from-white to-yellow-50 shadow-md'}
                       ${selectedLeft === null || isConnected ? 'cursor-not-allowed opacity-60' : ''}
                     `}
                   >
@@ -360,7 +360,7 @@ const LengthComparisonApp: React.FC = () => {
                       <span className="font-bold text-orange-800 text-sm sm:text-lg">{answer.right}</span>
                       {isConnected && (
                         connection.isCorrect ? 
-                        <div className="flex items-center gap-1 animate-bounce">
+                        <div className="flex items-center gap-1">
                           <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-green-500" />
                           <span className="text-green-600 font-bold">🎉</span>
                         </div> :
@@ -382,24 +382,24 @@ const LengthComparisonApp: React.FC = () => {
           <Card className="mt-6 border-2 border-yellow-300 bg-gradient-to-r from-yellow-100 via-pink-100 to-purple-100 shadow-2xl">
             <CardHeader>
               <CardTitle className="text-center flex items-center justify-center gap-3">
-                <img src={giraffeMascot} alt="Celebrating Giraffe" className="w-12 h-12 animate-bounce" />
+                <img src={giraffeMascot} alt="Celebrating Giraffe" className="w-12 h-12" />
                 <div className="flex items-center gap-2">
-                  <Trophy className="w-8 h-8 text-yellow-500 animate-spin" />
+                  <Trophy className="w-8 h-8 text-yellow-500" />
                   <span className="text-2xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
                     🎉 ผลลัพธ์ 🎉
                   </span>
                 </div>
-                <img src={mouseMascot} alt="Celebrating Mouse" className="w-12 h-12 animate-bounce delay-300" />
+                <img src={mouseMascot} alt="Celebrating Mouse" className="w-12 h-12" />
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-center space-y-6">
                 <div className="grid grid-cols-2 gap-6 max-w-md mx-auto">
-                  <div className="bg-gradient-to-r from-green-100 to-green-200 p-6 rounded-2xl border-2 border-green-300 shadow-lg transform hover:scale-105 transition-transform">
+                  <div className="bg-gradient-to-r from-green-100 to-green-200 p-6 rounded-2xl border-2 border-green-300 shadow-lg">
                     <div className="text-3xl font-bold text-green-600">{score} ⭐</div>
                     <div className="text-sm font-semibold text-green-700">คะแนน</div>
                   </div>
-                  <div className="bg-gradient-to-r from-blue-100 to-blue-200 p-6 rounded-2xl border-2 border-blue-300 shadow-lg transform hover:scale-105 transition-transform">
+                  <div className="bg-gradient-to-r from-blue-100 to-blue-200 p-6 rounded-2xl border-2 border-blue-300 shadow-lg">
                     <div className="text-3xl font-bold text-blue-600">⏱️ {formatTime(timeElapsed)}</div>
                     <div className="text-sm font-semibold text-blue-700">เวลาที่ใช้</div>
                   </div>
@@ -430,7 +430,7 @@ const LengthComparisonApp: React.FC = () => {
         {/* Controls with mascots */}
         {!isCompleted && (
           <div className="flex justify-center gap-4 mt-8">
-            <img src={elephantMascot} alt="Elephant" className="w-12 h-12 animate-pulse" />
+            <img src={elephantMascot} alt="Elephant" className="w-12 h-12" />
             <Button onClick={resetGame} variant="outline" className="border-2 border-orange-300 text-orange-700 hover:bg-orange-50 font-bold">
               <RotateCcw className="w-4 h-4 mr-2" />
               🔄 เริ่มใหม่
@@ -439,7 +439,7 @@ const LengthComparisonApp: React.FC = () => {
               <Shuffle className="w-4 h-4 mr-2" />
               🎲 สุ่มชุดใหม่
             </Button>
-            <img src={mouseMascot} alt="Mouse" className="w-12 h-12 animate-bounce" />
+            <img src={mouseMascot} alt="Mouse" className="w-12 h-12" />
           </div>
         )}
       </div>
