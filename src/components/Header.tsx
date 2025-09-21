@@ -17,7 +17,7 @@ const Header = () => {
                 <Link to="/profile" className="btn-secondary text-sm">
                   โปรไฟล์
                 </Link>
-                <button onClick={logout} className="px-4 py-2 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 text-sm">
+                <button onClick={logout} className="px-4 py-2 rounded-full text-white/80 hover:text-white transition-all duration-200 text-sm bg-red-600 hover:bg-red-500">
                   ออกจากระบบ
                 </button>
               </> : <>
