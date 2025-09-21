@@ -60,17 +60,8 @@ const Landing = () => {
           </div>
         </section>
 
-        {/* Skills Section - Show only "บวก" skill */}
+        {/* Skills Section - Show all skills */}
         <SkillsSection 
-          skills={[{
-            icon: () => <div className="text-2xl">+</div>,
-            title: 'บวก',
-            desc: 'ฝึกการบวกเลขพื้นฐาน เริ่มต้นจากเลขง่ายๆ ไปจนถึงเลขหลายหลัก',
-            from: 'from-pink-100',
-            to: 'to-red-100',
-            sticker: '🧮',
-            hrefPreview: '#'
-          }]}
           onPreview={() => setShowExamplePopup(true)}
           buttonText="ดูตัวอย่างแบบฝึกหัด" 
         />
