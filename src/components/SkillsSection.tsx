@@ -118,7 +118,7 @@ const defaultSkills: Skill[] = [{
   from: 'from-purple-100',
   to: 'to-violet-100',
   sticker: '🍰',
-  hrefPreview: '#'
+  hrefPreview: '/fraction-matching'
 }, {
   icon: Percent,
   title: 'ร้อยละ',

@@ -15,6 +15,7 @@ import MultiplicationTable from "./pages/MultiplicationTable";
 import QuickMathApp from "./pages/QuickMathApp";
 import LengthComparisonApp from "./pages/LengthComparisonApp";
 import ShapeMatchingApp from "./pages/ShapeMatchingApp";
+import FractionMatchingApp from "./pages/FractionMatchingApp";
 import BackgroundRemoverPage from "./pages/BackgroundRemover";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -118,6 +119,14 @@ const App = () => (
           element={
             <ProtectedRoute>
               <ShapeMatchingApp />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/fraction-matching" 
+          element={
+            <ProtectedRoute>
+              <FractionMatchingApp />
             </ProtectedRoute>
           } 
         />
