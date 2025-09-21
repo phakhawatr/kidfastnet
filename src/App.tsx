@@ -12,6 +12,7 @@ import TimeApp from "./pages/TimeApp";
 import WeighingApp from "./pages/WeighingApp";
 import MeasurementApp from "./pages/MeasurementApp";
 import MultiplicationTable from "./pages/MultiplicationTable";
+import QuickMathApp from "./pages/QuickMathApp";
 import BackgroundRemoverPage from "./pages/BackgroundRemover";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -91,6 +92,14 @@ const App = () => (
           element={
             <ProtectedRoute>
               <MultiplicationTable />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/quick-math" 
+          element={
+            <ProtectedRoute>
+              <QuickMathApp />
             </ProtectedRoute>
           } 
         />
