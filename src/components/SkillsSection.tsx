@@ -110,7 +110,7 @@ const defaultSkills: Skill[] = [{
   from: 'from-teal-100',
   to: 'to-green-100',
   sticker: '🔷',
-  hrefPreview: '#'
+  hrefPreview: '/shape-matching'
 }, {
   icon: Calculator,
   title: 'เศษส่วน',
