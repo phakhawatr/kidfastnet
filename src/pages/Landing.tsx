@@ -1,8 +1,28 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SkillsSection from '../components/SkillsSection';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui/dialog';
+import { X } from 'lucide-react';
+import additionExamples from '../assets/addition-examples.png';
 const Landing = () => {
+  const [showExamplesModal, setShowExamplesModal] = useState(false);
+  
+  const additionSkill = {
+    icon: () => <span className="text-2xl">+</span>,
+    title: 'บวก',
+    desc: 'ฝึกการบวกเลขพื้นฐาน เริ่มต้นจากเลขง่ายๆ ไปจนถึงเลขหลายหลัก',
+    from: 'from-pink-100',
+    to: 'to-red-100',
+    sticker: '🧮',
+    hrefPreview: '/addition'
+  };
+
+  const handlePreviewClick = () => {
+    setShowExamplesModal(true);
+  };
+
   const benefits = [{
     icon: '🎮',
     title: 'เรียนผ่านเกม',
@@ -55,7 +75,11 @@ const Landing = () => {
         </section>
 
         {/* Skills Section */}
-        <SkillsSection buttonText="ดูตัวอย่างแบบฝึกหัด" />
+        <SkillsSection 
+          skills={[additionSkill]}
+          onPreview={handlePreviewClick}
+          buttonText="ดูตัวอย่างแบบฝึกหัด" 
+        />
 
         {/* Benefits Section */}
         <section className="mb-12">
@@ -107,6 +131,30 @@ const Landing = () => {
       <div className="fixed top-60 left-1/4 text-2xl opacity-20 animate-pulse pointer-events-none" style={{
       animationDelay: '0.5s'
     }}>🎯</div>
+      
+      {/* Examples Modal */}
+      <Dialog open={showExamplesModal} onOpenChange={setShowExamplesModal}>
+        <DialogContent className="max-w-4xl w-full p-0 overflow-hidden">
+          <DialogHeader className="p-6 pb-0">
+            <DialogTitle className="text-2xl font-bold text-center text-[hsl(var(--text-primary))]">
+              ตัวอย่างแบบฝึกหัดการบวก
+            </DialogTitle>
+            <button
+              onClick={() => setShowExamplesModal(false)}
+              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </DialogHeader>
+          <div className="p-6">
+            <img 
+              src={additionExamples} 
+              alt="ตัวอย่างแบบฝึกหัดการบวก" 
+              className="w-full h-auto rounded-lg shadow-lg"
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
       
       <Footer />
     </div>;
