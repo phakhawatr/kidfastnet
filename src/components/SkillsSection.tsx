@@ -62,7 +62,7 @@ const defaultSkills: Skill[] = [{
   from: 'from-sky-100',
   to: 'to-teal-100',
   sticker: '🐼',
-  hrefPreview: '#'
+  hrefPreview: '/multiplication-table'
 }, {
   icon: Clock,
   title: 'เวลา',
