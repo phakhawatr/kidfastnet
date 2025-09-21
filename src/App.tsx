@@ -10,6 +10,7 @@ import SubtractionApp from "./pages/SubtractionApp";
 import AdditionApp from "./pages/AdditionApp";
 import TimeApp from "./pages/TimeApp";
 import WeighingApp from "./pages/WeighingApp";
+import MeasurementApp from "./pages/MeasurementApp";
 import MultiplicationTable from "./pages/MultiplicationTable";
 import BackgroundRemoverPage from "./pages/BackgroundRemover";
 import NotFound from "./pages/NotFound";
@@ -74,6 +75,14 @@ const App = () => (
           element={
             <ProtectedRoute>
               <WeighingApp />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/measurement" 
+          element={
+            <ProtectedRoute>
+              <MeasurementApp />
             </ProtectedRoute>
           } 
         />

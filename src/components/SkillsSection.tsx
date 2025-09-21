@@ -78,7 +78,7 @@ const defaultSkills: Skill[] = [{
   from: 'from-fuchsia-100',
   to: 'to-pink-100',
   sticker: '📏',
-  hrefPreview: '#'
+  hrefPreview: '/measurement'
 }, {
   icon: Scale,
   title: 'ชั่งน้ำหนัก',
