@@ -127,9 +127,13 @@ const Landing = () => {
               <DialogTitle className="text-xl font-bold">
                 ตัวอย่างแบบฝึกหัด
               </DialogTitle>
-              <DialogClose className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+              <button 
+                onClick={() => setShowExamplePopup(false)}
+                className="flex items-center justify-center w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors duration-200"
+                aria-label="ปิด"
+              >
                 <X className="h-4 w-4" />
-              </DialogClose>
+              </button>
             </div>
           </DialogHeader>
           <div className="flex-1 p-6 overflow-auto">
