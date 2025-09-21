@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, RotateCcw, Clock, CheckCircle, XCircle, Trophy, Shuffle } from 'lucide-react';
+import { ArrowLeft, RotateCcw, Clock, CheckCircle, XCircle, Trophy, Shuffle, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import giraffeMascot from '@/assets/giraffe-mascot.png';
+import elephantMascot from '@/assets/elephant-mascot.png';
+import mouseMascot from '@/assets/mouse-mascot.png';
 
 interface MatchingPair {
   id: number;
@@ -212,37 +215,73 @@ const LengthComparisonApp: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 p-4 relative overflow-hidden">
+      {/* Floating cartoon decorations */}
+      <div className="absolute top-10 left-10 animate-bounce">
+        <img src={giraffeMascot} alt="Giraffe" className="w-16 h-16 opacity-30" />
+      </div>
+      <div className="absolute top-20 right-20 animate-pulse">
+        <img src={elephantMascot} alt="Elephant" className="w-14 h-14 opacity-30" />
+      </div>
+      <div className="absolute bottom-20 left-20 animate-bounce delay-1000">
+        <img src={mouseMascot} alt="Mouse" className="w-12 h-12 opacity-30" />
+      </div>
+      
+      {/* Floating stars */}
+      <div className="absolute top-32 left-1/4 animate-spin text-yellow-400">
+        <Star className="w-6 h-6" fill="currentColor" />
+      </div>
+      <div className="absolute top-40 right-1/3 animate-spin delay-500 text-pink-400">
+        <Star className="w-4 h-4" fill="currentColor" />
+      </div>
+      <div className="absolute bottom-32 right-1/4 animate-spin delay-1000 text-blue-400">
+        <Star className="w-5 h-5" fill="currentColor" />
+      </div>
+
+      <div className="max-w-6xl mx-auto relative z-10">
+        {/* Header with mascot */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <Link to="/profile">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="border-2 border-purple-300 text-purple-700 hover:bg-purple-50">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                กลับ
+                🏠 กลับบ้าน
               </Button>
             </Link>
-            <h1 className="text-2xl font-bold text-gray-800">จับคู่ความยาว</h1>
+            <div className="flex items-center gap-3">
+              <img src={giraffeMascot} alt="Giraffe Mascot" className="w-12 h-12 animate-bounce" />
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                🎯 จับคู่ความยาว
+              </h1>
+            </div>
           </div>
 
           <div className="flex items-center gap-4">
-            <Badge variant="secondary" className="text-sm">
-              <Clock className="w-4 h-4 mr-1" />
-              {formatTime(timeElapsed)}
+            <Badge variant="secondary" className="text-sm bg-yellow-100 border-yellow-300">
+              <Clock className="w-4 h-4 mr-1 text-yellow-600" />
+              ⏰ {formatTime(timeElapsed)}
             </Badge>
-            <Badge variant="outline" className="text-sm">
-              ชุดที่ {currentSet + 1}/{questionSets.length}
+            <Badge variant="outline" className="text-sm border-blue-300 text-blue-700">
+              📚 ชุดที่ {currentSet + 1}/{questionSets.length}
             </Badge>
           </div>
         </div>
 
-        {/* Game Instructions */}
-        <Card className="mb-6">
-          <CardContent className="p-4">
-            <p className="text-center text-gray-600">
-              🎯 คลิกที่โจทย์ด้านซ้าย แล้วคลิกที่คำตอบด้านขวาที่มีความยาวเท่ากัน
-            </p>
+        {/* Game Instructions with mascots */}
+        <Card className="mb-6 border-2 border-pink-200 bg-gradient-to-r from-pink-50 to-purple-50 shadow-lg">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-center gap-4">
+              <img src={elephantMascot} alt="Elephant" className="w-16 h-16 animate-pulse" />
+              <div className="text-center">
+                <p className="text-lg font-semibold text-purple-700 mb-2">
+                  🎯 วิธีเล่นง่ายๆ นะจ๊ะ!
+                </p>
+                <p className="text-purple-600">
+                  คลิกที่โจทย์ด้านซ้าย แล้วคลิกที่คำตอบด้านขวาที่มีความยาวเท่ากัน ✨
+                </p>
+              </div>
+              <img src={mouseMascot} alt="Mouse" className="w-16 h-16 animate-bounce delay-500" />
+            </div>
           </CardContent>
         </Card>
 
@@ -250,8 +289,13 @@ const LengthComparisonApp: React.FC = () => {
         <div className="relative" ref={containerRef}>
           <div className="grid grid-cols-2 gap-2 sm:gap-4 md:gap-6 lg:gap-8">
             {/* Left Side - Questions */}
-            <div className="space-y-2">
-              <h2 className="text-sm sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-4">โจทย์</h2>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 mb-4">
+                <img src={giraffeMascot} alt="Giraffe" className="w-8 h-8" />
+                <h2 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+                  📝 โจทย์
+                </h2>
+              </div>
               {questions.map((question, index) => {
                 const connection = getConnectionForLeft(question.id);
                 const isSelected = selectedLeft === question.id;
@@ -262,20 +306,26 @@ const LengthComparisonApp: React.FC = () => {
                     key={question.id}
                     onClick={() => handleLeftClick(question.id)}
                     className={`
-                      relative p-2 sm:p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 min-h-[60px] sm:min-h-[72px]
-                      ${isSelected ? 'border-blue-500 bg-blue-50 shadow-md' : 'border-gray-200 bg-white hover:border-gray-300'}
-                      ${isConnected ? (connection.isCorrect ? 'border-green-400 bg-green-50' : 'border-red-400 bg-red-50') : ''}
+                      relative p-3 sm:p-4 rounded-2xl border-3 cursor-pointer transition-all duration-300 min-h-[70px] sm:min-h-[80px] transform hover:scale-105
+                      ${isSelected ? 'border-blue-400 bg-gradient-to-r from-blue-100 to-purple-100 shadow-xl animate-pulse' : 'border-pink-200 bg-gradient-to-r from-white to-pink-50 hover:border-pink-300 shadow-md'}
+                      ${isConnected ? (connection.isCorrect ? 'border-green-400 bg-gradient-to-r from-green-100 to-green-50 animate-bounce' : 'border-red-400 bg-gradient-to-r from-red-100 to-red-50') : ''}
                     `}
                   >
                     <div className="flex items-center gap-2 sm:gap-3">
-                      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gray-800 text-white flex items-center justify-center font-bold text-xs sm:text-sm">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white flex items-center justify-center font-bold text-sm sm:text-base shadow-lg">
                         {index + 1}
                       </div>
-                      <span className="font-medium text-gray-800 text-xs sm:text-base">{question.left}</span>
+                      <span className="font-bold text-purple-800 text-sm sm:text-lg">{question.left}</span>
                       {isConnected && (
                         connection.isCorrect ? 
-                        <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 ml-auto" /> :
-                        <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 ml-auto" />
+                        <div className="ml-auto flex items-center gap-1 animate-bounce">
+                          <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-green-500" />
+                          <span className="text-green-600 font-bold">✨</span>
+                        </div> :
+                        <div className="ml-auto flex items-center gap-1">
+                          <XCircle className="w-5 h-5 sm:w-6 sm:h-6 text-red-500" />
+                          <span className="text-red-600">❌</span>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -284,8 +334,13 @@ const LengthComparisonApp: React.FC = () => {
             </div>
 
             {/* Right Side - Answers */}
-            <div className="space-y-2">
-              <h2 className="text-sm sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-4">คำตอบ</h2>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 mb-4">
+                <img src={elephantMascot} alt="Elephant" className="w-8 h-8" />
+                <h2 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                  💡 คำตอบ
+                </h2>
+              </div>
               {shuffledAnswers.map((answer, index) => {
                 const connection = connections.find(conn => conn.rightId === answer.id);
                 const isConnected = connection !== undefined;
@@ -295,18 +350,24 @@ const LengthComparisonApp: React.FC = () => {
                     key={answer.id}
                     onClick={() => handleRightClick(answer.id)}
                     className={`
-                      relative p-2 sm:p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 min-h-[60px] sm:min-h-[72px] flex items-center
-                      ${selectedLeft && !isConnected ? 'hover:border-blue-300 hover:bg-blue-50' : ''}
-                      ${isConnected ? (connection.isCorrect ? 'border-green-400 bg-green-50' : 'border-red-400 bg-red-50') : 'border-gray-200 bg-white'}
-                      ${selectedLeft === null || isConnected ? 'cursor-not-allowed opacity-75' : ''}
+                      relative p-3 sm:p-4 rounded-2xl border-3 cursor-pointer transition-all duration-300 min-h-[70px] sm:min-h-[80px] flex items-center transform hover:scale-105
+                      ${selectedLeft && !isConnected ? 'hover:border-blue-400 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 shadow-lg' : ''}
+                      ${isConnected ? (connection.isCorrect ? 'border-green-400 bg-gradient-to-r from-green-100 to-green-50 animate-bounce' : 'border-red-400 bg-gradient-to-r from-red-100 to-red-50') : 'border-yellow-200 bg-gradient-to-r from-white to-yellow-50 shadow-md'}
+                      ${selectedLeft === null || isConnected ? 'cursor-not-allowed opacity-60' : ''}
                     `}
                   >
                     <div className="flex items-center justify-between w-full">
-                      <span className="font-medium text-gray-800 text-xs sm:text-base">{answer.right}</span>
+                      <span className="font-bold text-orange-800 text-sm sm:text-lg">{answer.right}</span>
                       {isConnected && (
                         connection.isCorrect ? 
-                        <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" /> :
-                        <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
+                        <div className="flex items-center gap-1 animate-bounce">
+                          <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-green-500" />
+                          <span className="text-green-600 font-bold">🎉</span>
+                        </div> :
+                        <div className="flex items-center gap-1">
+                          <XCircle className="w-5 h-5 sm:w-6 sm:h-6 text-red-500" />
+                          <span className="text-red-600">😢</span>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -316,35 +377,49 @@ const LengthComparisonApp: React.FC = () => {
           </div>
         </div>
 
-        {/* Results */}
+        {/* Results with celebration */}
         {isCompleted && (
-          <Card className="mt-6">
+          <Card className="mt-6 border-2 border-yellow-300 bg-gradient-to-r from-yellow-100 via-pink-100 to-purple-100 shadow-2xl">
             <CardHeader>
-              <CardTitle className="text-center flex items-center justify-center gap-2">
-                <Trophy className="w-6 h-6 text-yellow-500" />
-                ผลลัพธ์
+              <CardTitle className="text-center flex items-center justify-center gap-3">
+                <img src={giraffeMascot} alt="Celebrating Giraffe" className="w-12 h-12 animate-bounce" />
+                <div className="flex items-center gap-2">
+                  <Trophy className="w-8 h-8 text-yellow-500 animate-spin" />
+                  <span className="text-2xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
+                    🎉 ผลลัพธ์ 🎉
+                  </span>
+                </div>
+                <img src={mouseMascot} alt="Celebrating Mouse" className="w-12 h-12 animate-bounce delay-300" />
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center space-y-4">
-                <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <div className="text-2xl font-bold text-green-600">{score}</div>
-                    <div className="text-sm text-gray-600">คะแนน</div>
+              <div className="text-center space-y-6">
+                <div className="grid grid-cols-2 gap-6 max-w-md mx-auto">
+                  <div className="bg-gradient-to-r from-green-100 to-green-200 p-6 rounded-2xl border-2 border-green-300 shadow-lg transform hover:scale-105 transition-transform">
+                    <div className="text-3xl font-bold text-green-600">{score} ⭐</div>
+                    <div className="text-sm font-semibold text-green-700">คะแนน</div>
                   </div>
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-600">{formatTime(timeElapsed)}</div>
-                    <div className="text-sm text-gray-600">เวลาที่ใช้</div>
+                  <div className="bg-gradient-to-r from-blue-100 to-blue-200 p-6 rounded-2xl border-2 border-blue-300 shadow-lg transform hover:scale-105 transition-transform">
+                    <div className="text-3xl font-bold text-blue-600">⏱️ {formatTime(timeElapsed)}</div>
+                    <div className="text-sm font-semibold text-blue-700">เวลาที่ใช้</div>
                   </div>
                 </div>
                 
-                <div className="flex gap-3 justify-center">
-                  <Button onClick={resetGame} variant="outline">
+                <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-4 rounded-2xl border-2 border-purple-200">
+                  <p className="text-lg font-bold text-purple-700">
+                    {score === questions.length ? '🌟 เก่งมาก! คุณตอบถูกทุกข้อ! 🌟' : 
+                     score >= questions.length * 0.8 ? '👏 ดีมาก! พยายามต่อไป! 👏' : 
+                     '💪 ไม่เป็นไร ลองใหม่นะ! 💪'}
+                  </p>
+                </div>
+                
+                <div className="flex gap-4 justify-center">
+                  <Button onClick={resetGame} variant="outline" className="border-2 border-purple-300 text-purple-700 hover:bg-purple-50 font-bold">
                     <RotateCcw className="w-4 h-4 mr-2" />
-                    เล่นใหม่
+                    🔄 เล่นใหม่
                   </Button>
-                  <Button onClick={nextSet}>
-                    ชุดต่อไป
+                  <Button onClick={nextSet} className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold">
+                    🚀 ชุดต่อไป
                   </Button>
                 </div>
               </div>
@@ -352,17 +427,19 @@ const LengthComparisonApp: React.FC = () => {
           </Card>
         )}
 
-        {/* Controls */}
+        {/* Controls with mascots */}
         {!isCompleted && (
-          <div className="flex justify-center gap-3 mt-6">
-            <Button onClick={resetGame} variant="outline">
+          <div className="flex justify-center gap-4 mt-8">
+            <img src={elephantMascot} alt="Elephant" className="w-12 h-12 animate-pulse" />
+            <Button onClick={resetGame} variant="outline" className="border-2 border-orange-300 text-orange-700 hover:bg-orange-50 font-bold">
               <RotateCcw className="w-4 h-4 mr-2" />
-              เริ่มใหม่
+              🔄 เริ่มใหม่
             </Button>
-            <Button onClick={handleRandomSet} variant="default">
+            <Button onClick={handleRandomSet} className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-bold">
               <Shuffle className="w-4 h-4 mr-2" />
-              สุ่มชุดใหม่
+              🎲 สุ่มชุดใหม่
             </Button>
+            <img src={mouseMascot} alt="Mouse" className="w-12 h-12 animate-bounce" />
           </div>
         )}
       </div>
