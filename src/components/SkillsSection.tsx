@@ -22,7 +22,7 @@ const defaultSkills: Skill[] = [{
   from: 'from-pink-100',
   to: 'to-red-100',
   sticker: '🧮',
-  hrefPreview: '#'
+  hrefPreview: '/addition'
 }, {
   icon: Minus,
   title: 'ลบ',

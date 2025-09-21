@@ -7,6 +7,7 @@ import Profile from "./pages/Profile";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import SubtractionApp from "./pages/SubtractionApp";
+import AdditionApp from "./pages/AdditionApp";
 import MultiplicationTable from "./pages/MultiplicationTable";
 import BackgroundRemoverPage from "./pages/BackgroundRemover";
 import NotFound from "./pages/NotFound";
@@ -47,6 +48,14 @@ const App = () => (
           element={
             <ProtectedRoute>
               <SubtractionApp />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/addition" 
+          element={
+            <ProtectedRoute>
+              <AdditionApp />
             </ProtectedRoute>
           } 
         />
