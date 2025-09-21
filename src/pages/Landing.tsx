@@ -1,8 +1,13 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SkillsSection from '../components/SkillsSection';
+import { Dialog, DialogContent, DialogTrigger } from '../components/ui/dialog';
+import practiceExamplesImage from '../assets/practice-examples.png';
 const Landing = () => {
+  const [showExampleModal, setShowExampleModal] = useState(false);
+  
   const benefits = [{
     icon: '🎮',
     title: 'เรียนผ่านเกม',
@@ -55,7 +60,10 @@ const Landing = () => {
         </section>
 
         {/* Skills Section */}
-        <SkillsSection buttonText="ดูตัวอย่างแบบฝึกหัด" />
+        <SkillsSection 
+          buttonText="ดูตัวอย่างแบบฝึกหัด" 
+          onPreview={() => setShowExampleModal(true)}
+        />
 
         {/* Benefits Section */}
         <section className="mb-12">
@@ -109,6 +117,28 @@ const Landing = () => {
     }}>🎯</div>
       
       <Footer />
+
+      {/* Practice Examples Modal */}
+      <Dialog open={showExampleModal} onOpenChange={setShowExampleModal}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto p-6">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4 text-[hsl(var(--text-primary))]">
+              📝 ตัวอย่างแบบฝึกหัด
+            </h2>
+            <img 
+              src={practiceExamplesImage} 
+              alt="ตัวอย่างแบบฝึกหัดการลบ" 
+              className="w-full h-auto rounded-lg shadow-lg"
+            />
+            <button 
+              onClick={() => setShowExampleModal(false)}
+              className="mt-4 px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full hover:from-purple-600 hover:to-pink-600 transition-all duration-300"
+            >
+              ปิด
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>;
 };
 export default Landing;
