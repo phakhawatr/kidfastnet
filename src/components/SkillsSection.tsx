@@ -70,7 +70,7 @@ const defaultSkills: Skill[] = [{
   from: 'from-yellow-100',
   to: 'to-lime-100',
   sticker: '⏰',
-  hrefPreview: '#'
+  hrefPreview: '/time'
 }, {
   icon: Ruler,
   title: 'ขนาด/ความยาว',

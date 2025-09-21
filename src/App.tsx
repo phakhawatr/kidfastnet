@@ -8,6 +8,7 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import SubtractionApp from "./pages/SubtractionApp";
 import AdditionApp from "./pages/AdditionApp";
+import TimeApp from "./pages/TimeApp";
 import MultiplicationTable from "./pages/MultiplicationTable";
 import BackgroundRemoverPage from "./pages/BackgroundRemover";
 import NotFound from "./pages/NotFound";
@@ -56,6 +57,14 @@ const App = () => (
           element={
             <ProtectedRoute>
               <AdditionApp />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/time" 
+          element={
+            <ProtectedRoute>
+              <TimeApp />
             </ProtectedRoute>
           } 
         />
