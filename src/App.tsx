@@ -13,6 +13,7 @@ import WeighingApp from "./pages/WeighingApp";
 import MeasurementApp from "./pages/MeasurementApp";
 import MultiplicationTable from "./pages/MultiplicationTable";
 import MultiplicationApp from "./pages/MultiplicationApp";
+import DivisionApp from "./pages/DivisionApp";
 import QuickMathApp from "./pages/QuickMathApp";
 import LengthComparisonApp from "./pages/LengthComparisonApp";
 import ShapeMatchingApp from "./pages/ShapeMatchingApp";
@@ -104,6 +105,14 @@ const App = () => (
           element={
             <ProtectedRoute>
               <MultiplicationApp />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/division" 
+          element={
+            <ProtectedRoute>
+              <DivisionApp />
             </ProtectedRoute>
           } 
         />

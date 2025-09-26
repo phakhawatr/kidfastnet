@@ -61,7 +61,7 @@ const defaultSkills: Skill[] = [{
   backgroundGradient: 'bg-gradient-to-br from-green-400 via-green-500 to-emerald-600',
   textColor: 'text-white',
   sticker: '🦊',
-  hrefPreview: '#',
+  hrefPreview: '/division',
   mascotImage: divisionMascot
 }, {
   icon: Sigma,
