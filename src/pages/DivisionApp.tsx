@@ -11,7 +11,6 @@ interface Problem {
   quotientDigits: string[];
   remainderDigits: string[];
 }
-
 interface Stats {
   timestamp: number;
   count: number;
@@ -20,7 +19,6 @@ interface Stats {
   total: number;
   timeMs: number;
 }
-
 type Level = 'easy' | 'medium' | 'hard';
 
 // Main component
@@ -40,7 +38,6 @@ const DivisionApp: React.FC = () => {
   const [showStats, setShowStats] = useState<boolean>(false);
   const [celebrate, setCelebrate] = useState<boolean>(false);
   const [stats, setStats] = useState<Stats[]>([]);
-  
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Generate division problems based on level (all exact divisions, no remainder)
@@ -48,7 +45,6 @@ const DivisionApp: React.FC = () => {
     let divisor = 2;
     let quotient = 1;
     let dividend = 2;
-
     if (level === 'easy') {
       // 1-2 digit dividends, single-digit divisors, single-digit quotients
       divisor = Math.floor(Math.random() * 8) + 2; // 2-9
@@ -71,7 +67,6 @@ const DivisionApp: React.FC = () => {
         dividend = divisor * quotient;
       } while (dividend < 100 || dividend > 999);
     }
-
     const remainder = 0; // ensure exact division for all levels
 
     return {
@@ -80,18 +75,16 @@ const DivisionApp: React.FC = () => {
       quotient,
       remainder,
       quotientDigits: quotient.toString().split(''),
-      remainderDigits: [],
+      remainderDigits: []
     };
   };
 
   // Generate division problems based on settings
   const generateDivisionProblems = useCallback((count: number, level: Level): Problem[] => {
     const generatedProblems: Problem[] = [];
-    
     for (let i = 0; i < count; i++) {
       generatedProblems.push(generateDivisionProblem(level));
     }
-    
     return generatedProblems;
   }, []);
 
@@ -100,7 +93,9 @@ const DivisionApp: React.FC = () => {
     const newProblems = generateDivisionProblems(count, level);
     setProblems(newProblems);
     // Simple single answer input per problem
-    setAnswers(Array.from({ length: newProblems.length }, () => ['']));
+    setAnswers(Array.from({
+      length: newProblems.length
+    }, () => ['']));
     setResults('pending');
     setCorrectCount(0);
     setStartedAt(null);
@@ -109,7 +104,6 @@ const DivisionApp: React.FC = () => {
     setShowAnswers(false);
     setShowResults(false);
     setCelebrate(false);
-    
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
@@ -126,7 +120,6 @@ const DivisionApp: React.FC = () => {
         setElapsedMs(Date.now() - now);
       }, 100);
     }
-    
     const newAnswers = [...answers];
     newAnswers[problemIndex] = [value];
     setAnswers(newAnswers);
@@ -150,23 +143,19 @@ const DivisionApp: React.FC = () => {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
-    
     const now = Date.now();
     setFinishedAt(now);
-    
     let correct = 0;
-    
     problems.forEach((problem, index) => {
       const userAnswer = parseInt(answers[index][0]) || 0;
       if (userAnswer === problem.quotient && problem.remainder === 0) {
         correct++;
       }
     });
-    
     setCorrectCount(correct);
     setResults('checked');
     setShowResults(true);
-    
+
     // Save to stats
     const newStat: Stats = {
       timestamp: now,
@@ -176,11 +165,9 @@ const DivisionApp: React.FC = () => {
       total: problems.length,
       timeMs: elapsedMs
     };
-    
     const updatedStats = [newStat, ...stats].slice(0, 10);
     setStats(updatedStats);
     localStorage.setItem('divisionStats', JSON.stringify(updatedStats));
-    
     if (correct === problems.length) {
       setCelebrate(true);
     }
@@ -197,7 +184,6 @@ const DivisionApp: React.FC = () => {
   const printPDF = () => {
     const printWindow = window.open('', '_blank', 'width=800,height=600');
     if (!printWindow) return;
-    
     const printContent = `
       <!DOCTYPE html>
       <html>
@@ -313,7 +299,9 @@ const DivisionApp: React.FC = () => {
                 ${problem.dividend?.toLocaleString() || '0'} ÷ ${problem.divisor?.toLocaleString() || '0'} =
               </div>
               <div class="answer-boxes">
-                ${Array.from({length: Math.max(2, problem.quotient.toString().length)}, () => '<div class="answer-box"></div>').join('')}
+                ${Array.from({
+      length: Math.max(2, problem.quotient.toString().length)
+    }, () => '<div class="answer-box"></div>').join('')}
               </div>
             </div>
           `).join('')}
@@ -330,7 +318,6 @@ const DivisionApp: React.FC = () => {
       </body>
       </html>
     `;
-    
     printWindow.document.write(printContent);
     printWindow.document.close();
   };
@@ -366,32 +353,19 @@ const DivisionApp: React.FC = () => {
       }
     };
   }, []);
-
-  return (
-    <div className="min-h-screen bg-white p-4">
+  return <div className="min-h-screen bg-white p-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-foreground mb-2">เทคนิคการหารระดับโปร</h1>
           <div className="flex items-center justify-between">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={printPDF}
-              className="text-sm"
-              disabled={problems.length === 0}
-            >
+            <Button variant="outline" size="sm" onClick={printPDF} className="text-sm" disabled={problems.length === 0}>
               พิมพ์ PDF
             </Button>
             <div className="text-lg font-mono bg-card rounded-lg px-4 py-2 shadow-sm">
               เวลา: {formatTime(elapsedMs)}
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowStats(true)}
-              className="text-sm"
-            >
+            <Button variant="outline" size="sm" onClick={() => setShowStats(true)} className="text-sm">
               ดูผล
             </Button>
           </div>
@@ -404,17 +378,9 @@ const DivisionApp: React.FC = () => {
             <div>
               <label className="block text-sm font-medium mb-2">จำนวนข้อ:</label>
               <div className="flex gap-2">
-                {[10, 15, 20, 30].map((num) => (
-                  <Button
-                    key={num}
-                    variant={count === num ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setCount(num)}
-                    className="flex-1"
-                  >
+                {[10, 15, 20, 30].map(num => <Button key={num} variant={count === num ? "default" : "outline"} size="sm" onClick={() => setCount(num)} className="flex-1 bg-yellow-300 hover:bg-yellow-200">
                     {num}
-                  </Button>
-                ))}
+                  </Button>)}
               </div>
             </div>
 
@@ -422,21 +388,18 @@ const DivisionApp: React.FC = () => {
             <div>
               <label className="block text-sm font-medium mb-2">ระดับ:</label>
               <div className="flex gap-2">
-                {[
-                  { key: 'easy', label: 'ง่าย' },
-                  { key: 'medium', label: 'ปานกลาง' },
-                  { key: 'hard', label: 'ยาก' }
-                ].map((lvl) => (
-                  <Button
-                    key={lvl.key}
-                    variant={level === lvl.key ? "secondary" : "outline"}
-                    size="sm"
-                    onClick={() => setLevel(lvl.key as Level)}
-                    className="flex-1"
-                  >
+                {[{
+                key: 'easy',
+                label: 'ง่าย'
+              }, {
+                key: 'medium',
+                label: 'ปานกลาง'
+              }, {
+                key: 'hard',
+                label: 'ยาก'
+              }].map(lvl => <Button key={lvl.key} variant={level === lvl.key ? "secondary" : "outline"} size="sm" onClick={() => setLevel(lvl.key as Level)} className="flex-1 bg-red-200 hover:bg-red-100">
                     {lvl.label}
-                  </Button>
-                ))}
+                  </Button>)}
               </div>
             </div>
 
@@ -444,30 +407,14 @@ const DivisionApp: React.FC = () => {
             <div>
               <label className="block text-sm font-medium mb-2">การดำเนินการ:</label>
               <div className="space-y-2">
-                <Button
-                  onClick={generateNewSet}
-                  variant="default"
-                  size="sm"
-                  className="w-full"
-                >
+                <Button onClick={generateNewSet} variant="default" size="sm" className="w-full bg-teal-200 hover:bg-teal-100">
                   สุ่มชุดใหม่
                 </Button>
                 <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    onClick={checkAnswers}
-                    variant="secondary"
-                    size="sm"
-                    disabled={!startedAt}
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                  >
+                  <Button onClick={checkAnswers} variant="secondary" size="sm" disabled={!startedAt} className="bg-green-600 hover:bg-green-700 text-white">
                     ตรวจ
                   </Button>
-                  <Button
-                    onClick={showAllAnswers}
-                    variant="secondary"
-                    size="sm"
-                    className="bg-yellow-600 hover:bg-yellow-700 text-white"
-                  >
+                  <Button onClick={showAllAnswers} variant="secondary" size="sm" className="bg-yellow-600 hover:bg-yellow-700 text-white">
                     เฉลย
                   </Button>
                 </div>
@@ -478,11 +425,7 @@ const DivisionApp: React.FC = () => {
 
         {/* Problems Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          {problems.map((problem, problemIndex) => (
-            <div
-              key={problemIndex}
-              className="bg-card rounded-xl p-6 shadow-lg border-2 border-border"
-            >
+          {problems.map((problem, problemIndex) => <div key={problemIndex} className="bg-card rounded-xl p-6 shadow-lg border-2 border-border">
               {/* Problem in single line format like the image */}
               <div className="flex items-center gap-4 text-xl">
                 {/* Problem number in circle - moved to leftmost */}
@@ -505,38 +448,16 @@ const DivisionApp: React.FC = () => {
               
               {/* Answer input box - placed below the equation */}
               <div className="flex justify-center mt-4">
-                <input
-                  id={`answer-${problemIndex}`}
-                  type="number"
-                  min={0}
-                  step={1}
-                  value={answers[problemIndex]?.[0] || ""}
-                  onChange={(e) => handleAnswerChange(problemIndex, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(e, problemIndex)}
-                  disabled={showAnswers}
-                  placeholder=""
-                  className={`w-20 h-12 text-center text-xl font-bold border-2 rounded-lg 
-                    ${results === "checked" 
-                      ? (parseInt(answers[problemIndex]?.[0]) === problem.quotient && problem.remainder === 0
-                        ? "border-green-500 bg-green-50"
-                        : "border-red-500 bg-red-50")
-                      : "border-input bg-background focus:border-ring focus:ring-2 focus:ring-ring/30"
-                    } 
-                    transition-all duration-200 focus:outline-none`}
-                />
+                <input id={`answer-${problemIndex}`} type="number" min={0} step={1} value={answers[problemIndex]?.[0] || ""} onChange={e => handleAnswerChange(problemIndex, e.target.value)} onKeyDown={e => handleKeyDown(e, problemIndex)} disabled={showAnswers} placeholder="" className={`w-20 h-12 text-center text-xl font-bold border-2 rounded-lg 
+                    ${results === "checked" ? parseInt(answers[problemIndex]?.[0]) === problem.quotient && problem.remainder === 0 ? "border-green-500 bg-green-50" : "border-red-500 bg-red-50" : "border-input bg-background focus:border-ring focus:ring-2 focus:ring-ring/30"} 
+                    transition-all duration-200 focus:outline-none`} />
               </div>
-            </div>
-          ))}
+            </div>)}
         </div>
 
         {/* Bottom check button */}
         <div className="text-center">
-          <Button
-            onClick={checkAnswers}
-            size="lg"
-            disabled={!startedAt}
-            className="px-8 py-4 text-lg bg-green-600 hover:bg-green-700 text-white"
-          >
+          <Button onClick={checkAnswers} size="lg" disabled={!startedAt} className="px-8 py-4 text-lg bg-green-600 hover:bg-green-700 text-white">
             ตรวจคำตอบ
           </Button>
         </div>
@@ -562,16 +483,14 @@ const DivisionApp: React.FC = () => {
               {correctCount}/{problems.length}
             </div>
             <div className="text-lg">
-              คะแนน: {Math.round((correctCount / problems.length) * 100)}%
+              คะแนน: {Math.round(correctCount / problems.length * 100)}%
             </div>
             <div className="text-lg">
               เวลา: {formatTime(elapsedMs)}
             </div>
-            {celebrate && (
-              <div className="text-lg text-green-600 font-medium">
+            {celebrate && <div className="text-lg text-green-600 font-medium">
                 ทำได้ถูกต้องทุกข้อ! 🌟
-              </div>
-            )}
+              </div>}
             <Button onClick={() => setShowResults(false)} className="w-full">
               ปิด
             </Button>
@@ -586,17 +505,13 @@ const DivisionApp: React.FC = () => {
             <DialogTitle>สถิติการทำแบบฝึกหัด (10 ครั้งล่าสุด)</DialogTitle>
           </DialogHeader>
           <div className="max-h-96 overflow-y-auto">
-            {stats.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">ยังไม่มีสถิติ</p>
-            ) : (
-              <div className="space-y-2">
-                {stats.map((stat, index) => (
-                  <div key={index} className="bg-muted rounded-lg p-3 text-sm">
+            {stats.length === 0 ? <p className="text-center text-muted-foreground py-8">ยังไม่มีสถิติ</p> : <div className="space-y-2">
+                {stats.map((stat, index) => <div key={index} className="bg-muted rounded-lg p-3 text-sm">
                     <div className="flex justify-between items-center">
                       <div>
                         <span className="font-medium">{stat.correct}/{stat.total}</span>
                         <span className="text-muted-foreground ml-2">
-                          ({Math.round((stat.correct / stat.total) * 100)}%)
+                          ({Math.round(stat.correct / stat.total * 100)}%)
                         </span>
                       </div>
                       <div className="text-right">
@@ -606,18 +521,14 @@ const DivisionApp: React.FC = () => {
                          </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  </div>)}
+              </div>}
           </div>
           <Button onClick={() => setShowStats(false)} className="w-full">
             ปิด
           </Button>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>;
 };
-
 export default DivisionApp;
