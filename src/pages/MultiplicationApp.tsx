@@ -445,25 +445,33 @@ const MultiplicationApp = () => {
                         {/* Final Answer Row */}
                         <div className="grid gap-1" style={{gridTemplateColumns: `repeat(${maxWidth}, 1fr)`}}>
                           <div></div>
-                          {Array.from({length: maxWidth - 1 - problem.finalAnswer.length}).map((_, i) => (
+                          {/* Right-align the answer box by adding empty spaces */}
+                          {Array.from({length: maxWidth - 1 - 1}).map((_, i) => (
                             <div key={i}></div>
                           ))}
-                          {problem.finalAnswer.split('').map((digit, digitIdx) => (
-                            <input
-                              key={digitIdx}
-                              type="text"
-                              maxLength={1}
-                              value={answers[problemIdx]?.finalAnswer[digitIdx] || ''}
-                              onChange={(e) => updateAnswer(problemIdx, problem.partialProducts.length, digitIdx, e.target.value)}
-                              className={`w-12 h-12 text-center border-2 rounded font-mono text-xl font-bold ${
-                                results[problemIdx]?.[problem.partialProducts.length]?.[digitIdx] === 'correct' 
-                                  ? 'bg-green-100 border-green-500' 
-                                  : results[problemIdx]?.[problem.partialProducts.length]?.[digitIdx] === 'incorrect'
-                                  ? 'bg-red-100 border-red-500 animate-pulse'
-                                  : 'border-purple-300 focus:border-purple-500'
-                              }`}
-                            />
-                          ))}
+                          {/* Single answer input aligned to the right */}
+                          <input
+                            type="text"
+                            maxLength={problem.finalAnswer.length}
+                            value={answers[problemIdx]?.finalAnswer.join('') || ''}
+                            onChange={(e) => {
+                              // Handle multi-digit input for 1x1 case
+                              const value = e.target.value;
+                              const digits = value.split('');
+                              const newAnswer = [...answers];
+                              newAnswer[problemIdx].finalAnswer = digits.concat(
+                                new Array(Math.max(0, problem.finalAnswer.length - digits.length)).fill('')
+                              );
+                              setAnswers(newAnswer);
+                            }}
+                            className={`w-16 h-12 text-center border-2 rounded font-mono text-xl font-bold ${
+                              answers[problemIdx]?.finalAnswer.join('') === problem.finalAnswer
+                                ? 'bg-green-100 border-green-500' 
+                                : results[problemIdx]?.[0]?.[0] === 'incorrect'
+                                ? 'bg-red-100 border-red-500 animate-pulse'
+                                : 'border-purple-300 focus:border-purple-500'
+                            }`}
+                          />
                         </div>
                       </div>
                     );
