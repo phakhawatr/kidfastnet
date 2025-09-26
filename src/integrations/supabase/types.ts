@@ -92,7 +92,9 @@ export type Database = {
           created_at: string
           grade: string
           id: string
+          last_login_at: string | null
           learning_style: string | null
+          login_count: number | null
           nickname: string
           parent_email: string
           parent_phone: string | null
@@ -107,7 +109,9 @@ export type Database = {
           created_at?: string
           grade: string
           id?: string
+          last_login_at?: string | null
           learning_style?: string | null
+          login_count?: number | null
           nickname: string
           parent_email: string
           parent_phone?: string | null
@@ -122,7 +126,9 @@ export type Database = {
           created_at?: string
           grade?: string
           id?: string
+          last_login_at?: string | null
           learning_style?: string | null
+          login_count?: number | null
           nickname?: string
           parent_email?: string
           parent_phone?: string | null
@@ -205,6 +211,10 @@ export type Database = {
       }
       toggle_user_suspension: {
         Args: { admin_id: string; registration_id: string }
+        Returns: boolean
+      }
+      update_login_stats: {
+        Args: { user_email: string }
         Returns: boolean
       }
     }

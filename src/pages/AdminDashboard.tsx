@@ -27,6 +27,8 @@ interface UserRegistration {
   status: 'pending' | 'approved' | 'rejected' | 'suspended';
   created_at: string;
   approved_at?: string;
+  login_count?: number;
+  last_login_at?: string;
 }
 
 interface UserPresence {
@@ -400,24 +402,44 @@ const AdminDashboard = () => {
                       {registration.status === 'approved' && registration.approved_at && (
                         <p><strong>อนุมัติเมื่อ:</strong> {new Date(registration.approved_at).toLocaleDateString('th-TH')}</p>
                       )}
-                      {(registration.status === 'approved' || registration.status === 'suspended') && registration.approved_at && (() => {
-                        const expirationInfo = formatExpirationDisplay(registration.approved_at);
-                        if (!expirationInfo) return null;
-                        
-                        return (
-                          <div className="mt-2">
-                            <p className={`${expirationInfo.className} flex items-center gap-2`}>
-                              <strong>วันหมดอายุสมาชิก:</strong> 
-                              <span>{expirationInfo.date}</span>
-                              {expirationInfo.isExpired && (
-                                <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">
-                                  หมดอายุสมาชิก
-                                </span>
-                              )}
-                            </p>
-                          </div>
-                        );
-                      })()}
+                       {(registration.status === 'approved' || registration.status === 'suspended') && registration.approved_at && (() => {
+                         const expirationInfo = formatExpirationDisplay(registration.approved_at);
+                         if (!expirationInfo) return null;
+                         
+                         return (
+                           <div className="mt-2 space-y-1">
+                             <p className={`${expirationInfo.className} flex items-center gap-2`}>
+                               <strong>วันหมดอายุสมาชิก:</strong> 
+                               <span>{expirationInfo.date}</span>
+                               {expirationInfo.isExpired && (
+                                 <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">
+                                   หมดอายุสมาชิก
+                                 </span>
+                               )}
+                             </p>
+                             
+                             {/* Login Statistics */}
+                             <div className="mt-2 pt-2 border-t border-gray-200">
+                               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                                 <p className="text-blue-600">
+                                   <strong>จำนวนครั้งการ Login:</strong> {registration.login_count || 0} ครั้ง
+                                 </p>
+                                 {registration.last_login_at && (
+                                   <p className="text-green-600">
+                                     <strong>Login ครั้งล่าสุดเมื่อ:</strong> {new Date(registration.last_login_at).toLocaleString('th-TH', {
+                                       year: 'numeric',
+                                       month: '2-digit',
+                                       day: '2-digit',
+                                       hour: '2-digit',
+                                       minute: '2-digit'
+                                     })}
+                                   </p>
+                                 )}
+                               </div>
+                             </div>
+                           </div>
+                         );
+                       })()}
                     </div>
                   </div>
                 </div>

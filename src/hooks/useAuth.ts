@@ -119,6 +119,17 @@ export const useAuth = () => {
           const result = authResult[0];
             console.log('User found:', result);
             if (result.is_valid) {
+              // Update login statistics
+              try {
+                await supabase.rpc('update_login_stats', {
+                  user_email: email
+                });
+                console.log('Login stats updated successfully');
+              } catch (statsError) {
+                console.log('Failed to update login stats:', statsError);
+                // Don't block login if stats update fails
+              }
+
               const authState: AuthState = { 
                 loggedIn: true, 
                 username: result.nickname,
