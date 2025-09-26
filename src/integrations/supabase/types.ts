@@ -184,6 +184,19 @@ export type Database = {
           user_id: string
         }[]
       }
+      check_user_session_status: {
+        Args: {
+          new_device_info?: string
+          new_session_id: string
+          user_email: string
+        }
+        Returns: {
+          can_login: boolean
+          message: string
+          nickname: string
+          user_id: string
+        }[]
+      }
       create_auth_user_from_registration: {
         Args: { admin_id: string; registration_id: string }
         Returns: {
