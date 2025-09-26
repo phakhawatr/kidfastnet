@@ -52,7 +52,7 @@ const defaultSkills: Skill[] = [{
   backgroundGradient: 'bg-gradient-to-br from-orange-400 via-orange-500 to-red-500',
   textColor: 'text-white',
   sticker: '🐯',
-  hrefPreview: '#',
+  hrefPreview: '/multiply',
   mascotImage: multiplicationMascot
 }, {
   icon: Divide,
