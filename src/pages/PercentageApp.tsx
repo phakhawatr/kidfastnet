@@ -174,7 +174,11 @@ const PercentageApp: React.FC = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const ProblemCard: React.FC<{ problem: PercentageProblem }> = ({ problem }) => {
+  const ProblemCard: React.FC<{ problem: PercentageProblem }> = React.memo(({ problem }) => {
+    const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+      handleAnswerChange(problem.id, e.target.value);
+    }, [problem.id]);
+
     return (
       <Card className={`transition-all duration-200 ${
         problem.isCorrect === true ? 'border-green-500 bg-green-50' :
@@ -203,10 +207,12 @@ const PercentageApp: React.FC = () => {
             
             <div className="flex items-center gap-2">
               <Input
+                key={`input-${problem.id}`}
                 value={problem.userAnswer}
-                onChange={(e) => handleAnswerChange(problem.id, e.target.value)}
+                onChange={handleInputChange}
                 className="text-center font-medium"
                 disabled={showResults}
+                autoComplete="off"
               />
               {!showResults && (
                 <Button
@@ -228,7 +234,7 @@ const PercentageApp: React.FC = () => {
         </CardContent>
       </Card>
     );
-  };
+  });
 
   const score = getScore();
 
@@ -341,7 +347,7 @@ const PercentageApp: React.FC = () => {
         {/* Problems Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {problems.map(problem => (
-            <ProblemCard key={problem.id} problem={problem} />
+            <ProblemCard key={`problem-${problem.id}-${gameMode}`} problem={problem} />
           ))}
         </div>
 
