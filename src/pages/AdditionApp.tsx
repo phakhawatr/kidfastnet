@@ -42,6 +42,12 @@ function countCarriesMultiple(numbers) {
   return 0;
 }
 
+function hasUnitsCarry(numbers) {
+  // Check if there's a carry from the units place
+  const unitsSum = numbers.reduce((sum, num) => sum + (num % 10), 0);
+  return unitsSum >= 10;
+}
+
 function pickByDifficulty(level, digits, carryOption = "any", operands = 2) {
   const { min, max } = rangeForDigits(digits);
   
@@ -54,10 +60,11 @@ function pickByDifficulty(level, digits, carryOption = "any", operands = 2) {
   if (sum > 1000) return null;
 
   const carries = countCarriesMultiple(numbers);
+  const unitsCarry = hasUnitsCarry(numbers);
   
   // Check carry requirements
   if (carryOption === "none" && carries > 0) return null;
-  if (carryOption === "has" && carries === 0) return null;
+  if (carryOption === "has" && (carries === 0 || !unitsCarry)) return null;
   
   // Check difficulty requirements
   if (level === "easy" && carryOption === "any" && carries > 0) return null;
