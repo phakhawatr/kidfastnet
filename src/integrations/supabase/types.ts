@@ -232,6 +232,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      logout_user_session: {
+        Args: { session_id?: string; user_email: string }
+        Returns: boolean
+      }
       reject_user_registration: {
         Args: { admin_id: string; registration_id: string }
         Returns: boolean

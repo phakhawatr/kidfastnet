@@ -105,6 +105,41 @@ export const useAuth = () => {
         return { success: true };
       }
 
+      // Generate unique session ID for this login attempt
+      const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const deviceInfo = navigator.userAgent || 'Unknown Device';
+
+      // First check if user can login (not already logged in from another device)
+      try {
+        console.log('Checking user session status for:', email);
+        const { data: sessionCheck, error: sessionError } = await supabase.rpc('check_user_session_status', {
+          user_email: email,
+          new_session_id: sessionId,
+          new_device_info: deviceInfo
+        });
+
+        console.log('Session check result:', sessionCheck, 'Error:', sessionError);
+
+        if (sessionError) {
+          throw sessionError;
+        }
+
+        if (sessionCheck && sessionCheck.length > 0) {
+          const sessionResult = sessionCheck[0];
+          
+          if (!sessionResult.can_login) {
+            ToastManager.show({
+              message: sessionResult.message || 'ไม่สามารถเข้าสู่ระบบได้',
+              type: 'error'
+            });
+            return { success: false, error: sessionResult.message };
+          }
+        }
+      } catch (sessionError) {
+        console.error('Session check failed:', sessionError);
+        // Continue with login attempt even if session check fails
+      }
+
       // Use secure authentication function to check approved users
       try {
         console.log('Attempting to authenticate user:', email);
@@ -118,8 +153,20 @@ export const useAuth = () => {
         if (!error && authResult && authResult.length > 0) {
           const result = authResult[0];
             console.log('User found:', result);
-            console.log('Login stats will be updated automatically by authenticate_user function');
             if (result.is_valid) {
+              // Update session after successful authentication
+              try {
+                await supabase.rpc('update_user_session', {
+                  user_email: email,
+                  session_id: sessionId,
+                  device_info: deviceInfo
+                });
+                console.log('Session updated successfully');
+              } catch (updateError) {
+                console.log('Failed to update session:', updateError);
+                // Don't block login if session update fails
+              }
+
               const authState: AuthState = { 
                 loggedIn: true, 
                 username: result.nickname,
@@ -127,6 +174,7 @@ export const useAuth = () => {
                 registrationId: result.user_id // Store registration ID for presence tracking
               };
               localStorage.setItem('kidfast_auth', JSON.stringify(authState));
+              localStorage.setItem('kidfast_session_id', sessionId);
               
               ToastManager.show({
                 message: `ยินดีต้อนรับ ${result.nickname}!`,
@@ -245,8 +293,26 @@ export const useAuth = () => {
 
   const logout = async () => {
     try {
-      // Clear demo auth if exists
+      // Get current auth state and session info
+      const authState = getAuthState();
+      const sessionId = localStorage.getItem('kidfast_session_id');
+      
+      // Clear session in database if we have email info
+      if (authState?.username && user?.email) {
+        try {
+          await supabase.rpc('logout_user_session', {
+            user_email: user.email,
+            session_id: sessionId || undefined
+          });
+          console.log('Session cleared in database');
+        } catch (sessionError) {
+          console.error('Failed to clear session:', sessionError);
+        }
+      }
+      
+      // Clear local storage
       localStorage.removeItem('kidfast_auth');
+      localStorage.removeItem('kidfast_session_id');
       
       const { error } = await supabase.auth.signOut();
       

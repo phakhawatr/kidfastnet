@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useAuth } from '../hooks/useAuth';
+import SessionConflictDialog from '../components/SessionConflictDialog';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -11,12 +12,36 @@ const Login = () => {
     rememberMe: false
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [sessionConflict, setSessionConflict] = useState({
+    show: false,
+    message: '',
+    userNickname: ''
+  });
 
   const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await login(formData.email, formData.password);
+    const result = await login(formData.email, formData.password);
+    
+    if (!result.success && result.error) {
+      // Check if this is a session conflict error
+      if (result.error.includes('กำลังใช้งานอยู่')) {
+        setSessionConflict({
+          show: true,
+          message: result.error,
+          userNickname: formData.email.split('@')[0] // Extract username from email
+        });
+      }
+    }
+  };
+
+  const handleCloseSessionDialog = () => {
+    setSessionConflict({
+      show: false,
+      message: '',
+      userNickname: ''
+    });
   };
 
 
@@ -108,6 +133,14 @@ const Login = () => {
       </main>
 
       <Footer />
+      
+      {/* Session Conflict Dialog */}
+      <SessionConflictDialog
+        isOpen={sessionConflict.show}
+        onClose={handleCloseSessionDialog}
+        message={sessionConflict.message}
+        userNickname={sessionConflict.userNickname}
+      />
     </div>
   );
 };
