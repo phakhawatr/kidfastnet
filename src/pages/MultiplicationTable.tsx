@@ -131,7 +131,7 @@ const MultiplicationTable = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <Button variant="outline" onClick={() => navigate('/')} className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => navigate('/profile')} className="flex items-center gap-2">
               <ArrowLeft className="w-4 h-4" />
               กลับหน้าหลัก
             </Button>
