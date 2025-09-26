@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 
 // Types and interfaces
 interface Problem {
@@ -23,6 +25,8 @@ type Level = 'easy' | 'medium' | 'hard';
 
 // Main component
 const DivisionApp: React.FC = () => {
+  const navigate = useNavigate();
+  
   // State management
   const [count, setCount] = useState<number>(10);
   const [level, setLevel] = useState<Level>('easy');
@@ -355,6 +359,18 @@ const DivisionApp: React.FC = () => {
   }, []);
   return <div className="min-h-screen bg-white p-4">
       <div className="max-w-7xl mx-auto">
+        {/* Back button */}
+        <div className="mb-4">
+          <Button
+            variant="outline"
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 px-4 py-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            กลับหน้าหลัก
+          </Button>
+        </div>
+
         {/* Header */}
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-foreground mb-2">เทคนิคการหารระดับโปร</h1>
