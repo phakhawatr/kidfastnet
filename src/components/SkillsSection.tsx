@@ -1,14 +1,26 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Minus, X, Divide, Sigma, Table, Clock, Ruler, Scale, Zap, Eye, Hash, Shapes, Percent, ArrowLeftRight, Calculator } from 'lucide-react';
+
+// Import mascot images
+import additionMascot from '../assets/mascot-addition.png';
+import subtractionMascot from '../assets/mascot-subtraction.png';
+import multiplicationMascot from '../assets/mascot-multiplication.png';
+import divisionMascot from '../assets/mascot-division.png';
+import timeMascot from '../assets/mascot-time.png';
+import fractionsMascot from '../assets/mascot-fractions.png';
+import shapesMascot from '../assets/mascot-shapes.png';
+import measurementMascot from '../assets/mascot-measurement.png';
+import weighingMascot from '../assets/mascot-weighing.png';
 type Skill = {
   icon: React.ComponentType<any>;
   title: string;
   desc: string;
-  from: string;
-  to: string;
+  backgroundGradient: string;
+  textColor: string;
   sticker?: string;
   hrefPreview?: string;
+  mascotImage?: string;
 };
 interface SkillsSectionProps {
   skills?: Skill[];
@@ -19,120 +31,129 @@ const defaultSkills: Skill[] = [{
   icon: Plus,
   title: 'บวก',
   desc: 'ฝึกการบวกเลขพื้นฐาน เริ่มต้นจากเลขง่ายๆ ไปจนถึงเลขหลายหลัก',
-  from: 'from-pink-100',
-  to: 'to-red-100',
+  backgroundGradient: 'bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600',
+  textColor: 'text-white',
   sticker: '🧮',
-  hrefPreview: '/addition'
+  hrefPreview: '/addition',
+  mascotImage: additionMascot
 }, {
   icon: Minus,
   title: 'ลบ',
   desc: 'เรียนรู้การลบเลข พัฒนาทักษะการคิดคำนวณแบบย้อนกลับ',
-  from: 'from-blue-100',
-  to: 'to-cyan-100',
+  backgroundGradient: 'bg-gradient-to-br from-purple-400 via-purple-500 to-indigo-600',
+  textColor: 'text-white',
   sticker: '🧠',
-  hrefPreview: '/subtraction'
+  hrefPreview: '/subtraction',
+  mascotImage: subtractionMascot
 }, {
   icon: X,
   title: 'คูณ',
   desc: 'สนุกกับการคูณ เรียนรู้แม่สูตรคูณผ่านเกมและกิจกรรม',
-  from: 'from-amber-100',
-  to: 'to-orange-100',
+  backgroundGradient: 'bg-gradient-to-br from-orange-400 via-orange-500 to-red-500',
+  textColor: 'text-white',
   sticker: '🐯',
-  hrefPreview: '#'
+  hrefPreview: '#',
+  mascotImage: multiplicationMascot
 }, {
   icon: Divide,
   title: 'หาร',
   desc: 'ทำความเข้าใจการหาร แบ่งปันและกระจายตัวเลขอย่างสนุก',
-  from: 'from-green-100',
-  to: 'to-emerald-100',
+  backgroundGradient: 'bg-gradient-to-br from-green-400 via-green-500 to-emerald-600',
+  textColor: 'text-white',
   sticker: '🦊',
-  hrefPreview: '#'
+  hrefPreview: '#',
+  mascotImage: divisionMascot
 }, {
   icon: Sigma,
   title: 'เลขอนุกรม',
   desc: 'ค้นหาความสัมพันธ์ของตัวเลข เรียนรู้รูปแบบและลำดับ',
-  from: 'from-violet-100',
-  to: 'to-indigo-100',
+  backgroundGradient: 'bg-gradient-to-br from-violet-400 via-purple-500 to-indigo-600',
+  textColor: 'text-white',
   sticker: '🧩',
   hrefPreview: '#'
 }, {
   icon: Table,
   title: 'ตาราง',
   desc: 'จดจำสูตรคูณด้วยตารางสีสันสวยงาม เรียนรู้แบบเป็นระบบ',
-  from: 'from-sky-100',
-  to: 'to-teal-100',
+  backgroundGradient: 'bg-gradient-to-br from-sky-400 via-cyan-500 to-teal-600',
+  textColor: 'text-white',
   sticker: '🐼',
   hrefPreview: '/multiplication-table'
 }, {
   icon: Clock,
   title: 'เวลา',
   desc: 'เรียนรู้การอ่านเวลา เข้าใจนาฬิกาและการจัดการเวลา',
-  from: 'from-yellow-100',
-  to: 'to-lime-100',
+  backgroundGradient: 'bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500',
+  textColor: 'text-white',
   sticker: '⏰',
-  hrefPreview: '/time'
+  hrefPreview: '/time',
+  mascotImage: timeMascot
 }, {
   icon: Ruler,
   title: 'ขนาด/ความยาว',
   desc: 'วัดและเปรียบเทียบขนาด เรียนรู้หน่วยการวัดต่างๆ',
-  from: 'from-fuchsia-100',
-  to: 'to-pink-100',
+  backgroundGradient: 'bg-gradient-to-br from-pink-400 via-pink-500 to-fuchsia-600',
+  textColor: 'text-white',
   sticker: '📏',
-  hrefPreview: '/measurement'
+  hrefPreview: '/measurement',
+  mascotImage: measurementMascot
 }, {
   icon: Scale,
   title: 'ชั่งน้ำหนัก',
   desc: 'เรียนรู้การชั่งน้ำหนัก เปรียบเทียบมวลและความหนัก',
-  from: 'from-rose-100',
-  to: 'to-purple-100',
+  backgroundGradient: 'bg-gradient-to-br from-rose-400 via-pink-500 to-purple-600',
+  textColor: 'text-white',
   sticker: '⚖️',
-  hrefPreview: '/weighing'
+  hrefPreview: '/weighing',
+  mascotImage: weighingMascot
 }, {
   icon: Zap,
   title: 'การวัดด้วยไม้บันทัด',
   desc: 'ฝึกการวัดความยาวด้วยไม้บรรทัด เรียนรู้การแปลงหน่วย',
-  from: 'from-neutral-100',
-  to: 'to-stone-100',
+  backgroundGradient: 'bg-gradient-to-br from-slate-400 via-gray-500 to-zinc-600',
+  textColor: 'text-white',
   sticker: '📏',
   hrefPreview: '/quick-math'
 }, {
   icon: Hash,
   title: 'การนับ',
   desc: 'ฝึกทักษะการนับตัวเลข เรียนรู้การนับไปข้างหน้าและย้อนกลับ',
-  from: 'from-cyan-100',
-  to: 'to-blue-100',
+  backgroundGradient: 'bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600',
+  textColor: 'text-white',
   sticker: '🔢',
   hrefPreview: '#'
 }, {
   icon: Shapes,
   title: 'รูปทรง',
   desc: 'จดจำรูปทรงเรขาคณิต เรียนรู้คุณสมบัติของรูปต่างๆ',
-  from: 'from-teal-100',
-  to: 'to-green-100',
+  backgroundGradient: 'bg-gradient-to-br from-teal-400 via-green-500 to-emerald-600',
+  textColor: 'text-white',
   sticker: '🔷',
-  hrefPreview: '/shape-matching'
+  hrefPreview: '/shape-matching',
+  mascotImage: shapesMascot
 }, {
   icon: Calculator,
   title: 'เศษส่วน',
   desc: 'ทำความเข้าใจเศษส่วน เรียนรู้การแบ่งส่วนและเปรียบเทียบ',
-  from: 'from-purple-100',
-  to: 'to-violet-100',
+  backgroundGradient: 'bg-gradient-to-br from-purple-400 via-violet-500 to-purple-600',
+  textColor: 'text-white',
   sticker: '🍰',
-  hrefPreview: '/fraction-matching'
+  hrefPreview: '/fraction-matching',
+  mascotImage: fractionsMascot
 }, {
   icon: Percent,
   title: 'ร้อยละ',
   desc: 'เรียนรู้การคำนวณร้อยละ เข้าใจการแปลงเป็นทศนิยม',
-  from: 'from-red-100',
-  to: 'to-pink-100',
+  backgroundGradient: 'bg-gradient-to-br from-red-400 via-rose-500 to-pink-600',
+  textColor: 'text-white',
   sticker: '💯',
   hrefPreview: '#'
 }, {
   icon: ArrowLeftRight,
   title: 'เปรียบเทียบความยาว',
   desc: 'เปรียบเทียบความยาวของวัตถุ เรียนรู้การเรียงลำดับ',
-  from: 'from-orange-100',
-  to: 'to-yellow-100',
+  backgroundGradient: 'bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-500',
+  textColor: 'text-white',
   sticker: '↔️',
   hrefPreview: '/length-comparison'
 }];
@@ -151,34 +172,59 @@ const SkillCard: React.FC<{
       onPreview(skill);
     }
   };
-  const IconComponent = skill.icon;
-  return <div className={`relative rounded-2xl shadow-lg hover:-translate-y-1 hover:shadow-xl transition-all duration-300 bg-gradient-to-br ${skill.from} ${skill.to} ring-1 ring-black/5 p-6`} role="button" tabIndex={0}>
-      {/* Sticker emoji */}
-      {skill.sticker && <div className="absolute top-3 right-3 text-2xl animate-bounce" aria-hidden="true">
-          {skill.sticker}
-        </div>}
 
-      {/* Icon container */}
-      <div className="flex items-center justify-center w-12 h-12 mb-4 bg-white/70 ring-1 ring-black/10 backdrop-blur rounded-xl">
-        <IconComponent className="w-6 h-6 text-gray-700" />
+  return (
+    <div 
+      className={`relative rounded-3xl shadow-xl hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 ${skill.backgroundGradient} overflow-hidden group cursor-pointer`} 
+      role="button" 
+      tabIndex={0}
+    >
+      {/* Mascot Image */}
+      <div className="absolute top-4 right-4 w-16 h-16 z-10">
+        {skill.mascotImage ? (
+          <img 
+            src={skill.mascotImage} 
+            alt={`${skill.title} mascot`}
+            className="w-full h-full object-cover rounded-2xl shadow-lg"
+          />
+        ) : (
+          <div className="w-full h-full bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+            <span className="text-2xl">{skill.sticker}</span>
+          </div>
+        )}
       </div>
 
       {/* Content */}
-      <div className="mb-6">
-        <h3 className="font-extrabold text-lg text-gray-800 mb-2">
+      <div className="p-6 pt-8 pb-20 relative z-5">
+        <h3 className={`font-bold text-xl mb-3 ${skill.textColor} drop-shadow-sm`}>
           {skill.title}
         </h3>
-        <p className="text-sm leading-6 text-gray-600">
+        <p className={`text-sm leading-relaxed ${skill.textColor} opacity-90`}>
           {skill.desc}
         </p>
       </div>
 
-      {/* Preview button */}
-      <Link to={skill.hrefPreview || '#'} onClick={handlePreviewClick} className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-fuchsia-500 to-indigo-500 hover:from-fuchsia-400 hover:to-indigo-400 text-white text-sm font-medium rounded-full shadow-md ring-1 ring-black/10 hover:-translate-y-0.5 transition-all duration-200" aria-label={`${buttonText} ${skill.title}`}>
-        <Eye className="w-4 h-4" />
-        {buttonText}
-      </Link>
-    </div>;
+      {/* Bottom Badge */}
+      <div className="absolute bottom-4 left-4 right-4">
+        <div className="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-xs font-medium text-center shadow-lg">
+          KidFast.net
+        </div>
+      </div>
+
+      {/* Preview button - appears on hover */}
+      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center rounded-3xl">
+        <Link 
+          to={skill.hrefPreview || '#'} 
+          onClick={handlePreviewClick}
+          className="bg-white text-gray-800 px-6 py-3 rounded-full font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
+          aria-label={`${buttonText} ${skill.title}`}
+        >
+          <Eye className="w-4 h-4" />
+          {buttonText}
+        </Link>
+      </div>
+    </div>
+  );
 };
 const SkillsSection: React.FC<SkillsSectionProps> = ({
   skills = defaultSkills,
