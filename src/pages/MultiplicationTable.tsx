@@ -169,16 +169,24 @@ const MultiplicationTable = () => {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Button 
-                    variant={gameMode === 'learn' ? "default" : "outline"}
+                    variant="outline"
                     onClick={() => setGameMode('learn')}
-                    className="w-full justify-start"
+                    className={`w-full justify-start transition-all duration-200 ${
+                      gameMode === 'learn' 
+                        ? 'bg-green-100 hover:bg-green-200 text-green-800 border-green-300 ring-2 ring-green-200' 
+                        : 'hover:bg-muted/50'
+                    }`}
                   >
                     📚 เรียนรู้
                   </Button>
                   <Button 
-                    variant={gameMode === 'practice' ? "default" : "outline"}
+                    variant="outline"
                     onClick={() => setGameMode('practice')}
-                    className="w-full justify-start"
+                    className={`w-full justify-start transition-all duration-200 ${
+                      gameMode === 'practice' 
+                        ? 'bg-green-100 hover:bg-green-200 text-green-800 border-green-300 ring-2 ring-green-200' 
+                        : 'hover:bg-muted/50'
+                    }`}
                   >
                     🎮 ทดสอบความเร็ว
                   </Button>
