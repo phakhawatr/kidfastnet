@@ -78,10 +78,20 @@ const Signup = () => {
       case 2:
         return formData.avatar && formData.learningStyle;
       case 3:
-        return formData.parentEmail && formData.password.length >= 6 && formData.acceptTerms;
+        return formData.parentEmail && 
+               formData.parentPhone && 
+               validatePhoneNumber(formData.parentPhone) &&
+               formData.password.length >= 6 && 
+               formData.acceptTerms;
       default:
         return false;
     }
+  };
+
+  const validatePhoneNumber = (phone: string) => {
+    // Thai phone number format: 08X-XXX-XXXX, 09X-XXX-XXXX, 06X-XXX-XXXX
+    const phoneRegex = /^(08[0-9]|09[0-9]|06[0-9])-[0-9]{3}-[0-9]{4}$/;
+    return phoneRegex.test(phone);
   };
 
   const handleNext = () => {
@@ -102,6 +112,15 @@ const Signup = () => {
   const handleSubmit = async () => {
     if (validateStep(3)) {
       try {
+        // Validate phone number format before submission
+        if (!validatePhoneNumber(formData.parentPhone)) {
+          ToastManager.show({
+            message: 'รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง กรุณากรอกในรูปแบบ 08X-XXX-XXXX',
+            type: 'error'
+          });
+          return;
+        }
+
         // First create registration request for admin approval
         const { error: registrationError } = await supabase
           .from('user_registrations')
@@ -112,7 +131,7 @@ const Signup = () => {
             avatar: formData.avatar,
             learning_style: formData.learningStyle,
             parent_email: formData.parentEmail,
-            parent_phone: formData.parentPhone || null,
+            parent_phone: formData.parentPhone,
             password_hash: formData.password, // Will be hashed by trigger
             status: 'pending'
           });
@@ -306,16 +325,22 @@ const Signup = () => {
 
                 <div>
                   <label className="flex items-center gap-2 text-lg font-medium mb-3">
-                    📱 <span>เบอร์โทรผู้ปกครอง</span>
+                    📱 <span>เบอร์โทรผู้ปกครอง <span className="text-red-500">*</span></span>
                   </label>
                   <input
                     type="tel"
                     placeholder="08X-XXX-XXXX"
-                    className="input-field"
+                    className={`input-field ${formData.parentPhone && !validatePhoneNumber(formData.parentPhone) ? 'border-red-500' : ''}`}
                     value={formData.parentPhone}
                     onChange={(e) => updateFormData('parentPhone', e.target.value)}
+                    required
                   />
-                  <p className="text-sm text-[hsl(var(--text-muted))] mt-1">ไม่บังคับ - สำหรับติดต่อในกรณีเร่งด่วน</p>
+                  <p className="text-sm text-[hsl(var(--text-muted))] mt-1">
+                    {formData.parentPhone && !validatePhoneNumber(formData.parentPhone) 
+                      ? <span className="text-red-500">รูปแบบเบอร์โทรไม่ถูกต้อง (ตัวอย่าง: 081-234-5678)</span>
+                      : 'ไม่บังคับ - สำหรับติดต่อในกรณีเร่งด่วน'
+                    }
+                  </p>
                 </div>
 
                 <div>
