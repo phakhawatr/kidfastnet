@@ -378,7 +378,7 @@ const DivisionApp: React.FC = () => {
             <div>
               <label className="block text-sm font-medium mb-2">จำนวนข้อ:</label>
               <div className="flex gap-2">
-                {[10, 15, 20, 30].map(num => <Button key={num} variant={count === num ? "default" : "outline"} size="sm" onClick={() => setCount(num)} className="flex-1 bg-yellow-300 hover:bg-yellow-200">
+                {[10, 15, 20, 30].map(num => <Button key={num} variant={count === num ? "default" : "outline"} size="sm" onClick={() => setCount(num)} className={`flex-1 ${count === num ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-100 hover:bg-gray-200'}`}>
                     {num}
                   </Button>)}
               </div>
