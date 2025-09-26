@@ -171,6 +171,7 @@ function answerToNumber(ansArr, digits) {
 function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset, onFirstType, digits, operands }) {
   const inputRef = useRef(null);
   const inputRefs = useRef([]);
+  const frontInputRefs = useRef([]); // For front answer inputs
   const [carry, setCarry] = useState(() => Array(digits).fill(""));
 
   useEffect(() => {
@@ -191,6 +192,58 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
   return (
     <div className={`rounded-3xl border-2 ${border} ${bg} shadow-md p-5 flex flex-col gap-3`}>
       <div className="text-base text-zinc-600">⭐ ข้อ {idx + 1}</div>
+
+      {/* Answer input box at the front */}
+      <div className="flex justify-center mb-2">
+        <div className="bg-white rounded-2xl border-2 border-sky-300 p-3 shadow-sm">
+          <div className="text-sm text-zinc-600 text-center mb-2">คำตอบ</div>
+          <div className="flex gap-1 justify-center">
+            {showAnswer
+              ? String(correct).padStart(digits, " ").slice(-digits).split("").map((ch, j) => (
+                  <div key={`front-ans${j}`} className="w-12 h-12 border-2 border-sky-300 bg-sky-50 rounded-md flex items-center justify-center text-2xl font-bold text-sky-700">
+                    {ch.trim()}
+                  </div>
+                ))
+              : Array.from({ length: digits }).map((_, j) => (
+                  <input
+                    key={`front-in${j}`}
+                    ref={(el) => { frontInputRefs.current[j] = el; }}
+                    inputMode="numeric"
+                    maxLength={1}
+                    className="w-12 h-12 text-center border-2 border-sky-300 rounded-md text-2xl font-bold text-sky-700 bg-white shadow focus:outline-none focus:ring-2 focus:ring-sky-300"
+                    value={Array.isArray(answer) ? (answer[j] || "") : ""}
+                    onChange={(e) => {
+                      const v = e.target.value.replace(/\D/g, "").slice(0, 1);
+                      const emptyBefore = !answer || (Array.isArray(answer) && answer.every((d) => !d));
+                      if (v && emptyBefore) onFirstType?.();
+                      setAnswer(idx, j, v);
+                      if (v && j < digits - 1) {
+                        const nextInput = frontInputRefs.current[j + 1];
+                        if (nextInput) nextInput.focus();
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      const curr = (Array.isArray(answer) ? (answer[j] || "") : "");
+                      if (e.key === 'Backspace' && !curr) {
+                        if (j > 0) {
+                          const prevInput = frontInputRefs.current[j - 1];
+                          if (prevInput) prevInput.focus();
+                        }
+                      }
+                      if (e.key === 'ArrowLeft' && j > 0) {
+                        const prevInput = frontInputRefs.current[j - 1];
+                        if (prevInput) prevInput.focus();
+                      }
+                      if (e.key === 'ArrowRight' && j < digits - 1) {
+                        const nextInput = frontInputRefs.current[j + 1];
+                        if (nextInput) nextInput.focus();
+                      }
+                    }}
+                  />
+                ))}
+          </div>
+        </div>
+      </div>
 
       {/* Column format like worksheet image + per-digit answer */}
       <div className="flex justify-center mt-1 select-none">
@@ -307,9 +360,9 @@ export default function AdditionApp() {
   const [count, setCount] = useState(15);
   const [level, setLevel] = useState("easy"); // easy | medium | hard
   const [digits, setDigits] = useState(2);
-  const [carryOption, setCarryOption] = useState("any"); // "has" | "none" | "any"
+  const [carryOption, setCarryOption] = useState("none"); // "has" | "none" | "any"
   const [operands, setOperands] = useState(2); // 2 | 3
-  const [problems, setProblems] = useState(() => generateAdditionProblems(15, "easy", 2, "any", 2));
+  const [problems, setProblems] = useState(() => generateAdditionProblems(15, "easy", 2, "none", 2));
   const [answers, setAnswers] = useState(() => problems.map(() => Array(digits).fill("")));
   const [results, setResults] = useState(() => problems.map(() => "pending")); // pending | correct | wrong
   const [showAnswers, setShowAnswers] = useState(false);
