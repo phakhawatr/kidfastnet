@@ -368,7 +368,7 @@ const DivisionApp: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background p-4">
+    <div className="min-h-screen bg-white p-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-6">
