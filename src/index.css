@@ -142,4 +142,19 @@
   .animate-pulse-slow {
     animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
+  
+  .animate-online-blink {
+    animation: online-blink 2s ease-in-out infinite;
+  }
+}
+
+@keyframes online-blink {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
 }

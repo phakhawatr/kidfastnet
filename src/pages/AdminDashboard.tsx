@@ -29,11 +29,17 @@ interface UserRegistration {
   approved_at?: string;
 }
 
+interface UserPresence {
+  user_id: string;
+  online_at: string;
+}
+
 const AdminDashboard = () => {
   const { name, email, logout, adminId } = useAdmin();
   const [registrations, setRegistrations] = useState<UserRegistration[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'suspended'>('pending');
+  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
 
   const avatarEmojis: Record<string, string> = {
     cat: '🐱',
@@ -49,6 +55,47 @@ const AdminDashboard = () => {
   useEffect(() => {
     fetchRegistrations();
   }, []);
+
+  // Set up presence tracking for online users
+  useEffect(() => {
+    const channel = supabase.channel('admin-dashboard', {
+      config: {
+        presence: { key: 'admin' }
+      }
+    });
+
+    // Listen for presence changes
+    channel.on('presence', { event: 'sync' }, () => {
+      const state = channel.presenceState();
+      const onlineUserIds = new Set<string>();
+      
+      Object.values(state).forEach((presences: any[]) => {
+        presences.forEach((presence) => {
+          if (presence.user_id) {
+            onlineUserIds.add(presence.user_id);
+          }
+        });
+      });
+      
+      setOnlineUsers(onlineUserIds);
+      console.log('Online users updated:', Array.from(onlineUserIds));
+    });
+
+    channel.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        console.log('Admin dashboard subscribed to presence channel');
+      }
+    });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  // Check if user is currently online
+  const isUserOnline = (userId: string) => {
+    return onlineUsers.has(userId);
+  };
 
   const fetchRegistrations = async () => {
     try {
@@ -308,8 +355,14 @@ const AdminDashboard = () => {
                   <div className="flex items-center gap-3 mb-2">
                     <span className="text-2xl">{avatarEmojis[registration.avatar] || '🐱'}</span>
                     <div>
-                      <h3 className="font-bold text-[hsl(var(--text-primary))]">
+                      <h3 className="font-bold text-[hsl(var(--text-primary))] flex items-center gap-2">
                         {registration.nickname}
+                        {isUserOnline(registration.id) && (
+                          <div className="flex items-center gap-1">
+                            <div className="w-2 h-2 bg-green-500 rounded-full animate-online-blink"></div>
+                            <span className="text-xs text-green-600 font-medium">กำลังใช้งาน</span>
+                          </div>
+                        )}
                       </h3>
                       <p className="text-sm text-[hsl(var(--text-secondary))]">
                         {registration.age} ปี • {registration.grade}

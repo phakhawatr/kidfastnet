@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
 import { ToastManager } from '../components/Toast';
+import { useUserPresence } from './useUserPresence';
 
 interface AuthState {
   loggedIn: boolean;
   username: string;
   isDemo?: boolean;
+  registrationId?: string; // Store registration ID for presence tracking
 }
 
 interface ProfileData {
@@ -120,7 +122,8 @@ export const useAuth = () => {
               const authState: AuthState = { 
                 loggedIn: true, 
                 username: result.nickname,
-                isDemo: false
+                isDemo: false,
+                registrationId: result.user_id // Store registration ID for presence tracking
               };
               localStorage.setItem('kidfast_auth', JSON.stringify(authState));
               
@@ -297,6 +300,19 @@ export const useAuth = () => {
   const isLoggedIn = (user !== null) || (authState?.loggedIn === true);
   const username = profile?.nickname || user?.email || authState?.username || '';
   const isDemo = isDemoMode();
+
+  // Set up presence tracking for authenticated users
+  useUserPresence({
+    userId: user?.id,
+    userInfo: profile ? {
+      nickname: profile.nickname,
+      status: profile.is_approved ? 'approved' : 'pending'
+    } : (authState?.username ? {
+      nickname: authState.username,
+      status: 'approved'
+    } : undefined),
+    registrationId: authState?.registrationId
+  });
 
   return {
     user,
