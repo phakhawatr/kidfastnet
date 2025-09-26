@@ -344,7 +344,7 @@ const ProblemCard = React.memo<{
 
       {/* Sequence display */}
       <div className="text-xl font-mono mb-4 text-foreground">
-        {task.seq.join(', ')}, <span className="inline-flex items-center justify-center w-8 h-8 border-2 border-dashed border-border rounded-full align-baseline mx-1 translate-y-[5px] text-muted-foreground font-bold">?</span>
+        {task.seq.join(', ')}, <span className="inline-flex items-center justify-center w-8 h-8 border-2 border-dashed border-border rounded-full align-baseline mx-1 text-red-500 font-bold">?</span>
       </div>
 
       {/* Input and controls */}
