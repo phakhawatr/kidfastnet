@@ -357,11 +357,18 @@ const AdminDashboard = () => {
                     <div>
                       <h3 className="font-bold text-[hsl(var(--text-primary))] flex items-center gap-2">
                         {registration.nickname}
-                        {isUserOnline(registration.id) && (
-                          <div className="flex items-center gap-1">
-                            <div className="w-2 h-2 bg-green-500 rounded-full animate-online-blink"></div>
-                            <span className="text-xs text-green-600 font-medium">กำลังใช้งาน</span>
-                          </div>
+                        {(registration.status === 'approved' || registration.status === 'suspended') && (
+                          isUserOnline(registration.id) ? (
+                            <div className="flex items-center gap-1">
+                              <div className="w-2 h-2 bg-green-500 rounded-full animate-online-blink"></div>
+                              <span className="text-xs text-green-600 font-medium">กำลังใช้งาน</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1">
+                              <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                              <span className="text-xs text-gray-500 font-medium">ออฟไลน์</span>
+                            </div>
+                          )
                         )}
                       </h3>
                       <p className="text-sm text-[hsl(var(--text-secondary))]">
