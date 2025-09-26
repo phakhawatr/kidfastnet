@@ -234,7 +234,7 @@ const PercentageApp: React.FC = () => {
   const score = getScore();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-400 via-pink-500 to-purple-600 p-4">
+    <div className="min-h-screen bg-white p-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
