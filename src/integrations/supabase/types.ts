@@ -90,8 +90,11 @@ export type Database = {
           approved_by: string | null
           avatar: string
           created_at: string
+          device_info: string | null
           grade: string
           id: string
+          is_online: boolean | null
+          last_activity_at: string | null
           last_login_at: string | null
           learning_style: string | null
           login_count: number | null
@@ -99,6 +102,7 @@ export type Database = {
           parent_email: string
           parent_phone: string | null
           password_hash: string
+          session_id: string | null
           status: string
         }
         Insert: {
@@ -107,8 +111,11 @@ export type Database = {
           approved_by?: string | null
           avatar: string
           created_at?: string
+          device_info?: string | null
           grade: string
           id?: string
+          is_online?: boolean | null
+          last_activity_at?: string | null
           last_login_at?: string | null
           learning_style?: string | null
           login_count?: number | null
@@ -116,6 +123,7 @@ export type Database = {
           parent_email: string
           parent_phone?: string | null
           password_hash: string
+          session_id?: string | null
           status?: string
         }
         Update: {
@@ -124,8 +132,11 @@ export type Database = {
           approved_by?: string | null
           avatar?: string
           created_at?: string
+          device_info?: string | null
           grade?: string
           id?: string
+          is_online?: boolean | null
+          last_activity_at?: string | null
           last_login_at?: string | null
           learning_style?: string | null
           login_count?: number | null
@@ -133,6 +144,7 @@ export type Database = {
           parent_email?: string
           parent_phone?: string | null
           password_hash?: string
+          session_id?: string | null
           status?: string
         }
         Relationships: [
