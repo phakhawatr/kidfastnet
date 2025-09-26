@@ -366,7 +366,7 @@ const AdminDashboard = () => {
                           ) : (
                             <div className="flex items-center gap-1 px-2 py-1 bg-gray-50 rounded-full border border-gray-200">
                               <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
-                              <span className="text-xs text-gray-500 font-medium">⚫ ออฟไลน์</span>
+                              <span className="text-xs text-red-500 font-medium">⚫ ออฟไลน์</span>
                             </div>
                           )
                         )}
