@@ -18,6 +18,7 @@ import QuickMathApp from "./pages/QuickMathApp";
 import LengthComparisonApp from "./pages/LengthComparisonApp";
 import ShapeMatchingApp from "./pages/ShapeMatchingApp";
 import FractionMatchingApp from "./pages/FractionMatchingApp";
+import PercentageApp from "./pages/PercentageApp";
 import BackgroundRemoverPage from "./pages/BackgroundRemover";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -145,6 +146,14 @@ const App = () => (
           element={
             <ProtectedRoute>
               <FractionMatchingApp />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/percentage" 
+          element={
+            <ProtectedRoute>
+              <PercentageApp />
             </ProtectedRoute>
           } 
         />

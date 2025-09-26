@@ -147,7 +147,7 @@ const defaultSkills: Skill[] = [{
   backgroundGradient: 'bg-gradient-to-br from-red-400 via-rose-500 to-pink-600',
   textColor: 'text-white',
   sticker: '💯',
-  hrefPreview: '#'
+  hrefPreview: '/percentage'
 }, {
   icon: ArrowLeftRight,
   title: 'เปรียบเทียบความยาว',
