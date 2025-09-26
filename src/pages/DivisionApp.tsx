@@ -397,7 +397,7 @@ const DivisionApp: React.FC = () => {
               }, {
                 key: 'hard',
                 label: 'ยาก'
-              }].map(lvl => <Button key={lvl.key} variant={level === lvl.key ? "secondary" : "outline"} size="sm" onClick={() => setLevel(lvl.key as Level)} className="flex-1 bg-red-200 hover:bg-red-100">
+              }].map(lvl => <Button key={lvl.key} variant={level === lvl.key ? "secondary" : "outline"} size="sm" onClick={() => setLevel(lvl.key as Level)} className={`flex-1 ${level === lvl.key ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-100 hover:bg-gray-200'}`}>
                     {lvl.label}
                   </Button>)}
               </div>
