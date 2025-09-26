@@ -244,6 +244,10 @@ export type Database = {
         Args: { user_email: string }
         Returns: boolean
       }
+      update_user_session: {
+        Args: { device_info?: string; session_id: string; user_email: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
