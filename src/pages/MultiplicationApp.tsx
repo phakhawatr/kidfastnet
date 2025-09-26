@@ -403,6 +403,73 @@ const MultiplicationApp = () => {
               <div className="bg-white rounded-lg p-4 font-mono text-xl">
                 {/* Calculate grid width based on maximum digits needed */}
                 {(() => {
+                  // Special case for 1x1 multiplication - simpler layout
+                  if (problem.dimensions[0] === 1 && problem.dimensions[1] === 1) {
+                    const maxWidth = Math.max(
+                      problem.multiplicand.length,
+                      problem.multiplier.length,
+                      problem.finalAnswer.length
+                    ) + 1; // +1 for operator column
+                    
+                    return (
+                      <div className="space-y-2">
+                        {/* Multiplicand Row */}
+                        <div className="grid gap-1" style={{gridTemplateColumns: `repeat(${maxWidth}, 1fr)`}}>
+                          <div></div> {/* Operator column placeholder */}
+                          {Array.from({length: maxWidth - 1 - problem.multiplicand.length}).map((_, i) => (
+                            <div key={i}></div>
+                          ))}
+                          {problem.multiplicand.split('').map((digit, i) => (
+                            <div key={i} className="text-center py-2 font-bold text-xl">
+                              {digit}
+                            </div>
+                          ))}
+                        </div>
+                        
+                        {/* Multiplier Row */}
+                        <div className="grid gap-1" style={{gridTemplateColumns: `repeat(${maxWidth}, 1fr)`}}>
+                          <div className="text-center py-2 font-bold text-xl">×</div>
+                          {Array.from({length: maxWidth - 1 - problem.multiplier.length}).map((_, i) => (
+                            <div key={i}></div>
+                          ))}
+                          {problem.multiplier.split('').map((digit, i) => (
+                            <div key={i} className="text-center py-2 font-bold text-xl">
+                              {digit}
+                            </div>
+                          ))}
+                        </div>
+                        
+                        {/* Separator Line */}
+                        <div className="border-t-2 border-black my-2"></div>
+                        
+                        {/* Final Answer Row */}
+                        <div className="grid gap-1" style={{gridTemplateColumns: `repeat(${maxWidth}, 1fr)`}}>
+                          <div></div>
+                          {Array.from({length: maxWidth - 1 - problem.finalAnswer.length}).map((_, i) => (
+                            <div key={i}></div>
+                          ))}
+                          {problem.finalAnswer.split('').map((digit, digitIdx) => (
+                            <input
+                              key={digitIdx}
+                              type="text"
+                              maxLength={1}
+                              value={answers[problemIdx]?.finalAnswer[digitIdx] || ''}
+                              onChange={(e) => updateAnswer(problemIdx, problem.partialProducts.length, digitIdx, e.target.value)}
+                              className={`w-12 h-12 text-center border-2 rounded font-mono text-xl font-bold ${
+                                results[problemIdx]?.[problem.partialProducts.length]?.[digitIdx] === 'correct' 
+                                  ? 'bg-green-100 border-green-500' 
+                                  : results[problemIdx]?.[problem.partialProducts.length]?.[digitIdx] === 'incorrect'
+                                  ? 'bg-red-100 border-red-500 animate-pulse'
+                                  : 'border-purple-300 focus:border-purple-500'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  }
+                  
+                  // Original complex layout for multi-digit multiplication
                   const maxWidth = Math.max(
                     problem.multiplicand.length + problem.multiplier.length,
                     problem.finalAnswer.length
