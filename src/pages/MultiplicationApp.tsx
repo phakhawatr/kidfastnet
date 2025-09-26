@@ -87,12 +87,19 @@ const MultiplicationApp = () => {
     const partialProducts: string[] = [];
     const multiplicandNum = parseInt(multiplicand);
     
-    // Calculate partial products for each digit of multiplier
+    // Calculate partial products for each digit of multiplier (from right to left)
     for (let i = multiplier.length - 1; i >= 0; i--) {
       const digit = parseInt(multiplier[i]);
       const product = multiplicandNum * digit;
-      const zeros = '0'.repeat(multiplier.length - 1 - i);
-      partialProducts.push((product === 0 ? '0' : product.toString() + zeros));
+      const positionFromRight = multiplier.length - 1 - i; // 0 for units, 1 for tens, 2 for hundreds, etc.
+      
+      if (product === 0) {
+        partialProducts.push('0');
+      } else {
+        // Add trailing zeros based on position
+        const zeros = '0'.repeat(positionFromRight);
+        partialProducts.push(product.toString() + zeros);
+      }
     }
     
     // Calculate final answer
@@ -435,19 +442,19 @@ const MultiplicationApp = () => {
                       {/* Partial Products */}
                       {problem.partialProducts.map((product, rowIdx) => {
                         const actualProduct = product === '0' ? '0' : product;
-                        const shiftPosition = problem.multiplier.length - 1 - rowIdx;
-                        const leadingZeros = actualProduct === '0' ? 0 : shiftPosition;
-                        const totalLength = actualProduct.length + leadingZeros;
-                        const emptySpaces = maxWidth - 1 - totalLength;
+                        // Calculate how many spaces from the right edge
+                        const emptySpaces = maxWidth - 1 - actualProduct.length;
                         
                         return (
                           <div key={rowIdx} className="grid gap-1" style={{gridTemplateColumns: `repeat(${maxWidth}, 1fr)`}}>
                             <div className="text-center py-2 font-bold text-xl">
                               {rowIdx === 0 ? '+' : ''}
                             </div>
+                            {/* Empty spaces to right-align the partial product */}
                             {Array.from({length: emptySpaces}).map((_, i) => (
                               <div key={i}></div>
                             ))}
+                            {/* Input fields for each digit of the partial product */}
                             {actualProduct.split('').map((digit, digitIdx) => (
                               <input
                                 key={digitIdx}
@@ -459,22 +466,6 @@ const MultiplicationApp = () => {
                                   results[problemIdx]?.[rowIdx]?.[digitIdx] === 'correct' 
                                     ? 'bg-green-100 border-green-500' 
                                     : results[problemIdx]?.[rowIdx]?.[digitIdx] === 'incorrect'
-                                    ? 'bg-red-100 border-red-500 animate-pulse'
-                                    : 'border-gray-300 focus:border-blue-500'
-                                }`}
-                              />
-                            ))}
-                            {Array.from({length: leadingZeros}).map((_, i) => (
-                              <input
-                                key={`zero-${i}`}
-                                type="text"
-                                maxLength={1}
-                                value={answers[problemIdx]?.partialProducts[rowIdx]?.[actualProduct.length + i] || ''}
-                                onChange={(e) => updateAnswer(problemIdx, rowIdx, actualProduct.length + i, e.target.value)}
-                                className={`w-12 h-12 text-center border rounded font-mono text-xl ${
-                                  results[problemIdx]?.[rowIdx]?.[actualProduct.length + i] === 'correct' 
-                                    ? 'bg-green-100 border-green-500' 
-                                    : results[problemIdx]?.[rowIdx]?.[actualProduct.length + i] === 'incorrect'
                                     ? 'bg-red-100 border-red-500 animate-pulse'
                                     : 'border-gray-300 focus:border-blue-500'
                                 }`}
