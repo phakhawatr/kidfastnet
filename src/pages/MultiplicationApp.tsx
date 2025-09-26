@@ -248,6 +248,33 @@ const MultiplicationApp = () => {
     setResults(newResults);
   };
 
+  // Show all answers
+  const showAnswers = () => {
+    const newAnswers = [...answers];
+    const newResults = [...results];
+    
+    problems.forEach((problem, problemIdx) => {
+      // Fill partial products
+      problem.partialProducts.forEach((product, rowIdx) => {
+        newAnswers[problemIdx].partialProducts[rowIdx] = product.split('');
+        newResults[problemIdx][rowIdx] = new Array(product.length).fill('correct');
+      });
+      
+      // Fill final answer
+      newAnswers[problemIdx].finalAnswer = problem.finalAnswer.split('');
+      newResults[problemIdx][problem.partialProducts.length] = new Array(problem.finalAnswer.length).fill('correct');
+    });
+    
+    setAnswers(newAnswers);
+    setResults(newResults);
+    setIsCompleted(true);
+    
+    toast({
+      title: "📝 เฉลยคำตอบ",
+      description: "แสดงคำตอบที่ถูกต้องทั้งหมดแล้ว",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50">
       <Header />
@@ -333,6 +360,10 @@ const MultiplicationApp = () => {
               <button onClick={checkAnswers} className="btn-primary flex-1">
                 <CheckCircle2 className="w-4 h-4" />
                 ตรวจคำตอบ
+              </button>
+              <button onClick={showAnswers} className="btn-secondary flex-1">
+                <PlayCircle className="w-4 h-4" />
+                เฉลยคำตอบ
               </button>
             </div>
           </div>
@@ -458,6 +489,10 @@ const MultiplicationApp = () => {
           <button onClick={checkAnswers} className="btn-primary">
             <CheckCircle2 className="w-5 h-5" />
             ตรวจคำตอบ
+          </button>
+          <button onClick={showAnswers} className="btn-secondary">
+            <PlayCircle className="w-5 h-5" />
+            เฉลยคำตอบ
           </button>
           <div className="flex items-center gap-2 text-muted-foreground">
             <Timer className="w-4 h-4" />
