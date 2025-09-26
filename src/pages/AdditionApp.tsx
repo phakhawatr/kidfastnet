@@ -238,9 +238,9 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
         {status === "showing" && <span className="text-sky-700">ตอบ: {correct}</span>}
       </div>
 
-      <div className="flex justify-center">
+      <div className="flex justify-end">
         <button onClick={() => onReset(idx)} className="text-sm px-4 py-2 rounded-full bg-white border hover:bg-zinc-50">
-          ล้างตอบ
+          ล้างคำตอบ
         </button>
       </div>
     </div>
@@ -614,10 +614,10 @@ export default function AdditionApp() {
         <div className="flex items-center gap-4 mb-4">
           <Link 
             to="/profile" 
-            className="flex items-center gap-2 text-zinc-600 hover:text-zinc-800 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-zinc-300 bg-white hover:bg-zinc-50 hover:border-zinc-400 transition-all text-zinc-700 font-medium"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span>กลับ</span>
+            <span>กลับหน้าหลัก</span>
           </Link>
         </div>
         <h1 className="text-3xl sm:text-4xl font-black flex items-center gap-2">🧮 การบวกที่ผลบวกไม่เกิน 1,000</h1>
