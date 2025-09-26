@@ -443,43 +443,81 @@ const MultiplicationApp = () => {
                         <div className="border-t-2 border-black my-2"></div>
                         
                         {/* Final Answer Row */}
-                        <div className="grid gap-1" style={{gridTemplateColumns: `repeat(${maxWidth}, 1fr)`}}>
-                          <div></div>
-                          {/* Right-align the answer boxes by adding empty spaces */}
-                          {Array.from({length: maxWidth - 1 - problem.finalAnswer.length}).map((_, i) => (
-                            <div key={i}></div>
-                          ))}
-                          {/* Separate input boxes for each digit */}
-                          {problem.finalAnswer.split('').map((digit, digitIdx) => (
-                            <input
-                              key={digitIdx}
-                              type="text"
-                              maxLength={1}
-                              value={answers[problemIdx]?.finalAnswer[digitIdx] || ''}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                if (value === '' || /^\d$/.test(value)) {
-                                  const newAnswer = [...answers];
-                                   if (!newAnswer[problemIdx]) {
-                                     newAnswer[problemIdx] = { 
-                                       partialProducts: [],
-                                       finalAnswer: new Array(problem.finalAnswer.length).fill('') 
-                                     };
-                                   }
-                                  newAnswer[problemIdx].finalAnswer[digitIdx] = value;
-                                  setAnswers(newAnswer);
-                                }
-                              }}
-                              className={`w-12 h-12 text-center border-2 rounded font-mono text-xl font-bold ${
-                                results[problemIdx]?.[problem.partialProducts.length]?.[digitIdx] === 'correct' 
-                                  ? 'bg-green-100 border-green-500' 
-                                  : results[problemIdx]?.[problem.partialProducts.length]?.[digitIdx] === 'incorrect'
-                                  ? 'bg-red-100 border-red-500 animate-pulse'
-                                  : 'border-purple-300 focus:border-purple-500'
-                              }`}
-                            />
-                          ))}
-                        </div>
+                        {dimensions[0] === 1 && dimensions[1] === 1 ? (
+                          // Special layout for 1x1 - compact answer boxes
+                          <div className="flex justify-end">
+                            <div className="flex gap-1">
+                              {problem.finalAnswer.split('').map((digit, digitIdx) => (
+                                <input
+                                  key={digitIdx}
+                                  type="text"
+                                  maxLength={1}
+                                  value={answers[problemIdx]?.finalAnswer[digitIdx] || ''}
+                                  onChange={(e) => {
+                                    const value = e.target.value;
+                                    if (value === '' || /^\d$/.test(value)) {
+                                      const newAnswer = [...answers];
+                                       if (!newAnswer[problemIdx]) {
+                                         newAnswer[problemIdx] = { 
+                                           partialProducts: [],
+                                           finalAnswer: new Array(problem.finalAnswer.length).fill('') 
+                                         };
+                                       }
+                                      newAnswer[problemIdx].finalAnswer[digitIdx] = value;
+                                      setAnswers(newAnswer);
+                                    }
+                                  }}
+                                  className={`w-12 h-12 text-center border-2 rounded font-mono text-xl font-bold ${
+                                    results[problemIdx]?.[problem.partialProducts.length]?.[digitIdx] === 'correct' 
+                                      ? 'bg-green-100 border-green-500' 
+                                      : results[problemIdx]?.[problem.partialProducts.length]?.[digitIdx] === 'incorrect'
+                                      ? 'bg-red-100 border-red-500 animate-pulse'
+                                      : 'border-purple-300 focus:border-purple-500'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          // Original grid layout for other table types
+                          <div className="grid gap-1" style={{gridTemplateColumns: `repeat(${maxWidth}, 1fr)`}}>
+                            <div></div>
+                            {/* Right-align the answer boxes by adding empty spaces */}
+                            {Array.from({length: maxWidth - 1 - problem.finalAnswer.length}).map((_, i) => (
+                              <div key={i}></div>
+                            ))}
+                            {/* Separate input boxes for each digit */}
+                            {problem.finalAnswer.split('').map((digit, digitIdx) => (
+                              <input
+                                key={digitIdx}
+                                type="text"
+                                maxLength={1}
+                                value={answers[problemIdx]?.finalAnswer[digitIdx] || ''}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (value === '' || /^\d$/.test(value)) {
+                                    const newAnswer = [...answers];
+                                     if (!newAnswer[problemIdx]) {
+                                       newAnswer[problemIdx] = { 
+                                         partialProducts: [],
+                                         finalAnswer: new Array(problem.finalAnswer.length).fill('') 
+                                       };
+                                     }
+                                    newAnswer[problemIdx].finalAnswer[digitIdx] = value;
+                                    setAnswers(newAnswer);
+                                  }
+                                }}
+                                className={`w-12 h-12 text-center border-2 rounded font-mono text-xl font-bold ${
+                                  results[problemIdx]?.[problem.partialProducts.length]?.[digitIdx] === 'correct' 
+                                    ? 'bg-green-100 border-green-500' 
+                                    : results[problemIdx]?.[problem.partialProducts.length]?.[digitIdx] === 'incorrect'
+                                    ? 'bg-red-100 border-red-500 animate-pulse'
+                                    : 'border-purple-300 focus:border-purple-500'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        )}
                       </div>
                     );
                   }
