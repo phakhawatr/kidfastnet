@@ -312,7 +312,7 @@ const MultiplicationApp = () => {
             <div>
               <label className="block text-sm font-medium mb-2">มิติจำนวน</label>
               <div className="flex gap-1">
-                {[[1,1], [2,1], [3,1], [2,2], [2,3], [3,3]].map(([d1, d2]) => (
+                {[[1,1], [2,1], [3,1], [2,2], [3,2], [3,3]].map(([d1, d2]) => (
                   <button
                     key={`${d1}x${d2}`}
                     onClick={() => setDimensions([d1, d2])}
@@ -354,11 +354,11 @@ const MultiplicationApp = () => {
               </div>
               
               {/* Problem Display */}
-              <div className="text-center mb-4">
-                <span className="text-xl font-bold">
+              <div className="text-center mb-6">
+                <span className="text-3xl font-bold text-primary">
                   {problem.multiplicand} × {problem.multiplier} = 
                 </span>
-                <div className="inline-block w-16 h-8 border-2 border-dashed border-gray-300 ml-2 rounded"></div>
+                <div className="inline-block w-20 h-10 border-2 border-dashed border-gray-300 ml-2 rounded"></div>
               </div>
               
               {/* Long Multiplication Grid */}
@@ -394,7 +394,11 @@ const MultiplicationApp = () => {
                   
                   {/* Partial Products */}
                   {problem.partialProducts.map((product, rowIdx) => (
-                    <div key={rowIdx} className="col-span-full grid gap-1" style={{gridTemplateColumns: `repeat(${Math.max(problem.multiplicand.length, problem.multiplier.length, problem.finalAnswer.length)}, 1fr)`}}>
+                    <div key={rowIdx} className="col-span-full grid gap-1" style={{gridTemplateColumns: `repeat(${Math.max(problem.multiplicand.length, problem.multiplier.length, problem.finalAnswer.length) + 1}, 1fr)`}}>
+                      {/* Add plus sign for partial products */}
+                      <div className="text-center py-1 font-bold text-lg">
+                        {rowIdx === 0 ? '+' : ''}
+                      </div>
                       {Array.from({length: Math.max(problem.multiplicand.length, problem.multiplier.length, problem.finalAnswer.length) - product.length}).map((_, i) => (
                         <div key={i} className="text-center py-1"></div>
                       ))}
@@ -405,7 +409,7 @@ const MultiplicationApp = () => {
                           maxLength={1}
                           value={answers[problemIdx]?.partialProducts[rowIdx]?.[digitIdx] || ''}
                           onChange={(e) => updateAnswer(problemIdx, rowIdx, digitIdx, e.target.value)}
-                          className={`w-8 h-8 text-center border rounded font-mono text-sm ${
+                          className={`w-10 h-10 text-center border rounded font-mono text-lg ${
                             results[problemIdx]?.[rowIdx]?.[digitIdx] === 'correct' 
                               ? 'bg-green-100 border-green-500' 
                               : results[problemIdx]?.[rowIdx]?.[digitIdx] === 'incorrect'
@@ -421,7 +425,8 @@ const MultiplicationApp = () => {
                   <div className="col-span-full border-t-2 border-black my-1"></div>
                   
                   {/* Final Answer Row */}
-                  <div className="col-span-full grid gap-1" style={{gridTemplateColumns: `repeat(${Math.max(problem.multiplicand.length, problem.multiplier.length, problem.finalAnswer.length)}, 1fr)`}}>
+                  <div className="col-span-full grid gap-1" style={{gridTemplateColumns: `repeat(${Math.max(problem.multiplicand.length, problem.multiplier.length, problem.finalAnswer.length) + 1}, 1fr)`}}>
+                    <div className="text-center py-1"></div>
                     {Array.from({length: Math.max(problem.multiplicand.length, problem.multiplier.length, problem.finalAnswer.length) - problem.finalAnswer.length}).map((_, i) => (
                       <div key={i} className="text-center py-1"></div>
                     ))}
@@ -432,7 +437,7 @@ const MultiplicationApp = () => {
                         maxLength={1}
                         value={answers[problemIdx]?.finalAnswer[digitIdx] || ''}
                         onChange={(e) => updateAnswer(problemIdx, problem.partialProducts.length, digitIdx, e.target.value)}
-                        className={`w-8 h-8 text-center border-2 rounded font-mono text-sm font-bold ${
+                        className={`w-10 h-10 text-center border-2 rounded font-mono text-lg font-bold ${
                           results[problemIdx]?.[problem.partialProducts.length]?.[digitIdx] === 'correct' 
                             ? 'bg-green-100 border-green-500' 
                             : results[problemIdx]?.[problem.partialProducts.length]?.[digitIdx] === 'incorrect'
