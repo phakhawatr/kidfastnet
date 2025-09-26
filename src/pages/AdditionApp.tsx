@@ -32,52 +32,98 @@ function rangeForDigits(d) {
   return { min: pair[0], max: pair[1] };
 }
 
-function pickByDifficulty(level, digits) {
-  const { min, max } = rangeForDigits(digits);
-  const a = randInt(min, max);
-  const b = randInt(min, max);
-  const s = a + b;
-  if (s > 1000) return null;
-
-  const carries = countCarries(a, b);
-  if (level === "easy" && carries > 0) return null; // no carry
-  if (level === "medium" && carries < 1) return null; // at least one carry
-  if (level === "hard") {
-    if (carries < 1) return null;
-    // only require near-1000 when digits allow it
-    if (max * 2 >= 700 && s < 700) return null;
+function countCarriesMultiple(numbers) {
+  if (numbers.length === 2) return countCarries(numbers[0], numbers[1]);
+  if (numbers.length === 3) {
+    // For 3 numbers, count carries step by step
+    const temp = numbers[0] + numbers[1];
+    return countCarries(temp, numbers[2]);
   }
-  return { a, b };
+  return 0;
 }
 
-function generateAdditionProblems(n = 15, level = "easy", digits = 2) {
+function pickByDifficulty(level, digits, carryOption = "any", operands = 2) {
+  const { min, max } = rangeForDigits(digits);
+  
+  const numbers = [];
+  for (let i = 0; i < operands; i++) {
+    numbers.push(randInt(min, max));
+  }
+  
+  const sum = numbers.reduce((acc, num) => acc + num, 0);
+  if (sum > 1000) return null;
+
+  const carries = countCarriesMultiple(numbers);
+  
+  // Check carry requirements
+  if (carryOption === "none" && carries > 0) return null;
+  if (carryOption === "has" && carries === 0) return null;
+  
+  // Check difficulty requirements
+  if (level === "easy" && carryOption === "any" && carries > 0) return null;
+  if (level === "medium" && carryOption === "any" && carries < 1) return null;
+  if (level === "hard") {
+    if (carryOption === "any" && carries < 1) return null;
+    if (max * operands >= 700 && sum < 700) return null;
+  }
+  
+  return operands === 2 ? { a: numbers[0], b: numbers[1] } : { a: numbers[0], b: numbers[1], c: numbers[2] };
+}
+
+function generateAdditionProblems(n = 15, level = "easy", digits = 2, carryOption = "any", operands = 2) {
   const probs = [];
   const used = new Set();
   let guard = 0;
   while (probs.length < n && guard < 20000) {
     guard++;
-    const pair = pickByDifficulty(level, digits);
-    if (!pair) continue;
-    const { a, b } = pair;
-    const x = Math.min(a, b);
-    const y = Math.max(a, b);
-    const key = x + "+" + y;
-    if (used.has(key)) continue;
-    used.add(key);
-    probs.push({ a, b });
+    const result = pickByDifficulty(level, digits, carryOption, operands);
+    if (!result) continue;
+    
+    let key;
+    if (operands === 2) {
+      const { a, b } = result;
+      const x = Math.min(a, b);
+      const y = Math.max(a, b);
+      key = x + "+" + y;
+      if (used.has(key)) continue;
+      used.add(key);
+      probs.push({ a, b });
+    } else {
+      const { a, b, c } = result;
+      const nums = [a, b, c].sort((x, y) => x - y);
+      key = nums.join("+");
+      if (used.has(key)) continue;
+      used.add(key);
+      probs.push({ a, b, c });
+    }
   }
+  
   // Fallback: relax to easy constraints with same digits if needed
   const { min, max } = rangeForDigits(digits);
   while (probs.length < n) {
-    const a = randInt(min, max);
-    const b = randInt(min, max);
-    if (a + b > 1000) continue;
-    const x = Math.min(a, b);
-    const y = Math.max(a, b);
-    const key = x + "+" + y;
-    if (used.has(key)) continue;
-    used.add(key);
-    probs.push({ a, b });
+    const numbers = [];
+    for (let i = 0; i < operands; i++) {
+      numbers.push(randInt(min, max));
+    }
+    const sum = numbers.reduce((acc, num) => acc + num, 0);
+    if (sum > 1000) continue;
+    
+    let key;
+    if (operands === 2) {
+      const [a, b] = numbers;
+      const x = Math.min(a, b);
+      const y = Math.max(a, b);
+      key = x + "+" + y;
+      if (used.has(key)) continue;
+      used.add(key);
+      probs.push({ a, b });
+    } else {
+      const nums = numbers.sort((x, y) => x - y);
+      key = nums.join("+");
+      if (used.has(key)) continue;
+      used.add(key);
+      probs.push({ a: numbers[0], b: numbers[1], c: numbers[2] });
+    }
   }
   return probs;
 }
@@ -122,7 +168,7 @@ function answerToNumber(ansArr, digits) {
 }
 
 // ================= One Problem Card =================
-function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset, onFirstType, digits }) {
+function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset, onFirstType, digits, operands }) {
   const inputRef = useRef(null);
   const inputRefs = useRef([]);
   const [carry, setCarry] = useState(() => Array(digits).fill(""));
@@ -136,7 +182,7 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
   const border =
     status === "correct" ? "border-green-400" : status === "wrong" ? "border-red-300" : "border-zinc-200";
 
-  const correct = prob.a + prob.b;
+  const correct = operands === 3 ? prob.a + prob.b + prob.c : prob.a + prob.b;
 
   // pastel background per card for kid-friendly feel
   const pastel = ["bg-yellow-50","bg-sky-50","bg-pink-50","bg-green-50","bg-purple-50"];
@@ -167,7 +213,7 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
               />
             ))}
           </div>
-          {/* Grid for a and b with left + column */}
+          {/* Grid for numbers with left + column */}
           <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${digits + 1}, 3rem)` }}>
             {/* Row 1: empty plus cell + digits of a */}
             <div className="w-12 h-12" />
@@ -179,15 +225,24 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
             {String(prob.b).padStart(digits, " ").split("").map((ch, i) => (
               <div key={`b${i}`} className="w-12 h-12 border border-sky-200 bg-white rounded-md flex items-center justify-center text-3xl font-extrabold">{ch.trim()}</div>
             ))}
+            {/* Row 3: plus sign + digits of c (if 3 operands) */}
+            {operands === 3 && (
+              <>
+                <div className="w-12 h-12 border border-sky-200 bg-white rounded-md flex items-center justify-center text-3xl font-extrabold text-zinc-500">+</div>
+                {String(prob.c).padStart(digits, " ").split("").map((ch, i) => (
+                  <div key={`c${i}`} className="w-12 h-12 border border-sky-200 bg-white rounded-md flex items-center justify-center text-3xl font-extrabold">{ch.trim()}</div>
+                ))}
+              </>
+            )}
           </div>
           {/* underline */}
           <div className="ml-12 border-t-4 border-zinc-400 mt-2" />
-          {/* Row 3: answer cells (inputs or revealed) */}
+          {/* Answer row: answer cells (inputs or revealed) */}
           <div className="grid gap-1 mt-2" style={{ gridTemplateColumns: `repeat(${digits + 1}, 3rem)` }}>
             <div className="w-12 h-12" />
             {showAnswer
-              ? String((prob.a + prob.b)).padStart(digits, " ").slice(-digits).split("").map((ch, j) => (
-                  <div key={`c${j}`} className="w-12 h-12 border-2 border-sky-300 bg-white rounded-md flex items-center justify-center text-3xl font-extrabold text-sky-700">
+              ? String(correct).padStart(digits, " ").slice(-digits).split("").map((ch, j) => (
+                  <div key={`ans${j}`} className="w-12 h-12 border-2 border-sky-300 bg-white rounded-md flex items-center justify-center text-3xl font-extrabold text-sky-700">
                     {ch.trim()}
                   </div>
                 ))
@@ -252,7 +307,9 @@ export default function AdditionApp() {
   const [count, setCount] = useState(15);
   const [level, setLevel] = useState("easy"); // easy | medium | hard
   const [digits, setDigits] = useState(2);
-  const [problems, setProblems] = useState(() => generateAdditionProblems(15, "easy", 2));
+  const [carryOption, setCarryOption] = useState("any"); // "has" | "none" | "any"
+  const [operands, setOperands] = useState(2); // 2 | 3
+  const [problems, setProblems] = useState(() => generateAdditionProblems(15, "easy", 2, "any", 2));
   const [answers, setAnswers] = useState(() => problems.map(() => Array(digits).fill("")));
   const [results, setResults] = useState(() => problems.map(() => "pending")); // pending | correct | wrong
   const [showAnswers, setShowAnswers] = useState(false);
@@ -350,7 +407,8 @@ export default function AdditionApp() {
     const duration = startedAt ? endTs - startedAt : 0;
     const correct = problems.reduce((acc, p, i) => {
       const ans = answerToNumber(answers[i], digits);
-      return acc + (ans === p.a + p.b ? 1 : 0);
+      const correctAnswer = operands === 3 ? p.a + p.b + p.c : p.a + p.b;
+      return acc + (ans === correctAnswer ? 1 : 0);
     }, 0);
     const entry = {
       ts: endTs,
@@ -367,7 +425,16 @@ export default function AdditionApp() {
   function saveStats() {
     const end = finishedAt || Date.now();
     const duration = startedAt ? end - startedAt : 0;
-    const snapshot = problems.map((p, i) => ({ a: p.a, b: p.b, answer: (answers[i] || []).join(""), correct: p.a + p.b }));
+  const snapshot = problems.map((p, i) => {
+      const correct = operands === 3 ? p.a + p.b + p.c : p.a + p.b;
+      return {
+        a: p.a,
+        b: p.b,
+        c: p.c,
+        answer: (answers[i] || []).join(""),
+        correct
+      };
+    });
     const correct2 = snapshot.reduce((t, s, i) => t + ((answerToNumber(answers[i], digits) === s.correct) ? 1 : 0), 0);
     const entry2 = { ts: end, level, digits, count, durationMs: Math.max(0, duration), correct: correct2, stars: calcStars(correct2, count), snapshot };
     setHistory((prev) => [entry2, ...prev].slice(0, 10));
@@ -377,7 +444,7 @@ export default function AdditionApp() {
     if (startedAt && !showAnswers) finalizeAndLog(Date.now());
 
     setCount(n);
-    const next = generateAdditionProblems(n, level, digits);
+    const next = generateAdditionProblems(n, level, digits, carryOption, operands);
     setProblems(next);
     setAnswers(next.map(() => Array(digits).fill("")));
 
@@ -394,7 +461,7 @@ export default function AdditionApp() {
     if (startedAt && !showAnswers) finalizeAndLog(Date.now());
 
     setLevel(lv);
-    const next = generateAdditionProblems(count, lv, digits);
+    const next = generateAdditionProblems(count, lv, digits, carryOption, operands);
     setProblems(next);
     setAnswers(next.map(() => Array(digits).fill("")));
 
@@ -411,9 +478,41 @@ export default function AdditionApp() {
     if (startedAt && !showAnswers) finalizeAndLog(Date.now());
 
     setDigits(d);
-    const next = generateAdditionProblems(count, level, d);
+    const next = generateAdditionProblems(count, level, d, carryOption, operands);
     setProblems(next);
     setAnswers(next.map(() => Array(d).fill("")));
+    setResults(next.map(() => "pending"));
+    setShowAnswers(false);
+    setCelebrate(false);
+    setStartedAt(null);
+    setFinishedAt(null);
+    setElapsedMs(0);
+    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
+  }
+
+  function applyCarryOption(option) {
+    if (startedAt && !showAnswers) finalizeAndLog(Date.now());
+
+    setCarryOption(option);
+    const next = generateAdditionProblems(count, level, digits, option, operands);
+    setProblems(next);
+    setAnswers(next.map(() => Array(digits).fill("")));
+    setResults(next.map(() => "pending"));
+    setShowAnswers(false);
+    setCelebrate(false);
+    setStartedAt(null);
+    setFinishedAt(null);
+    setElapsedMs(0);
+    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
+  }
+
+  function applyOperands(count) {
+    if (startedAt && !showAnswers) finalizeAndLog(Date.now());
+
+    setOperands(count);
+    const next = generateAdditionProblems(count, level, digits, carryOption, count);
+    setProblems(next);
+    setAnswers(next.map(() => Array(digits).fill("")));
     setResults(next.map(() => "pending"));
     setShowAnswers(false);
     setCelebrate(false);
@@ -426,7 +525,7 @@ export default function AdditionApp() {
   function resetAll() {
     if (startedAt && !showAnswers) finalizeAndLog(Date.now());
 
-    const next = generateAdditionProblems(count, level, digits);
+    const next = generateAdditionProblems(count, level, digits, carryOption, operands);
     setProblems(next);
     setAnswers(next.map(() => Array(digits).fill("")));
 
@@ -442,7 +541,8 @@ export default function AdditionApp() {
   function checkAnswers() {
     const next = problems.map((p, i) => {
       const ans = answerToNumber(answers[i], digits);
-      return ans === p.a + p.b ? "correct" : "wrong";
+      const correct = operands === 3 ? p.a + p.b + p.c : p.a + p.b;
+      return ans === correct ? "correct" : "wrong";
     });
     setResults(next);
 
@@ -470,7 +570,8 @@ export default function AdditionApp() {
     const end = Date.now();
     const correctNow = problems.reduce((acc, p, i) => {
       const ans = answerToNumber(answers[i], digits);
-      return acc + (ans === p.a + p.b ? 1 : 0);
+      const correct = operands === 3 ? p.a + p.b + p.c : p.a + p.b;
+      return acc + (ans === correct ? 1 : 0);
     }, 0);
 
     setShowAnswers(true);
@@ -536,7 +637,9 @@ export default function AdditionApp() {
                           <div className="text-sm text-zinc-500">ข้อ {idx + 1}</div>
                           <div className={ok ? "text-emerald-600 text-xl" : "text-rose-600 text-xl"}>{ok ? "✅" : "❌"}</div>
                         </div>
-                        <div className="text-2xl font-bold my-1">{s.a} + {s.b} = <span className="text-sky-700">{s.correct}</span></div>
+                        <div className="text-2xl font-bold my-1">
+                          {s.c !== undefined ? `${s.a} + ${s.b} + ${s.c}` : `${s.a} + ${s.b}`} = <span className="text-sky-700">{s.correct}</span>
+                        </div>
                         <div className="text-sm">ตอบของฉัน: <span className={ok ? 'text-emerald-600 font-semibold' : 'text-rose-600 font-semibold'}>{s.answer || '—'}</span></div>
                       </div>
                     );
@@ -621,7 +724,7 @@ export default function AdditionApp() {
           </Link>
         </div>
         <h1 className="text-3xl sm:text-4xl font-black flex items-center gap-2">🧮 การบวกที่ผลบวกไม่เกิน 1,000</h1>
-        <p className="text-zinc-600 mt-1 text-base">ตอบผลลัพธ์ของโจทย์บวก 2 จำนวน โดยผลบวกไม่เกิน 1,000</p>
+        <p className="text-zinc-600 mt-1 text-base">ตอบผลลัพธ์ของโจทย์บวก 2-3 จำนวน โดยผลบวกไม่เกิน 1,000</p>
       </header>
 
       <main className="max-w-6xl mx-auto p-6 pt-3">
@@ -675,6 +778,46 @@ export default function AdditionApp() {
             ))}
           </div>
 
+          <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 shadow-sm">
+            <span className="text-sm text-zinc-600">การทด:</span>
+            <button
+              onClick={() => applyCarryOption("has")}
+              className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${
+                carryOption === "has" ? "bg-red-500 text-white border-red-500" : "bg-zinc-50 hover:bg-zinc-100 border-zinc-200"
+              }`}
+            >
+              มี
+            </button>
+            <button
+              onClick={() => applyCarryOption("none")}
+              className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${
+                carryOption === "none" ? "bg-red-500 text-white border-red-500" : "bg-zinc-50 hover:bg-zinc-100 border-zinc-200"
+              }`}
+            >
+              ไม่มี
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 shadow-sm">
+            <span className="text-sm text-zinc-600">จำนวนชุดตัวเลข:</span>
+            <button
+              onClick={() => applyOperands(2)}
+              className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${
+                operands === 2 ? "bg-emerald-500 text-white border-emerald-500" : "bg-zinc-50 hover:bg-zinc-100 border-zinc-200"
+              }`}
+            >
+              2 จำนวน
+            </button>
+            <button
+              onClick={() => applyOperands(3)}
+              className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${
+                operands === 3 ? "bg-emerald-500 text-white border-emerald-500" : "bg-zinc-50 hover:bg-zinc-100 border-zinc-200"
+              }`}
+            >
+              3 จำนวน
+            </button>
+          </div>
+
           <button onClick={resetAll} className="px-5 py-3 rounded-2xl text-lg bg-sky-600 text-white hover:bg-sky-700 shadow-lg">
             🔄 สุ่มชุดใหม่ (New Set)
           </button>
@@ -705,6 +848,7 @@ export default function AdditionApp() {
               onReset={onReset}
               onFirstType={startTimerIfNeeded}
               digits={digits}
+              operands={operands}
             />
           ))}
         </div>
