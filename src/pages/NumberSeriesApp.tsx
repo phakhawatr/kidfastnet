@@ -378,10 +378,6 @@ const ProblemCard = React.memo<{
         >
           คำใบ้
         </button>
-
-        <span className="px-2 py-1 bg-muted text-muted-foreground text-xs rounded-full font-bold">
-          รูปแบบ
-        </span>
       </div>
 
       {/* Hint display */}
