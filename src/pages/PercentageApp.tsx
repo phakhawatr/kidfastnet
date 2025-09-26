@@ -246,7 +246,7 @@ const PercentageApp: React.FC = () => {
           </Link>
           
           <div className="text-center">
-            <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
+            <h1 className="text-2xl md:text-3xl font-bold text-pink-600 mb-2">
               💯 แบบฝึกหัดร้อยละ
             </h1>
             <p className="text-white/90">เขียนร้อยละในรูปเศษส่วนอย่างต่ำและทศนิยม</p>
