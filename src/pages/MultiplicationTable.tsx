@@ -206,17 +206,17 @@ const MultiplicationTable = () => {
                   {Array.from({ length: 12 }, (_, i) => i + 1).map(table => (
                     <Button
                       key={table}
-                      variant={selectedTable === table ? "default" : "outline"}
+                      variant="outline"
                       size="sm"
                       onClick={() => {
                         setSelectedTable(table);
                         resetGame();
                       }}
                       disabled={gameActive}
-                      className={`${
+                      className={`transition-all duration-200 ${
                         selectedTable === table 
-                          ? 'bg-green-200 hover:bg-green-300 text-green-800' 
-                          : ''
+                          ? 'bg-green-100 hover:bg-green-200 text-green-800 border-green-300 ring-2 ring-green-200' 
+                          : 'hover:bg-muted/50'
                       }`}
                     >
                       {table}
