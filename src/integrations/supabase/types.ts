@@ -194,7 +194,9 @@ export type Database = {
           created_at: string
           grade: string
           id: string
+          last_login_at: string
           learning_style: string
+          login_count: number
           nickname: string
           parent_email: string
           parent_phone: string
