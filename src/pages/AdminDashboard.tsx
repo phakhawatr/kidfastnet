@@ -106,6 +106,8 @@ const AdminDashboard = () => {
       const { data, error } = await supabase.rpc('get_user_registrations');
 
       if (error) throw error;
+      
+      console.log('Fetched registrations with login stats:', data);
       setRegistrations((data || []) as UserRegistration[]);
     } catch (error) {
       console.error('Error fetching registrations:', error);
@@ -284,12 +286,21 @@ const AdminDashboard = () => {
               สวัสดี คุณ{name} ({email})
             </p>
           </div>
-          <button
-            onClick={logout}
-            className="btn-secondary"
-          >
-            ออกจากระบบ 🚪
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={fetchRegistrations}
+              className="btn-secondary flex items-center gap-2"
+              disabled={isLoading}
+            >
+              {isLoading ? '🔄' : '🔄'} รีเฟรชข้อมูล
+            </button>
+            <button
+              onClick={logout}
+              className="btn-secondary"
+            >
+              ออกจากระบบ 🚪
+            </button>
+          </div>
         </div>
       </div>
 
