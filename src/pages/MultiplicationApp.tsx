@@ -393,7 +393,7 @@ const MultiplicationApp = () => {
               
               {/* Problem Display */}
               <div className="text-center mb-6">
-                <span className="text-3xl font-bold text-primary">
+                <span className="text-2xl font-bold text-blue-600">
                   {problem.multiplicand} × {problem.multiplier} = 
                 </span>
                 <div className="inline-block w-20 h-10 border-2 border-dashed border-gray-300 ml-2 rounded"></div>
