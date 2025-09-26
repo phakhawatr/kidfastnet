@@ -362,21 +362,24 @@ const MultiplicationTable = () => {
                 <CardTitle>สูตรคูณ {selectedTable}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2 max-h-96 overflow-y-auto">
+                <div className="space-y-1 max-h-96 overflow-y-auto">
                   {Array.from({ length: 12 }, (_, i) => i + 1).map(num => (
                     <div 
                       key={num}
-                      className={`flex justify-between items-center p-3 rounded-lg transition-all duration-200 ${
+                      className={`grid grid-cols-3 gap-2 items-center p-3 rounded-lg transition-all duration-200 ${
                         num === currentQuestion 
                           ? 'bg-primary/10 ring-2 ring-primary/30 scale-105' 
                           : 'hover:bg-muted/50'
                       }`}
                     >
-                      <span className="font-medium">
+                      <span className="font-medium text-right">
                         {selectedTable} × {num}
                       </span>
-                      <span className="font-bold text-primary">
-                        = {selectedTable * num}
+                      <span className="font-medium text-center">
+                        =
+                      </span>
+                      <span className="font-bold text-primary text-left">
+                        {selectedTable * num}
                       </span>
                     </div>
                   ))}
