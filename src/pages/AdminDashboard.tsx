@@ -350,10 +350,10 @@ const AdminDashboard = () => {
                           🗑️ ลบสมาชิก
                         </Button>
                       </AlertDialogTrigger>
-                      <AlertDialogContent>
+                      <AlertDialogContent className="bg-white border border-gray-200 shadow-lg">
                         <AlertDialogHeader>
-                          <AlertDialogTitle>ยืนยันการลบสมาชิก</AlertDialogTitle>
-                          <AlertDialogDescription>
+                          <AlertDialogTitle className="text-gray-900 text-lg font-semibold">ยืนยันการลบสมาชิก</AlertDialogTitle>
+                          <AlertDialogDescription className="text-gray-600">
                             คุณต้องการลบสมาชิก "{registration.nickname}" หรือไม่?
                             <br />
                             การดำเนินการนี้ไม่สามารถย้อนกลับได้
