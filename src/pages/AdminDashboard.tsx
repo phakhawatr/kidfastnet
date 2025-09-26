@@ -422,17 +422,30 @@ const AdminDashboard = () => {
                              <div className="mt-2 pt-2 border-t border-gray-200">
                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
                                  <p className="text-blue-600">
-                                   <strong>จำนวนครั้งการ Login:</strong> {registration.login_count || 0} ครั้ง
+                                   <strong>จำนวนครั้งการ Login:</strong> 
+                                   <span className="ml-1 px-2 py-1 bg-blue-100 rounded-full text-xs font-semibold">
+                                     {registration.login_count || 0} ครั้ง
+                                   </span>
                                  </p>
-                                 {registration.last_login_at && (
+                                 {registration.last_login_at ? (
                                    <p className="text-green-600">
-                                     <strong>Login ครั้งล่าสุดเมื่อ:</strong> {new Date(registration.last_login_at).toLocaleString('th-TH', {
-                                       year: 'numeric',
-                                       month: '2-digit',
-                                       day: '2-digit',
-                                       hour: '2-digit',
-                                       minute: '2-digit'
-                                     })}
+                                     <strong>Login ครั้งล่าสุดเมื่อ:</strong> 
+                                     <span className="ml-1 px-2 py-1 bg-green-100 rounded-full text-xs font-semibold">
+                                       {new Date(registration.last_login_at).toLocaleString('th-TH', {
+                                         year: 'numeric',
+                                         month: '2-digit',
+                                         day: '2-digit',
+                                         hour: '2-digit',
+                                         minute: '2-digit'
+                                       })}
+                                     </span>
+                                   </p>
+                                 ) : (
+                                   <p className="text-gray-500">
+                                     <strong>Login ครั้งล่าสุดเมื่อ:</strong> 
+                                     <span className="ml-1 px-2 py-1 bg-gray-100 rounded-full text-xs">
+                                       ยังไม่เคย Login
+                                     </span>
                                    </p>
                                  )}
                                </div>
