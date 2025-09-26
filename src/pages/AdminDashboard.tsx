@@ -359,14 +359,14 @@ const AdminDashboard = () => {
                         {registration.nickname}
                         {(registration.status === 'approved' || registration.status === 'suspended') && (
                           isUserOnline(registration.id) ? (
-                            <div className="flex items-center gap-1">
-                              <div className="w-2 h-2 bg-green-500 rounded-full animate-online-blink"></div>
-                              <span className="text-xs text-green-600 font-medium">กำลังใช้งาน</span>
+                            <div className="flex items-center gap-1 px-2 py-1 bg-green-50 rounded-full border border-green-200">
+                              <div className="w-3 h-3 bg-green-500 rounded-full animate-online-blink shadow-sm"></div>
+                              <span className="text-xs text-green-700 font-semibold">🟢 กำลังใช้งาน</span>
                             </div>
                           ) : (
-                            <div className="flex items-center gap-1">
-                              <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                              <span className="text-xs text-gray-500 font-medium">ออฟไลน์</span>
+                            <div className="flex items-center gap-1 px-2 py-1 bg-gray-50 rounded-full border border-gray-200">
+                              <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+                              <span className="text-xs text-gray-500 font-medium">⚫ ออฟไลน์</span>
                             </div>
                           )
                         )}
