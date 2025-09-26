@@ -69,6 +69,37 @@ const AdminDashboard = () => {
     }
   };
 
+  // Calculate expiration date (1 year from approval date)
+  const calculateExpirationDate = (approvedAt: string | null) => {
+    if (!approvedAt) return null;
+    const approvalDate = new Date(approvedAt);
+    const expirationDate = new Date(approvalDate);
+    expirationDate.setFullYear(expirationDate.getFullYear() + 1);
+    return expirationDate;
+  };
+
+  // Check if membership is expired
+  const isMembershipExpired = (approvedAt: string | null) => {
+    const expirationDate = calculateExpirationDate(approvedAt);
+    if (!expirationDate) return false;
+    return new Date() > expirationDate;
+  };
+
+  // Format expiration date display
+  const formatExpirationDisplay = (approvedAt: string | null) => {
+    const expirationDate = calculateExpirationDate(approvedAt);
+    if (!expirationDate) return null;
+    
+    const isExpired = isMembershipExpired(approvedAt);
+    const formattedDate = expirationDate.toLocaleDateString('th-TH');
+    
+    return {
+      date: formattedDate,
+      isExpired,
+      className: isExpired ? 'text-red-600 font-semibold' : 'text-green-700 font-semibold'
+    };
+  };
+
   const handleApprove = async (registrationId: string) => {
     try {
       const { error } = await supabase.rpc('approve_user_registration', {
@@ -306,6 +337,27 @@ const AdminDashboard = () => {
                     <div>
                       <p><strong>สไตล์การเรียน:</strong> {registration.learning_style}</p>
                       <p><strong>สมัครเมื่อ:</strong> {new Date(registration.created_at).toLocaleDateString('th-TH')}</p>
+                      {registration.status === 'approved' && registration.approved_at && (
+                        <p><strong>อนุมัติเมื่อ:</strong> {new Date(registration.approved_at).toLocaleDateString('th-TH')}</p>
+                      )}
+                      {(registration.status === 'approved' || registration.status === 'suspended') && registration.approved_at && (() => {
+                        const expirationInfo = formatExpirationDisplay(registration.approved_at);
+                        if (!expirationInfo) return null;
+                        
+                        return (
+                          <div className="mt-2">
+                            <p className={`${expirationInfo.className} flex items-center gap-2`}>
+                              <strong>วันหมดอายุสมาชิก:</strong> 
+                              <span>{expirationInfo.date}</span>
+                              {expirationInfo.isExpired && (
+                                <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">
+                                  หมดอายุสมาชิก
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>
