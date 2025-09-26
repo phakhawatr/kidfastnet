@@ -166,19 +166,38 @@ function praiseText(pct) {
   return "ไม่เป็นไร ลองใหม่อีกครั้งนะ เราทำได้! 🌟";
 }
 
-// convert per-digit answer array to number
-function answerToNumber(ansArr, digits) {
+// convert per-digit answer array to number - now accepts flexible digits
+function answerToNumber(ansArr) {
   if (!Array.isArray(ansArr)) return NaN;
-  if (ansArr.length !== digits) return NaN;
+  if (ansArr.length === 0) return NaN;
   if (ansArr.some((d) => d === "")) return NaN;
   return parseInt(ansArr.join(""), 10);
+}
+
+// Helper function to get actual digits needed for each problem
+function getActualDigits(problem, operands) {
+  const correctAnswer = operands === 3 ? problem.a + problem.b + problem.c : problem.a + problem.b;
+  return String(correctAnswer).length;
+}
+
+// Helper function to create answers array with correct number of digits for each problem
+function createAnswersArray(problems, operands) {
+  return problems.map(prob => {
+    const actualDigits = getActualDigits(prob, operands);
+    return Array(actualDigits).fill("");
+  });
 }
 
 // ================= One Problem Card =================
 function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset, onFirstType, digits, operands }) {
   const inputRef = useRef(null);
   const inputRefs = useRef([]);
-  const [carry, setCarry] = useState(() => Array(digits).fill(""));
+  
+  // Calculate correct answer and determine actual digits needed
+  const correctAnswer = operands === 3 ? prob.a + prob.b + prob.c : prob.a + prob.b;
+  const actualDigits = String(correctAnswer).length;
+  
+  const [carry, setCarry] = useState(() => Array(actualDigits).fill(""));
 
   useEffect(() => {
     const empty = !answer || (Array.isArray(answer) && answer.every((d) => !d));
@@ -189,7 +208,7 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
   const border =
     status === "correct" ? "border-green-400" : status === "wrong" ? "border-red-300" : "border-zinc-200";
 
-  const correct = operands === 3 ? prob.a + prob.b + prob.c : prob.a + prob.b;
+  const correct = correctAnswer;
 
   // pastel background per card for kid-friendly feel
   const pastel = ["bg-yellow-50","bg-sky-50","bg-pink-50","bg-green-50","bg-purple-50"];
@@ -203,9 +222,9 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
       <div className="flex justify-center mt-1 select-none">
         <div>
           {/* Carry row (ตัวทด) */}
-          <div className="grid gap-1 mb-1" style={{ gridTemplateColumns: `repeat(${digits + 1}, 3rem)` }}>
+          <div className="grid gap-1 mb-1" style={{ gridTemplateColumns: `repeat(${actualDigits + 1}, 3rem)` }}>
             <div className="w-12 h-9" />
-            {Array.from({ length: digits }).map((_, j) => (
+            {Array.from({ length: actualDigits }).map((_, j) => (
               <input
                 key={`car${j}`}
                 inputMode="numeric"
@@ -245,15 +264,15 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
           {/* underline */}
           <div className="ml-12 border-t-4 border-zinc-400 mt-2" />
           {/* Answer row: answer cells (inputs or revealed) */}
-          <div className="grid gap-1 mt-2" style={{ gridTemplateColumns: `repeat(${digits + 1}, 3rem)` }}>
+          <div className="grid gap-1 mt-2" style={{ gridTemplateColumns: `repeat(${actualDigits + 1}, 3rem)` }}>
             <div className="w-12 h-12" />
             {showAnswer
-              ? String(correct).padStart(digits, " ").slice(-digits).split("").map((ch, j) => (
+              ? String(correct).padStart(actualDigits, " ").slice(-actualDigits).split("").map((ch, j) => (
                   <div key={`ans${j}`} className="w-12 h-12 border-2 border-sky-300 bg-white rounded-md flex items-center justify-center text-3xl font-extrabold text-sky-700">
                     {ch.trim()}
                   </div>
                 ))
-              : Array.from({ length: digits }).map((_, j) => (
+              : Array.from({ length: actualDigits }).map((_, j) => (
                   <input
                     key={`in${j}`}
                     ref={(el) => { if (j === 0) inputRef.current = el; inputRefs.current[j] = el; }}
@@ -266,7 +285,7 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
                       const emptyBefore = !answer || (Array.isArray(answer) && answer.every((d) => !d));
                       if (v && emptyBefore) onFirstType?.();
                       setAnswer(idx, j, v);
-                      if (v && j < digits - 1) {
+                      if (v && j < actualDigits - 1) {
                         const nxt = inputRefs.current[j + 1];
                         if (nxt) nxt.focus();
                       }
@@ -283,7 +302,7 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
                         const prev = inputRefs.current[j - 1];
                         if (prev) prev.focus();
                       }
-                      if (e.key === 'ArrowRight' && j < digits - 1) {
+                      if (e.key === 'ArrowRight' && j < actualDigits - 1) {
                         const nxt = inputRefs.current[j + 1];
                         if (nxt) nxt.focus();
                       }
@@ -316,8 +335,8 @@ export default function AdditionApp() {
   const [digits, setDigits] = useState(2);
   const [carryOption, setCarryOption] = useState("none"); // "has" | "none" | "any"
   const [operands, setOperands] = useState(2); // 2 | 3
-  const [problems, setProblems] = useState(() => generateAdditionProblems(15, "easy", 2, "any", 2));
-  const [answers, setAnswers] = useState(() => problems.map(() => Array(digits).fill("")));
+  const [problems, setProblems] = useState(() => generateAdditionProblems(15, "easy", 2, "none", 2));
+  const [answers, setAnswers] = useState(() => createAnswersArray(problems, 2));
   const [results, setResults] = useState(() => problems.map(() => "pending")); // pending | correct | wrong
   const [showAnswers, setShowAnswers] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
@@ -413,7 +432,7 @@ export default function AdditionApp() {
   function finalizeAndLog(endTs = Date.now()) {
     const duration = startedAt ? endTs - startedAt : 0;
     const correct = problems.reduce((acc, p, i) => {
-      const ans = answerToNumber(answers[i], digits);
+      const ans = answerToNumber(answers[i]);
       const correctAnswer = operands === 3 ? p.a + p.b + p.c : p.a + p.b;
       return acc + (ans === correctAnswer ? 1 : 0);
     }, 0);
@@ -442,7 +461,7 @@ export default function AdditionApp() {
         correct
       };
     });
-    const correct2 = snapshot.reduce((t, s, i) => t + ((answerToNumber(answers[i], digits) === s.correct) ? 1 : 0), 0);
+    const correct2 = snapshot.reduce((t, s, i) => t + ((answerToNumber(answers[i]) === s.correct) ? 1 : 0), 0);
     const entry2 = { ts: end, level, digits, count, durationMs: Math.max(0, duration), correct: correct2, stars: calcStars(correct2, count), snapshot };
     setHistory((prev) => [entry2, ...prev].slice(0, 10));
   }
@@ -453,7 +472,7 @@ export default function AdditionApp() {
     setCount(n);
     const next = generateAdditionProblems(n, level, digits, carryOption, operands);
     setProblems(next);
-    setAnswers(next.map(() => Array(digits).fill("")));
+    setAnswers(createAnswersArray(next, operands));
 
     setResults(next.map(() => "pending"));
     setShowAnswers(false);
@@ -470,7 +489,7 @@ export default function AdditionApp() {
     setLevel(lv);
     const next = generateAdditionProblems(count, lv, digits, carryOption, operands);
     setProblems(next);
-    setAnswers(next.map(() => Array(digits).fill("")));
+    setAnswers(createAnswersArray(next, operands));
 
     setResults(next.map(() => "pending"));
     setShowAnswers(false);
@@ -487,7 +506,7 @@ export default function AdditionApp() {
     setDigits(d);
     const next = generateAdditionProblems(count, level, d, carryOption, operands);
     setProblems(next);
-    setAnswers(next.map(() => Array(d).fill("")));
+    setAnswers(createAnswersArray(next, operands));
     setResults(next.map(() => "pending"));
     setShowAnswers(false);
     setCelebrate(false);
@@ -503,7 +522,7 @@ export default function AdditionApp() {
     setCarryOption(option);
     const next = generateAdditionProblems(count, level, digits, option, operands);
     setProblems(next);
-    setAnswers(next.map(() => Array(digits).fill("")));
+    setAnswers(createAnswersArray(next, operands));
     setResults(next.map(() => "pending"));
     setShowAnswers(false);
     setCelebrate(false);
@@ -519,7 +538,7 @@ export default function AdditionApp() {
     setOperands(count);
     const next = generateAdditionProblems(count, level, digits, carryOption, count);
     setProblems(next);
-    setAnswers(next.map(() => Array(digits).fill("")));
+    setAnswers(createAnswersArray(next, count));
     setResults(next.map(() => "pending"));
     setShowAnswers(false);
     setCelebrate(false);
@@ -534,7 +553,7 @@ export default function AdditionApp() {
 
     const next = generateAdditionProblems(count, level, digits, carryOption, operands);
     setProblems(next);
-    setAnswers(next.map(() => Array(digits).fill("")));
+    setAnswers(createAnswersArray(next, operands));
 
     setResults(next.map(() => "pending"));
     setShowAnswers(false);
@@ -547,7 +566,7 @@ export default function AdditionApp() {
 
   function checkAnswers() {
     const next = problems.map((p, i) => {
-      const ans = answerToNumber(answers[i], digits);
+      const ans = answerToNumber(answers[i]);
       const correct = operands === 3 ? p.a + p.b + p.c : p.a + p.b;
       return ans === correct ? "correct" : "wrong";
     });
@@ -576,7 +595,7 @@ export default function AdditionApp() {
   function showAll(opts = { openSummary: true }) {
     const end = Date.now();
     const correctNow = problems.reduce((acc, p, i) => {
-      const ans = answerToNumber(answers[i], digits);
+      const ans = answerToNumber(answers[i]);
       const correct = operands === 3 ? p.a + p.b + p.c : p.a + p.b;
       return acc + (ans === correct ? 1 : 0);
     }, 0);
@@ -599,7 +618,8 @@ export default function AdditionApp() {
   }
 
   function onReset(idx) {
-    setAnswers((prev) => prev.map((a, i) => (i === idx ? Array(digits).fill("") : a)));
+    const actualDigits = getActualDigits(problems[idx], operands);
+    setAnswers((prev) => prev.map((a, i) => (i === idx ? Array(actualDigits).fill("") : a)));
     setResults((prev) => prev.map((r, i) => (i === idx ? "pending" : r)));
   }
 
