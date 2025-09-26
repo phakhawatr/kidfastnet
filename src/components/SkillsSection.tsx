@@ -180,35 +180,28 @@ const SkillCard: React.FC<{
       tabIndex={0}
     >
       {/* Mascot Image */}
-      <div className="absolute top-4 right-4 w-16 h-16 z-10">
+      <div className="absolute top-3 right-3 w-14 h-14 z-10">
         {skill.mascotImage ? (
           <img 
             src={skill.mascotImage} 
             alt={`${skill.title} mascot`}
-            className="w-full h-full object-cover rounded-2xl shadow-lg"
+            className="w-full h-full object-cover rounded-xl shadow-lg"
           />
         ) : (
-          <div className="w-full h-full bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-            <span className="text-2xl">{skill.sticker}</span>
+          <div className="w-full h-full bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+            <span className="text-xl">{skill.sticker}</span>
           </div>
         )}
       </div>
 
       {/* Content */}
-      <div className="p-6 pt-8 pb-20 relative z-5">
-        <h3 className={`font-bold text-xl mb-3 ${skill.textColor} drop-shadow-sm`}>
+      <div className="p-5 pr-20 pb-6 relative z-5">
+        <h3 className={`font-bold text-lg mb-2 ${skill.textColor} drop-shadow-sm`}>
           {skill.title}
         </h3>
-        <p className={`text-sm leading-relaxed ${skill.textColor} opacity-90`}>
+        <p className={`text-xs leading-relaxed ${skill.textColor} opacity-90 pr-2`}>
           {skill.desc}
         </p>
-      </div>
-
-      {/* Bottom Badge */}
-      <div className="absolute bottom-4 left-4 right-4">
-        <div className="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-xs font-medium text-center shadow-lg">
-          KidFast.net
-        </div>
       </div>
 
       {/* Preview button - appears on hover */}
