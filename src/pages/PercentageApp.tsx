@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, RotateCcw, Clock, CheckCircle, XCircle, Trophy, Target, Shuffle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -131,11 +131,11 @@ const PercentageApp: React.FC = () => {
     setIsTimerRunning(true);
   };
 
-  const handleAnswerChange = (problemId: number, answer: string) => {
+  const handleAnswerChange = useCallback((problemId: number, answer: string) => {
     setProblems(prev => prev.map(p => 
       p.id === problemId ? { ...p, userAnswer: answer } : p
     ));
-  };
+  }, []);
 
   const checkAnswer = (problemId: number) => {
     const problem = problems.find(p => p.id === problemId);
@@ -205,7 +205,6 @@ const PercentageApp: React.FC = () => {
               <Input
                 value={problem.userAnswer}
                 onChange={(e) => handleAnswerChange(problem.id, e.target.value)}
-                placeholder={problem.type === 'fraction' ? 'เช่น 7/100' : 'เช่น 0.07'}
                 className="text-center font-medium"
                 disabled={showResults}
               />
