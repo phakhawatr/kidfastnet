@@ -309,11 +309,11 @@ const MultiplicationApp = () => {
 
         {/* Controls */}
         <div className="card-glass p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-4">
             {/* Problem Count */}
             <div>
               <label className="block text-sm font-medium mb-2">จำนวนข้อ</label>
-              <div className="flex gap-1">
+              <div className="flex flex-wrap gap-1">
                 {[10, 15, 20, 30].map(count => (
                   <button
                     key={count}
@@ -329,7 +329,7 @@ const MultiplicationApp = () => {
             {/* Difficulty */}
             <div>
               <label className="block text-sm font-medium mb-2">ระดับ</label>
-              <div className="flex gap-1">
+              <div className="flex flex-wrap gap-1">
                 {['ง่าย', 'ปานกลาง', 'ยาก'].map(level => (
                   <button
                     key={level}
@@ -345,7 +345,7 @@ const MultiplicationApp = () => {
             {/* Dimensions */}
             <div>
               <label className="block text-sm font-medium mb-2">มิติจำนวน</label>
-              <div className="flex gap-1">
+              <div className="flex flex-wrap gap-1">
                 {[[1,1], [2,1], [3,1], [2,2], [3,2], [3,3]].map(([d1, d2]) => (
                   <button
                     key={`${d1}x${d2}`}
@@ -359,16 +359,16 @@ const MultiplicationApp = () => {
             </div>
             
             {/* Actions */}
-            <div className="flex gap-2">
-              <button onClick={generateProblems} className="btn-secondary flex-1">
+            <div className="space-y-2">
+              <button onClick={generateProblems} className="btn-secondary w-full">
                 <RefreshCw className="w-4 h-4" />
                 สุ่มชุดใหม่
               </button>
-              <button onClick={checkAnswers} className="btn-primary flex-1">
+              <button onClick={checkAnswers} className="btn-primary w-full">
                 <CheckCircle2 className="w-4 h-4" />
                 ตรวจคำตอบ
               </button>
-              <button onClick={showAnswers} className="btn-secondary flex-1">
+              <button onClick={showAnswers} className="btn-secondary w-full">
                 <PlayCircle className="w-4 h-4" />
                 เฉลยคำตอบ
               </button>
