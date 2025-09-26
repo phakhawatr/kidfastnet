@@ -174,6 +174,10 @@ export type Database = {
           success: boolean
         }[]
       }
+      delete_user_registration: {
+        Args: { admin_id: string; registration_id: string }
+        Returns: boolean
+      }
       get_user_registrations: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -196,6 +200,10 @@ export type Database = {
         Returns: boolean
       }
       reject_user_registration: {
+        Args: { admin_id: string; registration_id: string }
+        Returns: boolean
+      }
+      toggle_user_suspension: {
         Args: { admin_id: string; registration_id: string }
         Returns: boolean
       }

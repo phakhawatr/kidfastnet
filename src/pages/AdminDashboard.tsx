@@ -2,6 +2,18 @@ import { useState, useEffect } from 'react';
 import { useAdmin } from '../hooks/useAdmin';
 import { supabase } from '@/integrations/supabase/client';
 import { ToastManager } from '../components/Toast';
+import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface UserRegistration {
   id: string;
@@ -12,7 +24,7 @@ interface UserRegistration {
   learning_style: string;
   parent_email: string;
   parent_phone?: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'suspended';
   created_at: string;
   approved_at?: string;
 }
@@ -21,7 +33,7 @@ const AdminDashboard = () => {
   const { name, email, logout, adminId } = useAdmin();
   const [registrations, setRegistrations] = useState<UserRegistration[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
+  const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'suspended'>('pending');
 
   const avatarEmojis: Record<string, string> = {
     cat: '🐱',
@@ -105,6 +117,57 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleToggleSuspension = async (registrationId: string) => {
+    try {
+      const { error } = await supabase.rpc('toggle_user_suspension', {
+        registration_id: registrationId,
+        admin_id: adminId
+      });
+
+      if (error) throw error;
+
+      const registration = registrations.find(r => r.id === registrationId);
+      const isSuspended = registration?.status === 'suspended';
+      
+      ToastManager.show({
+        message: isSuspended ? 'เปิดการใช้งานเรียบร้อย!' : 'หยุดการใช้งานเรียบร้อย!',
+        type: 'success'
+      });
+
+      fetchRegistrations();
+    } catch (error) {
+      console.error('Error toggling suspension:', error);
+      ToastManager.show({
+        message: 'เกิดข้อผิดพลาดในการเปลี่ยนสถานะ',
+        type: 'error'
+      });
+    }
+  };
+
+  const handleDelete = async (registrationId: string) => {
+    try {
+      const { error } = await supabase.rpc('delete_user_registration', {
+        registration_id: registrationId,
+        admin_id: adminId
+      });
+
+      if (error) throw error;
+
+      ToastManager.show({
+        message: 'ลบสมาชิกเรียบร้อย!',
+        type: 'success'
+      });
+
+      fetchRegistrations();
+    } catch (error) {
+      console.error('Error deleting registration:', error);
+      ToastManager.show({
+        message: 'เกิดข้อผิดพลาดในการลบสมาชิก',
+        type: 'error'
+      });
+    }
+  };
+
   const filteredRegistrations = registrations.filter(reg => 
     filter === 'all' || reg.status === filter
   );
@@ -113,7 +176,8 @@ const AdminDashboard = () => {
     total: registrations.length,
     pending: registrations.filter(r => r.status === 'pending').length,
     approved: registrations.filter(r => r.status === 'approved').length,
-    rejected: registrations.filter(r => r.status === 'rejected').length
+    rejected: registrations.filter(r => r.status === 'rejected').length,
+    suspended: registrations.filter(r => r.status === 'suspended').length
   };
 
   if (isLoading) {
@@ -150,7 +214,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         <div className="card-glass p-4 text-center">
           <div className="text-2xl font-bold text-[hsl(var(--primary))]">{stats.total}</div>
           <div className="text-sm text-[hsl(var(--text-secondary))]">ทั้งหมด</div>
@@ -167,6 +231,10 @@ const AdminDashboard = () => {
           <div className="text-2xl font-bold text-red-500">{stats.rejected}</div>
           <div className="text-sm text-[hsl(var(--text-secondary))]">ปฏิเสธ</div>
         </div>
+        <div className="card-glass p-4 text-center">
+          <div className="text-2xl font-bold text-yellow-500">{stats.suspended}</div>
+          <div className="text-sm text-[hsl(var(--text-secondary))]">หยุดการใช้งาน</div>
+        </div>
       </div>
 
       {/* Filters */}
@@ -176,7 +244,8 @@ const AdminDashboard = () => {
             { key: 'all', label: 'ทั้งหมด', count: stats.total },
             { key: 'pending', label: 'รอการอนุมัติ', count: stats.pending },
             { key: 'approved', label: 'อนุมัติแล้ว', count: stats.approved },
-            { key: 'rejected', label: 'ปฏิเสธ', count: stats.rejected }
+            { key: 'rejected', label: 'ปฏิเสธ', count: stats.rejected },
+            { key: 'suspended', label: 'หยุดการใช้งาน', count: stats.suspended }
           ].map(({ key, label, count }) => (
             <button
               key={key}
@@ -218,10 +287,12 @@ const AdminDashboard = () => {
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                       registration.status === 'pending' ? 'bg-orange-100 text-orange-800' :
                       registration.status === 'approved' ? 'bg-green-100 text-green-800' :
+                      registration.status === 'suspended' ? 'bg-yellow-100 text-yellow-800' :
                       'bg-red-100 text-red-800'
                     }`}>
                       {registration.status === 'pending' ? 'รอการอนุมัติ' :
-                       registration.status === 'approved' ? 'อนุมัติแล้ว' : 'ปฏิเสธ'}
+                       registration.status === 'approved' ? 'อนุมัติแล้ว' : 
+                       registration.status === 'suspended' ? 'หยุดการใช้งาน' : 'ปฏิเสธ'}
                     </span>
                   </div>
                   
@@ -253,6 +324,52 @@ const AdminDashboard = () => {
                     >
                       ❌ ปฏิเสธ
                     </button>
+                  </div>
+                )}
+
+                {(registration.status === 'approved' || registration.status === 'suspended') && (
+                  <div className="flex gap-2 flex-wrap">
+                    <button
+                      onClick={() => handleToggleSuspension(registration.id)}
+                      className={`px-4 py-2 text-white rounded-lg transition-colors text-sm font-medium ${
+                        registration.status === 'suspended' 
+                          ? 'bg-green-500 hover:bg-green-600' 
+                          : 'bg-yellow-500 hover:bg-yellow-600'
+                      }`}
+                    >
+                      {registration.status === 'suspended' ? '✅ เปิดการใช้งาน' : '⏸️ หยุดการใช้งาน'}
+                    </button>
+                    
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button 
+                          variant="destructive" 
+                          size="sm"
+                          className="text-sm font-medium"
+                        >
+                          🗑️ ลบสมาชิก
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>ยืนยันการลบสมาชิก</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            คุณต้องการลบสมาชิก "{registration.nickname}" หรือไม่?
+                            <br />
+                            การดำเนินการนี้ไม่สามารถย้อนกลับได้
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(registration.id)}
+                            className="bg-red-500 hover:bg-red-600"
+                          >
+                            ลบสมาชิก
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 )}
               </div>
