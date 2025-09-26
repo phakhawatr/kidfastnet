@@ -363,7 +363,7 @@ const DivisionApp: React.FC = () => {
         <div className="mb-4">
           <Button
             variant="outline"
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/profile')}
             className="flex items-center gap-2 px-4 py-2"
           >
             <ArrowLeft className="w-4 h-4" />
