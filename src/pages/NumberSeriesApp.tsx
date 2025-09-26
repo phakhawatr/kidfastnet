@@ -364,7 +364,7 @@ const ProblemCard = React.memo<{
           onClick={() => setShowHint(!showHint)}
           className="btn-outline text-sm"
         >
-          ใบ้
+          คำใบ้
         </button>
 
         <span className="px-2 py-1 bg-muted text-muted-foreground text-xs rounded-full font-bold">
