@@ -393,92 +393,126 @@ const MultiplicationApp = () => {
               </div>
               
               {/* Long Multiplication Grid */}
-              <div className="bg-white rounded-lg p-4 font-mono text-lg">
-                <div className="grid gap-1" style={{gridTemplateColumns: `repeat(${Math.max(problem.multiplicand.length, problem.multiplier.length, problem.finalAnswer.length)}, 1fr)`}}>
-                  {/* Multiplicand Row */}
-                  <div className="col-span-full grid gap-1" style={{gridTemplateColumns: `repeat(${Math.max(problem.multiplicand.length, problem.multiplier.length, problem.finalAnswer.length)}, 1fr)`}}>
-                    {Array.from({length: Math.max(problem.multiplicand.length, problem.multiplier.length, problem.finalAnswer.length) - problem.multiplicand.length}).map((_, i) => (
-                      <div key={i} className="text-center py-1"></div>
-                    ))}
-                    {problem.multiplicand.split('').map((digit, i) => (
-                      <div key={i} className="text-center py-1 font-bold">
-                        {digit}
-                      </div>
-                    ))}
-                  </div>
+              <div className="bg-white rounded-lg p-4 font-mono text-xl">
+                {/* Calculate grid width based on maximum digits needed */}
+                {(() => {
+                  const maxWidth = Math.max(
+                    problem.multiplicand.length + problem.multiplier.length,
+                    problem.finalAnswer.length
+                  ) + 1; // +1 for plus sign column
                   
-                  {/* Multiplier Row */}
-                  <div className="col-span-full grid gap-1" style={{gridTemplateColumns: `repeat(${Math.max(problem.multiplicand.length, problem.multiplier.length, problem.finalAnswer.length)}, 1fr)`}}>
-                    {Array.from({length: Math.max(problem.multiplicand.length, problem.multiplier.length, problem.finalAnswer.length) - problem.multiplier.length - 1}).map((_, i) => (
-                      <div key={i} className="text-center py-1"></div>
-                    ))}
-                    <div className="text-center py-1 font-bold">×</div>
-                    {problem.multiplier.split('').map((digit, i) => (
-                      <div key={i} className="text-center py-1 font-bold">
-                        {digit}
+                  return (
+                    <div className="space-y-2">
+                      {/* Multiplicand Row */}
+                      <div className="grid gap-1" style={{gridTemplateColumns: `repeat(${maxWidth}, 1fr)`}}>
+                        <div></div> {/* Plus sign column placeholder */}
+                        {Array.from({length: maxWidth - 1 - problem.multiplicand.length}).map((_, i) => (
+                          <div key={i}></div>
+                        ))}
+                        {problem.multiplicand.split('').map((digit, i) => (
+                          <div key={i} className="text-center py-2 font-bold text-xl">
+                            {digit}
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                  
-                  {/* Separator Line */}
-                  <div className="col-span-full border-t-2 border-black my-1"></div>
-                  
-                  {/* Partial Products */}
-                  {problem.partialProducts.map((product, rowIdx) => (
-                    <div key={rowIdx} className="col-span-full grid gap-1" style={{gridTemplateColumns: `repeat(${Math.max(problem.multiplicand.length, problem.multiplier.length, problem.finalAnswer.length) + 1}, 1fr)`}}>
-                      {/* Add plus sign for partial products */}
-                      <div className="text-center py-1 font-bold text-lg">
-                        {rowIdx === 0 ? '+' : ''}
+                      
+                      {/* Multiplier Row */}
+                      <div className="grid gap-1" style={{gridTemplateColumns: `repeat(${maxWidth}, 1fr)`}}>
+                        <div className="text-center py-2 font-bold text-xl">×</div>
+                        {Array.from({length: maxWidth - 1 - problem.multiplier.length}).map((_, i) => (
+                          <div key={i}></div>
+                        ))}
+                        {problem.multiplier.split('').map((digit, i) => (
+                          <div key={i} className="text-center py-2 font-bold text-xl">
+                            {digit}
+                          </div>
+                        ))}
                       </div>
-                      {Array.from({length: Math.max(problem.multiplicand.length, problem.multiplier.length, problem.finalAnswer.length) - product.length}).map((_, i) => (
-                        <div key={i} className="text-center py-1"></div>
-                      ))}
-                      {product.split('').map((digit, digitIdx) => (
-                        <input
-                          key={digitIdx}
-                          type="text"
-                          maxLength={1}
-                          value={answers[problemIdx]?.partialProducts[rowIdx]?.[digitIdx] || ''}
-                          onChange={(e) => updateAnswer(problemIdx, rowIdx, digitIdx, e.target.value)}
-                          className={`w-10 h-10 text-center border rounded font-mono text-lg ${
-                            results[problemIdx]?.[rowIdx]?.[digitIdx] === 'correct' 
-                              ? 'bg-green-100 border-green-500' 
-                              : results[problemIdx]?.[rowIdx]?.[digitIdx] === 'incorrect'
-                              ? 'bg-red-100 border-red-500 animate-pulse'
-                              : 'border-gray-300 focus:border-blue-500'
-                          }`}
-                        />
-                      ))}
+                      
+                      {/* Separator Line */}
+                      <div className="border-t-2 border-black my-2"></div>
+                      
+                      {/* Partial Products */}
+                      {problem.partialProducts.map((product, rowIdx) => {
+                        const actualProduct = product === '0' ? '0' : product;
+                        const shiftPosition = problem.multiplier.length - 1 - rowIdx;
+                        const leadingZeros = actualProduct === '0' ? 0 : shiftPosition;
+                        const totalLength = actualProduct.length + leadingZeros;
+                        const emptySpaces = maxWidth - 1 - totalLength;
+                        
+                        return (
+                          <div key={rowIdx} className="grid gap-1" style={{gridTemplateColumns: `repeat(${maxWidth}, 1fr)`}}>
+                            <div className="text-center py-2 font-bold text-xl">
+                              {rowIdx === 0 ? '+' : ''}
+                            </div>
+                            {Array.from({length: emptySpaces}).map((_, i) => (
+                              <div key={i}></div>
+                            ))}
+                            {actualProduct.split('').map((digit, digitIdx) => (
+                              <input
+                                key={digitIdx}
+                                type="text"
+                                maxLength={1}
+                                value={answers[problemIdx]?.partialProducts[rowIdx]?.[digitIdx] || ''}
+                                onChange={(e) => updateAnswer(problemIdx, rowIdx, digitIdx, e.target.value)}
+                                className={`w-12 h-12 text-center border rounded font-mono text-xl ${
+                                  results[problemIdx]?.[rowIdx]?.[digitIdx] === 'correct' 
+                                    ? 'bg-green-100 border-green-500' 
+                                    : results[problemIdx]?.[rowIdx]?.[digitIdx] === 'incorrect'
+                                    ? 'bg-red-100 border-red-500 animate-pulse'
+                                    : 'border-gray-300 focus:border-blue-500'
+                                }`}
+                              />
+                            ))}
+                            {Array.from({length: leadingZeros}).map((_, i) => (
+                              <input
+                                key={`zero-${i}`}
+                                type="text"
+                                maxLength={1}
+                                value={answers[problemIdx]?.partialProducts[rowIdx]?.[actualProduct.length + i] || ''}
+                                onChange={(e) => updateAnswer(problemIdx, rowIdx, actualProduct.length + i, e.target.value)}
+                                className={`w-12 h-12 text-center border rounded font-mono text-xl ${
+                                  results[problemIdx]?.[rowIdx]?.[actualProduct.length + i] === 'correct' 
+                                    ? 'bg-green-100 border-green-500' 
+                                    : results[problemIdx]?.[rowIdx]?.[actualProduct.length + i] === 'incorrect'
+                                    ? 'bg-red-100 border-red-500 animate-pulse'
+                                    : 'border-gray-300 focus:border-blue-500'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        );
+                      })}
+                      
+                      {/* Final Separator Line */}
+                      <div className="border-t-2 border-black my-2"></div>
+                      
+                      {/* Final Answer Row */}
+                      <div className="grid gap-1" style={{gridTemplateColumns: `repeat(${maxWidth}, 1fr)`}}>
+                        <div></div>
+                        {Array.from({length: maxWidth - 1 - problem.finalAnswer.length}).map((_, i) => (
+                          <div key={i}></div>
+                        ))}
+                        {problem.finalAnswer.split('').map((digit, digitIdx) => (
+                          <input
+                            key={digitIdx}
+                            type="text"
+                            maxLength={1}
+                            value={answers[problemIdx]?.finalAnswer[digitIdx] || ''}
+                            onChange={(e) => updateAnswer(problemIdx, problem.partialProducts.length, digitIdx, e.target.value)}
+                            className={`w-12 h-12 text-center border-2 rounded font-mono text-xl font-bold ${
+                              results[problemIdx]?.[problem.partialProducts.length]?.[digitIdx] === 'correct' 
+                                ? 'bg-green-100 border-green-500' 
+                                : results[problemIdx]?.[problem.partialProducts.length]?.[digitIdx] === 'incorrect'
+                                ? 'bg-red-100 border-red-500 animate-pulse'
+                                : 'border-purple-300 focus:border-purple-500'
+                            }`}
+                          />
+                        ))}
+                      </div>
                     </div>
-                  ))}
-                  
-                  {/* Final Separator Line */}
-                  <div className="col-span-full border-t-2 border-black my-1"></div>
-                  
-                  {/* Final Answer Row */}
-                  <div className="col-span-full grid gap-1" style={{gridTemplateColumns: `repeat(${Math.max(problem.multiplicand.length, problem.multiplier.length, problem.finalAnswer.length) + 1}, 1fr)`}}>
-                    <div className="text-center py-1"></div>
-                    {Array.from({length: Math.max(problem.multiplicand.length, problem.multiplier.length, problem.finalAnswer.length) - problem.finalAnswer.length}).map((_, i) => (
-                      <div key={i} className="text-center py-1"></div>
-                    ))}
-                    {problem.finalAnswer.split('').map((digit, digitIdx) => (
-                      <input
-                        key={digitIdx}
-                        type="text"
-                        maxLength={1}
-                        value={answers[problemIdx]?.finalAnswer[digitIdx] || ''}
-                        onChange={(e) => updateAnswer(problemIdx, problem.partialProducts.length, digitIdx, e.target.value)}
-                        className={`w-10 h-10 text-center border-2 rounded font-mono text-lg font-bold ${
-                          results[problemIdx]?.[problem.partialProducts.length]?.[digitIdx] === 'correct' 
-                            ? 'bg-green-100 border-green-500' 
-                            : results[problemIdx]?.[problem.partialProducts.length]?.[digitIdx] === 'incorrect'
-                            ? 'bg-red-100 border-red-500 animate-pulse'
-                            : 'border-purple-300 focus:border-purple-500'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </div>
+                  );
+                })()}
               </div>
             </div>
           ))}
