@@ -73,7 +73,7 @@ const defaultSkills: Skill[] = [{
   hrefPreview: '#'
 }, {
   icon: Table,
-  title: 'ตาราง',
+  title: 'ตารางสูตรคูณ',
   desc: 'จดจำสูตรคูณด้วยตารางสีสันสวยงาม เรียนรู้แบบเป็นระบบ',
   backgroundGradient: 'bg-gradient-to-br from-sky-400 via-cyan-500 to-teal-600',
   textColor: 'text-white',
