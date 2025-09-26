@@ -16,6 +16,79 @@ interface PercentageProblem {
   isCorrect: boolean | null;
 }
 
+// Separate ProblemCard component to prevent re-creation
+const ProblemCard: React.FC<{
+  problem: PercentageProblem;
+  onAnswerChange: (problemId: number, answer: string) => void;
+  onCheckAnswer: (problemId: number) => void;
+  showResults: boolean;
+}> = React.memo(({ problem, onAnswerChange, onCheckAnswer, showResults }) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    onAnswerChange(problem.id, e.target.value);
+  }, [problem.id, onAnswerChange]);
+
+  const handleCheck = useCallback(() => {
+    onCheckAnswer(problem.id);
+  }, [problem.id, onCheckAnswer]);
+
+  return (
+    <Card className={`transition-all duration-200 ${
+      problem.isCorrect === true ? 'border-green-500 bg-green-50' :
+      problem.isCorrect === false ? 'border-red-500 bg-red-50' :
+      'border-gray-200 hover:border-primary/50'
+    }`}>
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between mb-3">
+          <Badge variant="outline" className="text-sm">
+            ข้อ {problem.id}
+          </Badge>
+          {problem.isCorrect !== null && (
+            problem.isCorrect ? 
+              <CheckCircle className="w-5 h-5 text-green-500" /> :
+              <XCircle className="w-5 h-5 text-red-500" />
+          )}
+        </div>
+        
+        <div className="space-y-3">
+          <div className="text-lg font-medium">
+            {problem.type === 'fraction' ? 
+              `ร้อยละ ${problem.percentage} = ` :
+              `${problem.percentage}% = `
+            }
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Input
+              value={problem.userAnswer}
+              onChange={handleChange}
+              className="text-center font-medium"
+              disabled={showResults}
+              autoComplete="off"
+            />
+            {!showResults && (
+              <Button
+                size="sm"
+                onClick={handleCheck}
+                disabled={!problem.userAnswer.trim()}
+              >
+                ตรวจ
+              </Button>
+            )}
+          </div>
+          
+          {showResults && problem.isCorrect === false && (
+            <div className="text-sm text-red-600 bg-red-50 p-2 rounded">
+              คำตอบที่ถูก: {problem.correctAnswer}
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+});
+
+ProblemCard.displayName = 'ProblemCard';
+
 // Problem generator
 const generateProblems = (): PercentageProblem[] => {
   const problems: PercentageProblem[] = [];
@@ -83,7 +156,6 @@ const generateProblems = (): PercentageProblem[] => {
 
 const PercentageApp: React.FC = () => {
   const [problems, setProblems] = useState<PercentageProblem[]>([]);
-  const [currentProblemIndex, setCurrentProblemIndex] = useState(0);
   const [showResults, setShowResults] = useState(false);
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
@@ -105,7 +177,7 @@ const PercentageApp: React.FC = () => {
     return () => clearInterval(interval);
   }, [isTimerRunning]);
 
-  const resetGame = () => {
+  const resetGame = useCallback(() => {
     const allProblems = generateProblems();
     let filteredProblems: PercentageProblem[];
     
@@ -121,15 +193,14 @@ const PercentageApp: React.FC = () => {
     }
     
     setProblems(filteredProblems);
-    setCurrentProblemIndex(0);
     setShowResults(false);
     setTimeElapsed(0);
     setIsTimerRunning(false);
-  };
+  }, [gameMode]);
 
-  const startGame = () => {
+  const startGame = useCallback(() => {
     setIsTimerRunning(true);
-  };
+  }, []);
 
   const handleAnswerChange = useCallback((problemId: number, answer: string) => {
     setProblems(prev => prev.map(p => 
@@ -137,7 +208,7 @@ const PercentageApp: React.FC = () => {
     ));
   }, []);
 
-  const checkAnswer = (problemId: number) => {
+  const checkAnswer = useCallback((problemId: number) => {
     const problem = problems.find(p => p.id === problemId);
     if (!problem) return;
 
@@ -146,19 +217,22 @@ const PercentageApp: React.FC = () => {
     setProblems(prev => prev.map(p => 
       p.id === problemId ? { ...p, isCorrect } : p
     ));
-  };
+  }, [problems]);
 
-  const checkAllAnswers = () => {
+  const checkAllAnswers = useCallback(() => {
     problems.forEach(problem => {
       if (problem.userAnswer.trim()) {
-        checkAnswer(problem.id);
+        const isCorrect = problem.userAnswer.trim().toLowerCase() === problem.correctAnswer.toLowerCase();
+        setProblems(prev => prev.map(p => 
+          p.id === problem.id ? { ...p, isCorrect } : p
+        ));
       }
     });
     setShowResults(true);
     setIsTimerRunning(false);
-  };
+  }, [problems]);
 
-  const getScore = () => {
+  const getScore = useCallback(() => {
     const answeredProblems = problems.filter(p => p.isCorrect !== null);
     const correctAnswers = problems.filter(p => p.isCorrect === true);
     return {
@@ -166,75 +240,17 @@ const PercentageApp: React.FC = () => {
       total: answeredProblems.length,
       percentage: answeredProblems.length > 0 ? Math.round((correctAnswers.length / answeredProblems.length) * 100) : 0
     };
-  };
+  }, [problems]);
+
+  const shuffleProblems = useCallback(() => {
+    setProblems(prev => [...prev].sort(() => Math.random() - 0.5));
+  }, []);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
-
-  const ProblemCard: React.FC<{ problem: PercentageProblem }> = React.memo(({ problem }) => {
-    const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-      handleAnswerChange(problem.id, e.target.value);
-    }, [problem.id]);
-
-    return (
-      <Card className={`transition-all duration-200 ${
-        problem.isCorrect === true ? 'border-green-500 bg-green-50' :
-        problem.isCorrect === false ? 'border-red-500 bg-red-50' :
-        'border-gray-200 hover:border-primary/50'
-      }`}>
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between mb-3">
-            <Badge variant="outline" className="text-sm">
-              ข้อ {problem.id}
-            </Badge>
-            {problem.isCorrect !== null && (
-              problem.isCorrect ? 
-                <CheckCircle className="w-5 h-5 text-green-500" /> :
-                <XCircle className="w-5 h-5 text-red-500" />
-            )}
-          </div>
-          
-          <div className="space-y-3">
-            <div className="text-lg font-medium">
-              {problem.type === 'fraction' ? 
-                `ร้อยละ ${problem.percentage} = ` :
-                `${problem.percentage}% = `
-              }
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Input
-                key={`input-${problem.id}`}
-                value={problem.userAnswer}
-                onChange={handleInputChange}
-                className="text-center font-medium"
-                disabled={showResults}
-                autoComplete="off"
-              />
-              {!showResults && (
-                <Button
-                  size="sm"
-                  onClick={() => checkAnswer(problem.id)}
-                  disabled={!problem.userAnswer.trim()}
-                >
-                  ตรวจ
-                </Button>
-              )}
-            </div>
-            
-            {showResults && problem.isCorrect === false && (
-              <div className="text-sm text-red-600 bg-red-50 p-2 rounded">
-                คำตอบที่ถูก: {problem.correctAnswer}
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  });
 
   const score = getScore();
 
@@ -257,7 +273,7 @@ const PercentageApp: React.FC = () => {
             <p className="text-pink-600">เขียนร้อยละในรูปเศษส่วนอย่างต่ำและทศนิยม</p>
           </div>
           
-          <div className="flex items-center gap-2 bg-white/90 px-3 py-2 rounded-lg">
+          <div className="flex items-center gap-2 bg-white/90 px-3 py-2 rounded-lg border">
             <Clock className="w-4 h-4" />
             <span className="font-mono">{formatTime(timeElapsed)}</span>
           </div>
@@ -319,7 +335,7 @@ const PercentageApp: React.FC = () => {
             เริ่มใหม่
           </Button>
           
-          <Button variant="outline" onClick={() => setProblems(prev => [...prev].sort(() => Math.random() - 0.5))}>
+          <Button variant="outline" onClick={shuffleProblems}>
             <Shuffle className="w-4 h-4 mr-2" />
             สลับข้อ
           </Button>
@@ -347,7 +363,13 @@ const PercentageApp: React.FC = () => {
         {/* Problems Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {problems.map(problem => (
-            <ProblemCard key={`problem-${problem.id}-${gameMode}`} problem={problem} />
+            <ProblemCard
+              key={problem.id}
+              problem={problem}
+              onAnswerChange={handleAnswerChange}
+              onCheckAnswer={checkAnswer}
+              showResults={showResults}
+            />
           ))}
         </div>
 
