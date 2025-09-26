@@ -19,6 +19,7 @@ import LengthComparisonApp from "./pages/LengthComparisonApp";
 import ShapeMatchingApp from "./pages/ShapeMatchingApp";
 import FractionMatchingApp from "./pages/FractionMatchingApp";
 import PercentageApp from "./pages/PercentageApp";
+import NumberSeriesApp from "./pages/NumberSeriesApp";
 import BackgroundRemoverPage from "./pages/BackgroundRemover";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -154,6 +155,14 @@ const App = () => (
           element={
             <ProtectedRoute>
               <PercentageApp />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/NumberSeries" 
+          element={
+            <ProtectedRoute>
+              <NumberSeriesApp />
             </ProtectedRoute>
           } 
         />

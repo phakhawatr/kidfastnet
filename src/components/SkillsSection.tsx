@@ -70,7 +70,7 @@ const defaultSkills: Skill[] = [{
   backgroundGradient: 'bg-gradient-to-br from-violet-400 via-purple-500 to-indigo-600',
   textColor: 'text-white',
   sticker: '🧩',
-  hrefPreview: '#'
+  hrefPreview: '/NumberSeries'
 }, {
   icon: Table,
   title: 'ตารางสูตรคูณ',
