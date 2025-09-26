@@ -307,7 +307,7 @@ export default function AdditionApp() {
   const [count, setCount] = useState(15);
   const [level, setLevel] = useState("easy"); // easy | medium | hard
   const [digits, setDigits] = useState(2);
-  const [carryOption, setCarryOption] = useState("any"); // "has" | "none" | "any"
+  const [carryOption, setCarryOption] = useState("none"); // "has" | "none" | "any"
   const [operands, setOperands] = useState(2); // 2 | 3
   const [problems, setProblems] = useState(() => generateAdditionProblems(15, "easy", 2, "any", 2));
   const [answers, setAnswers] = useState(() => problems.map(() => Array(digits).fill("")));
