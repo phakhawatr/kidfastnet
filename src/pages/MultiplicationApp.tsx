@@ -154,6 +154,18 @@ const MultiplicationApp = () => {
     generateProblems();
   }, [generateProblems]);
 
+  // Force scroll to top when component mounts
+  useEffect(() => {
+    try {
+      if ('scrollRestoration' in window.history) {
+        window.history.scrollRestoration = 'manual';
+      }
+    } catch {}
+    try { 
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' }); 
+    } catch {}
+  }, []);
+
   // Start timer on first input
   const startTimer = () => {
     if (!startTime) {
