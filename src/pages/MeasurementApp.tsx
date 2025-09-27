@@ -100,18 +100,18 @@ function Ruler({
   const scale = height / maxHeight;
   const pixelHeight = rulerHeight * scale;
 
-  // Generate ruler markings
+  // Generate ruler markings - 50cm intervals
   const markings = [];
-  const step = maxHeight / 20; // 20 major divisions
+  const step = 50; // 50cm intervals
 
-  for (let i = 0; i <= 20; i++) {
+  for (let i = 0; i <= maxHeight / step; i++) {
     const value = i * step;
     const y = rulerHeight - value / maxHeight * rulerHeight + 10; // +10 for top margin
-    const isMainMark = i % 5 === 0;
+    const isMainMark = i % 5 === 0; // Every 250cm is a major mark
     markings.push(<g key={i}>
         <line x1={isMainMark ? 0 : 10} y1={y} x2={30} y2={y} stroke="#333" strokeWidth={isMainMark ? 2 : 1} />
-        {isMainMark && <text x={35} y={y + 4} fontSize="10" fill="#333" className="select-none">
-            {Math.round(value)}
+        {(i % 2 === 0 || isMainMark) && <text x={35} y={y + 4} fontSize="10" fill="#333" className="select-none">
+            {value}
           </text>}
       </g>);
   }
