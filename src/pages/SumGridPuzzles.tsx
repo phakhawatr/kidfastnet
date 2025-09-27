@@ -269,13 +269,8 @@ const SumGridPuzzles: React.FC = () => {
     
     setCorrect(completedCount);
     
-    const allCompleted = completedCount === grids.length && grids.length > 0;
-    
-    if (allCompleted) {
-      setShowCompleted(true);
-      confettiBurst();
-    }
-  }, [grids, confettiBurst]);
+    // Removed popup trigger - just update the count
+  }, [grids]);
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 ${contrast ? 'contrast' : ''}`}>
@@ -374,38 +369,49 @@ const SumGridPuzzles: React.FC = () => {
                 {/* 4x4 Grid (3x3 main grid + sum row/column) */}
                 <div className="grid grid-cols-4 gap-2 mb-4">
                   {grid.map((row, rowIndex) =>
-                    Array.isArray(row) && row.map((cell, colIndex) => (
-                      <div
-                        key={`${rowIndex}-${colIndex}`}
-                        className={`
-                          h-12 border-2 rounded-lg flex items-center justify-center font-bold text-lg
-                          ${cell.isInput 
-                            ? cell.isCorrect 
-                              ? 'border-green-400 bg-green-50 text-green-700' 
-                              : 'border-blue-300 bg-white'
-                            : rowIndex === 3 || colIndex === 3
-                              ? 'border-red-300 bg-red-50 text-red-700 font-bold' // Sum cells styling
-                              : 'border-gray-200 bg-gray-50 text-gray-700'
-                          }
-                        `}
-                      >
-                        {cell.isInput ? (
-                          <input
-                            type="number"
-                            className="w-full h-full text-center bg-transparent border-none outline-none text-lg font-bold"
-                            placeholder=""
-                            onChange={(e) => checkAnswer(gridIndex, rowIndex, colIndex, e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                checkAnswer(gridIndex, rowIndex, colIndex, (e.target as HTMLInputElement).value);
-                              }
-                            }}
-                          />
-                        ) : (
-                          <span>{cell.value}</span>
-                        )}
-                      </div>
-                    ))
+                    Array.isArray(row) && row.map((cell, colIndex) => {
+                      // Check if current grid is completed
+                      const isGridCompleted = grid
+                        .slice(0, 3)
+                        .every(row => 
+                          Array.isArray(row) && row.slice(0, 3).every(cell => !cell.isInput || cell.isCorrect)
+                        );
+                      
+                      return (
+                        <div
+                          key={`${rowIndex}-${colIndex}`}
+                          className={`
+                            h-12 border-2 rounded-lg flex items-center justify-center font-bold text-lg
+                            ${cell.isInput 
+                              ? cell.isCorrect 
+                                ? 'border-green-400 bg-green-50 text-green-700' 
+                                : 'border-blue-300 bg-white'
+                              : rowIndex === 3 || colIndex === 3
+                                ? isGridCompleted
+                                  ? 'border-green-400 bg-green-50 text-green-700 font-bold' // Green when completed
+                                  : 'border-red-300 bg-red-50 text-red-700 font-bold' // Red when not completed
+                                : 'border-gray-200 bg-gray-50 text-gray-700'
+                            }
+                          `}
+                        >
+                          {cell.isInput ? (
+                            <input
+                              type="number"
+                              className="w-full h-full text-center bg-transparent border-none outline-none text-lg font-bold"
+                              placeholder=""
+                              onChange={(e) => checkAnswer(gridIndex, rowIndex, colIndex, e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  checkAnswer(gridIndex, rowIndex, colIndex, (e.target as HTMLInputElement).value);
+                                }
+                              }}
+                            />
+                          ) : (
+                            <span>{cell.value}</span>
+                          )}
+                        </div>
+                      );
+                    })
                   )}
                 </div>
                 
@@ -417,33 +423,6 @@ const SumGridPuzzles: React.FC = () => {
           })}
         </div>
       </main>
-
-      {/* Completion Dialog */}
-      {showCompleted && (
-        <div className="fixed inset-0 bg-black/45 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-8 text-center max-w-md w-full shadow-2xl">
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">ยอดเยี่ยม! 🎉</h2>
-            <p className="text-gray-600 mb-6">แก้ปริศนาตารางบวกได้ครบแล้ว</p>
-            <div className="flex gap-3 justify-center">
-              <button
-                onClick={() => {
-                  setShowCompleted(false);
-                  initializePuzzles();
-                }}
-                className="btn-primary"
-              >
-                เล่นรอบใหม่
-              </button>
-              <button
-                onClick={() => setShowCompleted(false)}
-                className="btn-secondary"
-              >
-                ปิด
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <Footer />
     </div>
