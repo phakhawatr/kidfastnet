@@ -254,11 +254,15 @@ const SumGridPuzzles: React.FC = () => {
 
   // Check if all puzzles are completed
   useEffect(() => {
+    if (!Array.isArray(grids) || grids.length === 0) return;
+    
     const completedCount = grids.reduce((count, grid) => {
+      if (!Array.isArray(grid) || grid.length === 0) return count;
+      
       const isGridCompleted = grid
         .slice(0, 3) // Only check the main 3x3 area
         .every(row => 
-          row.slice(0, 3).every(cell => !cell.isInput || cell.isCorrect)
+          Array.isArray(row) && row.slice(0, 3).every(cell => !cell.isInput || cell.isCorrect)
         );
       return count + (isGridCompleted ? 1 : 0);
     }, 0);
@@ -350,60 +354,67 @@ const SumGridPuzzles: React.FC = () => {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {grids.map((grid, gridIndex) => (
-            <div key={gridIndex} className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-lg text-gray-800">
-                  {tasks[gridIndex]?.icon} {tasks[gridIndex]?.name}
-                </h3>
-                <div className="text-2xl">
-                  {grid.slice(0, 3).every(row => row.slice(0, 3).every(cell => !cell.isInput || cell.isCorrect)) ? '⭐' : ''}
+          {Array.isArray(grids) && grids.map((grid, gridIndex) => {
+            if (!Array.isArray(grid) || grid.length === 0) return null;
+            
+            return (
+              <div key={gridIndex} className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold text-lg text-gray-800">
+                    {tasks[gridIndex]?.icon} {tasks[gridIndex]?.name}
+                  </h3>
+                  <div className="text-2xl">
+                    {Array.isArray(grid) && grid.length > 0 && 
+                     grid.slice(0, 3).every(row => 
+                       Array.isArray(row) && row.slice(0, 3).every(cell => !cell.isInput || cell.isCorrect)
+                     ) ? '⭐' : ''}
+                  </div>
                 </div>
-              </div>
               
-              {/* 4x4 Grid (3x3 main grid + sum row/column) */}
-              <div className="grid grid-cols-4 gap-2 mb-4">
-                {grid.map((row, rowIndex) =>
-                  row.map((cell, colIndex) => (
-                    <div
-                      key={`${rowIndex}-${colIndex}`}
-                      className={`
-                        h-12 border-2 rounded-lg flex items-center justify-center font-bold text-lg
-                        ${cell.isInput 
-                          ? cell.isCorrect 
-                            ? 'border-green-400 bg-green-50 text-green-700' 
-                            : 'border-blue-300 bg-white'
-                          : rowIndex === 3 || colIndex === 3
-                            ? 'border-red-300 bg-red-50 text-red-700 font-bold' // Sum cells styling
-                            : 'border-gray-200 bg-gray-50 text-gray-700'
-                        }
-                      `}
-                    >
-                      {cell.isInput ? (
-                        <input
-                          type="number"
-                          className="w-full h-full text-center bg-transparent border-none outline-none text-lg font-bold"
-                          placeholder=""
-                          onChange={(e) => checkAnswer(gridIndex, rowIndex, colIndex, e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              checkAnswer(gridIndex, rowIndex, colIndex, (e.target as HTMLInputElement).value);
-                            }
-                          }}
-                        />
-                      ) : (
-                        <span>{cell.value}</span>
-                      )}
-                    </div>
-                  ))
-                )}
+                {/* 4x4 Grid (3x3 main grid + sum row/column) */}
+                <div className="grid grid-cols-4 gap-2 mb-4">
+                  {grid.map((row, rowIndex) =>
+                    Array.isArray(row) && row.map((cell, colIndex) => (
+                      <div
+                        key={`${rowIndex}-${colIndex}`}
+                        className={`
+                          h-12 border-2 rounded-lg flex items-center justify-center font-bold text-lg
+                          ${cell.isInput 
+                            ? cell.isCorrect 
+                              ? 'border-green-400 bg-green-50 text-green-700' 
+                              : 'border-blue-300 bg-white'
+                            : rowIndex === 3 || colIndex === 3
+                              ? 'border-red-300 bg-red-50 text-red-700 font-bold' // Sum cells styling
+                              : 'border-gray-200 bg-gray-50 text-gray-700'
+                          }
+                        `}
+                      >
+                        {cell.isInput ? (
+                          <input
+                            type="number"
+                            className="w-full h-full text-center bg-transparent border-none outline-none text-lg font-bold"
+                            placeholder=""
+                            onChange={(e) => checkAnswer(gridIndex, rowIndex, colIndex, e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                checkAnswer(gridIndex, rowIndex, colIndex, (e.target as HTMLInputElement).value);
+                              }
+                            }}
+                          />
+                        ) : (
+                          <span>{cell.value}</span>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+                
+                <p className="text-xs text-gray-500 text-center">
+                  แก้ปริศนาตารางบวก: กรอกตัวเลขในช่องว่างให้ผลรวมในแถวและคอลัมน์ถูกต้อง
+                </p>
               </div>
-              
-              <p className="text-xs text-gray-500 text-center">
-                แก้ปริศนาตารางบวก: กรอกตัวเลขในช่องว่างให้ผลรวมในแถวและคอลัมน์ถูกต้อง
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </main>
 
