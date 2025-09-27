@@ -480,7 +480,15 @@ export default function AdditionApp() {
     setStartedAt(null);
     setFinishedAt(null);
     setElapsedMs(0);
-    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
+    
+    // Enhanced scroll-to-top - immediate scroll to ensure page is always at top
+    try { 
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' }); 
+      // Force immediate scroll, then smooth for better UX
+      setTimeout(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+      }, 10);
+    } catch {}
   }
 
   function applyLevel(lv) {
