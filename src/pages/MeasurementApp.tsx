@@ -321,8 +321,10 @@ export default function MeasurementApp() {
     setCelebrate(false);
     setStartedAt(null);
     setElapsedMs(0);
-    // Scroll to top when changing problem count
-    window.scrollTo(0, 0);
+    // Scroll to top when changing problem count - multiple methods for reliability
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   }
   function checkAnswers() {
     const next = problems.map((p, i) => {
