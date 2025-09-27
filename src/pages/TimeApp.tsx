@@ -202,6 +202,14 @@ export default function TimeApp() {
   const [showAnswers, setShowAnswers] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
 
+  // Ensure page starts at top when component mounts
+  useEffect(() => {
+    // Force scroll to top with multiple methods
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    window.scrollTo(0, 0);
+  }, []);
+
   function setAnswer(idx, val) {
     setAnswers((prev) => prev.map((a, i) => (i === idx ? val : a)));
   }
