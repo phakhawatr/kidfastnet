@@ -19,9 +19,15 @@ type GridCell = {
 
 type Grid = GridCell[][];
 
+type GridSolution = {
+  grid: Grid;
+  correctAnswers: number[][];
+};
+
 const SumGridPuzzles: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [grids, setGrids] = useState<Grid[]>([]);
+  const [solutions, setSolutions] = useState<number[][][]>([]); // Store correct answers for each grid
   const [correct, setCorrect] = useState(0);
   const [sound, setSound] = useState(true);
   const [showCompleted, setShowCompleted] = useState(false);
@@ -71,49 +77,91 @@ const SumGridPuzzles: React.FC = () => {
     }
   }, []);
 
-  // Generate grid puzzle
-  const generateGrid = (): Grid => {
-    const grid: Grid = Array(3).fill(null).map(() => 
-      Array(3).fill(null).map(() => ({ value: null, isInput: false }))
+  // Generate grid puzzle following 3x3 sum grid mathematics
+  const generateGrid = (): GridSolution => {
+    // Create a 4x4 grid (3x3 main grid + sum row/column)
+    const grid: Grid = Array(4).fill(null).map(() => 
+      Array(4).fill(null).map(() => ({ value: null, isInput: false }))
     );
     
-    // Fill some cells with numbers (sum puzzle logic)
-    const values = [
-      [Math.floor(Math.random() * 9) + 1, Math.floor(Math.random() * 9) + 1, 0],
-      [Math.floor(Math.random() * 9) + 1, Math.floor(Math.random() * 9) + 1, 0],
-      [0, 0, 0]
-    ];
-    
-    // Calculate sums
-    values[0][2] = values[0][0] + values[0][1]; // Row 1 sum
-    values[1][2] = values[1][0] + values[1][1]; // Row 2 sum
-    values[2][0] = values[0][0] + values[1][0]; // Col 1 sum
-    values[2][1] = values[0][1] + values[1][1]; // Col 2 sum
-    values[2][2] = values[0][2] + values[1][2]; // Total sum
-    
-    // Randomly hide some cells for input
-    const hiddenCells = [
-      [0, 1], [1, 0], [2, 0], [2, 1] // Hide some strategic cells
-    ];
-    
+    // Generate random numbers for the main 3x3 area (excluding last row and column)
+    const baseNumbers: number[][] = [];
     for (let i = 0; i < 3; i++) {
+      baseNumbers[i] = [];
       for (let j = 0; j < 3; j++) {
-        const shouldHide = hiddenCells.some(([r, c]) => r === i && c === j) && Math.random() > 0.3;
-        grid[i][j] = {
-          value: shouldHide ? null : values[i][j],
-          isInput: shouldHide,
-          isCorrect: false
-        };
+        baseNumbers[i][j] = Math.floor(Math.random() * 9) + 1;
       }
     }
     
-    return grid;
+    // Calculate row sums (rightmost column)
+    const rowSums = [
+      baseNumbers[0][0] + baseNumbers[0][1] + baseNumbers[0][2], // Row 1 sum
+      baseNumbers[1][0] + baseNumbers[1][1] + baseNumbers[1][2], // Row 2 sum  
+      baseNumbers[2][0] + baseNumbers[2][1] + baseNumbers[2][2]  // Row 3 sum
+    ];
+    
+    // Calculate column sums (bottom row)
+    const colSums = [
+      baseNumbers[0][0] + baseNumbers[1][0] + baseNumbers[2][0], // Col 1 sum
+      baseNumbers[0][1] + baseNumbers[1][1] + baseNumbers[2][1], // Col 2 sum
+      baseNumbers[0][2] + baseNumbers[1][2] + baseNumbers[2][2]  // Col 3 sum
+    ];
+    
+    // Randomly select 4-5 cells to hide for input
+    const possibleHiddenCells = [
+      [0, 0], [0, 1], [0, 2],
+      [1, 0], [1, 1], [1, 2], 
+      [2, 0], [2, 1], [2, 2]
+    ];
+    
+    // Shuffle and pick 4-5 cells to hide
+    const shuffled = possibleHiddenCells.sort(() => Math.random() - 0.5);
+    const hiddenCells = shuffled.slice(0, Math.floor(Math.random() * 2) + 4); // 4 or 5 cells
+    
+    // Fill the grid
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 4; j++) {
+        if (i < 3 && j < 3) {
+          // Main 3x3 area
+          const isHidden = hiddenCells.some(([r, c]) => r === i && c === j);
+          grid[i][j] = {
+            value: isHidden ? null : baseNumbers[i][j],
+            isInput: isHidden,
+            isCorrect: false
+          };
+        } else if (i < 3 && j === 3) {
+          // Row sums (rightmost column)
+          grid[i][j] = {
+            value: rowSums[i],
+            isInput: false,
+            isCorrect: true
+          };
+        } else if (i === 3 && j < 3) {
+          // Column sums (bottom row)
+          grid[i][j] = {
+            value: colSums[j],
+            isInput: false,
+            isCorrect: true
+          };
+        } else {
+          // Bottom-right corner (empty or total)
+          grid[i][j] = {
+            value: null,
+            isInput: false,
+            isCorrect: true
+          };
+        }
+      }
+    }
+    
+    return { grid, correctAnswers: baseNumbers };
   };
 
   // Initialize puzzles
   const initializePuzzles = useCallback(() => {
     const newTasks: Task[] = [];
     const newGrids: Grid[] = [];
+    const newSolutions: number[][][] = [];
     
     for (let i = 0; i < 9; i++) {
       newTasks.push({
@@ -122,55 +170,39 @@ const SumGridPuzzles: React.FC = () => {
         icon: '🧮',
         name: `ตาราง ${i + 1}`
       });
-      newGrids.push(generateGrid());
+      const gridSolution = generateGrid();
+      newGrids.push(gridSolution.grid);
+      newSolutions.push(gridSolution.correctAnswers);
     }
     
     setTasks(newTasks);
     setGrids(newGrids);
+    setSolutions(newSolutions);
     setCorrect(0);
   }, []);
 
   // Check answer for a specific grid cell
   const checkAnswer = (gridIndex: number, row: number, col: number, value: string) => {
     const numValue = parseInt(value);
-    if (isNaN(numValue)) return;
+    if (isNaN(numValue) || row >= 3 || col >= 3) return; // Only check main 3x3 area
 
     const grid = grids[gridIndex];
+    const correctAnswer = solutions[gridIndex][row][col];
     const originalGrid = [...grids];
     
-    // Calculate what the correct value should be
-    let correctValue = 0;
-    
-    // Logic to calculate correct answer based on position
-    if (row < 2 && col < 2) {
-      // Basic cell - could be any number, we'll validate based on sums
-      correctValue = numValue; // For now, accept any reasonable input
-    } else if (row < 2 && col === 2) {
-      // Row sum
-      const row1 = grid[row][0]?.value || 0;
-      const row2 = grid[row][1]?.value || 0;
-      correctValue = row1 + row2;
-    } else if (row === 2 && col < 2) {
-      // Column sum
-      const col1 = grid[0][col]?.value || 0;
-      const col2 = grid[1][col]?.value || 0;
-      correctValue = col1 + col2;
-    } else {
-      // Total sum (bottom right)
-      const totalSum = (grid[0][2]?.value || 0) + (grid[1][2]?.value || 0);
-      correctValue = totalSum;
-    }
+    // Check if the answer is correct
+    const isCorrect = numValue === correctAnswer;
 
     // Update grid
     originalGrid[gridIndex][row][col] = {
       ...grid[row][col],
       value: numValue,
-      isCorrect: Math.abs(numValue - correctValue) < 0.1
+      isCorrect: isCorrect
     };
 
     setGrids(originalGrid);
 
-    if (originalGrid[gridIndex][row][col].isCorrect) {
+    if (isCorrect) {
       beep(1040, 0.08, 'triangle');
       setTimeout(() => beep(1320, 0.09, 'triangle'), 90);
     } else {
@@ -180,10 +212,18 @@ const SumGridPuzzles: React.FC = () => {
 
   // Reveal all answers
   const revealAnswers = () => {
-    // Implementation for revealing answers
-    const newGrids = grids.map(grid => 
-      grid.map(row =>
-        row.map(cell => ({ ...cell, isCorrect: true }))
+    const newGrids = grids.map((grid, gridIndex) => 
+      grid.map((row, rowIndex) =>
+        row.map((cell, colIndex) => {
+          if (cell.isInput && rowIndex < 3 && colIndex < 3) {
+            return {
+              ...cell,
+              value: solutions[gridIndex][rowIndex][colIndex],
+              isCorrect: true
+            };
+          }
+          return cell;
+        })
       )
     );
     setGrids(newGrids);
@@ -191,6 +231,9 @@ const SumGridPuzzles: React.FC = () => {
 
   useEffect(() => {
     initializePuzzles();
+    
+    // Scroll to top when component mounts
+    window.scrollTo(0, 0);
     
     // Add confetti animation CSS
     const style = document.createElement('style');
@@ -211,13 +254,20 @@ const SumGridPuzzles: React.FC = () => {
 
   // Check if all puzzles are completed
   useEffect(() => {
-    const allCompleted = grids.every(grid => 
-      grid.every(row => 
-        row.every(cell => !cell.isInput || cell.isCorrect)
-      )
-    );
+    const completedCount = grids.reduce((count, grid) => {
+      const isGridCompleted = grid
+        .slice(0, 3) // Only check the main 3x3 area
+        .every(row => 
+          row.slice(0, 3).every(cell => !cell.isInput || cell.isCorrect)
+        );
+      return count + (isGridCompleted ? 1 : 0);
+    }, 0);
     
-    if (allCompleted && grids.length > 0) {
+    setCorrect(completedCount);
+    
+    const allCompleted = completedCount === grids.length && grids.length > 0;
+    
+    if (allCompleted) {
       setShowCompleted(true);
       confettiBurst();
     }
@@ -241,7 +291,7 @@ const SumGridPuzzles: React.FC = () => {
           </div>
           
           <p className="text-gray-600 text-sm md:text-base mb-4">
-            แก้ปริศนาตารางบวก กรอกตัวเลขให้ถูกต้องตามผลรวม
+            แก้ปริศนาตารางบวก 4×4 กรอกตัวเลขในช่องว่างให้ผลรวมแถวและคอลัมน์ถูกต้อง
           </p>
           
           {/* Controls */}
@@ -307,12 +357,12 @@ const SumGridPuzzles: React.FC = () => {
                   {tasks[gridIndex]?.icon} {tasks[gridIndex]?.name}
                 </h3>
                 <div className="text-2xl">
-                  {grid.every(row => row.every(cell => !cell.isInput || cell.isCorrect)) ? '⭐' : ''}
+                  {grid.slice(0, 3).every(row => row.slice(0, 3).every(cell => !cell.isInput || cell.isCorrect)) ? '⭐' : ''}
                 </div>
               </div>
               
-              {/* 3x3 Grid */}
-              <div className="grid grid-cols-3 gap-2 mb-4">
+              {/* 4x4 Grid (3x3 main grid + sum row/column) */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
                 {grid.map((row, rowIndex) =>
                   row.map((cell, colIndex) => (
                     <div
@@ -323,9 +373,10 @@ const SumGridPuzzles: React.FC = () => {
                           ? cell.isCorrect 
                             ? 'border-green-400 bg-green-50 text-green-700' 
                             : 'border-blue-300 bg-white'
-                          : 'border-gray-200 bg-gray-50 text-gray-700'
+                          : rowIndex === 3 || colIndex === 3
+                            ? 'border-red-300 bg-red-50 text-red-700 font-bold' // Sum cells styling
+                            : 'border-gray-200 bg-gray-50 text-gray-700'
                         }
-                        ${rowIndex === 2 || colIndex === 2 ? 'bg-blue-50 border-blue-200' : ''}
                       `}
                     >
                       {cell.isInput ? (
@@ -349,7 +400,7 @@ const SumGridPuzzles: React.FC = () => {
               </div>
               
               <p className="text-xs text-gray-500 text-center">
-                กรอกตัวเลขในช่องว่างให้ผลรวมถูกต้อง
+                แก้ปริศนาตารางบวก: กรอกตัวเลขในช่องว่างให้ผลรวมในแถวและคอลัมน์ถูกต้อง
               </p>
             </div>
           ))}
