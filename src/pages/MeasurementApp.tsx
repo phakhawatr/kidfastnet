@@ -254,6 +254,11 @@ export default function MeasurementApp() {
   const [showAnswers, setShowAnswers] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Timer states
   const [startedAt, setStartedAt] = useState(null);
   const [elapsedMs, setElapsedMs] = useState(0);
@@ -316,6 +321,8 @@ export default function MeasurementApp() {
     setCelebrate(false);
     setStartedAt(null);
     setElapsedMs(0);
+    // Scroll to top when changing problem count
+    window.scrollTo(0, 0);
   }
   function checkAnswers() {
     const next = problems.map((p, i) => {
