@@ -99,27 +99,27 @@ function Ruler({ height, maxHeight = 200 }) {
         {/* Markings */}
         {markings}
         
-        {/* Measurement arrow */}
+        {/* Measurement arrow - pointing upward from 0 */}
         <line
           x1="40"
-          y1={rulerHeight + 10 - pixelHeight}
+          y1={rulerHeight + 10}
           x2="40"
-          y2={rulerHeight + 10}
+          y2={rulerHeight + 10 - pixelHeight}
           stroke="#dc2626"
           strokeWidth="3"
-          markerEnd="url(#arrowhead)"
+          markerEnd="url(#arrowhead-up)"
         />
         
         <defs>
           <marker
-            id="arrowhead"
+            id="arrowhead-up"
             markerWidth="10"
             markerHeight="7"
-            refX="10"
+            refX="5"
             refY="3.5"
             orient="auto"
           >
-            <polygon points="0 0, 10 3.5, 0 7" fill="#dc2626" />
+            <polygon points="5 0, 10 7, 0 7" fill="#dc2626" />
           </marker>
         </defs>
       </svg>
