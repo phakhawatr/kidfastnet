@@ -354,23 +354,31 @@ const ProblemCard = React.memo<{
       </div>
 
       {/* Problem number */}
-      <div className="font-bold text-lg mb-3 text-foreground">
+      <div className="font-bold text-2xl mb-3 text-foreground">
         {index + 1}.
       </div>
 
       {/* Sequence display */}
-      <h2 className="text-xl font-mono mb-4 text-foreground">
-        {task.seq.join(', ')}, <span className="inline-flex items-center justify-center w-8 h-8 border-2 border-dashed border-border rounded-full align-baseline mx-1 text-red-500 font-bold">?</span>
+      <h2 className="text-3xl font-mono mb-4 text-foreground">
+        {task.seq.join(', ')}, <span className="inline-flex items-center justify-center w-12 h-12 border-2 border-dashed border-border rounded-full align-baseline mx-1 text-red-500 font-bold">?</span>
       </h2>
 
       {/* Input and controls */}
       <div className="flex flex-wrap gap-3 items-center mb-3">
-        <input type="number" value={inputValue} onChange={handleInputChange} placeholder="?" disabled={isCorrect} className={`w-32 h-11 px-3 border-2 rounded-xl text-center text-lg font-bold bg-background text-foreground
+        <input type="number" value={inputValue} onChange={handleInputChange} placeholder="?" disabled={isCorrect} className={`w-40 h-12 px-3 border-2 rounded-xl text-center text-xl font-bold bg-background text-foreground
             ${isCorrect ? 'border-primary bg-primary/10' : 'border-border'} 
             focus:outline-none focus:ring-2 focus:ring-primary/50`} />
         
         <button onClick={() => setShowHint(!showHint)} className="btn-outline text-sm">
           คำใบ้
+        </button>
+        
+        <button onClick={() => {
+          setInputValue(task.ans.toString());
+          setIsCorrect(true);
+          onInputChange(index, task.ans.toString());
+        }} className="btn-secondary text-sm" disabled={isCorrect}>
+          เฉลย
         </button>
       </div>
 
