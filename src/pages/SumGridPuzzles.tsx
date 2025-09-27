@@ -407,7 +407,7 @@ const SumGridPuzzles: React.FC = () => {
                               }}
                             />
                           ) : (
-                            <span>{cell.value}</span>
+                            <span className="text-blue-700">{cell.value}</span>
                           )}
                         </div>
                       );
