@@ -218,8 +218,8 @@ export default function TimeApp() {
   function handleQuestionCountChange(newCount) {
     setQuestionCount(newCount);
     resetAll(newCount);
-    // Scroll to top of page
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll to top of page immediately
+    window.scrollTo(0, 0);
   }
 
   function checkAnswers() {
