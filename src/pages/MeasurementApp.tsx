@@ -11,9 +11,9 @@ function generateMeasurementProblems(n = 6, level = "easy") {
   const objects = [
     { name: "เด็กหญิง", emoji: "👧", minHeight: 80, maxHeight: 150, unit: "cm", type: "person" },
     { name: "เด็กชาย", emoji: "👦", minHeight: 85, maxHeight: 155, unit: "cm", type: "person" },
-    { name: "ยีราฟ", emoji: "🦒", minHeight: 300, maxHeight: 600, unit: "cm", type: "animal" },
-    { name: "ต้นไม้", emoji: "🌲", minHeight: 200, maxHeight: 800, unit: "cm", type: "plant" },
-    { name: "อาคาร", emoji: "🏢", minHeight: 500, maxHeight: 2000, unit: "cm", type: "building" },
+    { name: "ยีราฟ", emoji: "🦒", minHeight: 300, maxHeight: 500, unit: "cm", type: "animal" },
+    { name: "ต้นไม้", emoji: "🌲", minHeight: 200, maxHeight: 500, unit: "cm", type: "plant" },
+    { name: "อาคาร", emoji: "🏢", minHeight: 300, maxHeight: 500, unit: "cm", type: "building" },
     { name: "โต๊ะ", emoji: "🪑", minHeight: 60, maxHeight: 90, unit: "cm", type: "furniture" },
     { name: "ประตู", emoji: "🚪", minHeight: 180, maxHeight: 220, unit: "cm", type: "structure" },
     { name: "ดินสอ", emoji: "✏️", minHeight: 15, maxHeight: 20, unit: "cm", type: "object" },
@@ -51,8 +51,8 @@ function generateMeasurementProblems(n = 6, level = "easy") {
 }
 
 // ================= Ruler Component =================
-function Ruler({ height, maxHeight = 200 }) {
-  const rulerHeight = 300;
+function Ruler({ height, maxHeight = 500 }) {
+  const rulerHeight = 400;
   const scale = height / maxHeight;
   const pixelHeight = rulerHeight * scale;
   
@@ -62,7 +62,7 @@ function Ruler({ height, maxHeight = 200 }) {
   
   for (let i = 0; i <= 20; i++) {
     const value = i * step;
-    const y = rulerHeight - (value / maxHeight) * rulerHeight;
+    const y = rulerHeight - (value / maxHeight) * rulerHeight + 10; // +10 for top margin
     const isMainMark = i % 5 === 0;
     
     markings.push(
@@ -99,7 +99,7 @@ function Ruler({ height, maxHeight = 200 }) {
         {/* Markings */}
         {markings}
         
-        {/* Measurement arrow - pointing upward from 0 */}
+        {/* Measurement arrow - starts from 0 (bottom) and points upward */}
         <line
           x1="40"
           y1={rulerHeight + 10}
@@ -110,16 +110,24 @@ function Ruler({ height, maxHeight = 200 }) {
           markerEnd="url(#arrowhead-up)"
         />
         
+        {/* Arrow starting point indicator at 0 */}
+        <circle
+          cx="40"
+          cy={rulerHeight + 10}
+          r="2"
+          fill="#dc2626"
+        />
+        
         <defs>
           <marker
             id="arrowhead-up"
-            markerWidth="10"
-            markerHeight="7"
-            refX="5"
-            refY="3.5"
+            markerWidth="8"
+            markerHeight="8"
+            refX="4"
+            refY="2"
             orient="auto"
           >
-            <polygon points="5 0, 10 7, 0 7" fill="#dc2626" />
+            <polygon points="4 0, 8 6, 0 6" fill="#dc2626" />
           </marker>
         </defs>
       </svg>
@@ -159,7 +167,7 @@ function MeasurementCard({ idx, problem, answer, setAnswer, result, showAnswer, 
           <div className="text-sm font-semibold text-zinc-700">{problem.object.name}</div>
         </div>
         
-        <Ruler height={problem.height} maxHeight={problem.object.type === "building" ? 2000 : 600} />
+        <Ruler height={problem.height} maxHeight={500} />
         
         {/* Height indicator */}
         <div className="text-right">
