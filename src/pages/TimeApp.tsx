@@ -218,8 +218,14 @@ export default function TimeApp() {
   function handleQuestionCountChange(newCount) {
     setQuestionCount(newCount);
     resetAll(newCount);
-    // Scroll to top of page immediately
+    // Force scroll to top with multiple methods to ensure it works
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
     window.scrollTo(0, 0);
+    // Use setTimeout to ensure DOM is updated
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 0);
   }
 
   function checkAnswers() {
