@@ -195,7 +195,8 @@ function Card({ idx, time, answer, setAnswer, result, showAnswer, onReset }) {
 
 // ---------- Main App ----------
 export default function TimeApp() {
-  const [times, setTimes] = useState(() => generateRandomTimes(6));
+  const [questionCount, setQuestionCount] = useState(10);
+  const [times, setTimes] = useState(() => generateRandomTimes(10));
   const [answers, setAnswers] = useState(() => times.map(() => ({ h: "", m: "" })));
   const [results, setResults] = useState(() => times.map(() => "pending"));
   const [showAnswers, setShowAnswers] = useState(false);
@@ -205,13 +206,18 @@ export default function TimeApp() {
     setAnswers((prev) => prev.map((a, i) => (i === idx ? val : a)));
   }
 
-  function resetAll(toTimes = null) {
-    const newTimes = toTimes ?? generateRandomTimes(6);
+  function resetAll(count = questionCount) {
+    const newTimes = generateRandomTimes(count);
     setTimes(newTimes);
     setAnswers(newTimes.map(() => ({ h: "", m: "" })));
     setResults(newTimes.map(() => "pending"));
     setShowAnswers(false);
     setCelebrate(false);
+  }
+
+  function handleQuestionCountChange(newCount) {
+    setQuestionCount(newCount);
+    resetAll(newCount);
   }
 
   function checkAnswers() {
@@ -287,12 +293,23 @@ export default function TimeApp() {
           >
             👀 เฉลยทั้งหมด (Show Answers)
           </button>
-          <button
-            onClick={() => resetAll(exampleTimes)}
-            className="px-4 py-2 rounded-xl bg-zinc-200 hover:bg-zinc-300 shadow"
-          >
-            📄 โหลดชุดเหมือนใบงาน (Load Example Set)
-          </button>
+          
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-zinc-600">จำนวนข้อ:</span>
+            {[10, 15, 20, 30].map((count) => (
+              <button
+                key={count}
+                onClick={() => handleQuestionCountChange(count)}
+                className={`px-3 py-2 rounded-xl text-sm shadow transition-colors ${
+                  questionCount === count
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-zinc-200 hover:bg-zinc-300 text-zinc-700'
+                }`}
+              >
+                {count}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
