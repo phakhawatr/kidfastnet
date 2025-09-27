@@ -20,6 +20,7 @@ import ShapeMatchingApp from "./pages/ShapeMatchingApp";
 import FractionMatchingApp from "./pages/FractionMatchingApp";
 import PercentageApp from "./pages/PercentageApp";
 import NumberSeriesApp from "./pages/NumberSeriesApp";
+import SumGridPuzzles from "./pages/SumGridPuzzles";
 import BackgroundRemoverPage from "./pages/BackgroundRemover";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -163,6 +164,14 @@ const App = () => (
           element={
             <ProtectedRoute>
               <NumberSeriesApp />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/SumGridPuzzles" 
+          element={
+            <ProtectedRoute>
+              <SumGridPuzzles />
             </ProtectedRoute>
           } 
         />
