@@ -236,55 +236,6 @@ const Profile = () => {
     icon: '⚖️',
     mascot: mascotWeighing
   }];
-  const achievements = [{
-    icon: '⚡',
-    name: 'นักคิดเร็ว'
-  }, {
-    icon: '🔥',
-    name: 'ติดไฟ'
-  }, {
-    icon: '👑',
-    name: 'ราชันย์'
-  }, {
-    icon: '❄️',
-    name: 'เซียนน้ำแข็ง'
-  }, {
-    icon: '🐧',
-    name: 'เพนกวินเก่ง'
-  }];
-  const subjects = [{
-    title: 'การนับเลข',
-    progress: 100,
-    lessons: '5/5 บทเรียน',
-    difficulty: 'ง่าย',
-    status: 'completed',
-    tags: ['นับ 1-10', 'นับ 11-50', 'นับ 51-100'],
-    color: 'bg-green-100'
-  }, {
-    title: 'การบวก',
-    progress: 75,
-    lessons: '3/4 บทเรียน',
-    difficulty: 'ง่าย',
-    status: 'active',
-    tags: ['บวก 1-5', 'บวก 6-10', 'มากกว่า 10', 'บวก 2 หลัก'],
-    color: 'bg-blue-100'
-  }, {
-    title: 'การลบ 2 หลัก',
-    progress: 50,
-    lessons: '2/4 บทเรียน',
-    difficulty: 'ง่าย',
-    status: 'active',
-    tags: ['ลบ 1-5', 'ลบ 6-10', 'ลบมากกว่า 10', 'ลบ 2 หลัก'],
-    color: 'bg-yellow-100'
-  }, {
-    title: 'รูปทรง',
-    progress: 0,
-    lessons: '0/3 บทเรียน',
-    difficulty: 'ปานกลาง',
-    status: 'locked',
-    tags: [],
-    color: 'bg-gray-100'
-  }];
 
   // Function to shuffle array and pick 3 random items
   const getRandomRecommendations = (grade: string) => {
@@ -385,15 +336,39 @@ const Profile = () => {
           ))}
         </div>
 
-        {/* Achievements */}
+        {/* Recent Learning Apps */}
         <div className="card-glass p-6 mb-6">
           <h2 className="text-xl font-bold text-[hsl(var(--text-primary))] mb-4">
-            🏆 ความสำเร็จของคุณ
+            📚 แอปที่เรียนล่าสุด
           </h2>
           <div className="flex gap-4 overflow-x-auto pb-2">
-            {achievements.map((achievement, index) => <div key={index} className="flex-shrink-0 bg-yellow-100 rounded-full w-16 h-16 flex items-center justify-center text-2xl border-2 border-yellow-300" title={achievement.name}>
-                {achievement.icon}
-              </div>)}
+            {[
+              { name: 'การบวก', icon: '➕', color: 'bg-gradient-to-br from-pink-200 to-pink-300', link: '/addition' },
+              { name: 'การลบ', icon: '➖', color: 'bg-gradient-to-br from-blue-200 to-blue-300', link: '/subtraction' },
+              { name: 'การคูณ', icon: '✖️', color: 'bg-gradient-to-br from-purple-200 to-purple-300', link: '/multiply' },
+              { name: 'การหาร', icon: '➗', color: 'bg-gradient-to-br from-green-200 to-green-300', link: '/division' },
+              { name: 'เศษส่วน', icon: '🍕', color: 'bg-gradient-to-br from-orange-200 to-orange-300', link: '/fraction-matching' },
+              { name: 'บอกเวลา', icon: '🕐', color: 'bg-gradient-to-br from-cyan-200 to-cyan-300', link: '/time' },
+              { name: 'น้ำหนัก', icon: '⚖️', color: 'bg-gradient-to-br from-yellow-200 to-yellow-300', link: '/weighing' },
+              { name: 'รูปทรง', icon: '🔷', color: 'bg-gradient-to-br from-indigo-200 to-indigo-300', link: '/shape-matching' },
+              { name: 'ความยาว', icon: '📏', color: 'bg-gradient-to-br from-teal-200 to-teal-300', link: '/length-comparison' },
+              { name: 'คณิตเร็ว', icon: '⚡', color: 'bg-gradient-to-br from-red-200 to-red-300', link: '/quick-math' }
+            ].map((app, index) => (
+              <div 
+                key={index} 
+                className="flex-shrink-0 text-center"
+              >
+                <div 
+                  className={`${app.color} rounded-full w-20 h-20 flex items-center justify-center text-3xl border-3 border-white shadow-lg hover:scale-110 transition-transform duration-300 cursor-pointer mb-2`}
+                  title={app.name}
+                >
+                  {app.icon}
+                </div>
+                <div className="text-xs font-medium text-[hsl(var(--text-primary))] max-w-[80px] truncate">
+                  {app.name}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
