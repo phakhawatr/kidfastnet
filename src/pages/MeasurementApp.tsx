@@ -124,16 +124,10 @@ function Ruler({
         {markings}
         
         {/* Measurement arrow - starts from 0 (bottom) and points upward */}
-        <line x1="40" y1={rulerHeight + 10} x2="40" y2={rulerHeight + 10 - pixelHeight} stroke="#dc2626" strokeWidth="3" markerEnd="url(#arrowhead-up)" />
+        <line x1="40" y1={rulerHeight + 10} x2="40" y2={rulerHeight + 10 - pixelHeight} stroke="#dc2626" strokeWidth="3" />
         
         {/* Arrow starting point indicator at 0 */}
         <circle cx="40" cy={rulerHeight + 10} r="2" fill="#dc2626" />
-        
-        <defs>
-          <marker id="arrowhead-up" markerWidth="8" markerHeight="8" refX="4" refY="2" orient="auto">
-            <polygon points="4 0, 8 6, 0 6" fill="#dc2626" />
-          </marker>
-        </defs>
       </svg>
     </div>;
 }
