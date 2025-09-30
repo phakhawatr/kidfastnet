@@ -264,6 +264,53 @@ const PercentageApp: React.FC = () => {
     setIsTimerRunning(false);
   }, []);
 
+  // Generate random new problems
+  const generateRandomProblems = useCallback(() => {
+    const gcd = (a: number, b: number): number => b === 0 ? a : gcd(b, a % b);
+    const simplifyFraction = (num: number, den: number) => {
+      const divisor = gcd(num, den);
+      return `${num / divisor}/${den / divisor}`;
+    };
+
+    const newProblems: PercentageProblem[] = [];
+    let idCounter = 1;
+
+    // Generate fraction problems
+    const fractionCount = gameMode === 'decimal' ? 0 : gameMode === 'fraction' ? 15 : 15;
+    for (let i = 0; i < fractionCount; i++) {
+      const percent = Math.floor(Math.random() * 99) + 1; // 1-99
+      const answer = simplifyFraction(percent, 100);
+      newProblems.push({
+        id: idCounter++,
+        type: 'fraction',
+        percentage: percent,
+        correctAnswer: answer,
+        userAnswer: '',
+        isCorrect: null
+      });
+    }
+
+    // Generate decimal problems
+    const decimalCount = gameMode === 'fraction' ? 0 : gameMode === 'decimal' ? 15 : 15;
+    for (let i = 0; i < decimalCount; i++) {
+      const percent = Math.floor(Math.random() * 300) + 1; // 1-300 for variety
+      const answer = (percent / 100).toFixed(2);
+      newProblems.push({
+        id: idCounter++,
+        type: 'decimal',
+        percentage: percent,
+        correctAnswer: answer,
+        userAnswer: '',
+        isCorrect: null
+      });
+    }
+
+    setProblems(newProblems);
+    setShowResults(false);
+    setTimeElapsed(0);
+    setIsTimerRunning(false);
+  }, [gameMode]);
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -385,7 +432,7 @@ const PercentageApp: React.FC = () => {
           )}
           
           <button
-            onClick={resetGame}
+            onClick={generateRandomProblems}
             className="px-8 py-6 rounded-3xl text-xl font-black text-white shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-200 flex items-center gap-3 border-4 border-white"
             style={{
               background: 'linear-gradient(135deg, #06b6d4 0%, #10b981 50%, #a855f7 100%)',
