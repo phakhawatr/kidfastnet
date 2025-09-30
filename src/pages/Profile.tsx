@@ -5,6 +5,14 @@ import Footer from '../components/Footer';
 import SkillsSection from '../components/SkillsSection';
 import { useAuth } from '../hooks/useAuth';
 
+// Import mascot images
+import mascotAddition from '../assets/mascot-addition.png';
+import mascotSubtraction from '../assets/mascot-subtraction.png';
+import mascotMultiplication from '../assets/mascot-multiplication.png';
+import mascotDivision from '../assets/mascot-division.png';
+import mascotTime from '../assets/mascot-time.png';
+import mascotWeighing from '../assets/mascot-weighing.png';
+
 // Define all available recommendations for each grade
 const allRecommendations = {
   '1': [
@@ -199,22 +207,34 @@ const Profile = () => {
   const [randomRecommendations, setRandomRecommendations] = useState<any[]>([]);
   const grades = [{
     id: '1',
-    label: 'การบวก'
+    label: 'การบวก',
+    icon: '➕',
+    mascot: mascotAddition
   }, {
     id: '2',
-    label: 'การลบ'
+    label: 'การลบ',
+    icon: '➖',
+    mascot: mascotSubtraction
   }, {
     id: '3',
-    label: 'การคูณ'
+    label: 'การคูณ',
+    icon: '✖️',
+    mascot: mascotMultiplication
   }, {
     id: '4',
-    label: 'การหาร'
+    label: 'การหาร',
+    icon: '➗',
+    mascot: mascotDivision
   }, {
     id: '5',
-    label: 'บอกเวลา'
+    label: 'บอกเวลา',
+    icon: '🕐',
+    mascot: mascotTime
   }, {
     id: '6',
-    label: 'บอกน้ำหนัก'
+    label: 'บอกน้ำหนัก',
+    icon: '⚖️',
+    mascot: mascotWeighing
   }];
   const achievements = [{
     icon: '⚡',
@@ -308,10 +328,41 @@ const Profile = () => {
         </div>
 
         {/* Grade Selection */}
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-        {grades.map(grade => <button key={grade.id} onClick={() => setSelectedGrade(grade.id)} className={`chip whitespace-nowrap ${selectedGrade === grade.id ? 'active' : ''}`}>
-              {grade.label}
-            </button>)}
+        <div className="flex gap-3 mb-6 overflow-x-auto pb-2">
+          {grades.map(grade => (
+            <button 
+              key={grade.id} 
+              onClick={() => setSelectedGrade(grade.id)} 
+              className={`relative flex flex-col items-center gap-2 px-4 py-3 rounded-2xl transition-all duration-300 whitespace-nowrap min-w-[120px] ${
+                selectedGrade === grade.id 
+                  ? 'bg-gradient-to-br from-purple-400 to-pink-400 text-white shadow-lg scale-105' 
+                  : 'bg-white/80 hover:bg-white hover:shadow-md'
+              }`}
+            >
+              {/* Mascot Image */}
+              <div className={`w-12 h-12 rounded-full overflow-hidden bg-white/50 flex items-center justify-center transition-transform duration-300 ${
+                selectedGrade === grade.id ? 'animate-bounce' : 'hover:scale-110'
+              }`}>
+                <img 
+                  src={grade.mascot} 
+                  alt={grade.label}
+                  className="w-10 h-10 object-contain"
+                />
+              </div>
+              
+              {/* Label */}
+              <span className={`text-sm font-bold ${
+                selectedGrade === grade.id ? 'text-white' : 'text-[hsl(var(--text-primary))]'
+              }`}>
+                {grade.label}
+              </span>
+              
+              {/* Active Indicator */}
+              {selectedGrade === grade.id && (
+                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-white rounded-full" />
+              )}
+            </button>
+          ))}
         </div>
 
         {/* Recommendation Card */}
