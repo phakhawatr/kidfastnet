@@ -5,7 +5,7 @@ import Footer from '../components/Footer';
 import SkillsSection from '../components/SkillsSection';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '../components/ui/dialog';
 import { X } from 'lucide-react';
-import subtractionExampleImage from '../assets/subtraction-examples.png';
+import additionExampleImage from '../assets/addition-examples.png';
 const Landing = () => {
   const [showExamplePopup, setShowExamplePopup] = useState(false);
   
@@ -138,8 +138,8 @@ const Landing = () => {
           </DialogHeader>
           <div className="flex-1 p-6 overflow-auto">
             <img 
-              src={subtractionExampleImage} 
-              alt="ตัวอย่างแบบฝึกหัดการลบ" 
+              src={additionExampleImage} 
+              alt="ตัวอย่างแบบฝึกหัดการบวก" 
               className="w-full h-full object-contain rounded-lg"
             />
           </div>
