@@ -423,9 +423,16 @@ const DivisionApp: React.FC = () => {
             <div>
               <label className="block text-sm font-medium mb-2">การดำเนินการ:</label>
               <div className="space-y-2">
-                <Button onClick={generateNewSet} variant="default" size="sm" className="w-full bg-teal-200 hover:bg-teal-100">
-                  สุ่มชุดใหม่
-                </Button>
+                <button 
+                  onClick={generateNewSet} 
+                  className="w-full px-6 py-3.5 rounded-full text-lg font-bold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2.5"
+                  style={{
+                    background: 'linear-gradient(135deg, #06b6d4 0%, #10b981 50%, #a855f7 100%)',
+                  }}
+                >
+                  <span className="text-2xl">✨</span>
+                  <span>AI สร้างโจทย์ใหม่</span>
+                </button>
                 <div className="grid grid-cols-2 gap-2">
                   <Button onClick={checkAnswers} variant="secondary" size="sm" disabled={!startedAt} className="bg-green-600 hover:bg-green-700 text-white">
                     ตรวจ
