@@ -406,8 +406,11 @@ const Profile = () => {
           {/* Stats */}
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="text-center">
-              <div className="text-2xl font-bold text-red-500 mb-1">85%</div>
-              <div className="text-sm text-[hsl(var(--text-muted))]">เทคโนโลยี</div>
+              <button className="bg-gradient-to-r from-cyan-400 via-emerald-400 to-purple-500 text-white px-6 py-3 rounded-full text-sm font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2 mx-auto">
+                <span className="text-lg">✨</span>
+                AI สร้างโจทย์ใหม่
+              </button>
+              <div className="text-sm text-[hsl(var(--text-muted))] mt-2">เทคโนโลยี</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-orange-500 mb-1">15</div>
