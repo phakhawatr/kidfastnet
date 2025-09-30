@@ -404,8 +404,15 @@ export default function MeasurementApp() {
               </button>)}
           </div>
 
-          <button onClick={resetAll} className="px-5 py-3 rounded-2xl text-lg bg-amber-600 text-white hover:bg-amber-700 shadow-lg">
-            🔄 สุ่มชุดใหม่
+          <button 
+            onClick={resetAll} 
+            className="px-6 py-3.5 rounded-full text-lg font-bold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2.5"
+            style={{
+              background: 'linear-gradient(135deg, #06b6d4 0%, #10b981 50%, #a855f7 100%)',
+            }}
+          >
+            <span className="text-2xl">✨</span>
+            <span>AI สร้างโจทย์ใหม่</span>
           </button>
           <button onClick={checkAnswers} className="px-5 py-3 rounded-2xl text-lg bg-teal-600 text-white hover:bg-teal-700 shadow-lg">
             ✅ ตรวจคำตอบ
