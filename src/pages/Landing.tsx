@@ -61,12 +61,12 @@ const Landing = () => {
 
           {/* AI Generate Button */}
           <div className="flex flex-col items-center mb-8">
-            <button className="bg-gradient-to-r from-cyan-400 via-emerald-400 to-purple-500 text-white px-12 py-5 rounded-full text-xl font-bold shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 flex items-center gap-3 mb-4">
+            <button className="bg-gradient-to-r from-cyan-400 via-emerald-400 to-purple-500 text-white px-12 py-5 rounded-full text-xl font-bold shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 flex items-center gap-3 mb-6">
               <span className="text-3xl">✨</span>
               <span>AI สร้างโจทย์ใหม่</span>
             </button>
             
-            <p className="text-lg font-medium text-[hsl(var(--text-secondary))] bg-gradient-to-r from-purple-100 to-pink-100 px-8 py-3 rounded-full shadow-lg">
+            <p className="text-xl md:text-2xl font-bold text-[hsl(var(--text-primary))] bg-gradient-to-r from-purple-100 to-pink-100 px-10 py-4 rounded-full shadow-xl">
               🤖 ด้วยเทคโนโลยี AI ล้ำสมัย ที่สร้างโจทย์ได้ไม่จำกัด ✨
             </p>
           </div>
