@@ -410,7 +410,7 @@ const Profile = () => {
               <div className="text-sm text-[hsl(var(--text-muted))]">ความก้าวหน้า</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-orange-500 mb-1">10</div>
+              <div className="text-2xl font-bold text-orange-500 mb-1">15</div>
               <div className="text-sm text-[hsl(var(--text-muted))]">บทเรียน</div>
             </div>
             <div className="text-center">
