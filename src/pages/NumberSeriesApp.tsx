@@ -256,9 +256,6 @@ const NumberSeriesApp: React.FC = () => {
           
           <div className="flex flex-wrap gap-3 items-center">
             <div className="flex gap-2">
-              <button onClick={handlePreset} className="btn-primary text-sm">
-                ตามภาพ
-              </button>
               <button 
                 onClick={handleRandom} 
                 className="px-6 py-3 rounded-full text-base font-bold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
