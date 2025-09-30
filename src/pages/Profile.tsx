@@ -320,9 +320,6 @@ const Profile = () => {
             <div className="flex gap-2">
               <button className="chip">โปรไฟล์</button>
               <button className="chip">ผู้ปกครอง</button>
-              <button onClick={logout} className="chip hover:bg-red-100 hover:text-red-600">
-                ออกจากระบบ
-              </button>
             </div>
           </div>
         </div>
