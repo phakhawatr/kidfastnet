@@ -374,12 +374,12 @@ const MultiplicationApp = () => {
             <div className="space-y-3">
               <button 
                 onClick={generateProblems} 
-                className="w-full px-5 py-3 rounded-full text-base font-semibold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
+                className="w-full px-6 py-3.5 rounded-full text-lg font-bold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2.5"
                 style={{
                   background: 'linear-gradient(135deg, #06b6d4 0%, #10b981 50%, #a855f7 100%)',
                 }}
               >
-                <span className="text-xl">✨</span>
+                <span className="text-2xl">✨</span>
                 <span>สุ่มชุดใหม่</span>
               </button>
               <button 
