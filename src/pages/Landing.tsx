@@ -58,6 +58,14 @@ const Landing = () => {
             animationDelay: '0.4s'
           }}>✍️</span>
           </div>
+
+          {/* AI Generate Button */}
+          <div className="flex justify-center mb-8">
+            <button className="bg-gradient-to-r from-cyan-400 via-emerald-400 to-purple-500 text-white px-12 py-5 rounded-full text-xl font-bold shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 flex items-center gap-3">
+              <span className="text-3xl">✨</span>
+              <span>AI สร้างโจทย์ใหม่</span>
+            </button>
+          </div>
         </section>
 
         {/* Skills Section - Show all skills */}
