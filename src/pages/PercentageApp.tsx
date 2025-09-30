@@ -340,11 +340,6 @@ const PercentageApp: React.FC = () => {
             <span className="text-2xl">✨</span>
             <span>AI สร้างโจทย์ใหม่</span>
           </button>
-          
-          <Button variant="outline" onClick={shuffleProblems}>
-            <Shuffle className="w-4 h-4 mr-2" />
-            สลับข้อ
-          </Button>
         </div>
 
         {/* Results Summary */}
