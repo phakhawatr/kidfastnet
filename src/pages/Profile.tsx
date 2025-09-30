@@ -121,9 +121,6 @@ const Profile = () => {
             <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
               มาฝึกบวกเลข 2 หลักให้เก่งขึ้น เพราะเป็นพื้นฐานสำคัญของคณิตศาสตร์!
             </p>
-            <Link to="/subtraction" className="btn-primary text-sm inline-block">
-              เริ่มเรียนทันที!
-            </Link>
           </div>
         </div>
 
