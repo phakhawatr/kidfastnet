@@ -107,22 +107,23 @@ const SumGridPuzzles: React.FC = () => {
       baseNumbers[0][2] + baseNumbers[1][2] + baseNumbers[2][2]  // Col 3 sum
     ];
     
-    // Select cells to show (exactly 4 cells, ensuring no row/column has all 3 cells visible)
+    // Select cells to show (exactly 4 cells, ensuring solvable patterns)
+    // Each pattern ensures: no row/column has all 3 values, and distribution is balanced
     const possiblePatterns = [
-      // Pattern 1: 2 cells from different rows/cols
-      [[0, 0], [0, 1], [1, 2], [2, 1]],
-      [[0, 0], [0, 2], [1, 1], [2, 1]],
-      [[0, 1], [0, 2], [1, 0], [2, 1]],
-      [[0, 0], [1, 0], [1, 2], [2, 1]],
-      [[0, 1], [1, 0], [1, 2], [2, 0]],
-      [[0, 0], [1, 1], [1, 2], [2, 0]],
-      [[0, 2], [1, 0], [1, 1], [2, 2]],
-      [[0, 1], [1, 0], [2, 0], [2, 2]],
-      // Pattern 2: Diagonal-like patterns
-      [[0, 0], [1, 1], [2, 2], [1, 0]],
-      [[0, 2], [1, 1], [2, 0], [1, 2]],
-      [[0, 1], [1, 0], [2, 1], [1, 2]],
-      [[0, 0], [1, 2], [2, 1], [2, 0]],
+      // Pattern: One from each row and varying columns
+      [[0, 0], [0, 1], [1, 1], [2, 2]], // Row 1: 2 cells, Row 2: 1 cell, Row 3: 1 cell
+      [[0, 0], [0, 2], [1, 1], [2, 0]], // Balanced distribution
+      [[0, 1], [0, 2], [1, 0], [2, 2]], // Diagonal-like
+      [[0, 0], [1, 0], [1, 2], [2, 1]], // Each row has at least 1
+      [[0, 1], [1, 0], [1, 2], [2, 0]], // Good spread
+      [[0, 0], [1, 1], [2, 0], [2, 2]], // Row 3: 2 cells
+      [[0, 2], [1, 0], [1, 1], [2, 2]], // Balanced
+      [[0, 1], [1, 2], [2, 0], [2, 1]], // Each column has variety
+      // Corner-focused patterns
+      [[0, 0], [0, 2], [2, 0], [2, 2]], // Four corners
+      [[0, 0], [0, 2], [1, 1], [2, 1]], // Diagonal cross
+      [[0, 1], [1, 0], [2, 1], [2, 2]], // T-shape variations
+      [[0, 0], [1, 1], [1, 2], [2, 0]], // L-shape variations
     ];
     
     // Pick a random pattern
