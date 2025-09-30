@@ -415,7 +415,7 @@ const Profile = () => {
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-500 mb-1">ไม่จำกัด</div>
-              <div className="text-sm text-[hsl(var(--text-muted))]">แต้มรวม</div>
+              <div className="text-sm text-[hsl(var(--text-muted))]">จำนวนแบบฝึกหัด</div>
             </div>
           </div>
         </div>
