@@ -107,26 +107,36 @@ const SumGridPuzzles: React.FC = () => {
       baseNumbers[0][2] + baseNumbers[1][2] + baseNumbers[2][2]  // Col 3 sum
     ];
     
-    // Randomly select 4-5 cells to hide for input
-    const possibleHiddenCells = [
-      [0, 0], [0, 1], [0, 2],
-      [1, 0], [1, 1], [1, 2], 
-      [2, 0], [2, 1], [2, 2]
+    // Select cells to show (exactly 4 cells, ensuring no row/column has all 3 cells visible)
+    const possiblePatterns = [
+      // Pattern 1: 2 cells from different rows/cols
+      [[0, 0], [0, 1], [1, 2], [2, 1]],
+      [[0, 0], [0, 2], [1, 1], [2, 1]],
+      [[0, 1], [0, 2], [1, 0], [2, 1]],
+      [[0, 0], [1, 0], [1, 2], [2, 1]],
+      [[0, 1], [1, 0], [1, 2], [2, 0]],
+      [[0, 0], [1, 1], [1, 2], [2, 0]],
+      [[0, 2], [1, 0], [1, 1], [2, 2]],
+      [[0, 1], [1, 0], [2, 0], [2, 2]],
+      // Pattern 2: Diagonal-like patterns
+      [[0, 0], [1, 1], [2, 2], [1, 0]],
+      [[0, 2], [1, 1], [2, 0], [1, 2]],
+      [[0, 1], [1, 0], [2, 1], [1, 2]],
+      [[0, 0], [1, 2], [2, 1], [2, 0]],
     ];
     
-    // Shuffle and pick 4-5 cells to hide
-    const shuffled = possibleHiddenCells.sort(() => Math.random() - 0.5);
-    const hiddenCells = shuffled.slice(0, Math.floor(Math.random() * 2) + 4); // 4 or 5 cells
+    // Pick a random pattern
+    const visibleCells = possiblePatterns[Math.floor(Math.random() * possiblePatterns.length)];
     
     // Fill the grid
     for (let i = 0; i < 4; i++) {
       for (let j = 0; j < 4; j++) {
         if (i < 3 && j < 3) {
           // Main 3x3 area
-          const isHidden = hiddenCells.some(([r, c]) => r === i && c === j);
+          const isVisible = visibleCells.some(([r, c]) => r === i && c === j);
           grid[i][j] = {
-            value: isHidden ? null : baseNumbers[i][j],
-            isInput: isHidden,
+            value: isVisible ? baseNumbers[i][j] : null,
+            isInput: !isVisible,
             isCorrect: false
           };
         } else if (i < 3 && j === 3) {
