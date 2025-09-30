@@ -853,8 +853,15 @@ export default function AdditionApp() {
             </button>
           </div>
 
-          <button onClick={resetAll} className="px-5 py-3 rounded-2xl text-lg bg-sky-600 text-white hover:bg-sky-700 shadow-lg">
-            🔄 สุ่มชุดใหม่ (New Set)
+          <button 
+            onClick={resetAll} 
+            className="px-6 py-3 rounded-full text-lg font-semibold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
+            style={{
+              background: 'linear-gradient(135deg, #06b6d4 0%, #10b981 50%, #a855f7 100%)',
+            }}
+          >
+            <span className="text-2xl">✨</span>
+            <span>AI สร้างโจทย์ใหม่</span>
           </button>
           <button onClick={checkAnswers} className="px-5 py-3 rounded-2xl text-lg bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg">
             ✅ ตรวจคำตอบ (Check)
