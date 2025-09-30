@@ -441,6 +441,17 @@ const PercentageApp: React.FC = () => {
             <span className="text-3xl">✨</span>
             <span>AI สร้างโจทย์ใหม่</span>
           </button>
+          
+          <button
+            onClick={showAllAnswers}
+            className="px-8 py-6 rounded-3xl text-xl font-black text-white shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-200 flex items-center gap-3 border-4 border-white"
+            style={{
+              background: 'linear-gradient(135deg, #f97316 0%, #ef4444 50%, #ec4899 100%)',
+            }}
+          >
+            <Eye className="w-6 h-6" />
+            <span>👀 เฉลยทั้งหมด</span>
+          </button>
         </div>
 
         {/* Results Summary */}
