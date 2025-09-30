@@ -435,10 +435,16 @@ const LengthComparisonApp: React.FC = () => {
               <RotateCcw className="w-4 h-4 mr-2" />
               🔄 เริ่มใหม่
             </Button>
-            <Button onClick={handleRandomSet} className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-bold">
-              <Shuffle className="w-4 h-4 mr-2" />
-              🎲 สุ่มชุดใหม่
-            </Button>
+            <button
+              onClick={handleRandomSet}
+              className="px-6 py-3.5 rounded-full text-lg font-bold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2.5"
+              style={{
+                background: 'linear-gradient(135deg, #06b6d4 0%, #10b981 50%, #a855f7 100%)',
+              }}
+            >
+              <span className="text-2xl">✨</span>
+              <span>AI สร้างโจทย์ใหม่</span>
+            </button>
             <img src={mouseMascot} alt="Mouse" className="w-12 h-12" />
           </div>
         )}
