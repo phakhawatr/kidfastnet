@@ -400,7 +400,7 @@ const Profile = () => {
         {/* Grade Progress */}
         <div className="card-glass p-6 mb-6">
           <h2 className="text-xl font-bold text-[hsl(var(--text-primary))] mb-4">
-            🌱 ประถม {selectedGrade} – ฐานการคณิต
+            รายละเอียด Kidfast AI Application
           </h2>
           
           {/* Stats */}
