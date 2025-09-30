@@ -259,8 +259,15 @@ const NumberSeriesApp: React.FC = () => {
               <button onClick={handlePreset} className="btn-primary text-sm">
                 ตามภาพ
               </button>
-              <button onClick={handleRandom} className="btn-secondary text-sm">
-                สุ่มโจทย์ใหม่
+              <button 
+                onClick={handleRandom} 
+                className="px-6 py-3 rounded-full text-base font-bold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
+                style={{
+                  background: 'linear-gradient(135deg, #06b6d4 0%, #10b981 50%, #a855f7 100%)',
+                }}
+              >
+                <span className="text-xl">✨</span>
+                <span>AI สร้างโจทย์ใหม่</span>
               </button>
               <button onClick={handleReveal} className="btn-outline text-sm">
                 เฉลย
