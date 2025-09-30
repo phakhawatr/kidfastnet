@@ -32,53 +32,61 @@ const ProblemCard: React.FC<{
   }, [problem.id, onCheckAnswer]);
 
   return (
-    <Card className={`transition-all duration-200 ${
-      problem.isCorrect === true ? 'border-green-500 bg-green-50' :
-      problem.isCorrect === false ? 'border-red-500 bg-red-50' :
-      'border-gray-200 hover:border-primary/50'
+    <Card className={`transition-all duration-200 border-4 shadow-xl hover:shadow-2xl hover:scale-105 ${
+      problem.isCorrect === true ? 'border-green-400 bg-gradient-to-br from-green-100 to-emerald-200 animate-scale-in' :
+      problem.isCorrect === false ? 'border-red-400 bg-gradient-to-br from-red-100 to-pink-200' :
+      'border-purple-300 bg-gradient-to-br from-white to-purple-50 hover:border-purple-400'
     }`}>
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-3">
-          <Badge variant="outline" className="text-sm">
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <Badge variant="outline" className="text-lg font-black px-4 py-2 bg-purple-500 text-white border-2 border-white shadow-lg">
             ข้อ {problem.id}
           </Badge>
           {problem.isCorrect !== null && (
             problem.isCorrect ? 
-              <CheckCircle className="w-5 h-5 text-green-500" /> :
-              <XCircle className="w-5 h-5 text-red-500" />
+              <div className="flex items-center gap-2 bg-green-500 text-white px-3 py-2 rounded-full font-bold">
+                <CheckCircle className="w-6 h-6" />
+                <span className="text-lg">ถูกต้อง!</span>
+              </div> :
+              <div className="flex items-center gap-2 bg-red-500 text-white px-3 py-2 rounded-full font-bold">
+                <XCircle className="w-6 h-6" />
+                <span className="text-lg">ลองใหม่!</span>
+              </div>
           )}
         </div>
         
-        <div className="space-y-3">
-          <div className="text-lg font-medium">
+        <div className="space-y-4">
+          <div className="text-2xl font-black text-purple-800 bg-white/70 p-4 rounded-2xl text-center">
             {problem.type === 'fraction' ? 
-              `ร้อยละ ${problem.percentage} = ` :
-              `${problem.percentage}% = `
+              `🍕 ร้อยละ ${problem.percentage} = ` :
+              `🔢 ${problem.percentage}% = `
             }
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Input
               value={problem.userAnswer}
               onChange={handleChange}
-              className="text-center font-medium"
+              className="text-center font-bold text-xl border-4 border-purple-300 rounded-2xl h-14 focus:border-purple-500 bg-white shadow-inner"
               disabled={showResults}
               autoComplete="off"
+              placeholder="?"
             />
             {!showResults && (
               <Button
-                size="sm"
+                size="lg"
                 onClick={handleCheck}
                 disabled={!problem.userAnswer.trim()}
+                className="bg-gradient-to-r from-blue-400 to-purple-500 hover:from-blue-500 hover:to-purple-600 text-white font-black rounded-2xl px-6 shadow-lg hover:shadow-xl hover:scale-110 transition-all border-2 border-white"
               >
-                ตรวจ
+                ✓ ตรวจ
               </Button>
             )}
           </div>
           
           {showResults && problem.isCorrect === false && (
-            <div className="text-sm text-red-600 bg-red-50 p-2 rounded">
-              คำตอบที่ถูก: {problem.correctAnswer}
+            <div className="text-lg font-bold text-red-700 bg-red-100 border-3 border-red-400 p-4 rounded-2xl shadow-lg animate-scale-in">
+              💡 คำตอบที่ถูก: <span className="text-green-700">{problem.correctAnswer}</span>
             </div>
           )}
         </div>
@@ -255,105 +263,136 @@ const PercentageApp: React.FC = () => {
   const score = getScore();
 
   return (
-    <div className="min-h-screen bg-white p-4">
+    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-100 to-yellow-100 p-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6 animate-fade-in">
           <Link to="/profile">
-            <Button variant="outline" size="sm" className="bg-white/90 hover:bg-white">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              กลับหน้าหลัก
+            <Button variant="outline" size="lg" className="bg-white hover:bg-purple-50 border-2 border-purple-300 text-purple-700 font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-105">
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              🏠 กลับ
             </Button>
           </Link>
           
           <div className="text-center">
-            <h1 className="text-2xl md:text-3xl font-bold text-pink-600 mb-2">
-              💯 แบบฝึกหัดร้อยละ
+            <h1 className="text-3xl md:text-5xl font-black mb-3 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent animate-scale-in">
+              🎯 แบบฝึกหัดร้อยละ 💯
             </h1>
-            <p className="text-pink-600">เขียนร้อยละในรูปเศษส่วนอย่างต่ำและทศนิยม</p>
+            <p className="text-xl font-bold text-purple-700 bg-white/70 rounded-full px-6 py-2 inline-block shadow-md">
+              ✨ เขียนร้อยละในรูปเศษส่วนและทศนิยม ✨
+            </p>
           </div>
           
-          <div className="flex items-center gap-2 bg-white/90 px-3 py-2 rounded-lg border">
-            <Clock className="w-4 h-4" />
+          <div className="flex items-center gap-2 bg-gradient-to-r from-blue-400 to-purple-500 text-white px-5 py-3 rounded-2xl border-4 border-white shadow-xl font-bold text-lg">
+            <Clock className="w-5 h-5" />
             <span className="font-mono">{formatTime(timeElapsed)}</span>
           </div>
         </div>
 
         {/* Game Mode Selection */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Target className="w-5 h-5" />
-              โหมดเกม
+        <Card className="mb-6 border-4 border-purple-300 shadow-2xl bg-white/90 backdrop-blur animate-scale-in">
+          <CardHeader className="bg-gradient-to-r from-purple-200 via-pink-200 to-yellow-200 rounded-t-xl">
+            <CardTitle className="flex items-center gap-3 text-2xl font-black text-purple-800">
+              <Target className="w-7 h-7" />
+              🎮 โหมดเกม
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
+          <CardContent className="p-6">
+            <div className="flex flex-wrap gap-3">
               <Button
                 variant={gameMode === 'mixed' ? 'default' : 'outline'}
                 onClick={() => setGameMode('mixed')}
-                className={gameMode === 'mixed' ? 'bg-green-500 hover:bg-green-600' : ''}
+                size="lg"
+                className={`font-bold text-lg rounded-2xl transition-all hover:scale-105 ${
+                  gameMode === 'mixed' 
+                    ? 'bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white shadow-lg' 
+                    : 'border-3 border-green-400 hover:bg-green-50'
+                }`}
               >
-                ผสม (30 ข้อ)
+                🎨 ผสม (30 ข้อ)
               </Button>
               <Button
                 variant={gameMode === 'fraction' ? 'default' : 'outline'}
                 onClick={() => setGameMode('fraction')}
-                className={gameMode === 'fraction' ? 'bg-green-500 hover:bg-green-600' : ''}
+                size="lg"
+                className={`font-bold text-lg rounded-2xl transition-all hover:scale-105 ${
+                  gameMode === 'fraction' 
+                    ? 'bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 text-white shadow-lg' 
+                    : 'border-3 border-orange-400 hover:bg-orange-50'
+                }`}
               >
-                เศษส่วน (15 ข้อ)
+                🍕 เศษส่วน (15 ข้อ)
               </Button>
               <Button
                 variant={gameMode === 'decimal' ? 'default' : 'outline'}
                 onClick={() => setGameMode('decimal')}
-                className={gameMode === 'decimal' ? 'bg-green-500 hover:bg-green-600' : ''}
+                size="lg"
+                className={`font-bold text-lg rounded-2xl transition-all hover:scale-105 ${
+                  gameMode === 'decimal' 
+                    ? 'bg-gradient-to-r from-purple-400 to-indigo-500 hover:from-purple-500 hover:to-indigo-600 text-white shadow-lg' 
+                    : 'border-3 border-purple-400 hover:bg-purple-50'
+                }`}
               >
-                ทศนิยม (15 ข้อ)
+                🔢 ทศนิยม (15 ข้อ)
               </Button>
             </div>
           </CardContent>
         </Card>
 
         {/* Controls */}
-        <div className="flex flex-wrap gap-2 mb-6">
+        <div className="flex flex-wrap gap-4 mb-6 justify-center">
           {!isTimerRunning && !showResults && (
-            <Button onClick={startGame} className="bg-green-600 hover:bg-green-700">
-              <Target className="w-4 h-4 mr-2" />
-              เริ่มเกม
+            <Button 
+              onClick={startGame} 
+              size="lg"
+              className="bg-gradient-to-r from-green-400 via-emerald-500 to-teal-500 hover:from-green-500 hover:via-emerald-600 hover:to-teal-600 text-white font-black text-xl px-8 py-6 rounded-3xl shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all border-4 border-white"
+            >
+              <Target className="w-6 h-6 mr-3" />
+              🎯 เริ่มเกม!
             </Button>
           )}
           
           {isTimerRunning && (
-            <Button onClick={checkAllAnswers} className="bg-blue-600 hover:bg-blue-700 text-yellow-400">
-              <CheckCircle className="w-4 h-4 mr-2" />
-              ตรวจคำตอบทั้งหมด
+            <Button 
+              onClick={checkAllAnswers} 
+              size="lg"
+              className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 hover:from-blue-600 hover:via-indigo-600 hover:to-purple-700 text-yellow-300 font-black text-xl px-8 py-6 rounded-3xl shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all border-4 border-white"
+            >
+              <CheckCircle className="w-6 h-6 mr-3" />
+              ⭐ ตรวจคำตอบ!
             </Button>
           )}
           
           <button
             onClick={resetGame}
-            className="px-6 py-3.5 rounded-full text-lg font-bold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2.5"
+            className="px-8 py-6 rounded-3xl text-xl font-black text-white shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-200 flex items-center gap-3 border-4 border-white"
             style={{
               background: 'linear-gradient(135deg, #06b6d4 0%, #10b981 50%, #a855f7 100%)',
             }}
           >
-            <span className="text-2xl">✨</span>
+            <span className="text-3xl">✨</span>
             <span>AI สร้างโจทย์ใหม่</span>
           </button>
         </div>
 
         {/* Results Summary */}
         {showResults && (
-          <Card className="mb-6 bg-gradient-to-r from-yellow-400 to-orange-500 text-white">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-center gap-4">
-                <Trophy className="w-8 h-8" />
+          <Card className="mb-6 bg-gradient-to-r from-yellow-300 via-orange-400 to-pink-500 text-white border-4 border-white shadow-2xl animate-scale-in">
+            <CardContent className="p-8">
+              <div className="flex flex-col items-center justify-center gap-4">
+                <Trophy className="w-20 h-20 animate-bounce" />
                 <div className="text-center">
-                  <div className="text-2xl font-bold">
-                    คะแนน: {score.correct}/{score.total} ({score.percentage}%)
+                  <div className="text-4xl font-black mb-2">
+                    🎉 คะแนน: {score.correct}/{score.total} 🎉
                   </div>
-                  <div className="text-sm opacity-90">
-                    ใช้เวลา: {formatTime(timeElapsed)}
+                  <div className="text-3xl font-bold mb-3">
+                    ({score.percentage}%) 
+                    {score.percentage === 100 ? ' 🏆 เยี่ยมมาก!' : 
+                     score.percentage >= 80 ? ' 🌟 เก่งมาก!' :
+                     score.percentage >= 60 ? ' 👍 ดีมาก!' : ' 💪 พยายามต่อไปนะ!'}
+                  </div>
+                  <div className="text-xl font-bold bg-white/30 rounded-full px-6 py-2 inline-block">
+                    ⏱️ ใช้เวลา: {formatTime(timeElapsed)}
                   </div>
                 </div>
               </div>
@@ -375,15 +414,29 @@ const PercentageApp: React.FC = () => {
         </div>
 
         {/* Instructions */}
-        <Card className="mt-6 bg-white/90">
-          <CardHeader>
-            <CardTitle>🎯 วิธีการเล่น</CardTitle>
+        <Card className="mt-6 bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 border-4 border-purple-300 shadow-xl">
+          <CardHeader className="bg-gradient-to-r from-yellow-200 to-orange-200 rounded-t-xl">
+            <CardTitle className="text-2xl font-black text-purple-800 flex items-center gap-2">
+              🎯 วิธีการเล่น
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-2 text-sm">
-              <p><strong>เศษส่วน:</strong> เขียนร้อยละในรูปเศษส่วนอย่างต่ำ (เช่น ร้อยละ 14 = 7/50)</p>
-              <p><strong>ทศนิยม:</strong> เขียนร้อยละในรูปทศนิยม (เช่น 5% = 0.05)</p>
-              <p><strong>เคล็ดลับ:</strong> ร้อยละ = ตัวเลข/100 แล้วทำให้เป็นเศษส่วนอย่างต่ำ</p>
+          <CardContent className="p-6">
+            <div className="space-y-4 text-lg font-bold">
+              <p className="bg-orange-200 p-4 rounded-2xl">
+                <span className="text-2xl mr-2">🍕</span>
+                <strong className="text-orange-700">เศษส่วน:</strong> 
+                <span className="text-purple-700"> เขียนร้อยละในรูปเศษส่วนอย่างต่ำ (เช่น ร้อยละ 14 = 7/50)</span>
+              </p>
+              <p className="bg-blue-200 p-4 rounded-2xl">
+                <span className="text-2xl mr-2">🔢</span>
+                <strong className="text-blue-700">ทศนิยม:</strong>
+                <span className="text-purple-700"> เขียนร้อยละในรูปทศนิยม (เช่น 5% = 0.05)</span>
+              </p>
+              <p className="bg-green-200 p-4 rounded-2xl">
+                <span className="text-2xl mr-2">💡</span>
+                <strong className="text-green-700">เคล็ดลับ:</strong>
+                <span className="text-purple-700"> ร้อยละ = ตัวเลข/100 แล้วทำให้เป็นเศษส่วนอย่างต่ำ</span>
+              </p>
             </div>
           </CardContent>
         </Card>
