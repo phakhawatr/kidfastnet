@@ -407,10 +407,6 @@ const WeighingApp: React.FC = () => {
           {/* Controls */}
           <div className="flex flex-wrap gap-2 justify-center">
             <div className="flex gap-2">
-              <Button onClick={resetToPreset} className="bg-orange-500 hover:bg-orange-600">
-                <Play className="w-4 h-4 mr-2" />
-                ตามภาพ
-              </Button>
               <button 
                 onClick={resetToRandom}
                 className="px-6 py-3 rounded-full text-base font-bold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
