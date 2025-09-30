@@ -407,7 +407,7 @@ const Profile = () => {
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="text-center">
               <div className="text-2xl font-bold text-red-500 mb-1">85%</div>
-              <div className="text-sm text-[hsl(var(--text-muted))]">ความก้าวหน้า</div>
+              <div className="text-sm text-[hsl(var(--text-muted))]">เทคโนโลยี</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-orange-500 mb-1">15</div>
