@@ -143,7 +143,7 @@ const Profile = () => {
                 <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
                   ฝึกสังเกตและหาตัวเลขในลำดับ พัฒนาทักษะการคิดวิเคราะห์!
                 </p>
-                <Link to="/number-series" className="btn-primary text-sm inline-block">
+                <Link to="/NumberSeries" className="btn-primary text-sm inline-block">
                   เริ่มฝึกเลย!
                 </Link>
               </div>
@@ -177,7 +177,7 @@ const Profile = () => {
                 <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
                   เรียนรู้รูปทรงเรขาคณิตต่างๆ พัฒนาทักษะการมองเห็นเชิงพื้นที่!
                 </p>
-                <Link to="/shapes" className="btn-primary text-sm inline-block">
+                <Link to="/shape-matching" className="btn-primary text-sm inline-block">
                   เริ่มฝึกเลย!
                 </Link>
               </div>
@@ -191,7 +191,7 @@ const Profile = () => {
                 <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
                   ฝึกสูตรคูณให้แม่นและเร็วขึ้น! พื้นฐานสำคัญสำหรับคณิตศาสตร์ขั้นสูง
                 </p>
-                <Link to="/multiplication" className="btn-primary text-sm inline-block">
+                <Link to="/multiply" className="btn-primary text-sm inline-block">
                   เริ่มฝึกเลย!
                 </Link>
               </div>
@@ -235,7 +235,7 @@ const Profile = () => {
                 <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
                   ฝึกจับคู่และเปรียบเทียบเศษส่วน เข้าใจแนวคิดที่สำคัญของคณิตศาสตร์!
                 </p>
-                <Link to="/fractions" className="btn-primary text-sm inline-block">
+                <Link to="/fraction-matching" className="btn-primary text-sm inline-block">
                   เริ่มฝึกเลย!
                 </Link>
               </div>
@@ -245,7 +245,7 @@ const Profile = () => {
                 <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
                   ทบทวนการคูณเพื่อเตรียมพร้อมสำหรับการหาร พื้นฐานที่แข็งแรงช่วยได้มาก!
                 </p>
-                <Link to="/multiplication" className="btn-primary text-sm inline-block">
+                <Link to="/multiply" className="btn-primary text-sm inline-block">
                   เริ่มฝึกเลย!
                 </Link>
               </div>
@@ -269,7 +269,7 @@ const Profile = () => {
                 <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
                   ฝึกเศษส่วนในระดับที่ซับซ้อนขึ้น เพื่อพัฒนาความเข้าใจอย่างลึกซึ้ง!
                 </p>
-                <Link to="/fractions" className="btn-primary text-sm inline-block">
+                <Link to="/fraction-matching" className="btn-primary text-sm inline-block">
                   เริ่มฝึกเลย!
                 </Link>
               </div>
@@ -313,7 +313,7 @@ const Profile = () => {
                 <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
                   แก้ปริศนาตารางเลขที่ท้าทายสมอง ฝึกทักษะการคิดวิเคราะห์แบบสนุก!
                 </p>
-                <Link to="/sum-grid" className="btn-primary text-sm inline-block">
+                <Link to="/SumGridPuzzles" className="btn-primary text-sm inline-block">
                   เริ่มฝึกเลย!
                 </Link>
               </div>
