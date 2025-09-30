@@ -354,8 +354,9 @@ const Profile = () => {
               { name: 'ความยาว', icon: '📏', color: 'bg-gradient-to-br from-teal-200 to-teal-300', link: '/length-comparison' },
               { name: 'คณิตเร็ว', icon: '⚡', color: 'bg-gradient-to-br from-red-200 to-red-300', link: '/quick-math' }
             ].map((app, index) => (
-              <div 
+              <Link 
                 key={index} 
+                to={app.link}
                 className="flex-shrink-0 text-center"
               >
                 <div 
@@ -367,7 +368,7 @@ const Profile = () => {
                 <div className="text-xs font-medium text-[hsl(var(--text-primary))] max-w-[80px] truncate">
                   {app.name}
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
