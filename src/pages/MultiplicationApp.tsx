@@ -380,7 +380,7 @@ const MultiplicationApp = () => {
                 }}
               >
                 <span className="text-2xl">✨</span>
-                <span>สุ่มชุดใหม่</span>
+                <span>AI สร้างโจทย์ใหม่</span>
               </button>
               <button 
                 onClick={checkAnswers} 
