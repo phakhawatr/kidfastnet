@@ -193,13 +193,27 @@ const MultiplicationTable = () => {
                 </div>
                 
                 {gameMode === 'practice' && (
-                  <Button 
+                  <button 
                     onClick={gameActive ? endGame : startGame}
-                    variant={gameActive ? "destructive" : "default"}
-                    className="w-full"
+                    className={`w-full px-6 py-3.5 rounded-full text-lg font-bold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2.5 ${
+                      gameActive ? 'bg-red-600 hover:bg-red-700' : ''
+                    }`}
+                    style={!gameActive ? {
+                      background: 'linear-gradient(135deg, #06b6d4 0%, #10b981 50%, #a855f7 100%)',
+                    } : undefined}
                   >
-                    {gameActive ? '⏹️ หยุดเกม' : '▶️ เริ่มเกม'}
-                  </Button>
+                    {gameActive ? (
+                      <>
+                        <span>⏹️</span>
+                        <span>หยุดเกม</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-2xl">✨</span>
+                        <span>AI เริ่มเกมส์</span>
+                      </>
+                    )}
+                  </button>
                 )}
               </CardContent>
             </Card>
