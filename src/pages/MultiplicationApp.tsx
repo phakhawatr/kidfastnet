@@ -371,18 +371,36 @@ const MultiplicationApp = () => {
             </div>
             
             {/* Actions */}
-            <div className="space-y-2">
-              <button onClick={generateProblems} className="btn-secondary w-full">
-                <RefreshCw className="w-4 h-4" />
-                สุ่มชุดใหม่
+            <div className="space-y-3">
+              <button 
+                onClick={generateProblems} 
+                className="w-full px-5 py-3 rounded-full text-base font-semibold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
+                style={{
+                  background: 'linear-gradient(135deg, #06b6d4 0%, #10b981 50%, #a855f7 100%)',
+                }}
+              >
+                <span className="text-xl">✨</span>
+                <span>สุ่มชุดใหม่</span>
               </button>
-              <button onClick={checkAnswers} className="btn-primary w-full">
-                <CheckCircle2 className="w-4 h-4" />
-                ตรวจคำตอบ
+              <button 
+                onClick={checkAnswers} 
+                className="w-full px-5 py-3 rounded-full text-base font-semibold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
+                style={{
+                  background: 'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)',
+                }}
+              >
+                <CheckCircle2 className="w-5 h-5" />
+                <span>ตรวจคำตอบ</span>
               </button>
-              <button onClick={showAnswers} className="btn-secondary w-full">
-                <PlayCircle className="w-4 h-4" />
-                เฉลยคำตอบ
+              <button 
+                onClick={showAnswers} 
+                className="w-full px-5 py-3 rounded-full text-base font-semibold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
+                style={{
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+                }}
+              >
+                <PlayCircle className="w-5 h-5" />
+                <span>เฉลยคำตอบ</span>
               </button>
             </div>
           </div>
