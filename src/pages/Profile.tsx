@@ -366,7 +366,7 @@ const Profile = () => {
           <div className="flex items-center gap-3 mb-4">
             <span className="text-2xl">🎯</span>
             <h2 className="text-xl font-bold text-[hsl(var(--text-primary))]">
-              แนะนำสำหรับคุณ - {getGradeLabel(selectedGrade)}
+              แนะนำสำหรับคุณ
             </h2>
           </div>
           
