@@ -107,17 +107,32 @@ const SumGridPuzzles: React.FC = () => {
       baseNumbers[0][2] + baseNumbers[1][2] + baseNumbers[2][2]  // Col 3 sum
     ];
     
-    // Select cells to show (exactly 3 cells)
-    // MATHEMATICAL RULE: Each row and each column must have EXACTLY 1 visible number
-    // This ensures the puzzle is ALWAYS solvable using row and column sums
+    // Select cells to show (exactly 4 cells)
+    // MATHEMATICAL RULE for solvability:
+    // 1. No row or column should have 3 numbers (would be too easy)
+    // 2. Each row and column should have at most 2 numbers
+    // 3. At least one row or column should have exactly 1 number (starting point for solving)
     const possiblePatterns = [
-      // Each pattern: 3 cells, one per row, one per column (Latin Square partial)
-      [[0, 0], [1, 1], [2, 2]], // Main diagonal
-      [[0, 1], [1, 2], [2, 0]], // Shifted diagonal 1
-      [[0, 2], [1, 0], [2, 1]], // Shifted diagonal 2
-      [[0, 0], [1, 2], [2, 1]], // Mixed pattern 1
-      [[0, 1], [1, 0], [2, 2]], // Mixed pattern 2
-      [[0, 2], [1, 1], [2, 0]], // Mixed pattern 3
+      // L-shaped patterns (guaranteed solvable)
+      [[0, 0], [0, 1], [1, 0], [2, 2]], // L in top-left, single in bottom-right
+      [[0, 1], [0, 2], [1, 2], [2, 0]], // L in top-right, single in bottom-left
+      [[1, 0], [2, 0], [2, 1], [0, 2]], // L in bottom-left, single in top-right
+      [[0, 0], [1, 2], [2, 1], [2, 2]], // L in bottom-right, single in top-left
+      
+      // T-shaped patterns (well distributed)
+      [[0, 1], [1, 0], [1, 2], [2, 1]], // T-shape centered
+      [[0, 0], [0, 2], [1, 1], [2, 1]], // T-shape vertical
+      [[0, 1], [1, 0], [1, 1], [2, 1]], // T-shape with center
+      
+      // Diagonal with adjacent (balanced)
+      [[0, 0], [1, 1], [2, 2], [0, 1]], // Diagonal + top adjacent
+      [[0, 0], [1, 1], [2, 2], [1, 0]], // Diagonal + left adjacent
+      [[0, 2], [1, 1], [2, 0], [0, 1]], // Anti-diagonal + top adjacent
+      [[0, 2], [1, 1], [2, 0], [1, 2]], // Anti-diagonal + right adjacent
+      
+      // Rectangular patterns (corners of sub-grids)
+      [[0, 0], [0, 1], [1, 1], [2, 2]], // Top-left rectangle + corner
+      [[0, 1], [1, 1], [1, 2], [2, 0]], // Center rectangle + corner
     ];
     
     // Pick a random pattern
