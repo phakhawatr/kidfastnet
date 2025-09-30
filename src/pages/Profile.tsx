@@ -116,12 +116,209 @@ const Profile = () => {
             <h2 className="text-xl font-bold text-[hsl(var(--text-primary))]">แนะนำสำหรับคุณ</h2>
           </div>
           
-          <div className="bg-[hsl(var(--grade-3))] rounded-xl p-6 mb-4">
-            <h3 className="font-bold text-lg mb-2">📊 การบวกเลข 2 หลัก</h3>
-            <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
-              มาฝึกบวกเลข 2 หลักให้เก่งขึ้น เพราะเป็นพื้นฐานสำคัญของคณิตศาสตร์!
-            </p>
-          </div>
+          {selectedGrade === '1' && (
+            <>
+              <div className="bg-[hsl(var(--grade-1))] rounded-xl p-6 mb-4">
+                <h3 className="font-bold text-lg mb-2">➕ การบวกเลข</h3>
+                <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
+                  มาฝึกบวกเลขให้เก่งขึ้น! เริ่มจากเลขง่ายๆ ไปจนถึงการบวก 2 หลัก
+                </p>
+                <Link to="/addition" className="btn-primary text-sm inline-block">
+                  เริ่มฝึกเลย!
+                </Link>
+              </div>
+              
+              <div className="bg-[hsl(var(--grade-2))] rounded-xl p-6 mb-4">
+                <h3 className="font-bold text-lg mb-2">📏 เปรียบเทียบความยาว</h3>
+                <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
+                  ฝึกเปรียบเทียบความยาวของวัตถุต่างๆ เรียนรู้แบบสนุกและเข้าใจง่าย!
+                </p>
+                <Link to="/length-comparison" className="btn-primary text-sm inline-block">
+                  เริ่มฝึกเลย!
+                </Link>
+              </div>
+              
+              <div className="bg-[hsl(var(--grade-3))] rounded-xl p-6 mb-4">
+                <h3 className="font-bold text-lg mb-2">🔢 ทายตัวเลขในลำดับ</h3>
+                <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
+                  ฝึกสังเกตและหาตัวเลขในลำดับ พัฒนาทักษะการคิดวิเคราะห์!
+                </p>
+                <Link to="/number-series" className="btn-primary text-sm inline-block">
+                  เริ่มฝึกเลย!
+                </Link>
+              </div>
+            </>
+          )}
+          
+          {selectedGrade === '2' && (
+            <>
+              <div className="bg-[hsl(var(--grade-2))] rounded-xl p-6 mb-4">
+                <h3 className="font-bold text-lg mb-2">➖ การลบเลข 2 หลัก</h3>
+                <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
+                  มาฝึกลบเลข 2 หลักให้เก่งขึ้น! เริ่มจากเลขง่ายๆ ไปจนถึงโจทย์ที่ท้าทาย
+                </p>
+                <Link to="/subtraction" className="btn-primary text-sm inline-block">
+                  เริ่มฝึกเลย!
+                </Link>
+              </div>
+              
+              <div className="bg-[hsl(var(--grade-1))] rounded-xl p-6 mb-4">
+                <h3 className="font-bold text-lg mb-2">➕ ทบทวนการบวก</h3>
+                <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
+                  ทบทวนการบวกเลขเพื่อเสริมความแม่นยำ พื้นฐานที่แข็งแรงสำคัญมาก!
+                </p>
+                <Link to="/addition" className="btn-primary text-sm inline-block">
+                  เริ่มฝึกเลย!
+                </Link>
+              </div>
+              
+              <div className="bg-[hsl(var(--grade-3))] rounded-xl p-6 mb-4">
+                <h3 className="font-bold text-lg mb-2">🔷 จับคู่รูปทรง</h3>
+                <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
+                  เรียนรู้รูปทรงเรขาคณิตต่างๆ พัฒนาทักษะการมองเห็นเชิงพื้นที่!
+                </p>
+                <Link to="/shapes" className="btn-primary text-sm inline-block">
+                  เริ่มฝึกเลย!
+                </Link>
+              </div>
+            </>
+          )}
+          
+          {selectedGrade === '3' && (
+            <>
+              <div className="bg-[hsl(var(--grade-3))] rounded-xl p-6 mb-4">
+                <h3 className="font-bold text-lg mb-2">✖️ การคูณ</h3>
+                <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
+                  ฝึกสูตรคูณให้แม่นและเร็วขึ้น! พื้นฐานสำคัญสำหรับคณิตศาสตร์ขั้นสูง
+                </p>
+                <Link to="/multiplication" className="btn-primary text-sm inline-block">
+                  เริ่มฝึกเลย!
+                </Link>
+              </div>
+              
+              <div className="bg-[hsl(var(--grade-4))] rounded-xl p-6 mb-4">
+                <h3 className="font-bold text-lg mb-2">📊 ตารางคูณ</h3>
+                <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
+                  เรียนรู้ตารางคูณแบบครบถ้วน ฝึกจนจำได้แม่นและรวดเร็ว!
+                </p>
+                <Link to="/multiplication-table" className="btn-primary text-sm inline-block">
+                  เริ่มฝึกเลย!
+                </Link>
+              </div>
+              
+              <div className="bg-[hsl(var(--grade-2))] rounded-xl p-6 mb-4">
+                <h3 className="font-bold text-lg mb-2">📐 การวัด</h3>
+                <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
+                  ฝึกการวัดความยาวและการแปลงหน่วย ทักษะที่ใช้ในชีวิตประจำวัน!
+                </p>
+                <Link to="/measurement" className="btn-primary text-sm inline-block">
+                  เริ่มฝึกเลย!
+                </Link>
+              </div>
+            </>
+          )}
+          
+          {selectedGrade === '4' && (
+            <>
+              <div className="bg-[hsl(var(--grade-4))] rounded-xl p-6 mb-4">
+                <h3 className="font-bold text-lg mb-2">➗ การหาร</h3>
+                <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
+                  มาเรียนรู้การหารให้เข้าใจและคำนวณได้รวดเร็ว! ทักษะสำคัญสำหรับการแก้โจทย์
+                </p>
+                <Link to="/division" className="btn-primary text-sm inline-block">
+                  เริ่มฝึกเลย!
+                </Link>
+              </div>
+              
+              <div className="bg-[hsl(var(--grade-5))] rounded-xl p-6 mb-4">
+                <h3 className="font-bold text-lg mb-2">🍕 เศษส่วน</h3>
+                <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
+                  ฝึกจับคู่และเปรียบเทียบเศษส่วน เข้าใจแนวคิดที่สำคัญของคณิตศาสตร์!
+                </p>
+                <Link to="/fractions" className="btn-primary text-sm inline-block">
+                  เริ่มฝึกเลย!
+                </Link>
+              </div>
+              
+              <div className="bg-[hsl(var(--grade-3))] rounded-xl p-6 mb-4">
+                <h3 className="font-bold text-lg mb-2">✖️ ทบทวนการคูณ</h3>
+                <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
+                  ทบทวนการคูณเพื่อเตรียมพร้อมสำหรับการหาร พื้นฐานที่แข็งแรงช่วยได้มาก!
+                </p>
+                <Link to="/multiplication" className="btn-primary text-sm inline-block">
+                  เริ่มฝึกเลย!
+                </Link>
+              </div>
+            </>
+          )}
+          
+          {selectedGrade === '5' && (
+            <>
+              <div className="bg-[hsl(var(--grade-5))] rounded-xl p-6 mb-4">
+                <h3 className="font-bold text-lg mb-2">🕐 บอกเวลา</h3>
+                <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
+                  ฝึกอ่านนาฬิกาและบอกเวลาให้แม่นยำ ทักษะที่ใช้ทุกวันในชีวิตจริง!
+                </p>
+                <Link to="/time" className="btn-primary text-sm inline-block">
+                  เริ่มฝึกเลย!
+                </Link>
+              </div>
+              
+              <div className="bg-[hsl(var(--grade-4))] rounded-xl p-6 mb-4">
+                <h3 className="font-bold text-lg mb-2">🍕 เศษส่วนขั้นสูง</h3>
+                <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
+                  ฝึกเศษส่วนในระดับที่ซับซ้อนขึ้น เพื่อพัฒนาความเข้าใจอย่างลึกซึ้ง!
+                </p>
+                <Link to="/fractions" className="btn-primary text-sm inline-block">
+                  เริ่มฝึกเลย!
+                </Link>
+              </div>
+              
+              <div className="bg-[hsl(var(--grade-6))] rounded-xl p-6 mb-4">
+                <h3 className="font-bold text-lg mb-2">📊 เปอร์เซ็นต์</h3>
+                <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
+                  เรียนรู้การคำนวณเปอร์เซ็นต์ ใช้ได้ในการซื้อของ การลดราคา และอีกมากมาย!
+                </p>
+                <Link to="/percentage" className="btn-primary text-sm inline-block">
+                  เริ่มฝึกเลย!
+                </Link>
+              </div>
+            </>
+          )}
+          
+          {selectedGrade === '6' && (
+            <>
+              <div className="bg-[hsl(var(--grade-6))] rounded-xl p-6 mb-4">
+                <h3 className="font-bold text-lg mb-2">⚖️ บอกน้ำหนัก</h3>
+                <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
+                  ฝึกการชั่งน้ำหนักและเปรียบเทียบมวล ทักษะสำคัญในวิทยาศาสตร์และชีวิตประจำวัน!
+                </p>
+                <Link to="/weighing" className="btn-primary text-sm inline-block">
+                  เริ่มฝึกเลย!
+                </Link>
+              </div>
+              
+              <div className="bg-[hsl(var(--grade-5))] rounded-xl p-6 mb-4">
+                <h3 className="font-bold text-lg mb-2">⚡ คณิตเร็ว</h3>
+                <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
+                  ท้าทายความเร็วในการคำนวณ! ฝึกทั้ง บวก ลบ คูณ หาร ให้รวดเร็วและแม่นยำ
+                </p>
+                <Link to="/quick-math" className="btn-primary text-sm inline-block">
+                  เริ่มฝึกเลย!
+                </Link>
+              </div>
+              
+              <div className="bg-[hsl(var(--grade-4))] rounded-xl p-6 mb-4">
+                <h3 className="font-bold text-lg mb-2">🧩 ปริศนาตารางเลข</h3>
+                <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
+                  แก้ปริศนาตารางเลขที่ท้าทายสมอง ฝึกทักษะการคิดวิเคราะห์แบบสนุก!
+                </p>
+                <Link to="/sum-grid" className="btn-primary text-sm inline-block">
+                  เริ่มฝึกเลย!
+                </Link>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Achievements */}
