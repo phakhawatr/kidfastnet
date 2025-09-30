@@ -10,6 +10,7 @@ interface AuthState {
   username: string;
   isDemo?: boolean;
   registrationId?: string; // Store registration ID for presence tracking
+  memberId?: string; // Store member ID
 }
 
 interface ProfileData {
@@ -171,7 +172,8 @@ export const useAuth = () => {
                 loggedIn: true, 
                 username: result.nickname,
                 isDemo: false,
-                registrationId: result.user_id // Store registration ID for presence tracking
+                registrationId: result.user_id, // Store registration ID for presence tracking
+                memberId: result.member_id // Store member ID
               };
               localStorage.setItem('kidfast_auth', JSON.stringify(authState));
               localStorage.setItem('kidfast_session_id', sessionId);

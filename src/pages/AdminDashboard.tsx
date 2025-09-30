@@ -17,6 +17,7 @@ import {
 
 interface UserRegistration {
   id: string;
+  member_id?: string;
   nickname: string;
   age: number;
   grade: string;
@@ -379,6 +380,11 @@ const AdminDashboard = () => {
                     <div>
                       <h3 className="font-bold text-[hsl(var(--text-primary))] flex items-center gap-2">
                         {registration.nickname}
+                        {registration.member_id && (
+                          <span className="text-sm font-normal text-[hsl(var(--text-secondary))] bg-blue-50 px-2 py-1 rounded-full">
+                            รหัส: {registration.member_id}
+                          </span>
+                        )}
                         {(registration.status === 'approved' || registration.status === 'suspended') && (
                           isUserOnline(registration.id) ? (
                             <div className="flex items-center gap-1 px-2 py-1 bg-green-50 rounded-full border border-green-200">

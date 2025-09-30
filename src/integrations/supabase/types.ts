@@ -98,6 +98,7 @@ export type Database = {
           last_login_at: string | null
           learning_style: string | null
           login_count: number | null
+          member_id: string | null
           nickname: string
           parent_email: string
           parent_phone: string | null
@@ -119,6 +120,7 @@ export type Database = {
           last_login_at?: string | null
           learning_style?: string | null
           login_count?: number | null
+          member_id?: string | null
           nickname: string
           parent_email: string
           parent_phone?: string | null
@@ -140,6 +142,7 @@ export type Database = {
           last_login_at?: string | null
           learning_style?: string | null
           login_count?: number | null
+          member_id?: string | null
           nickname?: string
           parent_email?: string
           parent_phone?: string | null
@@ -180,6 +183,7 @@ export type Database = {
         Returns: {
           email: string
           is_valid: boolean
+          member_id: string
           nickname: string
           user_id: string
         }[]
@@ -209,6 +213,10 @@ export type Database = {
         Args: { admin_id: string; registration_id: string }
         Returns: boolean
       }
+      generate_member_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_user_registrations: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -222,6 +230,7 @@ export type Database = {
           last_login_at: string
           learning_style: string
           login_count: number
+          member_id: string
           nickname: string
           parent_email: string
           parent_phone: string

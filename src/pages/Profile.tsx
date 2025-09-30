@@ -203,6 +203,23 @@ const Profile = () => {
     isDemo,
     logout
   } = useAuth();
+  
+  // Get member ID from auth state
+  const getMemberId = () => {
+    try {
+      const stored = localStorage.getItem('kidfast_auth');
+      if (stored) {
+        const authState = JSON.parse(stored);
+        return authState.memberId;
+      }
+    } catch (e) {
+      // ignore
+    }
+    return null;
+  };
+  
+  const memberId = getMemberId();
+  
   const [selectedGrade, setSelectedGrade] = useState('1');
   const [randomRecommendations, setRandomRecommendations] = useState<any[]>([]);
   const grades = [{
@@ -264,7 +281,13 @@ const Profile = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-[hsl(var(--text-primary))] mb-2">
-                สวัสดี {isDemo ? 'นักเรียนทดลอง' : `น้อง${username}`}! 🌟
+                สวัสดี {isDemo ? 'นักเรียนทดลอง' : `น้อง${username}`}!
+                {!isDemo && memberId && (
+                  <span className="text-lg font-normal text-[hsl(var(--text-secondary))] ml-2 bg-blue-50 px-3 py-1 rounded-full">
+                    รหัส: {memberId}
+                  </span>
+                )}
+                🌟
               </h1>
               <p className="text-[hsl(var(--text-secondary))]">ยินดีต้อนรับกลับสู่การเรียนรู้ที่สนุก</p>
             </div>
