@@ -411,10 +411,16 @@ const WeighingApp: React.FC = () => {
                 <Play className="w-4 h-4 mr-2" />
                 ตามภาพ
               </Button>
-              <Button onClick={resetToRandom} variant="outline">
-                <RotateCcw className="w-4 h-4 mr-2" />
-                สุ่มโจทย์ใหม่
-              </Button>
+              <button 
+                onClick={resetToRandom}
+                className="px-6 py-3 rounded-full text-base font-bold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
+                style={{
+                  background: 'linear-gradient(135deg, #06b6d4 0%, #10b981 50%, #a855f7 100%)',
+                }}
+              >
+                <span className="text-xl">✨</span>
+                <span>AI สร้างโจทย์ใหม่</span>
+              </button>
               <Button onClick={revealAnswers} variant="outline">
                 <Eye className="w-4 h-4 mr-2" />
                 เฉลย
