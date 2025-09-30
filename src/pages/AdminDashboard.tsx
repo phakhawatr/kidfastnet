@@ -343,7 +343,7 @@ const AdminDashboard = () => {
               onClick={() => setFilter(key as typeof filter)}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                 filter === key
-                  ? 'bg-[hsl(var(--primary))] text-white'
+                  ? 'bg-[hsl(var(--primary))] text-blue-500'
                   : 'bg-white/60 text-[hsl(var(--text-primary))] hover:bg-white/80'
               }`}
             >
