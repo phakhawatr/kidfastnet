@@ -324,7 +324,7 @@ const PercentageApp: React.FC = () => {
           )}
           
           {isTimerRunning && (
-            <Button onClick={checkAllAnswers} className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={checkAllAnswers} className="bg-blue-600 hover:bg-blue-700 text-yellow-400">
               <CheckCircle className="w-4 h-4 mr-2" />
               ตรวจคำตอบทั้งหมด
             </Button>
