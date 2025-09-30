@@ -107,28 +107,17 @@ const SumGridPuzzles: React.FC = () => {
       baseNumbers[0][2] + baseNumbers[1][2] + baseNumbers[2][2]  // Col 3 sum
     ];
     
-    // Select cells to show (exactly 4 cells)
-    // KEY RULE: No row or column should have more than 1 visible number
-    // This ensures the puzzle is always solvable
+    // Select cells to show (exactly 3 cells)
+    // MATHEMATICAL RULE: Each row and each column must have EXACTLY 1 visible number
+    // This ensures the puzzle is ALWAYS solvable using row and column sums
     const possiblePatterns = [
-      // Each pattern: exactly 1 cell per row and varies by column
-      [[0, 0], [1, 1], [2, 2], [0, 2]], // Wait, this has row 0 twice - wrong
-      // Let me create proper patterns: 4 cells, each row/col max 2, but distributed
-      
-      // Pattern type 1: Diagonal-ish with 1 extra
-      [[0, 0], [1, 1], [2, 2], [1, 0]], // Diagonal + one extra in row 1
-      [[0, 2], [1, 1], [2, 0], [0, 0]], // Diagonal + one extra in row 0
-      [[0, 1], [1, 2], [2, 0], [1, 0]], // Mixed diagonal
-      
-      // Pattern type 2: Balanced spread - each row gets at most 2, each col at most 2
-      [[0, 0], [0, 2], [1, 1], [2, 1]], // Row 0: 2, Row 1: 1, Row 2: 1 | Col 0: 1, Col 1: 2, Col 2: 1
-      [[0, 1], [1, 0], [1, 2], [2, 1]], // Row 0: 1, Row 1: 2, Row 2: 1 | Col 0: 1, Col 1: 2, Col 2: 1
-      [[0, 0], [0, 1], [1, 2], [2, 2]], // Row 0: 2, Row 1: 1, Row 2: 1 | Col 0: 1, Col 1: 1, Col 2: 2
-      [[0, 2], [1, 0], [2, 1], [2, 2]], // Row 0: 1, Row 1: 1, Row 2: 2 | Col 0: 1, Col 1: 1, Col 2: 2
-      [[0, 1], [1, 1], [2, 0], [2, 2]], // Row 0: 1, Row 1: 1, Row 2: 2 | Col 0: 1, Col 1: 2, Col 2: 1
-      
-      // Pattern type 3: Four corners
-      [[0, 0], [0, 2], [2, 0], [2, 2]], // Corners only - Row 0: 2, Row 2: 2, Row 1: 0
+      // Each pattern: 3 cells, one per row, one per column (Latin Square partial)
+      [[0, 0], [1, 1], [2, 2]], // Main diagonal
+      [[0, 1], [1, 2], [2, 0]], // Shifted diagonal 1
+      [[0, 2], [1, 0], [2, 1]], // Shifted diagonal 2
+      [[0, 0], [1, 2], [2, 1]], // Mixed pattern 1
+      [[0, 1], [1, 0], [2, 2]], // Mixed pattern 2
+      [[0, 2], [1, 1], [2, 0]], // Mixed pattern 3
     ];
     
     // Pick a random pattern
