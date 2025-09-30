@@ -261,9 +261,6 @@ const LengthComparisonApp: React.FC = () => {
               <Clock className="w-4 h-4 mr-1 text-yellow-600" />
               ⏰ {formatTime(timeElapsed)}
             </Badge>
-            <Badge variant="outline" className="text-sm border-blue-300 text-blue-700">
-              📚 ชุดที่ {currentSet + 1}/{questionSets.length}
-            </Badge>
           </div>
         </div>
 
