@@ -330,10 +330,16 @@ const PercentageApp: React.FC = () => {
             </Button>
           )}
           
-          <Button variant="outline" onClick={resetGame}>
-            <RotateCcw className="w-4 h-4 mr-2" />
-            เริ่มใหม่
-          </Button>
+          <button
+            onClick={resetGame}
+            className="px-6 py-3.5 rounded-full text-lg font-bold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2.5"
+            style={{
+              background: 'linear-gradient(135deg, #06b6d4 0%, #10b981 50%, #a855f7 100%)',
+            }}
+          >
+            <span className="text-2xl">✨</span>
+            <span>AI สร้างโจทย์ใหม่</span>
+          </button>
           
           <Button variant="outline" onClick={shuffleProblems}>
             <Shuffle className="w-4 h-4 mr-2" />
