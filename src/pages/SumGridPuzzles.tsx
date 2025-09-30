@@ -298,10 +298,13 @@ const SumGridPuzzles: React.FC = () => {
             <div className="flex gap-2 bg-white rounded-xl p-2 shadow-sm">
               <button
                 onClick={initializePuzzles}
-                className="btn-primary text-sm"
+                className="px-6 py-3.5 rounded-full text-lg font-bold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2.5"
+                style={{
+                  background: 'linear-gradient(135deg, #06b6d4 0%, #10b981 50%, #a855f7 100%)',
+                }}
               >
-                <RefreshCw className="w-4 h-4" />
-                สุ่มโจทย์ใหม่
+                <span className="text-2xl">✨</span>
+                <span>AI สร้างโจทย์ใหม่</span>
               </button>
               <button
                 onClick={revealAnswers}
