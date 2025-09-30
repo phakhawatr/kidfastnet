@@ -40,7 +40,7 @@ const AdminDashboard = () => {
   const { name, email, logout, adminId } = useAdmin();
   const [registrations, setRegistrations] = useState<UserRegistration[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'suspended'>('pending');
+  const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'suspended' | 'online'>('pending');
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
 
   const avatarEmojis: Record<string, string> = {
@@ -250,16 +250,20 @@ const AdminDashboard = () => {
     }
   };
 
-  const filteredRegistrations = registrations.filter(reg => 
-    filter === 'all' || reg.status === filter
-  );
+  const filteredRegistrations = registrations.filter(reg => {
+    if (filter === 'online') {
+      return isUserOnline(reg.id);
+    }
+    return filter === 'all' || reg.status === filter;
+  });
 
   const stats = {
     total: registrations.length,
     pending: registrations.filter(r => r.status === 'pending').length,
     approved: registrations.filter(r => r.status === 'approved').length,
     rejected: registrations.filter(r => r.status === 'rejected').length,
-    suspended: registrations.filter(r => r.status === 'suspended').length
+    suspended: registrations.filter(r => r.status === 'suspended').length,
+    online: registrations.filter(r => isUserOnline(r.id)).length
   };
 
   if (isLoading) {
@@ -305,7 +309,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
         <div className="card-glass p-4 text-center">
           <div className="text-2xl font-bold text-[hsl(var(--primary))]">{stats.total}</div>
           <div className="text-sm text-[hsl(var(--text-secondary))]">ทั้งหมด</div>
@@ -326,6 +330,10 @@ const AdminDashboard = () => {
           <div className="text-2xl font-bold text-yellow-500">{stats.suspended}</div>
           <div className="text-sm text-[hsl(var(--text-secondary))]">หยุดการใช้งาน</div>
         </div>
+        <div className="card-glass p-4 text-center">
+          <div className="text-2xl font-bold text-blue-500">{stats.online}</div>
+          <div className="text-sm text-[hsl(var(--text-secondary))]">กำลังใช้งาน</div>
+        </div>
       </div>
 
       {/* Filters */}
@@ -336,7 +344,8 @@ const AdminDashboard = () => {
             { key: 'pending', label: 'รอการอนุมัติ', count: stats.pending },
             { key: 'approved', label: 'อนุมัติแล้ว', count: stats.approved },
             { key: 'rejected', label: 'ปฏิเสธ', count: stats.rejected },
-            { key: 'suspended', label: 'หยุดการใช้งาน', count: stats.suspended }
+            { key: 'suspended', label: 'หยุดการใช้งาน', count: stats.suspended },
+            { key: 'online', label: 'กำลังใช้งาน', count: stats.online }
           ].map(({ key, label, count }) => (
             <button
               key={key}
