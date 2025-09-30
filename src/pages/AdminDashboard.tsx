@@ -43,6 +43,7 @@ const AdminDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'suspended' | 'online'>('pending');
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState('');
 
   const avatarEmojis: Record<string, string> = {
     cat: '🐱',
@@ -252,10 +253,26 @@ const AdminDashboard = () => {
   };
 
   const filteredRegistrations = registrations.filter(reg => {
+    // Apply status filter
+    let matchesFilter = false;
     if (filter === 'online') {
-      return isUserOnline(reg.id);
+      matchesFilter = isUserOnline(reg.id);
+    } else {
+      matchesFilter = filter === 'all' || reg.status === filter;
     }
-    return filter === 'all' || reg.status === filter;
+    
+    // Apply search query
+    if (searchQuery.trim() !== '') {
+      const query = searchQuery.toLowerCase().trim();
+      const matchesSearch = 
+        reg.nickname.toLowerCase().includes(query) ||
+        (reg.parent_phone && reg.parent_phone.includes(query)) ||
+        (reg.member_id && reg.member_id.includes(query));
+      
+      return matchesFilter && matchesSearch;
+    }
+    
+    return matchesFilter;
   });
 
   const stats = {
@@ -334,6 +351,27 @@ const AdminDashboard = () => {
         <div className="card-glass p-4 text-center">
           <div className="text-2xl font-bold text-blue-500">{stats.online}</div>
           <div className="text-sm text-[hsl(var(--text-secondary))]">กำลังใช้งาน</div>
+        </div>
+      </div>
+
+      {/* Search Box */}
+      <div className="card-glass p-4 mb-4">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="🔍 ค้นหาจากชื่อเล่น, เบอร์โทร, หรือรหัสสมาชิก..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-[hsl(var(--primary))] focus:outline-none text-[hsl(var(--text-primary))] placeholder:text-[hsl(var(--text-secondary))]"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xl"
+            >
+              ✕
+            </button>
+          )}
         </div>
       </div>
 
