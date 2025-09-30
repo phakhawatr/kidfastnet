@@ -429,10 +429,13 @@ export default function QuickMathApp() {
 
           <button
             onClick={generateNewProblems}
-            className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-xl shadow-md hover:bg-blue-600 transition-colors"
+            className="px-6 py-3.5 rounded-full text-lg font-bold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2.5"
+            style={{
+              background: 'linear-gradient(135deg, #06b6d4 0%, #10b981 50%, #a855f7 100%)',
+            }}
           >
-            <RotateCcw className="w-4 h-4" />
-            สุ่มใหม่
+            <span className="text-2xl">✨</span>
+            <span>AI สร้างโจทย์ใหม่</span>
           </button>
 
           <button
