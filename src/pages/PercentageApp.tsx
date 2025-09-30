@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ArrowLeft, RotateCcw, Clock, CheckCircle, XCircle, Trophy, Target, Shuffle } from 'lucide-react';
+import { ArrowLeft, RotateCcw, Clock, CheckCircle, XCircle, Trophy, Target, Shuffle, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -254,6 +254,16 @@ const PercentageApp: React.FC = () => {
     setProblems(prev => [...prev].sort(() => Math.random() - 0.5));
   }, []);
 
+  const showAllAnswers = useCallback(() => {
+    setProblems(prev => prev.map(p => ({
+      ...p,
+      userAnswer: p.correctAnswer,
+      isCorrect: true
+    })));
+    setShowResults(true);
+    setIsTimerRunning(false);
+  }, []);
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -353,14 +363,25 @@ const PercentageApp: React.FC = () => {
           )}
           
           {isTimerRunning && (
-            <Button 
-              onClick={checkAllAnswers} 
-              size="lg"
-              className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 hover:from-blue-600 hover:via-indigo-600 hover:to-purple-700 text-yellow-300 font-black text-xl px-8 py-6 rounded-3xl shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all border-4 border-white"
-            >
-              <CheckCircle className="w-6 h-6 mr-3" />
-              ⭐ ตรวจคำตอบ!
-            </Button>
+            <>
+              <Button 
+                onClick={checkAllAnswers} 
+                size="lg"
+                className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 hover:from-blue-600 hover:via-indigo-600 hover:to-purple-700 text-yellow-300 font-black text-xl px-8 py-6 rounded-3xl shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all border-4 border-white"
+              >
+                <CheckCircle className="w-6 h-6 mr-3" />
+                ⭐ ตรวจคำตอบ!
+              </Button>
+              
+              <Button 
+                onClick={showAllAnswers} 
+                size="lg"
+                className="bg-gradient-to-r from-orange-400 via-red-400 to-pink-500 hover:from-orange-500 hover:via-red-500 hover:to-pink-600 text-white font-black text-xl px-8 py-6 rounded-3xl shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all border-4 border-white"
+              >
+                <Eye className="w-6 h-6 mr-3" />
+                👀 เฉลย
+              </Button>
+            </>
           )}
           
           <button
