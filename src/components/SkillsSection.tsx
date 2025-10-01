@@ -173,7 +173,7 @@ const SkillCard: React.FC<{
     }
   };
 
-  return (
+  const cardContent = (
     <div 
       className={`relative rounded-3xl shadow-xl hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 ${skill.backgroundGradient} overflow-hidden group`}
     >
@@ -202,6 +202,14 @@ const SkillCard: React.FC<{
         </p>
       </div>
     </div>
+  );
+
+  return skill.hrefPreview ? (
+    <Link to={skill.hrefPreview} onClick={handlePreviewClick}>
+      {cardContent}
+    </Link>
+  ) : (
+    cardContent
   );
 };
 const SkillsSection: React.FC<SkillsSectionProps> = ({
