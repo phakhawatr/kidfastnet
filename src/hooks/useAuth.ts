@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
 import { ToastManager } from '../components/Toast';
 import { useUserPresence } from './useUserPresence';
+import { sessionManager } from '../utils/sessionTimeout';
 
 interface AuthState {
   loggedIn: boolean;
@@ -41,8 +42,18 @@ export const useAuth = () => {
           setTimeout(() => {
             fetchUserProfile(session.user.id);
           }, 0);
+          
+          // Start session timeout monitoring
+          sessionManager.startSession(() => {
+            ToastManager.show({
+              message: 'เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่',
+              type: 'info'
+            });
+            logout();
+          });
         } else {
           setProfile(null);
+          sessionManager.endSession();
         }
         setIsLoading(false);
       }
@@ -57,11 +68,23 @@ export const useAuth = () => {
         setTimeout(() => {
           fetchUserProfile(session.user.id);
         }, 0);
+        
+        // Start session timeout monitoring for existing session
+        sessionManager.startSession(() => {
+          ToastManager.show({
+            message: 'เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่',
+            type: 'info'
+          });
+          logout();
+        });
       }
       setIsLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      sessionManager.endSession();
+    };
   }, []);
 
   const fetchUserProfile = async (userId: string) => {
@@ -73,13 +96,12 @@ export const useAuth = () => {
         .maybeSingle();
 
       if (error) {
-        console.error('Error fetching profile:', error);
         return;
       }
 
       setProfile(data);
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      // Error fetching profile
     }
   };
 
@@ -112,14 +134,11 @@ export const useAuth = () => {
 
       // First check if user can login (not already logged in from another device)
       try {
-        console.log('Checking user session status for:', email);
         const { data: sessionCheck, error: sessionError } = await supabase.rpc('check_user_session_status', {
           user_email: email,
           new_session_id: sessionId,
           new_device_info: deviceInfo
         });
-
-        console.log('Session check result:', sessionCheck, 'Error:', sessionError);
 
         if (sessionError) {
           throw sessionError;
@@ -137,23 +156,18 @@ export const useAuth = () => {
           }
         }
       } catch (sessionError) {
-        console.error('Session check failed:', sessionError);
         // Continue with login attempt even if session check fails
       }
 
       // Use secure authentication function to check approved users
       try {
-        console.log('Attempting to authenticate user:', email);
         const { data: authResult, error } = await supabase.rpc('authenticate_user', {
           user_email: email,
           user_password: password
         });
 
-        console.log('Authentication result:', authResult, 'Error:', error);
-
         if (!error && authResult && authResult.length > 0) {
           const result = authResult[0];
-            console.log('User found:', result);
             if (result.is_valid) {
               // Update session after successful authentication
               try {
@@ -162,9 +176,7 @@ export const useAuth = () => {
                   session_id: sessionId,
                   device_info: deviceInfo
                 });
-                console.log('Session updated successfully');
               } catch (updateError) {
-                console.log('Failed to update session:', updateError);
                 // Don't block login if session update fails
               }
 
@@ -172,8 +184,8 @@ export const useAuth = () => {
                 loggedIn: true, 
                 username: result.nickname,
                 isDemo: false,
-                registrationId: result.user_id, // Store registration ID for presence tracking
-                memberId: result.member_id // Store member ID
+                registrationId: result.user_id,
+                memberId: result.member_id
               };
               localStorage.setItem('kidfast_auth', JSON.stringify(authState));
               localStorage.setItem('kidfast_session_id', sessionId);
@@ -183,10 +195,8 @@ export const useAuth = () => {
                 type: 'success'
               });
               
-              // Force navigation after a small delay to ensure state is updated
               setTimeout(() => {
-                console.log('Navigating to profile...');
-                setAuthRefresh(prev => prev + 1); // Trigger re-render
+                setAuthRefresh(prev => prev + 1);
                 navigate('/profile');
               }, 500);
               
@@ -194,28 +204,7 @@ export const useAuth = () => {
             }
         }
       } catch (dbError) {
-        console.log('User authentication failed:', dbError);
-      }
-
-      // Check for test user credentials
-      if (email === 'test@kidfast.net' && password === '123456') {
-        const demoAuthState: AuthState = { 
-          loggedIn: true, 
-          username: 'ผู้ใช้ทดสอบ',
-          isDemo: false
-        };
-        localStorage.setItem('kidfast_auth', JSON.stringify(demoAuthState));
-        
-        ToastManager.show({
-          message: 'เข้าสู่ระบบทดสอบเรียบร้อย!',
-          type: 'success'
-        });
-        
-        setTimeout(() => {
-          setAuthRefresh(prev => prev + 1);
-          navigate('/profile');
-        }, 500);
-        return { success: true };
+        // Authentication failed silently
       }
 
       // Try Supabase Auth as fallback
@@ -295,6 +284,9 @@ export const useAuth = () => {
 
   const logout = async () => {
     try {
+      // Stop session monitoring
+      sessionManager.endSession();
+      
       // Get current auth state and session info
       const authState = getAuthState();
       const sessionId = localStorage.getItem('kidfast_session_id');
@@ -306,9 +298,8 @@ export const useAuth = () => {
             user_email: user.email,
             session_id: sessionId || undefined
           });
-          console.log('Session cleared in database');
         } catch (sessionError) {
-          console.error('Failed to clear session:', sessionError);
+          // Failed to clear session
         }
       }
       
@@ -317,10 +308,6 @@ export const useAuth = () => {
       localStorage.removeItem('kidfast_session_id');
       
       const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        console.error('Logout error:', error);
-      }
 
       ToastManager.show({
         message: 'ออกจากระบบเรียบร้อย!',
@@ -329,7 +316,6 @@ export const useAuth = () => {
       
       navigate('/login');
     } catch (error) {
-      console.error('Logout error:', error);
       navigate('/login');
     }
   };

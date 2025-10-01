@@ -4,6 +4,9 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useAuth } from '../hooks/useAuth';
 import SessionConflictDialog from '../components/SessionConflictDialog';
+import { loginSchema } from '../utils/validation';
+import { rateLimiter } from '../utils/rateLimiter';
+import { ToastManager } from '../components/Toast';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -22,7 +25,41 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate input
+    const validation = loginSchema.safeParse({
+      email: formData.email,
+      password: formData.password,
+    });
+
+    if (!validation.success) {
+      const firstError = validation.error.errors[0];
+      ToastManager.show({
+        message: firstError.message,
+        type: 'error'
+      });
+      return;
+    }
+
+    // Check rate limiting
+    const rateLimit = rateLimiter.checkRateLimit(formData.email);
+    if (!rateLimit.allowed) {
+      ToastManager.show({
+        message: `พยายามเข้าสู่ระบบมากเกินไป กรุณารออีก ${rateLimit.remainingTime} นาที`,
+        type: 'error'
+      });
+      return;
+    }
+
+    // Record login attempt
+    rateLimiter.recordAttempt(formData.email);
+    
     const result = await login(formData.email, formData.password);
+    
+    // Reset rate limiter on successful login
+    if (result.success) {
+      rateLimiter.resetAttempts(formData.email);
+    }
     
     if (!result.success && result.error) {
       // Check if this is a session conflict error
@@ -30,7 +67,7 @@ const Login = () => {
         setSessionConflict({
           show: true,
           message: result.error,
-          userNickname: formData.email.split('@')[0] // Extract username from email
+          userNickname: formData.email.split('@')[0]
         });
       }
     }

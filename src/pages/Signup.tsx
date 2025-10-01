@@ -145,7 +145,6 @@ const Signup = () => {
         
         navigate('/login');
       } catch (error) {
-        console.error('Error during signup:', error);
         ToastManager.show({
           message: 'เกิดข้อผิดพลาดในการสมัครสมาชิก',
           type: 'error'

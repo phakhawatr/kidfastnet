@@ -18,11 +18,6 @@ const AdminLogin = () => {
     setIsLoading(false);
   };
 
-  const handleDemoLogin = () => {
-    setEmail('admin@kidfast.net');
-    setPassword('admin123');
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-[hsl(var(--primary))] via-[hsl(var(--primary-variant))] to-[hsl(var(--accent))] p-4 flex items-center justify-center">
       <div className="card-glass max-w-md w-full p-8">
@@ -31,19 +26,6 @@ const AdminLogin = () => {
             🔐 ผู้ดูแลระบบ
           </h1>
           <p className="text-[hsl(var(--text-secondary))]">เข้าสู่ระบบจัดการ KidFast</p>
-        </div>
-
-        <div className="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-blue-600">ℹ️</span>
-            <span className="text-sm font-medium text-blue-800">ข้อมูลทดลอง</span>
-          </div>
-          <button
-            onClick={handleDemoLogin}
-            className="text-sm text-blue-600 hover:text-blue-800 underline"
-          >
-            คลิกเพื่อเติมข้อมูลเข้าสู่ระบบทดลอง
-          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">

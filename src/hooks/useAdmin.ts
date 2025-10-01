@@ -36,7 +36,6 @@ export const useAdmin = () => {
       });
 
       if (error) {
-        console.error('Authentication error:', error);
         ToastManager.show({
           message: 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ',
           type: 'error'
@@ -71,7 +70,6 @@ export const useAdmin = () => {
         return false;
       }
     } catch (err) {
-      console.error('Login error:', err);
       ToastManager.show({
         message: 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ',
         type: 'error'
