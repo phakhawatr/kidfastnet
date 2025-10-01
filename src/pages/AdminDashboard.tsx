@@ -30,6 +30,8 @@ interface UserRegistration {
   approved_at?: string;
   login_count?: number;
   last_login_at?: string;
+  is_online?: boolean;
+  last_activity_at?: string;
 }
 
 interface UserPresence {
@@ -68,8 +70,8 @@ const AdminDashboard = () => {
       }
     });
 
-    // Listen for presence changes
-    channel.on('presence', { event: 'sync' }, () => {
+    // Listen for presence changes and sync with database
+    channel.on('presence', { event: 'sync' }, async () => {
       const state = channel.presenceState();
       const onlineUserIds = new Set<string>();
       
@@ -82,7 +84,22 @@ const AdminDashboard = () => {
       });
       
       setOnlineUsers(onlineUserIds);
-      console.log('Online users updated:', Array.from(onlineUserIds));
+      console.log('Online users updated from presence:', Array.from(onlineUserIds));
+      
+      // Refresh registrations to get latest database status
+      fetchRegistrations();
+    });
+
+    // Track when users join
+    channel.on('presence', { event: 'join' }, async ({ key, newPresences }) => {
+      console.log('User joined presence:', key, newPresences);
+    });
+
+    // Track when users leave and update database
+    channel.on('presence', { event: 'leave' }, async ({ key, leftPresences }) => {
+      console.log('User left presence:', key, leftPresences);
+      // Refresh to see updated status
+      fetchRegistrations();
     });
 
     channel.subscribe(async (status) => {
@@ -96,12 +113,20 @@ const AdminDashboard = () => {
     };
   }, []);
 
-  // Check if user is currently online
-  const isUserOnline = (userId: string) => {
-    const isOnline = onlineUsers.has(userId);
-    console.log(`Checking online status for ${userId}: ${isOnline}`, { 
+  // Check if user is currently online (both presence and database)
+  const isUserOnline = (userId: string, dbIsOnline?: boolean) => {
+    // Check both presence channel and database status
+    const isOnlineInPresence = onlineUsers.has(userId);
+    const isOnlineInDb = dbIsOnline === true;
+    const isOnline = isOnlineInPresence || isOnlineInDb;
+    
+    console.log(`Checking online status for ${userId}:`, { 
+      presence: isOnlineInPresence,
+      database: isOnlineInDb,
+      final: isOnline,
       onlineUsers: Array.from(onlineUsers) 
     });
+    
     return isOnline;
   };
 
@@ -256,8 +281,9 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleForceLogout = async (userEmail: string, nickname: string) => {
+  const handleForceLogout = async (userEmail: string, nickname: string, userId: string) => {
     try {
+      // Call the RPC to clear session in database
       const { error } = await supabase.rpc('logout_user_session', {
         user_email: userEmail
       });
@@ -265,11 +291,18 @@ const AdminDashboard = () => {
       if (error) throw error;
 
       ToastManager.show({
-        message: `ออกจากระบบสมาชิก "${nickname}" เรียบร้อย!`,
-        type: 'success'
+        message: `กำลังออกจากระบบสมาชิก "${nickname}"...`,
+        type: 'info'
       });
 
-      fetchRegistrations();
+      // Wait a moment for presence to sync
+      setTimeout(() => {
+        fetchRegistrations();
+        ToastManager.show({
+          message: `ออกจากระบบสมาชิก "${nickname}" เรียบร้อย!`,
+          type: 'success'
+        });
+      }, 1000);
     } catch (error) {
       console.error('Error forcing logout:', error);
       ToastManager.show({
@@ -283,7 +316,7 @@ const AdminDashboard = () => {
     // Apply status filter
     let matchesFilter = false;
     if (filter === 'online') {
-      matchesFilter = isUserOnline(reg.id);
+      matchesFilter = isUserOnline(reg.id, reg.is_online);
     } else {
       matchesFilter = filter === 'all' || reg.status === filter;
     }
@@ -308,7 +341,7 @@ const AdminDashboard = () => {
     approved: registrations.filter(r => r.status === 'approved').length,
     rejected: registrations.filter(r => r.status === 'rejected').length,
     suspended: registrations.filter(r => r.status === 'suspended').length,
-    online: registrations.filter(r => isUserOnline(r.id)).length
+    online: registrations.filter(r => isUserOnline(r.id, r.is_online)).length
   };
 
   if (isLoading) {
@@ -451,7 +484,7 @@ const AdminDashboard = () => {
                           </span>
                         )}
                         {(registration.status === 'approved' || registration.status === 'suspended') && (
-                          isUserOnline(registration.id) ? (
+                          isUserOnline(registration.id, registration.is_online) ? (
                             <div className="flex items-center gap-1 px-2 py-1 bg-green-50 rounded-full border border-green-200">
                               <div className="w-3 h-3 bg-green-500 rounded-full animate-online-blink shadow-sm"></div>
                               <span className="text-xs text-green-700 font-semibold">🟢 กำลังใช้งาน</span>
@@ -568,11 +601,11 @@ const AdminDashboard = () => {
                 {(registration.status === 'approved' || registration.status === 'suspended') && (
                   <div className="flex gap-2 flex-wrap">
                     {/* Force Logout Button - Shows only when user is online */}
-                    {isUserOnline(registration.id) && (
+                    {isUserOnline(registration.id, registration.is_online) && (
                       <button
                         onClick={() => {
                           console.log('Force logout clicked for:', registration.nickname, registration.id);
-                          handleForceLogout(registration.parent_email, registration.nickname);
+                          handleForceLogout(registration.parent_email, registration.nickname, registration.id);
                         }}
                         className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium shadow-md"
                       >
