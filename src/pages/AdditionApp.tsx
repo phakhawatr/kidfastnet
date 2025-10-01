@@ -240,22 +240,22 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
             ))}
           </div>
           {/* Grid for numbers with left + column */}
-          <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${digits + 1}, 3rem)` }}>
+          <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${actualDigits + 1}, 3rem)` }}>
             {/* Row 1: empty plus cell + digits of a */}
             <div className="w-12 h-12" />
-            {String(prob.a).padStart(digits, " ").split("").map((ch, i) => (
+            {String(prob.a).padStart(actualDigits, " ").split("").map((ch, i) => (
               <div key={`a${i}`} className="w-12 h-12 border border-sky-200 bg-white rounded-md flex items-center justify-center text-3xl font-extrabold">{ch.trim()}</div>
             ))}
             {/* Row 2: plus sign + digits of b */}
             <div className="w-12 h-12 border border-sky-200 bg-white rounded-md flex items-center justify-center text-3xl font-extrabold text-zinc-500">+</div>
-            {String(prob.b).padStart(digits, " ").split("").map((ch, i) => (
+            {String(prob.b).padStart(actualDigits, " ").split("").map((ch, i) => (
               <div key={`b${i}`} className="w-12 h-12 border border-sky-200 bg-white rounded-md flex items-center justify-center text-3xl font-extrabold">{ch.trim()}</div>
             ))}
             {/* Row 3: plus sign + digits of c (if 3 operands) */}
             {operands === 3 && (
               <>
                 <div className="w-12 h-12 border border-sky-200 bg-white rounded-md flex items-center justify-center text-3xl font-extrabold text-zinc-500">+</div>
-                {String(prob.c).padStart(digits, " ").split("").map((ch, i) => (
+                {String(prob.c).padStart(actualDigits, " ").split("").map((ch, i) => (
                   <div key={`c${i}`} className="w-12 h-12 border border-sky-200 bg-white rounded-md flex items-center justify-center text-3xl font-extrabold">{ch.trim()}</div>
                 ))}
               </>
