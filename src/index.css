@@ -146,6 +146,19 @@
   .animate-online-blink {
     animation: online-blink 2s ease-in-out infinite;
   }
+
+  .animate-ai-gradient {
+    background-size: 200% 200%;
+    animation: ai-gradient 3s ease infinite;
+  }
+
+  .animate-ai-glow {
+    animation: ai-glow 2s ease-in-out infinite;
+  }
+
+  .animate-ai-float {
+    animation: ai-float 3s ease-in-out infinite;
+  }
 }
 
 @keyframes online-blink {
@@ -156,5 +169,41 @@
   50% {
     opacity: 0.6;
     transform: scale(1.1);
+  }
+}
+
+@keyframes ai-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes ai-glow {
+  0%, 100% {
+    text-shadow: 
+      0 0 10px rgba(168, 85, 247, 0.4),
+      0 0 20px rgba(236, 72, 153, 0.3),
+      0 0 30px rgba(251, 146, 60, 0.2);
+  }
+  50% {
+    text-shadow: 
+      0 0 20px rgba(168, 85, 247, 0.6),
+      0 0 30px rgba(236, 72, 153, 0.5),
+      0 0 40px rgba(251, 146, 60, 0.4);
+  }
+}
+
+@keyframes ai-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
   }
 }

@@ -40,7 +40,7 @@ const Landing = () => {
         <section className="card-glass p-8 md:p-12 mb-12 text-center">
           {/* Kidfast AI Logo Text */}
           <div className="mb-8">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-2 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent drop-shadow-2xl tracking-tight">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-2 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent animate-ai-gradient animate-ai-glow animate-ai-float drop-shadow-2xl tracking-tight">
               ⭐ KidFast AI ⭐
             </h1>
           </div>
