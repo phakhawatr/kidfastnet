@@ -175,9 +175,7 @@ const SkillCard: React.FC<{
 
   return (
     <div 
-      className={`relative rounded-3xl shadow-xl hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 ${skill.backgroundGradient} overflow-hidden group cursor-pointer`} 
-      role="button" 
-      tabIndex={0}
+      className={`relative rounded-3xl shadow-xl hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 ${skill.backgroundGradient} overflow-hidden group`}
     >
       {/* Mascot Image */}
       <div className="absolute top-3 right-3 w-14 h-14 z-10">
@@ -195,18 +193,14 @@ const SkillCard: React.FC<{
       </div>
 
       {/* Content */}
-      <Link 
-        to={skill.hrefPreview || '#'} 
-        onClick={handlePreviewClick}
-        className="block p-5 pr-20 pb-6 relative z-5"
-      >
+      <div className="block p-5 pr-20 pb-6 relative z-5">
         <h3 className={`font-bold text-lg mb-2 ${skill.textColor} drop-shadow-sm`}>
           {skill.title}
         </h3>
         <p className={`text-xs leading-relaxed ${skill.textColor} opacity-90 pr-2`}>
           {skill.desc}
         </p>
-      </Link>
+      </div>
     </div>
   );
 };
