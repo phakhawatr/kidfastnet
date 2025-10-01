@@ -9,7 +9,7 @@ const Footer = () => {
         <div className="text-white/80 text-sm space-y-2">
           
           <p>© 2025 KidFast.net - พัฒนาโดยทีมที่รักเด็กและอยากให้เก่ง ❤️</p>
-          <p>ติดต่อเราที่ <a href="#" className="text-white hover:underline">LINE OA @kidfast</a> 💬</p>
+          <p>ติดต่อเราที่ <a href="https://lin.ee/lCrQKbp" className="text-white hover:underline">LINE OA @kidfast</a> 💬</p>
         </div>
       </div>
     </footer>;
