@@ -195,27 +195,18 @@ const SkillCard: React.FC<{
       </div>
 
       {/* Content */}
-      <div className="p-5 pr-20 pb-6 relative z-5">
+      <Link 
+        to={skill.hrefPreview || '#'} 
+        onClick={handlePreviewClick}
+        className="block p-5 pr-20 pb-6 relative z-5"
+      >
         <h3 className={`font-bold text-lg mb-2 ${skill.textColor} drop-shadow-sm`}>
           {skill.title}
         </h3>
         <p className={`text-xs leading-relaxed ${skill.textColor} opacity-90 pr-2`}>
           {skill.desc}
         </p>
-      </div>
-
-      {/* Preview button - appears on hover */}
-      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center rounded-3xl">
-        <Link 
-          to={skill.hrefPreview || '#'} 
-          onClick={handlePreviewClick}
-          className="bg-white text-gray-800 px-6 py-3 rounded-full font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
-          aria-label={`${buttonText} ${skill.title}`}
-        >
-          <Eye className="w-4 h-4" />
-          {buttonText}
-        </Link>
-      </div>
+      </Link>
     </div>
   );
 };
