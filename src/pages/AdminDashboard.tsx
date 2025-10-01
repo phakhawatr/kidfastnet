@@ -252,6 +252,29 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleForceLogout = async (userEmail: string, nickname: string) => {
+    try {
+      const { error } = await supabase.rpc('logout_user_session', {
+        user_email: userEmail
+      });
+
+      if (error) throw error;
+
+      ToastManager.show({
+        message: `ออกจากระบบสมาชิก "${nickname}" เรียบร้อย!`,
+        type: 'success'
+      });
+
+      fetchRegistrations();
+    } catch (error) {
+      console.error('Error forcing logout:', error);
+      ToastManager.show({
+        message: 'เกิดข้อผิดพลาดในการออกจากระบบ',
+        type: 'error'
+      });
+    }
+  };
+
   const filteredRegistrations = registrations.filter(reg => {
     // Apply status filter
     let matchesFilter = false;
@@ -550,6 +573,15 @@ const AdminDashboard = () => {
                     >
                       {registration.status === 'suspended' ? '✅ เปิดการใช้งาน' : '⏸️ หยุดการใช้งาน'}
                     </button>
+                    
+                    {isUserOnline(registration.id) && (
+                      <button
+                        onClick={() => handleForceLogout(registration.parent_email, registration.nickname)}
+                        className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
+                      >
+                        🚪 สมาชิกออกจากระบบ
+                      </button>
+                    )}
                     
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
