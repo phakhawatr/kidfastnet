@@ -230,7 +230,7 @@ const Landing = () => {
             </div>
 
             <div className="text-center mt-8">
-              <p className="text-lg font-bold text-[hsl(var(--text-primary))] bg-gradient-to-r from-yellow-100 to-orange-100 px-8 py-4 rounded-full shadow-lg inline-block">
+              <p className="text-xl md:text-2xl font-bold text-[hsl(var(--text-primary))] bg-gradient-to-r from-yellow-100 to-orange-100 px-12 py-6 rounded-full shadow-2xl inline-block border-2 border-yellow-300 hover:scale-105 transition-transform duration-300">
                 🎯 สมัครวันนี้ ฝึกก่อนเก่งก่อน เหรียญทองโอลิมปิกรอน้องๆอยู่ !
               </p>
             </div>
