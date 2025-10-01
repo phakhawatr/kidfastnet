@@ -182,7 +182,7 @@ const Signup = () => {
                   src="https://scdn.line-apps.com/n/line_add_friends/btn/th.png" 
                   alt="เพิ่มเพื่อน" 
                   className="inline-block hover:opacity-80 transition-opacity" 
-                  style={{ height: '18px' }}
+                  style={{ height: '36px' }}
                 />
               </a>
             </div>
