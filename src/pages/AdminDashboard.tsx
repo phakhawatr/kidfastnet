@@ -98,7 +98,11 @@ const AdminDashboard = () => {
 
   // Check if user is currently online
   const isUserOnline = (userId: string) => {
-    return onlineUsers.has(userId);
+    const isOnline = onlineUsers.has(userId);
+    console.log(`Checking online status for ${userId}: ${isOnline}`, { 
+      onlineUsers: Array.from(onlineUsers) 
+    });
+    return isOnline;
   };
 
   const fetchRegistrations = async () => {
@@ -563,6 +567,19 @@ const AdminDashboard = () => {
 
                 {(registration.status === 'approved' || registration.status === 'suspended') && (
                   <div className="flex gap-2 flex-wrap">
+                    {/* Force Logout Button - Shows only when user is online */}
+                    {isUserOnline(registration.id) && (
+                      <button
+                        onClick={() => {
+                          console.log('Force logout clicked for:', registration.nickname, registration.id);
+                          handleForceLogout(registration.parent_email, registration.nickname);
+                        }}
+                        className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium shadow-md"
+                      >
+                        🚪 สมาชิกออกจากระบบ
+                      </button>
+                    )}
+                    
                     <button
                       onClick={() => handleToggleSuspension(registration.id)}
                       className={`px-4 py-2 text-white rounded-lg transition-colors text-sm font-medium ${
@@ -573,15 +590,6 @@ const AdminDashboard = () => {
                     >
                       {registration.status === 'suspended' ? '✅ เปิดการใช้งาน' : '⏸️ หยุดการใช้งาน'}
                     </button>
-                    
-                    {isUserOnline(registration.id) && (
-                      <button
-                        onClick={() => handleForceLogout(registration.parent_email, registration.nickname)}
-                        className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
-                      >
-                        🚪 สมาชิกออกจากระบบ
-                      </button>
-                    )}
                     
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
