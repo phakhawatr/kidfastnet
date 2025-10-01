@@ -290,19 +290,20 @@ const AdminDashboard = () => {
 
       if (error) throw error;
 
-      ToastManager.show({
-        message: `กำลังออกจากระบบสมาชิก "${nickname}"...`,
-        type: 'info'
+      // Immediately remove from online users set
+      setOnlineUsers(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(userId);
+        return newSet;
       });
 
-      // Wait a moment for presence to sync
-      setTimeout(() => {
-        fetchRegistrations();
-        ToastManager.show({
-          message: `ออกจากระบบสมาชิก "${nickname}" เรียบร้อย!`,
-          type: 'success'
-        });
-      }, 1000);
+      ToastManager.show({
+        message: `ออกจากระบบสมาชิก "${nickname}" เรียบร้อย!`,
+        type: 'success'
+      });
+
+      // Refresh data to get updated status
+      await fetchRegistrations();
     } catch (error) {
       console.error('Error forcing logout:', error);
       ToastManager.show({
