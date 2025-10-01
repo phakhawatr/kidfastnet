@@ -176,13 +176,13 @@ const Signup = () => {
               <span className="text-2xl">⚠️</span>
               <span className="font-bold text-xl text-orange-700">ก่อนสมัครกรุณาติดต่อ @kidfast เพื่อสร้างบัญชีผู้ใช้ใหม่</span>
             </div>
-            <div className="ml-11">
-              <a href="https://lin.ee/hFVAoTI" className="inline-block mt-2">
+            <div className="flex justify-center mt-4">
+              <a href="https://lin.ee/hFVAoTI" className="inline-block">
                 <img 
                   src="https://scdn.line-apps.com/n/line_add_friends/btn/th.png" 
                   alt="เพิ่มเพื่อน" 
-                  height="36" 
                   className="inline-block hover:opacity-80 transition-opacity" 
+                  style={{ height: '18px' }}
                 />
               </a>
             </div>
