@@ -85,83 +85,6 @@ const Landing = () => {
           </div>
         </section>
 
-        {/* Special Promotion Section */}
-        <section className="mb-12">
-          <div className="relative card-glass p-8 md:p-12 overflow-hidden border-4 border-yellow-400 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-[1.02]">
-            {/* Animated background elements */}
-            <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-              <div className="absolute top-4 left-8 text-6xl animate-bounce">🎉</div>
-              <div className="absolute top-8 right-12 text-5xl animate-bounce" style={{ animationDelay: '0.2s' }}>⭐</div>
-              <div className="absolute bottom-8 left-16 text-4xl animate-bounce" style={{ animationDelay: '0.4s' }}>🎈</div>
-              <div className="absolute bottom-12 right-8 text-5xl animate-bounce" style={{ animationDelay: '0.6s' }}>🌟</div>
-            </div>
-
-            <div className="relative z-10 text-center">
-              {/* Badge */}
-              <div className="inline-block mb-6">
-                <span className="bg-gradient-to-r from-red-500 via-pink-500 to-orange-500 text-white px-8 py-3 rounded-full text-xl md:text-2xl font-black shadow-xl animate-pulse-slow">
-                  🔥 โปรโมชั่นพิเศษ 🔥
-                </span>
-              </div>
-
-              {/* Main heading */}
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent drop-shadow-lg">
-                สำหรับน้องๆ 500 คนแรก
-              </h2>
-
-              {/* Price section */}
-              <div className="mb-6">
-                <div className="flex items-center justify-center gap-4 mb-4 flex-wrap">
-                  <span className="text-2xl md:text-3xl text-gray-500">จากราคาสมาชิกรายปี</span>
-                  <span className="relative text-3xl md:text-4xl font-bold text-gray-400">
-                    <span className="line-through">799 บาท</span>
-                    <span className="absolute -top-2 -right-8 text-red-500 text-2xl rotate-12">❌</span>
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-center gap-3 mb-4">
-                  <span className="text-2xl md:text-3xl font-bold text-[hsl(var(--text-primary))]">ส่วนลดในราคาพิเศษเพียง</span>
-                </div>
-
-                <div className="inline-block bg-gradient-to-r from-yellow-400 via-orange-400 to-red-500 p-1 rounded-3xl shadow-2xl mb-4 animate-pulse-slow">
-                  <div className="bg-white rounded-3xl px-12 py-6">
-                    <span className="text-6xl md:text-7xl lg:text-8xl font-black bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 bg-clip-text text-transparent drop-shadow-xl">
-                      299 บาท
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-center gap-2">
-                  <span className="text-3xl md:text-4xl font-black text-green-600 animate-bounce">เท่านั้น!</span>
-                  <span className="text-5xl">🎯</span>
-                </div>
-              </div>
-
-              {/* Supporting text */}
-              <div className="max-w-2xl mx-auto mb-8">
-                <p className="text-xl md:text-2xl font-bold text-[hsl(var(--text-primary))] bg-gradient-to-r from-blue-100 to-purple-100 px-8 py-4 rounded-full shadow-lg border-2 border-blue-300">
-                  💙 เพื่อเป็นการสนับสนุนการศึกษาเด็กไทย 💙
-                </p>
-              </div>
-
-              {/* CTA Button */}
-              <Link 
-                to="/signup" 
-                className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-green-400 via-emerald-500 to-teal-500 hover:from-green-300 hover:to-teal-400 text-white font-black text-2xl md:text-3xl px-12 py-6 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 animate-pulse-slow"
-              >
-                <span className="text-4xl">🎉</span>
-                <span>สมัครเลย!</span>
-                <span className="text-4xl">🎉</span>
-              </Link>
-
-              {/* Countdown or urgency text */}
-              <p className="text-lg md:text-xl font-bold text-red-600 mt-6 animate-pulse">
-                ⏰ เหลืออีกไม่กี่ที่! รีบสมัครก่อนหมดโควต้า! ⏰
-              </p>
-            </div>
-          </div>
-        </section>
-
         {/* Skills Section - Show all skills */}
         <SkillsSection
           onPreview={() => setShowExamplePopup(true)}
@@ -316,6 +239,83 @@ const Landing = () => {
             <div className="text-center mt-8">
               <p className="text-xl md:text-2xl font-bold text-[hsl(var(--text-primary))] bg-gradient-to-r from-yellow-100 to-orange-100 px-12 py-6 rounded-full shadow-2xl inline-block border-2 border-yellow-300 hover:scale-105 transition-transform duration-300">
                 🎯 สมัครวันนี้ ฝึกก่อนเก่งก่อน เหรียญทองโอลิมปิกรอน้องๆอยู่ !
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Special Promotion Section */}
+        <section className="mb-12">
+          <div className="relative card-glass p-8 md:p-12 overflow-hidden border-4 border-yellow-400 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-[1.02]">
+            {/* Animated background elements */}
+            <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+              <div className="absolute top-4 left-8 text-6xl animate-bounce">🎉</div>
+              <div className="absolute top-8 right-12 text-5xl animate-bounce" style={{ animationDelay: '0.2s' }}>⭐</div>
+              <div className="absolute bottom-8 left-16 text-4xl animate-bounce" style={{ animationDelay: '0.4s' }}>🎈</div>
+              <div className="absolute bottom-12 right-8 text-5xl animate-bounce" style={{ animationDelay: '0.6s' }}>🌟</div>
+            </div>
+
+            <div className="relative z-10 text-center">
+              {/* Badge */}
+              <div className="inline-block mb-6">
+                <span className="bg-gradient-to-r from-red-500 via-pink-500 to-orange-500 text-white px-8 py-3 rounded-full text-xl md:text-2xl font-black shadow-xl animate-pulse-slow">
+                  🔥 โปรโมชั่นพิเศษ 🔥
+                </span>
+              </div>
+
+              {/* Main heading */}
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent drop-shadow-lg">
+                สำหรับน้องๆ 500 คนแรก
+              </h2>
+
+              {/* Price section */}
+              <div className="mb-6">
+                <div className="flex items-center justify-center gap-4 mb-4 flex-wrap">
+                  <span className="text-2xl md:text-3xl text-gray-500">จากราคาสมาชิกรายปี</span>
+                  <span className="relative text-3xl md:text-4xl font-bold text-gray-400">
+                    <span className="line-through">799 บาท</span>
+                    <span className="absolute -top-2 -right-8 text-red-500 text-2xl rotate-12">❌</span>
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <span className="text-2xl md:text-3xl font-bold text-[hsl(var(--text-primary))]">ส่วนลดในราคาพิเศษเพียง</span>
+                </div>
+
+                <div className="inline-block bg-gradient-to-r from-yellow-400 via-orange-400 to-red-500 p-1 rounded-3xl shadow-2xl mb-4 animate-pulse-slow">
+                  <div className="bg-white rounded-3xl px-12 py-6">
+                    <span className="text-6xl md:text-7xl lg:text-8xl font-black bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 bg-clip-text text-transparent drop-shadow-xl">
+                      299 บาท
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-center gap-2">
+                  <span className="text-3xl md:text-4xl font-black text-green-600 animate-bounce">เท่านั้น!</span>
+                  <span className="text-5xl">🎯</span>
+                </div>
+              </div>
+
+              {/* Supporting text */}
+              <div className="max-w-2xl mx-auto mb-8">
+                <p className="text-xl md:text-2xl font-bold text-[hsl(var(--text-primary))] bg-gradient-to-r from-blue-100 to-purple-100 px-8 py-4 rounded-full shadow-lg border-2 border-blue-300">
+                  💙 เพื่อเป็นการสนับสนุนการศึกษาเด็กไทย 💙
+                </p>
+              </div>
+
+              {/* CTA Button */}
+              <Link 
+                to="/signup" 
+                className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-green-400 via-emerald-500 to-teal-500 hover:from-green-300 hover:to-teal-400 text-white font-black text-2xl md:text-3xl px-12 py-6 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 animate-pulse-slow"
+              >
+                <span className="text-4xl">🎉</span>
+                <span>สมัครเลย!</span>
+                <span className="text-4xl">🎉</span>
+              </Link>
+
+              {/* Countdown or urgency text */}
+              <p className="text-lg md:text-xl font-bold text-red-600 mt-6 animate-pulse">
+                ⏰ เหลืออีกไม่กี่ที่! รีบสมัครก่อนหมดโควต้า! ⏰
               </p>
             </div>
           </div>
