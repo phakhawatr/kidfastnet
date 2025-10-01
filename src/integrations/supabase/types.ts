@@ -83,6 +83,36 @@ export type Database = {
         }
         Relationships: []
       }
+      security_audit_log: {
+        Row: {
+          created_at: string
+          event_data: Json | null
+          event_type: string
+          id: string
+          ip_address: string | null
+          user_agent: string | null
+          user_identifier: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_identifier?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_identifier?: string | null
+        }
+        Relationships: []
+      }
       user_registrations: {
         Row: {
           age: number
@@ -241,6 +271,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      log_security_event: {
+        Args: {
+          p_event_data?: Json
+          p_event_type: string
+          p_user_identifier?: string
+        }
+        Returns: string
+      }
       logout_user_session: {
         Args: { session_id?: string; user_email: string }
         Returns: boolean
@@ -259,6 +297,14 @@ export type Database = {
       }
       update_user_session: {
         Args: { device_info?: string; session_id: string; user_email: string }
+        Returns: boolean
+      }
+      validate_email_format: {
+        Args: { email: string }
+        Returns: boolean
+      }
+      validate_phone_format: {
+        Args: { phone: string }
         Returns: boolean
       }
     }
