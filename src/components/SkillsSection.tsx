@@ -178,7 +178,7 @@ const SkillCard: React.FC<{
 
   const cardContent = (
     <div 
-      className={`relative rounded-3xl shadow-xl hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 ${skill.backgroundGradient} overflow-hidden group`}
+      className={`relative rounded-3xl shadow-xl ${!disableLinks ? 'hover:-translate-y-2 hover:shadow-2xl cursor-pointer' : ''} transition-all duration-300 ${skill.backgroundGradient} overflow-hidden group`}
     >
       {/* Mascot Image */}
       <div className="absolute top-3 right-3 w-14 h-14 z-10">
@@ -212,7 +212,9 @@ const SkillCard: React.FC<{
       {cardContent}
     </Link>
   ) : (
-    cardContent
+    <div onClick={onPreview && !disableLinks ? handlePreviewClick : undefined}>
+      {cardContent}
+    </div>
   );
 };
 const SkillsSection: React.FC<SkillsSectionProps> = ({
