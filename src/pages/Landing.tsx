@@ -88,7 +88,8 @@ const Landing = () => {
         {/* Skills Section - Show all skills */}
         <SkillsSection
           onPreview={() => setShowExamplePopup(true)}
-          buttonText="ดูตัวอย่างแบบฝึกหัด" 
+          buttonText="ดูตัวอย่างแบบฝึกหัด"
+          disableLinks={true}
         />
 
         {/* Benefits Section */}
