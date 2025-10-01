@@ -6,6 +6,12 @@ import SkillsSection from '../components/SkillsSection';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '../components/ui/dialog';
 import { X } from 'lucide-react';
 import additionExampleImage from '../assets/addition-examples.png';
+import exampleAddition from '../assets/example-addition.jpg';
+import exampleSubtraction from '../assets/example-subtraction.jpg';
+import exampleMultiplication from '../assets/example-multiplication.jpg';
+import exampleFractions from '../assets/example-fractions.jpg';
+import exampleWeighing from '../assets/example-weighing.jpg';
+import exampleMeasurement from '../assets/example-measurement.jpg';
 const Landing = () => {
   const [showExamplePopup, setShowExamplePopup] = useState(false);
   
@@ -97,6 +103,136 @@ const Landing = () => {
                     {benefit.description}
                   </p>
                 </div>)}
+            </div>
+          </div>
+        </section>
+
+        {/* AI Examples Section */}
+        <section className="mb-12">
+          <div className="card-glass p-8">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold text-[hsl(var(--text-primary))] mb-4">
+                ✨ ตัวอย่างแบบฝึกหัดจาก AI
+              </h2>
+              <p className="text-lg text-[hsl(var(--text-secondary))] max-w-3xl mx-auto">
+                AI ของเราสร้างโจทย์ใหม่ได้ไม่จำกัด! หลากหลายรูปแบบ สนุกทุกครั้งที่ฝึก 🎯
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden">
+                <div className="aspect-video overflow-hidden">
+                  <img 
+                    src={exampleAddition} 
+                    alt="การบวกแนวตั้ง"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
+                <div className="p-4">
+                  <h3 className="font-bold text-lg mb-2 text-[hsl(var(--text-primary))]">
+                    🧮 การบวกแนวตั้ง
+                  </h3>
+                  <p className="text-sm text-[hsl(var(--text-secondary))]">
+                    ฝึกบวกเลขด้วยวิธีแนวตั้ง เข้าใจหลักหน่วย สิบ ร้อย AI สร้างโจทย์ใหม่ทุกครั้ง!
+                  </p>
+                </div>
+              </div>
+
+              <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden">
+                <div className="aspect-video overflow-hidden">
+                  <img 
+                    src={exampleSubtraction} 
+                    alt="การลบแนวตั้ง"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
+                <div className="p-4">
+                  <h3 className="font-bold text-lg mb-2 text-[hsl(var(--text-primary))]">
+                    ➖ การลบแนวตั้ง
+                  </h3>
+                  <p className="text-sm text-[hsl(var(--text-secondary))]">
+                    เรียนรู้การลบแบบมีตัวยืม เข้าใจง่าย ฝึกจนชำนาญ พร้อมเฉลยละเอียด!
+                  </p>
+                </div>
+              </div>
+
+              <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden">
+                <div className="aspect-video overflow-hidden">
+                  <img 
+                    src={exampleMultiplication} 
+                    alt="การคูณแนวตั้ง"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
+                <div className="p-4">
+                  <h3 className="font-bold text-lg mb-2 text-[hsl(var(--text-primary))]">
+                    ✖️ การคูณแนวตั้ง
+                  </h3>
+                  <p className="text-sm text-[hsl(var(--text-secondary))]">
+                    ฝึกคูณเลข 2-3 หลัก แบบมีตัวทด เรียนรู้ขั้นตอนทีละขั้น สนุกกับโจทย์หลากหลาย!
+                  </p>
+                </div>
+              </div>
+
+              <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden">
+                <div className="aspect-video overflow-hidden">
+                  <img 
+                    src={exampleFractions} 
+                    alt="จับคู่เศษส่วน"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
+                <div className="p-4">
+                  <h3 className="font-bold text-lg mb-2 text-[hsl(var(--text-primary))]">
+                    🍕 จับคู่เศษส่วน
+                  </h3>
+                  <p className="text-sm text-[hsl(var(--text-secondary))]">
+                    เรียนรู้เศษส่วนจากภาพสี่สันสดใส จับคู่ภาพกับตัวเลข สนุกและเข้าใจง่าย!
+                  </p>
+                </div>
+              </div>
+
+              <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden">
+                <div className="aspect-video overflow-hidden">
+                  <img 
+                    src={exampleWeighing} 
+                    alt="อ่านค่าน้ำหนักจากตาชั่ง"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
+                <div className="p-4">
+                  <h3 className="font-bold text-lg mb-2 text-[hsl(var(--text-primary))]">
+                    ⚖️ อ่านค่าน้ำหนัก
+                  </h3>
+                  <p className="text-sm text-[hsl(var(--text-secondary))]">
+                    ฝึกอ่านตาชั่งจากภาพจริง เรียนรู้หน่วย kg และ g เข้าใจการวัดน้ำหนัก!
+                  </p>
+                </div>
+              </div>
+
+              <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden">
+                <div className="aspect-video overflow-hidden">
+                  <img 
+                    src={exampleMeasurement} 
+                    alt="วัดความยาวด้วยไม้บรรทัด"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
+                <div className="p-4">
+                  <h3 className="font-bold text-lg mb-2 text-[hsl(var(--text-primary))]">
+                    📏 วัดความยาว
+                  </h3>
+                  <p className="text-sm text-[hsl(var(--text-secondary))]">
+                    ฝึกอ่านไม้บรรทัดจากภาพจริง เข้าใจหน่วยเซนติเมตร มิลลิเมตร สนุกและใช้งานได้จริง!
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center mt-8">
+              <p className="text-lg font-bold text-[hsl(var(--text-primary))] bg-gradient-to-r from-yellow-100 to-orange-100 px-8 py-4 rounded-full shadow-lg inline-block">
+                🎯 สมัครวันนี้ ฝึกได้ไม่จำกัด! 🚀
+              </p>
             </div>
           </div>
         </section>
