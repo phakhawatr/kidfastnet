@@ -38,9 +38,16 @@ const Landing = () => {
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
         <section className="card-glass p-8 md:p-12 mb-12 text-center">
-          <h1 className="text-3xl md:text-5xl font-bold mb-6 text-[hsl(var(--text-primary))]">
+          {/* Kidfast AI Logo Text */}
+          <div className="mb-8">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-2 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent drop-shadow-2xl tracking-tight">
+              ⭐ KidFast AI ⭐
+            </h1>
+          </div>
+
+          <h2 className="text-3xl md:text-5xl font-bold mb-6 text-[hsl(var(--text-primary))]">
             🌟 เรียนคณิตแบบสนุกๆ ง่ายๆ 🌟
-          </h1>
+          </h2>
           <p className="text-lg md:text-xl text-[hsl(var(--text-secondary))] mb-8 max-w-3xl mx-auto">
             พัฒนาทักษะการคิดคำนวณสำหรับเด็กประถม ด้วยเกมและกิจกรรมสนุกๆ<br />
             ที่เตรียมไว้สำหรับน้อง ป.1 – ป.6
