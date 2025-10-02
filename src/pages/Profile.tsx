@@ -234,33 +234,58 @@ const Profile = () => {
   // Fetch user registration data
   useEffect(() => {
     const fetchRegistrationData = async () => {
-      if (isDemo) return;
+      console.log('Profile - isDemo:', isDemo);
+      console.log('Profile - username:', username);
       
       try {
         const stored = localStorage.getItem('kidfast_auth');
-        if (!stored) return;
+        console.log('Profile - localStorage auth:', stored ? JSON.parse(stored) : null);
+        
+        if (!stored) {
+          console.log('No auth state in localStorage');
+          return;
+        }
         
         const authState = JSON.parse(stored);
-        const email = authState.email;
         
-        if (!email) return;
+        // Skip only if explicitly in demo mode
+        if (authState.isDemo === true) {
+          console.log('Skipping registration data fetch - demo mode');
+          return;
+        }
         
+        const email = authState.email || authState.username;
+        console.log('Profile - email/username for query:', email);
+        
+        if (!email) {
+          console.log('No email or username in auth state');
+          return;
+        }
+        
+        console.log('Fetching registration data for:', email);
         const { data, error } = await supabase
           .from('user_registrations')
           .select('created_at, approved_at, last_login_at, payment_date')
           .eq('parent_email', email)
           .maybeSingle();
         
+        console.log('Registration data query result:', { data, error });
+        
         if (data && !error) {
+          console.log('✅ Successfully loaded registration data');
           setRegistrationData(data);
+        } else if (error) {
+          console.error('❌ Error loading registration data:', error);
+        } else {
+          console.log('⚠️ No registration data found for:', email);
         }
       } catch (e) {
-        console.error('Error fetching registration data:', e);
+        console.error('❌ Exception fetching registration data:', e);
       }
     };
     
     fetchRegistrationData();
-  }, [isDemo]);
+  }, [isDemo, username]);
 
   // Calculate membership expiration (1 year from payment_date or approved_at)
   const getMembershipExpiration = () => {
@@ -365,7 +390,7 @@ const Profile = () => {
         </div>
 
         {/* Member Information */}
-        {!isDemo && registrationData && (
+        {registrationData && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <Card className="bg-white/80 border-2 border-purple-200">
               <CardContent className="p-4 text-center">
