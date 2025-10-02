@@ -109,7 +109,7 @@ const defaultSkills: Skill[] = [{
   mascotImage: weighingMascot
 }, {
   icon: Zap,
-  title: 'การวัดด้วยไม้บันทัด',
+  title: 'วัดด้วยไม้บันทัด',
   desc: 'ฝึกการวัดความยาวด้วยไม้บรรทัด เรียนรู้การแปลงหน่วย',
   backgroundGradient: 'bg-gradient-to-br from-slate-400 via-gray-500 to-zinc-600',
   textColor: 'text-white',
@@ -151,7 +151,7 @@ const defaultSkills: Skill[] = [{
   hrefPreview: '/percentage'
 }, {
   icon: ArrowLeftRight,
-  title: 'เปรียบเทียบความยาว',
+  title: 'เทียบความยาว',
   desc: 'เปรียบเทียบความยาวของวัตถุ เรียนรู้การเรียงลำดับ',
   backgroundGradient: 'bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-500',
   textColor: 'text-white',
