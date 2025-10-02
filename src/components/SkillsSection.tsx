@@ -91,7 +91,7 @@ const defaultSkills: Skill[] = [{
   mascotImage: timeMascot
 }, {
   icon: Ruler,
-  title: 'วัดด้วยไม้บันทัด',
+  title: 'เทียบความยาว',
   desc: 'วัดและเปรียบเทียบขนาด เรียนรู้หน่วยการวัดต่างๆ',
   backgroundGradient: 'bg-gradient-to-br from-pink-400 via-pink-500 to-fuchsia-600',
   textColor: 'text-white',
