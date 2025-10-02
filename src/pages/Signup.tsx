@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '../hooks/useAuth';
 import Header from '../components/Header';
@@ -36,9 +36,22 @@ const Signup = () => {
     acceptTerms: false,
     acceptNewsletter: false
   });
+  const [affiliateCode, setAffiliateCode] = useState<string | null>(null);
 
   const navigate = useNavigate();
   const { signup } = useAuth();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const refCode = searchParams.get('ref');
+    if (refCode) {
+      setAffiliateCode(refCode);
+      ToastManager.show({
+        message: `สมัครผ่านรหัสแนะนำ: ${refCode}`,
+        type: 'info'
+      });
+    }
+  }, [searchParams]);
 
   const grades = [
     { id: '1', label: 'ป.1', color: 'bg-[hsl(var(--grade-1))]' },
@@ -122,7 +135,7 @@ const Signup = () => {
         }
 
         // First create registration request for admin approval
-        const { error: registrationError } = await supabase
+        const { data: registrationData, error: registrationError } = await supabase
           .from('user_registrations')
           .insert({
             nickname: formData.nickname,
@@ -133,10 +146,25 @@ const Signup = () => {
             parent_email: formData.parentEmail,
             parent_phone: formData.parentPhone,
             password_hash: formData.password, // Will be hashed by trigger
-            status: 'pending'
-          });
+            status: 'pending',
+            referred_by_code: affiliateCode
+          })
+          .select()
+          .single();
 
         if (registrationError) throw registrationError;
+
+        // Track affiliate referral if code exists
+        if (affiliateCode && registrationData) {
+          try {
+            await supabase.rpc('track_referral_signup', {
+              p_referred_email: formData.parentEmail,
+              p_affiliate_code: affiliateCode
+            });
+          } catch (error) {
+            console.error('Error tracking referral:', error);
+          }
+        }
 
         ToastManager.show({
           message: 'ส่งคำขอสมัครเรียบร้อย! กรุณารอการอนุมัติจากผู้ดูแล คุณจะได้รับอีเมลเมื่อได้รับการอนุมัติแล้ว',

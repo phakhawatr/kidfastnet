@@ -22,6 +22,7 @@ import PercentageApp from "./pages/PercentageApp";
 import NumberSeriesApp from "./pages/NumberSeriesApp";
 import SumGridPuzzles from "./pages/SumGridPuzzles";
 import BackgroundRemoverPage from "./pages/BackgroundRemover";
+import ParentDashboard from "./pages/ParentDashboard";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
@@ -41,6 +42,14 @@ const App = () => (
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/parent" 
+          element={
+            <ProtectedRoute>
+              <ParentDashboard />
             </ProtectedRoute>
           } 
         />

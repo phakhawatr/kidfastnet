@@ -38,6 +38,122 @@ export type Database = {
         }
         Relationships: []
       }
+      affiliate_codes: {
+        Row: {
+          affiliate_code: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          affiliate_code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          affiliate_code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_codes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      affiliate_referrals: {
+        Row: {
+          affiliate_code: string
+          created_at: string
+          id: string
+          referred_id: string
+          referrer_id: string
+          status: string
+        }
+        Insert: {
+          affiliate_code: string
+          created_at?: string
+          id?: string
+          referred_id: string
+          referrer_id: string
+          status?: string
+        }
+        Update: {
+          affiliate_code?: string
+          created_at?: string
+          id?: string
+          referred_id?: string
+          referrer_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_referrals_referred_id_fkey"
+            columns: ["referred_id"]
+            isOneToOne: true
+            referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      affiliate_rewards: {
+        Row: {
+          created_at: string
+          id: string
+          points: number
+          referral_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          points?: number
+          referral_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          points?: number
+          referral_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_rewards_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_referrals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_rewards_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           age: number
@@ -113,6 +229,35 @@ export type Database = {
         }
         Relationships: []
       }
+      user_points: {
+        Row: {
+          id: string
+          total_points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          total_points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          total_points?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_points_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_registrations: {
         Row: {
           age: number
@@ -133,6 +278,9 @@ export type Database = {
           parent_email: string
           parent_phone: string | null
           password_hash: string
+          payment_date: string | null
+          payment_status: string | null
+          referred_by_code: string | null
           session_id: string | null
           status: string
         }
@@ -155,6 +303,9 @@ export type Database = {
           parent_email: string
           parent_phone?: string | null
           password_hash: string
+          payment_date?: string | null
+          payment_status?: string | null
+          referred_by_code?: string | null
           session_id?: string | null
           status?: string
         }
@@ -177,6 +328,9 @@ export type Database = {
           parent_email?: string
           parent_phone?: string | null
           password_hash?: string
+          payment_date?: string | null
+          payment_status?: string | null
+          referred_by_code?: string | null
           session_id?: string | null
           status?: string
         }
@@ -243,9 +397,36 @@ export type Database = {
         Args: { admin_id: string; registration_id: string }
         Returns: boolean
       }
+      generate_affiliate_code: {
+        Args: { p_user_id: string }
+        Returns: string
+      }
       generate_member_id: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_affiliate_referrals: {
+        Args: { p_user_email: string }
+        Returns: {
+          id: string
+          nickname: string
+          parent_email: string
+          payment_date: string
+          payment_status: string
+          points_earned: number
+          referral_status: string
+          signup_date: string
+        }[]
+      }
+      get_user_affiliate_stats: {
+        Args: { p_user_email: string }
+        Returns: {
+          affiliate_code: string
+          paid_referrals: number
+          pending_referrals: number
+          total_points: number
+          total_referrals: number
+        }[]
       }
       get_user_registrations: {
         Args: Record<PropertyKey, never>
@@ -283,12 +464,20 @@ export type Database = {
         Args: { session_id?: string; user_email: string }
         Returns: boolean
       }
+      process_affiliate_reward: {
+        Args: { p_referred_email: string }
+        Returns: boolean
+      }
       reject_user_registration: {
         Args: { admin_id: string; registration_id: string }
         Returns: boolean
       }
       toggle_user_suspension: {
         Args: { admin_id: string; registration_id: string }
+        Returns: boolean
+      }
+      track_referral_signup: {
+        Args: { p_affiliate_code: string; p_referred_email: string }
         Returns: boolean
       }
       update_login_stats: {

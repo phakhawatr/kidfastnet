@@ -292,7 +292,9 @@ const Profile = () => {
               <p className="text-[hsl(var(--text-secondary))]">ยินดีต้อนรับกลับสู่การเรียนรู้ที่สนุก</p>
             </div>
             <div className="flex gap-2">
-              <button className="chip">ผู้ปกครอง</button>
+              <Link to="/parent" className="chip">
+                🎁 ผู้ปกครอง - แนะนำเพื่อน
+              </Link>
             </div>
           </div>
         </div>
