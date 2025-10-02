@@ -40,32 +40,45 @@ interface Referral {
 const ParentDashboard = () => {
   const { user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [stats, setStats] = useState<AffiliateStats | null>(null);
+  const [stats, setStats] = useState<AffiliateStats>({
+    affiliate_code: '',
+    total_referrals: 0,
+    paid_referrals: 0,
+    total_points: 0,
+    pending_referrals: 0
+  });
   const [referrals, setReferrals] = useState<Referral[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [affiliateLink, setAffiliateLink] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log('Auth state changed:', { user, authLoading });
     if (!authLoading && !user) {
+      console.log('No user, redirecting to login');
       navigate('/login');
-    }
-  }, [user, authLoading, navigate]);
-
-  useEffect(() => {
-    if (user) {
+    } else if (!authLoading && user) {
+      console.log('User authenticated, loading affiliate data');
       loadAffiliateData();
     }
-  }, [user]);
+  }, [user, authLoading, navigate]);
 
   const loadAffiliateData = async () => {
     try {
       setIsLoading(true);
+      setError(null);
       console.log('Loading affiliate data for user:', user?.email);
       
-      if (!user?.email) {
+      // Get auth state from localStorage as fallback
+      const authState = localStorage.getItem('kidfast_auth');
+      const email = user?.email || (authState ? JSON.parse(authState).email : null);
+      
+      if (!email) {
         console.error('No user email found');
-        toast.error('ไม่พบข้อมูลผู้ใช้ กรุณาเข้าสู่ระบบใหม่');
-        navigate('/login');
+        const errorMsg = 'ไม่พบข้อมูลผู้ใช้ กรุณาเข้าสู่ระบบใหม่';
+        setError(errorMsg);
+        toast.error(errorMsg);
+        setTimeout(() => navigate('/login'), 2000);
         return;
       }
       
@@ -73,14 +86,25 @@ const ParentDashboard = () => {
       const { data: userData, error: userError } = await supabase
         .from('user_registrations')
         .select('id')
-        .eq('parent_email', user.email)
-        .single();
+        .eq('parent_email', email)
+        .maybeSingle();
 
       console.log('User data:', userData, 'Error:', userError);
 
       if (userError) {
         console.error('Error fetching user:', userError);
-        toast.error('ไม่สามารถโหลดข้อมูลผู้ใช้ได้');
+        const errorMsg = 'ไม่สามารถโหลดข้อมูลผู้ใช้ได้: ' + userError.message;
+        setError(errorMsg);
+        toast.error(errorMsg);
+        setIsLoading(false);
+        return;
+      }
+
+      if (!userData) {
+        const errorMsg = 'ไม่พบข้อมูลสมาชิก กรุณาติดต่อผู้ดูแลระบบ';
+        setError(errorMsg);
+        toast.error(errorMsg);
+        setIsLoading(false);
         return;
       }
 
@@ -118,9 +142,9 @@ const ParentDashboard = () => {
         console.log('Affiliate link set:', link);
 
         // Get stats
-        console.log('Fetching stats for:', user.email);
+        console.log('Fetching stats for:', email);
         const { data: statsData, error: statsError } = await supabase.rpc('get_user_affiliate_stats', {
-          p_user_email: user.email
+          p_user_email: email
         });
 
         console.log('Stats data:', statsData, 'Error:', statsError);
@@ -143,9 +167,9 @@ const ParentDashboard = () => {
         }
 
         // Get referrals
-        console.log('Fetching referrals for:', user.email);
+        console.log('Fetching referrals for:', email);
         const { data: referralsData, error: referralsError } = await supabase.rpc('get_affiliate_referrals', {
-          p_user_email: user.email
+          p_user_email: email
         });
 
         console.log('Referrals data:', referralsData, 'Error:', referralsError);
@@ -160,7 +184,9 @@ const ParentDashboard = () => {
       }
     } catch (error) {
       console.error('Error loading affiliate data:', error);
-      toast.error('เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + (error as Error).message);
+      const errorMsg = 'เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + (error as Error).message;
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -209,14 +235,57 @@ const ParentDashboard = () => {
     }
   };
 
-  if (authLoading || isLoading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary via-secondary to-accent">
         <Header />
         <div className="flex items-center justify-center h-[80vh]">
           <div className="card-glass p-8 text-center">
             <div className="text-4xl mb-4">🔄</div>
-            <p className="text-text-secondary">กำลังโหลดข้อมูล...</p>
+            <p className="text-text-secondary">กำลังตรวจสอบผู้ใช้...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary via-secondary to-accent">
+        <Header />
+        <div className="flex items-center justify-center h-[80vh]">
+          <div className="card-glass p-8 text-center max-w-md">
+            <div className="text-4xl mb-4">❌</div>
+            <h2 className="text-xl font-bold text-red-600 mb-4">เกิดข้อผิดพลาด</h2>
+            <p className="text-text-secondary mb-6">{error}</p>
+            <div className="flex gap-3 justify-center">
+              <button 
+                onClick={() => navigate('/profile')}
+                className="btn-secondary"
+              >
+                กลับหน้าโปรไฟล์
+              </button>
+              <button 
+                onClick={() => window.location.reload()}
+                className="btn-primary"
+              >
+                ลองใหม่
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary via-secondary to-accent">
+        <Header />
+        <div className="flex items-center justify-center h-[80vh]">
+          <div className="card-glass p-8 text-center">
+            <div className="text-4xl mb-4">🔄</div>
+            <p className="text-text-secondary">กำลังโหลดข้อมูล affiliate...</p>
           </div>
         </div>
       </div>
