@@ -452,6 +452,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      is_user_affiliate_owner: {
+        Args: { p_user_id: string }
+        Returns: boolean
+      }
       log_security_event: {
         Args: {
           p_event_data?: Json
