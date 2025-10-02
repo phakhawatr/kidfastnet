@@ -4,6 +4,8 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SkillsSection from '../components/SkillsSection';
 import { useAuth } from '../hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { Card, CardContent } from '@/components/ui/card';
 
 // Import mascot images
 import mascotAddition from '../assets/mascot-addition.png';
@@ -222,6 +224,74 @@ const Profile = () => {
   
   const [selectedGrade, setSelectedGrade] = useState('1');
   const [randomRecommendations, setRandomRecommendations] = useState<any[]>([]);
+  const [registrationData, setRegistrationData] = useState<{
+    created_at: string | null;
+    approved_at: string | null;
+    last_login_at: string | null;
+    payment_date: string | null;
+  } | null>(null);
+
+  // Fetch user registration data
+  useEffect(() => {
+    const fetchRegistrationData = async () => {
+      if (isDemo) return;
+      
+      try {
+        const stored = localStorage.getItem('kidfast_auth');
+        if (!stored) return;
+        
+        const authState = JSON.parse(stored);
+        const email = authState.email;
+        
+        if (!email) return;
+        
+        const { data, error } = await supabase
+          .from('user_registrations')
+          .select('created_at, approved_at, last_login_at, payment_date')
+          .eq('parent_email', email)
+          .maybeSingle();
+        
+        if (data && !error) {
+          setRegistrationData(data);
+        }
+      } catch (e) {
+        console.error('Error fetching registration data:', e);
+      }
+    };
+    
+    fetchRegistrationData();
+  }, [isDemo]);
+
+  // Calculate membership expiration (1 year from payment_date or approved_at)
+  const getMembershipExpiration = () => {
+    if (!registrationData) return null;
+    
+    const baseDate = registrationData.payment_date || registrationData.approved_at;
+    if (!baseDate) return null;
+    
+    const date = new Date(baseDate);
+    date.setFullYear(date.getFullYear() + 1);
+    return date;
+  };
+
+  // Format date to Thai format
+  const formatThaiDate = (dateString: string | null) => {
+    if (!dateString) return '-';
+    
+    const date = new Date(dateString);
+    const thaiYear = date.getFullYear() + 543;
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    
+    return `${day}/${month}/${thaiYear} ${hours}:${minutes}`;
+  };
+
+  const membershipExpiration = getMembershipExpiration();
+  const formattedExpiration = membershipExpiration 
+    ? formatThaiDate(membershipExpiration.toISOString()) 
+    : '-';
   const grades = [{
     id: '1',
     label: 'การบวก',
@@ -293,6 +363,51 @@ const Profile = () => {
             </div>
           </div>
         </div>
+
+        {/* Member Information */}
+        {!isDemo && registrationData && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <Card className="bg-white/80 border-2 border-purple-200">
+              <CardContent className="p-4 text-center">
+                <div className="text-3xl mb-2">📅</div>
+                <div className="text-sm text-[hsl(var(--text-secondary))] mb-1">สมัครเมื่อ</div>
+                <div className="text-xs font-semibold text-[hsl(var(--text-primary))]">
+                  {formatThaiDate(registrationData.created_at)}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/80 border-2 border-green-200">
+              <CardContent className="p-4 text-center">
+                <div className="text-3xl mb-2">✅</div>
+                <div className="text-sm text-[hsl(var(--text-secondary))] mb-1">อนุมัติเมื่อ</div>
+                <div className="text-xs font-semibold text-[hsl(var(--text-primary))]">
+                  {formatThaiDate(registrationData.approved_at)}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/80 border-2 border-orange-200">
+              <CardContent className="p-4 text-center">
+                <div className="text-3xl mb-2">⏰</div>
+                <div className="text-sm text-[hsl(var(--text-secondary))] mb-1">วันหมดอายุสมาชิก</div>
+                <div className="text-xs font-semibold text-[hsl(var(--text-primary))]">
+                  {formattedExpiration}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/80 border-2 border-blue-200">
+              <CardContent className="p-4 text-center">
+                <div className="text-3xl mb-2">🔐</div>
+                <div className="text-sm text-[hsl(var(--text-secondary))] mb-1">Login ล่าสุด</div>
+                <div className="text-xs font-semibold text-[hsl(var(--text-primary))]">
+                  {formatThaiDate(registrationData.last_login_at)}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Grade Selection */}
         <div className="flex gap-3 mb-6 overflow-x-auto pb-2">
