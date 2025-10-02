@@ -105,7 +105,7 @@ const ParentDashboard = () => {
                 .from('user_registrations')
                 .select('parent_email')
                 .eq('id', parsed.registrationId)
-                .single();
+                .maybeSingle();
               
               if (regError) {
                 console.error('Error fetching user registration:', regError);
