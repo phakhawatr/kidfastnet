@@ -181,10 +181,14 @@ const ParentDashboard = () => {
           
           if (genError) {
             console.error('Error generating code:', genError);
-            toast.error('ไม่สามารถสร้างรหัส affiliate ได้');
+            const errorMsg = 'ไม่สามารถสร้างรหัส affiliate ได้: ' + genError.message;
+            setError(errorMsg);
+            toast.error(errorMsg);
+            setIsLoading(false);
             return;
           }
           code = newCode;
+          toast.success('สร้างรหัส affiliate สำเร็จ!');
         }
 
         // Set affiliate link
@@ -305,25 +309,32 @@ const ParentDashboard = () => {
       <div className="min-h-screen bg-gradient-to-br from-primary via-secondary to-accent">
         <Header />
         <div className="flex items-center justify-center h-[80vh]">
-          <div className="card-glass p-8 text-center max-w-md">
-            <div className="text-4xl mb-4">❌</div>
-            <h2 className="text-xl font-bold text-red-600 mb-4">เกิดข้อผิดพลาด</h2>
-            <p className="text-text-secondary mb-6">{error}</p>
-            <div className="flex gap-3 justify-center">
-              <button 
-                onClick={() => navigate('/profile')}
-                className="btn-secondary"
-              >
-                กลับหน้าโปรไฟล์
-              </button>
-              <button 
-                onClick={() => window.location.reload()}
-                className="btn-primary"
-              >
-                ลองใหม่
-              </button>
-            </div>
-          </div>
+          <Card className="max-w-md mx-auto">
+            <CardHeader>
+              <div className="text-4xl mb-4 text-center">❌</div>
+              <CardTitle className="text-xl text-center text-red-600">เกิดข้อผิดพลาด</CardTitle>
+              <CardDescription className="text-center">{error}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-3 justify-center">
+                <Button 
+                  onClick={() => navigate('/profile')}
+                  variant="outline"
+                >
+                  กลับหน้าโปรไฟล์
+                </Button>
+                <Button 
+                  onClick={() => {
+                    setError(null);
+                    setIsLoading(true);
+                    loadAffiliateData();
+                  }}
+                >
+                  ลองใหม่
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
