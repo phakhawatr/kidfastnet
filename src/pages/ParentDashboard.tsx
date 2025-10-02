@@ -76,26 +76,12 @@ const ParentDashboard = () => {
     try {
       setIsLoading(true);
       setError(null);
-      console.log('Loading affiliate data for user:', user?.email);
+      console.log('Loading affiliate data...');
       
       // Get email from multiple sources
       let email = user?.email;
       
-      // Fallback 1: Get from localStorage auth state
-      if (!email) {
-        const authState = localStorage.getItem('kidfast_auth');
-        if (authState) {
-          try {
-            const parsed = JSON.parse(authState);
-            console.log('Auth state from localStorage:', parsed);
-            // Email might not be stored, need to get from registration
-          } catch (e) {
-            console.error('Error parsing auth state:', e);
-          }
-        }
-      }
-      
-      // Fallback 2: Get email from session storage or last login
+      // Fallback 1: Get from localStorage last email
       if (!email) {
         const lastEmail = localStorage.getItem('kidfast_last_email');
         if (lastEmail) {
@@ -104,14 +90,48 @@ const ParentDashboard = () => {
         }
       }
       
+      // Fallback 2: Fetch from database using registration_id
+      if (!email) {
+        const authState = localStorage.getItem('kidfast_auth');
+        if (authState) {
+          try {
+            const parsed = JSON.parse(authState);
+            console.log('Auth state from localStorage:', parsed);
+            
+            // Fetch email from user_registrations using registration_id
+            if (parsed.registrationId) {
+              console.log('Fetching email from database for registration:', parsed.registrationId);
+              const { data: regData, error: regError } = await supabase
+                .from('user_registrations')
+                .select('parent_email')
+                .eq('id', parsed.registrationId)
+                .single();
+              
+              if (regError) {
+                console.error('Error fetching user registration:', regError);
+              } else if (regData) {
+                email = regData.parent_email;
+                console.log('Fetched email from registration:', email);
+                // Store for future use
+                localStorage.setItem('kidfast_last_email', email);
+              }
+            }
+          } catch (e) {
+            console.error('Error parsing auth state:', e);
+          }
+        }
+      }
+      
       if (!email) {
         console.error('No user email found in any source');
-        const errorMsg = 'ไม่พบข้อมูลอีเมลผู้ใช้ กรุณาเข้าสู่ระบบใหม่';
+        const errorMsg = 'ไม่พบข้อมูลผู้ใช้ กรุณาเข้าสู่ระบบใหม่';
         setError(errorMsg);
         toast.error(errorMsg);
         setTimeout(() => navigate('/login'), 2000);
         return;
       }
+      
+      console.log('Using email for affiliate data:', email);
       
       // Get or create affiliate code
       const { data: userData, error: userError } = await supabase
