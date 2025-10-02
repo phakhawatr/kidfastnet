@@ -60,49 +60,99 @@ const ParentDashboard = () => {
   const loadAffiliateData = async () => {
     try {
       setIsLoading(true);
+      console.log('Loading affiliate data for user:', user?.email);
+      
+      if (!user?.email) {
+        console.error('No user email found');
+        toast.error('ไม่พบข้อมูลผู้ใช้ กรุณาเข้าสู่ระบบใหม่');
+        navigate('/login');
+        return;
+      }
       
       // Get or create affiliate code
-      const { data: userData } = await supabase
+      const { data: userData, error: userError } = await supabase
         .from('user_registrations')
         .select('id')
-        .eq('parent_email', user?.email)
+        .eq('parent_email', user.email)
         .single();
+
+      console.log('User data:', userData, 'Error:', userError);
+
+      if (userError) {
+        console.error('Error fetching user:', userError);
+        toast.error('ไม่สามารถโหลดข้อมูลผู้ใช้ได้');
+        return;
+      }
 
       if (userData) {
         // Check if user has affiliate code
-        const { data: codeData } = await supabase
+        const { data: codeData, error: codeError } = await supabase
           .from('affiliate_codes')
           .select('affiliate_code')
           .eq('user_id', userData.id)
-          .single();
+          .maybeSingle();
+
+        console.log('Code data:', codeData, 'Error:', codeError);
 
         let code = codeData?.affiliate_code;
         
         if (!code) {
           // Generate new code
-          const { data: newCode } = await supabase.rpc('generate_affiliate_code', {
+          console.log('Generating new affiliate code for user:', userData.id);
+          const { data: newCode, error: genError } = await supabase.rpc('generate_affiliate_code', {
             p_user_id: userData.id
           });
+          console.log('Generated code:', newCode, 'Error:', genError);
+          
+          if (genError) {
+            console.error('Error generating code:', genError);
+            toast.error('ไม่สามารถสร้างรหัส affiliate ได้');
+            return;
+          }
           code = newCode;
         }
 
         // Set affiliate link
         const link = `${window.location.origin}/signup?ref=${code}`;
         setAffiliateLink(link);
+        console.log('Affiliate link set:', link);
 
         // Get stats
-        const { data: statsData } = await supabase.rpc('get_user_affiliate_stats', {
-          p_user_email: user?.email
+        console.log('Fetching stats for:', user.email);
+        const { data: statsData, error: statsError } = await supabase.rpc('get_user_affiliate_stats', {
+          p_user_email: user.email
         });
+
+        console.log('Stats data:', statsData, 'Error:', statsError);
+
+        if (statsError) {
+          console.error('Error fetching stats:', statsError);
+        }
 
         if (statsData && statsData.length > 0) {
           setStats(statsData[0]);
+        } else {
+          // Set default stats if no data
+          setStats({
+            affiliate_code: code || '',
+            total_referrals: 0,
+            paid_referrals: 0,
+            total_points: 0,
+            pending_referrals: 0
+          });
         }
 
         // Get referrals
-        const { data: referralsData } = await supabase.rpc('get_affiliate_referrals', {
-          p_user_email: user?.email
+        console.log('Fetching referrals for:', user.email);
+        const { data: referralsData, error: referralsError } = await supabase.rpc('get_affiliate_referrals', {
+          p_user_email: user.email
         });
+
+        console.log('Referrals data:', referralsData, 'Error:', referralsError);
+
+        if (referralsError) {
+          console.error('Error fetching referrals:', referralsError);
+        }
 
         if (referralsData) {
           setReferrals(referralsData);
@@ -110,7 +160,7 @@ const ParentDashboard = () => {
       }
     } catch (error) {
       console.error('Error loading affiliate data:', error);
-      toast.error('เกิดข้อผิดพลาดในการโหลดข้อมูล');
+      toast.error('เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + (error as Error).message);
     } finally {
       setIsLoading(false);
     }
