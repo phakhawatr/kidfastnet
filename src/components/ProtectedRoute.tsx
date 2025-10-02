@@ -8,6 +8,25 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { isLoggedIn, isLoading } = useAuth();
 
+  // Also check localStorage auth state as fallback
+  const getLocalAuthState = () => {
+    try {
+      const stored = localStorage.getItem('kidfast_auth');
+      if (stored) {
+        const authState = JSON.parse(stored);
+        return authState.loggedIn === true;
+      }
+    } catch (e) {
+      return false;
+    }
+    return false;
+  };
+
+  const hasLocalAuth = getLocalAuthState();
+  const isAuthenticated = isLoggedIn || hasLocalAuth;
+
+  console.log('ProtectedRoute check:', { isLoggedIn, hasLocalAuth, isAuthenticated, isLoading });
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -19,10 +38,12 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  if (!isLoggedIn) {
+  if (!isAuthenticated) {
+    console.log('Not authenticated, redirecting to login');
     return <Navigate to="/login" replace />;
   }
 
+  console.log('Authenticated, rendering protected content');
   return <>{children}</>;
 };
 

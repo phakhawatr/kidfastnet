@@ -38,7 +38,7 @@ interface Referral {
 }
 
 const ParentDashboard = () => {
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, isLoading: authLoading, isLoggedIn } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState<AffiliateStats>({
     affiliate_code: '',
@@ -53,15 +53,24 @@ const ParentDashboard = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log('Auth state changed:', { user, authLoading });
-    if (!authLoading && !user) {
-      console.log('No user, redirecting to login');
-      navigate('/login');
-    } else if (!authLoading && user) {
-      console.log('User authenticated, loading affiliate data');
-      loadAffiliateData();
+    console.log('ParentDashboard Auth state:', { user, authLoading, isLoggedIn });
+    
+    // Check localStorage auth as fallback
+    const authState = localStorage.getItem('kidfast_auth');
+    const hasLocalAuth = authState ? JSON.parse(authState).loggedIn === true : false;
+    
+    console.log('Local auth state:', hasLocalAuth);
+    
+    if (!authLoading) {
+      if (!isLoggedIn && !hasLocalAuth) {
+        console.log('Not logged in, redirecting to login');
+        navigate('/login');
+      } else {
+        console.log('Authenticated, loading affiliate data');
+        loadAffiliateData();
+      }
     }
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading, isLoggedIn, navigate]);
 
   const loadAffiliateData = async () => {
     try {
@@ -69,13 +78,35 @@ const ParentDashboard = () => {
       setError(null);
       console.log('Loading affiliate data for user:', user?.email);
       
-      // Get auth state from localStorage as fallback
-      const authState = localStorage.getItem('kidfast_auth');
-      const email = user?.email || (authState ? JSON.parse(authState).email : null);
+      // Get email from multiple sources
+      let email = user?.email;
+      
+      // Fallback 1: Get from localStorage auth state
+      if (!email) {
+        const authState = localStorage.getItem('kidfast_auth');
+        if (authState) {
+          try {
+            const parsed = JSON.parse(authState);
+            console.log('Auth state from localStorage:', parsed);
+            // Email might not be stored, need to get from registration
+          } catch (e) {
+            console.error('Error parsing auth state:', e);
+          }
+        }
+      }
+      
+      // Fallback 2: Get email from session storage or last login
+      if (!email) {
+        const lastEmail = localStorage.getItem('kidfast_last_email');
+        if (lastEmail) {
+          email = lastEmail;
+          console.log('Using last email from storage:', email);
+        }
+      }
       
       if (!email) {
-        console.error('No user email found');
-        const errorMsg = 'ไม่พบข้อมูลผู้ใช้ กรุณาเข้าสู่ระบบใหม่';
+        console.error('No user email found in any source');
+        const errorMsg = 'ไม่พบข้อมูลอีเมลผู้ใช้ กรุณาเข้าสู่ระบบใหม่';
         setError(errorMsg);
         toast.error(errorMsg);
         setTimeout(() => navigate('/login'), 2000);

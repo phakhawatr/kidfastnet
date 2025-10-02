@@ -189,6 +189,7 @@ export const useAuth = () => {
               };
               localStorage.setItem('kidfast_auth', JSON.stringify(authState));
               localStorage.setItem('kidfast_session_id', sessionId);
+              localStorage.setItem('kidfast_last_email', email);
               
               ToastManager.show({
                 message: `ยินดีต้อนรับ ${result.nickname}!`,
