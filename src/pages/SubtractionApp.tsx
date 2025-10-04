@@ -41,19 +41,25 @@ const SubtractionApp: React.FC = () => {
 
   function createProblemCard(prob: any, idx: number, totalDigits: number) {
     // Ensure all numbers display with the correct number of digits
-    // For 3 digits: always show all 3 digits (hundreds, tens, ones)
     const topNum = prob.a;
-    const bottomNum = prob.b;
+    const secondNum = prob.b;
+    const thirdNum = prob.c; // May be undefined for 2-operand problems
     
     // Convert to string and pad with spaces to ensure correct digit count
     const topStr = topNum.toString().padStart(totalDigits, ' ');
-    const bottomStr = bottomNum.toString().padStart(totalDigits, ' ');
+    const secondStr = secondNum.toString().padStart(totalDigits, ' ');
+    const thirdStr = thirdNum != null ? thirdNum.toString().padStart(totalDigits, ' ') : null;
     
     const topDigits = topStr.split('');
-    const bottomDigits = bottomStr.split('');
+    const secondDigits = secondStr.split('');
+    const thirdDigits = thirdStr ? thirdStr.split('') : null;
     
-    // Verify we have the correct number of digits
-    console.log(`Problem ${idx + 1}: ${topNum} - ${bottomNum}, digits: ${totalDigits}, top: "${topStr}", bottom: "${bottomStr}"`);
+    // Debug log
+    if (thirdNum != null) {
+      console.log(`Problem ${idx + 1}: ${topNum} - ${secondNum} - ${thirdNum}, digits: ${totalDigits}`);
+    } else {
+      console.log(`Problem ${idx + 1}: ${topNum} - ${secondNum}, digits: ${totalDigits}`);
+    }
     
     return `
       <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 6px; background: #fefce8; font-family: 'Noto Sans Thai', sans-serif;">
@@ -72,17 +78,31 @@ const SubtractionApp: React.FC = () => {
             `).join('')}
           </div>
           
-          <!-- Bottom row (minus sign + second number) -->
+          <!-- Second row (minus sign + second number) -->
           <div style="display: flex; gap: 2px; align-items: center;">
             <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: #fef3c7; border: 1.5px solid #fbbf24; border-radius: 6px;">
               -
             </div>
-            ${bottomDigits.map(digit => `
+            ${secondDigits.map(digit => `
               <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: white; border: 1.5px solid #e0e0e0; border-radius: 6px;">
                 ${digit.trim() || ''}
               </div>
             `).join('')}
           </div>
+          
+          ${thirdDigits ? `
+          <!-- Third row (minus sign + third number) - only for 3-operand problems -->
+          <div style="display: flex; gap: 2px; align-items: center;">
+            <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: #fef3c7; border: 1.5px solid #fbbf24; border-radius: 6px;">
+              -
+            </div>
+            ${thirdDigits.map(digit => `
+              <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: white; border: 1.5px solid #e0e0e0; border-radius: 6px;">
+                ${digit.trim() || ''}
+              </div>
+            `).join('')}
+          </div>
+          ` : ''}
           
           <!-- Divider line -->
           <div style="width: calc(100% - 3px); height: 1.5px; background: #333; margin: 2px 0;"></div>
