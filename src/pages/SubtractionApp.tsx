@@ -46,22 +46,22 @@ const SubtractionApp: React.FC = () => {
         width: 210mm;
         height: 297mm;
         background: white;
-        padding: 20mm;
+        padding: 15mm 20mm;
         z-index: 9999;
       `;
 
-      // Add header section
+      // Add header section - compact version
       const header = document.createElement('div');
-      header.style.cssText = 'margin-bottom: 15mm; border-bottom: 2px solid #333; padding-bottom: 10mm;';
+      header.style.cssText = 'margin-bottom: 8mm; border-bottom: 1px solid #333; padding-bottom: 6mm;';
       header.innerHTML = `
-        <div style="text-align: center; font-family: 'Noto Sans Thai', sans-serif;">
-          <div style="font-size: 18pt; font-weight: bold; margin-bottom: 8mm;">แบบฝึกหัดการลบ</div>
-          <div style="display: flex; justify-content: space-between; font-size: 12pt;">
-            <div>โรงเรียน: ___________________________</div>
-            <div>ชื่อ-สกุล: ___________________________</div>
+        <div style="font-family: 'Noto Sans Thai', sans-serif;">
+          <div style="font-size: 16pt; font-weight: bold; margin-bottom: 5mm; text-align: center;">แบบฝึกหัดการลบ</div>
+          <div style="display: flex; justify-content: space-between; font-size: 11pt;">
+            <div>โรงเรียน: _______________________</div>
+            <div>ชื่อ-สกุล: _______________________</div>
           </div>
-          <div style="text-align: left; font-size: 12pt; margin-top: 3mm;">
-            ชั้น: ___________________________
+          <div style="font-size: 11pt; margin-top: 2mm;">
+            ชั้น: _______________________
           </div>
         </div>
       `;
@@ -72,7 +72,7 @@ const SubtractionApp: React.FC = () => {
       grid.style.cssText = `
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 8mm;
+        gap: 5mm;
         max-width: 170mm;
         margin: 0 auto;
       `;
@@ -83,37 +83,96 @@ const SubtractionApp: React.FC = () => {
         const card = document.createElement('div');
         card.style.cssText = `
           border: 1px solid #ddd;
-          border-radius: 8px;
-          padding: 8px;
-          background: #fafafa;
-          text-align: center;
+          border-radius: 6px;
+          padding: 6px 8px;
+          background: #f9f9f9;
           font-family: 'Noto Sans Thai', sans-serif;
+          min-height: 80px;
         `;
         
+        // Problem number
         const problemNum = document.createElement('div');
-        problemNum.style.cssText = 'font-size: 9pt; margin-bottom: 4px; color: #666;';
-        problemNum.textContent = `ข้อ ${idx + 1}`;
+        problemNum.style.cssText = 'font-size: 9pt; margin-bottom: 6px; color: #666; display: flex; align-items: center;';
+        problemNum.innerHTML = '<span style="color: #f59e0b; margin-right: 2px;">★</span> ข้อ ' + (idx + 1);
         
+        // Problem content with grid layout like the reference
         const problemContent = document.createElement('div');
-        problemContent.style.cssText = 'font-size: 16pt; font-weight: bold; margin: 8px 0;';
+        problemContent.style.cssText = 'display: flex; flex-direction: column; align-items: center; margin: 6px 0;';
         
-        const top = prob.a.toString().padStart(digits, ' ').split('').join(' ');
-        const bottom = prob.b.toString().padStart(digits, ' ').split('').join(' ');
+        // Get individual digits
+        const topDigits = prob.a.toString().padStart(digits, ' ').split('');
+        const bottomDigits = prob.b.toString().padStart(digits, ' ').split('');
         
-        problemContent.innerHTML = `
-          <div style="text-align: right; margin-bottom: 2px;">${top}</div>
-          <div style="text-align: right; border-top: 2px solid #333; padding-top: 2px;">- ${bottom}</div>
+        // Top row (first number)
+        const topRow = document.createElement('div');
+        topRow.style.cssText = 'display: flex; gap: 3px; margin-bottom: 3px; justify-content: flex-end; width: 100%;';
+        topDigits.forEach(digit => {
+          const box = document.createElement('div');
+          box.style.cssText = `
+            width: 28px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16pt;
+            font-weight: bold;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+          `;
+          box.textContent = digit.trim() || '';
+          topRow.appendChild(box);
+        });
+        
+        // Bottom row (second number with minus sign)
+        const bottomRow = document.createElement('div');
+        bottomRow.style.cssText = 'display: flex; gap: 3px; align-items: center; justify-content: flex-end; width: 100%; border-top: 2px solid #333; padding-top: 3px;';
+        
+        // Minus sign
+        const minusSign = document.createElement('div');
+        minusSign.style.cssText = `
+          width: 20px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 16pt;
+          font-weight: bold;
         `;
+        minusSign.textContent = '-';
+        bottomRow.appendChild(minusSign);
         
+        bottomDigits.forEach(digit => {
+          const box = document.createElement('div');
+          box.style.cssText = `
+            width: 28px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16pt;
+            font-weight: bold;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+          `;
+          box.textContent = digit.trim() || '';
+          bottomRow.appendChild(box);
+        });
+        
+        problemContent.appendChild(topRow);
+        problemContent.appendChild(bottomRow);
+        
+        // Answer boxes
         const answerBoxes = document.createElement('div');
-        answerBoxes.style.cssText = 'display: flex; justify-content: center; gap: 4px; margin-top: 8px;';
+        answerBoxes.style.cssText = 'display: flex; justify-content: center; gap: 3px; margin-top: 6px;';
         for (let i = 0; i < digits; i++) {
           const box = document.createElement('div');
           box.style.cssText = `
-            width: 20px;
-            height: 25px;
-            border: 1px solid #999;
-            border-radius: 4px;
+            width: 28px;
+            height: 28px;
+            border: 2px solid #93c5fd;
+            border-radius: 6px;
             background: white;
           `;
           answerBoxes.appendChild(box);
