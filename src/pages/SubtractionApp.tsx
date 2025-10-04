@@ -400,8 +400,34 @@ const SubtractionApp: React.FC = () => {
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
         <div className="relative w-[95%] h-[95%] max-w-7xl bg-white rounded-2xl shadow-2xl flex flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b">
+          <div className="flex items-center justify-between p-4 border-b gap-4">
             <h3 className="text-xl font-bold">ตัวอย่างใบงาน PDF</h3>
+            
+            {/* Logo Upload in Preview */}
+            <div className="flex items-center gap-2 bg-zinc-50 rounded-lg px-3 py-2 border">
+              <span className="text-sm text-zinc-600">โลโก้:</span>
+              {schoolLogo ? (
+                <div className="flex items-center gap-2">
+                  <img src={schoolLogo} alt="โลโก้โรงเรียน" className="w-8 h-8 object-contain border rounded" />
+                  <button
+                    onClick={handleRemoveLogo}
+                    className="px-2 py-1 rounded text-xs font-semibold bg-rose-100 text-rose-700 hover:bg-rose-200 flex items-center gap-1"
+                  >
+                    <X size={14} />
+                    ลบ
+                  </button>
+                </div>
+              ) : (
+                <label
+                  htmlFor="logo-upload"
+                  className="px-3 py-1 rounded text-sm font-semibold bg-white hover:bg-zinc-100 cursor-pointer flex items-center gap-1 border"
+                >
+                  <Upload size={14} />
+                  อัปโหลด
+                </label>
+              )}
+            </div>
+            
             <div className="flex gap-2">
               <button
                 onClick={savePdfFromPreview}
