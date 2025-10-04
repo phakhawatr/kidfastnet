@@ -133,8 +133,10 @@ const AdminDashboard = () => {
   const fetchRegistrations = async () => {
     try {
       setIsLoading(true);
-      // Use secure function to get registrations
-      const { data, error } = await supabase.rpc('get_user_registrations');
+      // Use new secure admin function with proper authorization
+      const { data, error } = await supabase.rpc('admin_get_user_registrations', {
+        admin_email: email
+      });
 
       if (error) throw error;
       
@@ -143,7 +145,7 @@ const AdminDashboard = () => {
     } catch (error) {
       console.error('Error fetching registrations:', error);
       ToastManager.show({
-        message: 'เกิดข้อผิดพลาดในการโหลดข้อมูล',
+        message: 'เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + (error as Error).message,
         type: 'error'
       });
     } finally {
