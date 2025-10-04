@@ -40,8 +40,20 @@ const SubtractionApp: React.FC = () => {
   }
 
   function createProblemCard(prob: any, idx: number, totalDigits: number) {
-    const topDigits = prob.a.toString().padStart(totalDigits, ' ').split('');
-    const bottomDigits = prob.b.toString().padStart(totalDigits, ' ').split('');
+    // Ensure all numbers display with the correct number of digits
+    // For 3 digits: always show all 3 digits (hundreds, tens, ones)
+    const topNum = prob.a;
+    const bottomNum = prob.b;
+    
+    // Convert to string and pad with spaces to ensure correct digit count
+    const topStr = topNum.toString().padStart(totalDigits, ' ');
+    const bottomStr = bottomNum.toString().padStart(totalDigits, ' ');
+    
+    const topDigits = topStr.split('');
+    const bottomDigits = bottomStr.split('');
+    
+    // Verify we have the correct number of digits
+    console.log(`Problem ${idx + 1}: ${topNum} - ${bottomNum}, digits: ${totalDigits}, top: "${topStr}", bottom: "${bottomStr}"`);
     
     return `
       <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 6px; background: #fefce8; font-family: 'Noto Sans Thai', sans-serif;">
