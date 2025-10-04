@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Printer } from "lucide-react";
+import { ArrowLeft, Printer, Upload, X } from "lucide-react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { useSubtractionGame } from "../hooks/useSubtractionGame";
@@ -32,6 +32,53 @@ const SubtractionApp: React.FC = () => {
   // PDF Preview state
   const [showPdfPreview, setShowPdfPreview] = useState(false);
   const [pdfPreviewContent, setPdfPreviewContent] = useState<string>('');
+  
+  // School Logo state
+  const [schoolLogo, setSchoolLogo] = useState<string>('');
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  
+  // Load school logo from localStorage on mount
+  useEffect(() => {
+    const savedLogo = localStorage.getItem('subtraction-school-logo');
+    if (savedLogo) {
+      setSchoolLogo(savedLogo);
+    }
+  }, []);
+  
+  // Handle logo upload
+  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    // Validate file type
+    if (!file.type.match(/^image\/(jpeg|jpg|png|webp)$/)) {
+      alert('กรุณาเลือกไฟล์รูปภาพ (JPG, PNG, WEBP)');
+      return;
+    }
+    
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      alert('ขนาดไฟล์ต้องไม่เกิน 2MB');
+      return;
+    }
+    
+    // Convert to base64
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = e.target?.result as string;
+      setSchoolLogo(base64);
+      localStorage.setItem('subtraction-school-logo', base64);
+    };
+    reader.readAsDataURL(file);
+  };
+  
+  const handleRemoveLogo = () => {
+    setSchoolLogo('');
+    localStorage.removeItem('subtraction-school-logo');
+    if (logoInputRef.current) {
+      logoInputRef.current.value = '';
+    }
+  };
   
   function openHistory(i: number) {
     const item = history[i];
@@ -125,13 +172,23 @@ const SubtractionApp: React.FC = () => {
         <!-- Header -->
         <div style="margin-bottom: 8mm; padding-bottom: 6mm; position: relative;">
           ${totalPages > 1 ? `<div style="position: absolute; top: 0; right: 0; font-size: 10pt; color: #666;">หน้า ${pageNum}/${totalPages}</div>` : ''}
-          <div style="font-size: 18pt; font-weight: bold; margin-bottom: 5mm; text-align: center;">ใบงานการลบ</div>
-          <div style="display: flex; justify-content: space-between; font-size: 11pt; margin-bottom: 3mm;">
-            <div>โรงเรียน: _______________________</div>
-            <div>ชั้น: __________</div>
-          </div>
-          <div style="font-size: 11pt;">
-            ชื่อ-สกุล: _______________________
+          
+          <div style="display: flex; align-items: flex-start; gap: 10mm; margin-bottom: 5mm;">
+            ${schoolLogo ? `
+              <div style="flex-shrink: 0;">
+                <img src="${schoolLogo}" alt="โลโก้โรงเรียน" style="width: 50px; height: 50px; object-fit: contain; border: 1px solid #e5e7eb; border-radius: 8px; padding: 4px; background: white;" />
+              </div>
+            ` : ''}
+            <div style="flex: 1;">
+              <div style="font-size: 18pt; font-weight: bold; margin-bottom: 5mm; text-align: center;">ใบงานการลบ</div>
+              <div style="display: flex; justify-content: space-between; font-size: 11pt; margin-bottom: 3mm;">
+                <div>โรงเรียน: _______________________</div>
+                <div>ชั้น: __________</div>
+              </div>
+              <div style="font-size: 11pt;">
+                ชื่อ-สกุล: _______________________
+              </div>
+            </div>
           </div>
         </div>
 
@@ -434,6 +491,39 @@ const SubtractionApp: React.FC = () => {
             {[{k:2,label:"2 จำนวน"},{k:3,label:"3 จำนวน"}].map(op => (
               <button key={op.k} onClick={() => applyOperands(op.k)} className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${operands===op.k?"bg-teal-600 text-white border-teal-600":"bg-zinc-50 hover:bg-zinc-100"}`}>{op.label}</button>
             ))}
+          </div>
+
+          {/* Logo Upload Section */}
+          <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 shadow-sm">
+            <span className="text-sm text-zinc-600">โลโก้โรงเรียน:</span>
+            <input
+              ref={logoInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleLogoUpload}
+              className="hidden"
+              id="logo-upload"
+            />
+            {schoolLogo ? (
+              <div className="flex items-center gap-2">
+                <img src={schoolLogo} alt="โลโก้โรงเรียน" className="w-10 h-10 object-contain border rounded-lg" />
+                <button
+                  onClick={handleRemoveLogo}
+                  className="px-3 py-2 rounded-full text-sm font-semibold bg-rose-100 text-rose-700 hover:bg-rose-200 flex items-center gap-1"
+                >
+                  <X size={16} />
+                  ลบโลโก้
+                </button>
+              </div>
+            ) : (
+              <label
+                htmlFor="logo-upload"
+                className="px-4 py-2 rounded-full text-base font-semibold border-2 bg-zinc-50 hover:bg-zinc-100 cursor-pointer flex items-center gap-2"
+              >
+                <Upload size={16} />
+                อัปโหลดโลโก้
+              </label>
+            )}
           </div>
 
           {/* action buttons */}
