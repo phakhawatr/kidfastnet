@@ -507,6 +507,10 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: boolean
       }
+      log_admin_action: {
+        Args: { action_data?: Json; action_type: string; admin_email: string }
+        Returns: string
+      }
       log_security_event: {
         Args: {
           p_event_data?: Json
@@ -525,6 +529,10 @@ export type Database = {
       }
       reject_user_registration: {
         Args: { admin_id: string; registration_id: string }
+        Returns: boolean
+      }
+      revoke_admin_role: {
+        Args: { revoking_admin_email: string; target_admin_email: string }
         Returns: boolean
       }
       toggle_user_suspension: {
@@ -549,6 +557,10 @@ export type Database = {
       }
       validate_phone_format: {
         Args: { phone: string }
+        Returns: boolean
+      }
+      verify_admin_session: {
+        Args: { admin_email: string }
         Returns: boolean
       }
     }
