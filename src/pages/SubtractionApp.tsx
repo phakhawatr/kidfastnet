@@ -120,7 +120,7 @@ const SubtractionApp: React.FC = () => {
             <div style="width: 24px; height: 24px; visibility: hidden;"></div>
             ${topDigits.map(digit => `
               <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: white; border: 1.5px solid #e0e0e0; border-radius: 6px; line-height: 1;">
-                <span style="transform: translateY(-2px); display: inline-block;">${digit.trim() || ''}</span>
+                <span style="transform: translateY(-3.5px); display: inline-block;">${digit.trim() || ''}</span>
               </div>
             `).join('')}
           </div>
@@ -132,7 +132,7 @@ const SubtractionApp: React.FC = () => {
             </div>
             ${secondDigits.map(digit => `
               <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: white; border: 1.5px solid #e0e0e0; border-radius: 6px; line-height: 1;">
-                <span style="transform: translateY(-2px); display: inline-block;">${digit.trim() || ''}</span>
+                <span style="transform: translateY(-3.5px); display: inline-block;">${digit.trim() || ''}</span>
               </div>
             `).join('')}
           </div>
@@ -145,7 +145,7 @@ const SubtractionApp: React.FC = () => {
             </div>
             ${thirdDigits.map(digit => `
               <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: white; border: 1.5px solid #e0e0e0; border-radius: 6px; line-height: 1;">
-                <span style="transform: translateY(-2px); display: inline-block;">${digit.trim() || ''}</span>
+                <span style="transform: translateY(-3.5px); display: inline-block;">${digit.trim() || ''}</span>
               </div>
             `).join('')}
           </div>
