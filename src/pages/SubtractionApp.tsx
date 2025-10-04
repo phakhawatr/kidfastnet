@@ -44,40 +44,40 @@ const SubtractionApp: React.FC = () => {
     const bottomDigits = prob.b.toString().padStart(totalDigits, ' ').split('');
     
     return `
-      <div style="border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; background: #fefce8; font-family: 'Noto Sans Thai', sans-serif;">
-        <div style="font-size: 10pt; margin-bottom: 8px; color: #666; display: flex; align-items: center;">
-          <span style="color: #f59e0b; margin-right: 4px; font-size: 14pt;">★</span> ข้อ ${idx + 1}
+      <div style="border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 8px; background: #fefce8; font-family: 'Noto Sans Thai', sans-serif;">
+        <div style="font-size: 9pt; margin-bottom: 6px; color: #666; display: flex; align-items: center;">
+          <span style="color: #f59e0b; margin-right: 3px; font-size: 12pt;">★</span> ข้อ ${idx + 1}
         </div>
         
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 2px; padding-top: 4px;">
           <!-- Top row (first number) -->
-          <div style="display: flex; gap: 4px;">
+          <div style="display: flex; gap: 3px;">
             ${topDigits.map(digit => `
-              <div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 18pt; font-weight: bold; background: white; border: 2px solid #e0e0e0; border-radius: 8px;">
+              <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 14pt; font-weight: bold; background: white; border: 2px solid #e0e0e0; border-radius: 8px;">
                 ${digit.trim() || ''}
               </div>
             `).join('')}
           </div>
           
           <!-- Bottom row (minus sign + second number) -->
-          <div style="display: flex; gap: 4px; align-items: center;">
-            <div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 18pt; font-weight: bold; background: #fef3c7; border: 2px solid #fbbf24; border-radius: 8px;">
+          <div style="display: flex; gap: 3px; align-items: center;">
+            <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 14pt; font-weight: bold; background: #fef3c7; border: 2px solid #fbbf24; border-radius: 8px;">
               -
             </div>
             ${bottomDigits.map(digit => `
-              <div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 18pt; font-weight: bold; background: white; border: 2px solid #e0e0e0; border-radius: 8px;">
+              <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 14pt; font-weight: bold; background: white; border: 2px solid #e0e0e0; border-radius: 8px;">
                 ${digit.trim() || ''}
               </div>
             `).join('')}
           </div>
           
           <!-- Divider line -->
-          <div style="width: 100%; height: 2px; background: #333; margin: 4px 0;"></div>
+          <div style="width: calc(100% - 4px); height: 2px; background: #333; margin: 3px 0;"></div>
           
           <!-- Answer boxes -->
-          <div style="display: flex; gap: 4px;">
+          <div style="display: flex; gap: 3px;">
             ${Array(totalDigits).fill(0).map(() => `
-              <div style="width: 36px; height: 36px; border: 2px solid #93c5fd; border-radius: 8px; background: white;"></div>
+              <div style="width: 32px; height: 32px; border: 2px solid #93c5fd; border-radius: 8px; background: white;"></div>
             `).join('')}
           </div>
         </div>
@@ -87,10 +87,11 @@ const SubtractionApp: React.FC = () => {
 
   function generatePageHTML(pageProblems: any[], startIdx: number, pageNum: number, totalPages: number) {
     return `
-      <div style="width: 210mm; min-height: 297mm; background: white; padding: 15mm 20mm; page-break-after: always; font-family: 'Noto Sans Thai', sans-serif;">
+      <div style="width: 210mm; min-height: 297mm; background: white; padding: 12mm 20mm; page-break-after: always; font-family: 'Noto Sans Thai', sans-serif;">
         <!-- Header -->
-        <div style="margin-bottom: 10mm; border-bottom: 2px solid #333; padding-bottom: 8mm;">
-          <div style="font-size: 18pt; font-weight: bold; margin-bottom: 6mm; text-align: center;">ใบงานการลบ</div>
+        <div style="margin-bottom: 8mm; padding-bottom: 6mm; position: relative;">
+          ${totalPages > 1 ? `<div style="position: absolute; top: 0; right: 0; font-size: 10pt; color: #666;">หน้า ${pageNum}/${totalPages}</div>` : ''}
+          <div style="font-size: 18pt; font-weight: bold; margin-bottom: 5mm; text-align: center;">ใบงานการลบ</div>
           <div style="display: flex; justify-content: space-between; font-size: 11pt; margin-bottom: 3mm;">
             <div>โรงเรียน: _______________________</div>
             <div>ชั้น: __________</div>
@@ -98,11 +99,10 @@ const SubtractionApp: React.FC = () => {
           <div style="font-size: 11pt;">
             ชื่อ-สกุล: _______________________
           </div>
-          ${totalPages > 1 ? `<div style="text-align: right; font-size: 10pt; color: #666; margin-top: 3mm;">หน้า ${pageNum}/${totalPages}</div>` : ''}
         </div>
 
         <!-- Problems Grid -->
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6mm; max-width: 170mm; margin: 0 auto;">
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5mm; max-width: 170mm; margin: 0 auto;">
           ${pageProblems.map((prob, idx) => createProblemCard(prob, startIdx + idx, digits)).join('')}
         </div>
       </div>
