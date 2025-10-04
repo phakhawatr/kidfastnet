@@ -119,7 +119,7 @@ const SubtractionApp: React.FC = () => {
           <div style="display: flex; gap: 2px;">
             <div style="width: 24px; height: 24px; visibility: hidden;"></div>
             ${topDigits.map(digit => `
-              <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: white; border: 1.5px solid #e0e0e0; border-radius: 6px;">
+              <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: white; border: 1.5px solid #e0e0e0; border-radius: 6px; line-height: 1; padding-top: 1px;">
                 ${digit.trim() || ''}
               </div>
             `).join('')}
@@ -131,7 +131,7 @@ const SubtractionApp: React.FC = () => {
               -
             </div>
             ${secondDigits.map(digit => `
-              <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: white; border: 1.5px solid #e0e0e0; border-radius: 6px;">
+              <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: white; border: 1.5px solid #e0e0e0; border-radius: 6px; line-height: 1; padding-top: 1px;">
                 ${digit.trim() || ''}
               </div>
             `).join('')}
@@ -144,7 +144,7 @@ const SubtractionApp: React.FC = () => {
               -
             </div>
             ${thirdDigits.map(digit => `
-              <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: white; border: 1.5px solid #e0e0e0; border-radius: 6px;">
+              <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: white; border: 1.5px solid #e0e0e0; border-radius: 6px; line-height: 1; padding-top: 1px;">
                 ${digit.trim() || ''}
               </div>
             `).join('')}
@@ -191,7 +191,10 @@ const SubtractionApp: React.FC = () => {
               <!-- School and student info -->
               <div style="display: flex; justify-content: space-between; font-size: 11pt; margin-bottom: 3mm;">
                 <div>โรงเรียน: _______________________</div>
-                <div>ชั้น: __________</div>
+                <div style="display: flex; gap: 15mm;">
+                  <span>ชั้น: __________</span>
+                  <span>เลขที่: __________</span>
+                </div>
               </div>
               <div style="font-size: 11pt;">
                 ชื่อ-สกุล: _______________________
