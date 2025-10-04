@@ -29,184 +29,155 @@ const SubtractionApp: React.FC = () => {
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailItem, setDetailItem] = useState<HistoryItem | null>(null);
   
+  // PDF Preview state
+  const [showPdfPreview, setShowPdfPreview] = useState(false);
+  const [pdfPreviewContent, setPdfPreviewContent] = useState<string>('');
+  
   function openHistory(i: number) {
     const item = history[i];
     setDetailItem(item || null);
     setDetailOpen(!!item);
   }
 
-  async function printToPDF() {
-    try {
-      // Create a special print container
-      const printContainer = document.createElement('div');
-      printContainer.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 210mm;
-        height: 297mm;
-        background: white;
-        padding: 15mm 20mm;
-        z-index: 9999;
-      `;
-
-      // Add header section - compact version
-      const header = document.createElement('div');
-      header.style.cssText = 'margin-bottom: 8mm; border-bottom: 1px solid #333; padding-bottom: 6mm;';
-      header.innerHTML = `
-        <div style="font-family: 'Noto Sans Thai', sans-serif;">
-          <div style="font-size: 16pt; font-weight: bold; margin-bottom: 5mm; text-align: center;">แบบฝึกหัดการลบ</div>
-          <div style="display: flex; justify-content: space-between; font-size: 11pt;">
-            <div>โรงเรียน: _______________________</div>
-            <div>ชื่อ-สกุล: _______________________</div>
+  function createProblemCard(prob: any, idx: number, totalDigits: number) {
+    const topDigits = prob.a.toString().padStart(totalDigits, ' ').split('');
+    const bottomDigits = prob.b.toString().padStart(totalDigits, ' ').split('');
+    
+    return `
+      <div style="border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; background: #fefce8; font-family: 'Noto Sans Thai', sans-serif;">
+        <div style="font-size: 10pt; margin-bottom: 8px; color: #666; display: flex; align-items: center;">
+          <span style="color: #f59e0b; margin-right: 4px; font-size: 14pt;">★</span> ข้อ ${idx + 1}
+        </div>
+        
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+          <!-- Top row (first number) -->
+          <div style="display: flex; gap: 4px;">
+            ${topDigits.map(digit => `
+              <div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 18pt; font-weight: bold; background: white; border: 2px solid #e0e0e0; border-radius: 8px;">
+                ${digit.trim() || ''}
+              </div>
+            `).join('')}
           </div>
-          <div style="font-size: 11pt; margin-top: 2mm;">
-            ชั้น: _______________________
+          
+          <!-- Bottom row (minus sign + second number) -->
+          <div style="display: flex; gap: 4px; align-items: center;">
+            <div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 18pt; font-weight: bold; background: #fef3c7; border: 2px solid #fbbf24; border-radius: 8px;">
+              -
+            </div>
+            ${bottomDigits.map(digit => `
+              <div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 18pt; font-weight: bold; background: white; border: 2px solid #e0e0e0; border-radius: 8px;">
+                ${digit.trim() || ''}
+              </div>
+            `).join('')}
+          </div>
+          
+          <!-- Divider line -->
+          <div style="width: 100%; height: 2px; background: #333; margin: 4px 0;"></div>
+          
+          <!-- Answer boxes -->
+          <div style="display: flex; gap: 4px;">
+            ${Array(totalDigits).fill(0).map(() => `
+              <div style="width: 36px; height: 36px; border: 2px solid #93c5fd; border-radius: 8px; background: white;"></div>
+            `).join('')}
           </div>
         </div>
-      `;
-      printContainer.appendChild(header);
+      </div>
+    `;
+  }
 
-      // Create problems grid (4 columns x 5 rows = 20 problems max per page)
-      const grid = document.createElement('div');
-      grid.style.cssText = `
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 5mm;
-        max-width: 170mm;
-        margin: 0 auto;
-      `;
+  function generatePageHTML(pageProblems: any[], startIdx: number, pageNum: number, totalPages: number) {
+    return `
+      <div style="width: 210mm; min-height: 297mm; background: white; padding: 15mm 20mm; page-break-after: always; font-family: 'Noto Sans Thai', sans-serif;">
+        <!-- Header -->
+        <div style="margin-bottom: 10mm; border-bottom: 2px solid #333; padding-bottom: 8mm;">
+          <div style="font-size: 18pt; font-weight: bold; margin-bottom: 6mm; text-align: center;">ใบงานการลบ</div>
+          <div style="display: flex; justify-content: space-between; font-size: 11pt; margin-bottom: 3mm;">
+            <div>โรงเรียน: _______________________</div>
+            <div>ชั้น: __________</div>
+          </div>
+          <div style="font-size: 11pt;">
+            ชื่อ-สกุล: _______________________
+          </div>
+          ${totalPages > 1 ? `<div style="text-align: right; font-size: 10pt; color: #666; margin-top: 3mm;">หน้า ${pageNum}/${totalPages}</div>` : ''}
+        </div>
 
-      // Add up to 20 problems (5 rows x 4 columns)
-      const problemsToShow = problems.slice(0, 20);
-      problemsToShow.forEach((prob, idx) => {
-        const card = document.createElement('div');
-        card.style.cssText = `
-          border: 1px solid #ddd;
-          border-radius: 6px;
-          padding: 6px 8px;
-          background: #f9f9f9;
-          font-family: 'Noto Sans Thai', sans-serif;
-          min-height: 80px;
-        `;
-        
-        // Problem number
-        const problemNum = document.createElement('div');
-        problemNum.style.cssText = 'font-size: 9pt; margin-bottom: 6px; color: #666; display: flex; align-items: center;';
-        problemNum.innerHTML = '<span style="color: #f59e0b; margin-right: 2px;">★</span> ข้อ ' + (idx + 1);
-        
-        // Problem content with grid layout like the reference
-        const problemContent = document.createElement('div');
-        problemContent.style.cssText = 'display: flex; flex-direction: column; align-items: center; margin: 6px 0;';
-        
-        // Get individual digits
-        const topDigits = prob.a.toString().padStart(digits, ' ').split('');
-        const bottomDigits = prob.b.toString().padStart(digits, ' ').split('');
-        
-        // Top row (first number)
-        const topRow = document.createElement('div');
-        topRow.style.cssText = 'display: flex; gap: 3px; margin-bottom: 3px; justify-content: flex-end; width: 100%;';
-        topDigits.forEach(digit => {
-          const box = document.createElement('div');
-          box.style.cssText = `
-            width: 28px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16pt;
-            font-weight: bold;
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-          `;
-          box.textContent = digit.trim() || '';
-          topRow.appendChild(box);
-        });
-        
-        // Bottom row (second number with minus sign)
-        const bottomRow = document.createElement('div');
-        bottomRow.style.cssText = 'display: flex; gap: 3px; align-items: center; justify-content: flex-end; width: 100%; border-top: 2px solid #333; padding-top: 3px;';
-        
-        // Minus sign
-        const minusSign = document.createElement('div');
-        minusSign.style.cssText = `
-          width: 20px;
-          height: 32px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 16pt;
-          font-weight: bold;
-        `;
-        minusSign.textContent = '-';
-        bottomRow.appendChild(minusSign);
-        
-        bottomDigits.forEach(digit => {
-          const box = document.createElement('div');
-          box.style.cssText = `
-            width: 28px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16pt;
-            font-weight: bold;
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-          `;
-          box.textContent = digit.trim() || '';
-          bottomRow.appendChild(box);
-        });
-        
-        problemContent.appendChild(topRow);
-        problemContent.appendChild(bottomRow);
-        
-        // Answer boxes
-        const answerBoxes = document.createElement('div');
-        answerBoxes.style.cssText = 'display: flex; justify-content: center; gap: 3px; margin-top: 6px;';
-        for (let i = 0; i < digits; i++) {
-          const box = document.createElement('div');
-          box.style.cssText = `
-            width: 28px;
-            height: 28px;
-            border: 2px solid #93c5fd;
-            border-radius: 6px;
-            background: white;
-          `;
-          answerBoxes.appendChild(box);
-        }
-        
-        card.appendChild(problemNum);
-        card.appendChild(problemContent);
-        card.appendChild(answerBoxes);
-        grid.appendChild(card);
-      });
+        <!-- Problems Grid -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6mm; max-width: 170mm; margin: 0 auto;">
+          ${pageProblems.map((prob, idx) => createProblemCard(prob, startIdx + idx, digits)).join('')}
+        </div>
+      </div>
+    `;
+  }
 
-      printContainer.appendChild(grid);
+  async function printToPDF() {
+    try {
+      // Calculate total pages needed (20 problems per page: 4 columns x 5 rows)
+      const problemsPerPage = 20;
+      const totalPages = Math.ceil(problems.length / problemsPerPage);
+      
+      // Generate HTML for all pages
+      let allPagesHTML = '<div style="font-family: \'Noto Sans Thai\', sans-serif;">';
+      
+      for (let page = 0; page < totalPages; page++) {
+        const startIdx = page * problemsPerPage;
+        const endIdx = Math.min(startIdx + problemsPerPage, problems.length);
+        const pageProblems = problems.slice(startIdx, endIdx);
+        
+        allPagesHTML += generatePageHTML(pageProblems, startIdx, page + 1, totalPages);
+      }
+      
+      allPagesHTML += '</div>';
+      
+      // Store preview content and show preview modal
+      setPdfPreviewContent(allPagesHTML);
+      setShowPdfPreview(true);
+      
+    } catch (error) {
+      console.error('Error generating PDF preview:', error);
+      alert('เกิดข้อผิดพลาดในการสร้าง PDF');
+    }
+  }
+
+  async function savePdfFromPreview() {
+    try {
+      // Create temporary container with preview content
+      const printContainer = document.createElement('div');
+      printContainer.innerHTML = pdfPreviewContent;
+      printContainer.style.cssText = 'position: fixed; top: -10000px; left: -10000px;';
       document.body.appendChild(printContainer);
 
-      // Generate PDF
-      const canvas = await html2canvas(printContainer, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        width: 794, // A4 width in pixels at 96 DPI
-        height: 1123 // A4 height in pixels at 96 DPI
-      });
-
-      const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
+      const pages = printContainer.querySelectorAll('div[style*="page-break-after"]');
       
-      pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
-      pdf.save(`แบบฝึกหัดการลบ-${new Date().toISOString().split('T')[0]}.pdf`);
+      for (let i = 0; i < pages.length; i++) {
+        const page = pages[i] as HTMLElement;
+        
+        const canvas = await html2canvas(page, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff',
+          width: 794,
+          height: 1123
+        });
 
-      // Remove print container
+        const imgData = canvas.toDataURL('image/png');
+        
+        if (i > 0) {
+          pdf.addPage();
+        }
+        
+        pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+      }
+      
+      pdf.save(`ใบงานการลบ-${new Date().toISOString().split('T')[0]}.pdf`);
+      
+      // Cleanup
       document.body.removeChild(printContainer);
+      setShowPdfPreview(false);
+      
     } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('เกิดข้อผิดพลาดในการสร้าง PDF');
+      console.error('Error saving PDF:', error);
+      alert('เกิดข้อผิดพลาดในการบันทึก PDF');
     }
   }
 
@@ -330,8 +301,50 @@ const SubtractionApp: React.FC = () => {
     );
   };
 
+  // PDF Preview Modal Component
+  const PdfPreviewModal = () => {
+    if (!showPdfPreview) return null;
+    
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="relative w-[95%] h-[95%] max-w-7xl bg-white rounded-2xl shadow-2xl flex flex-col">
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b">
+            <h3 className="text-xl font-bold">ตัวอย่างใบงาน PDF</h3>
+            <div className="flex gap-2">
+              <button
+                onClick={savePdfFromPreview}
+                className="flex items-center gap-2 px-6 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 font-semibold"
+              >
+                <Printer size={20} />
+                บันทึก PDF
+              </button>
+              <button
+                onClick={() => setShowPdfPreview(false)}
+                className="px-4 py-2 bg-zinc-200 text-zinc-800 rounded-lg hover:bg-zinc-300"
+              >
+                ปิด
+              </button>
+            </div>
+          </div>
+          
+          {/* Preview Content */}
+          <div className="flex-1 overflow-auto p-6 bg-zinc-100">
+            <div 
+              className="mx-auto"
+              style={{ maxWidth: '210mm' }}
+              dangerouslySetInnerHTML={{ __html: pdfPreviewContent }}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-50 via-white to-pink-50 text-zinc-800">
+      {showPdfPreview && <PdfPreviewModal />}
+      
       <header className="max-w-6xl mx-auto p-6 pb-2">
         <div className="flex items-center gap-4 mb-4">
           <Link 
