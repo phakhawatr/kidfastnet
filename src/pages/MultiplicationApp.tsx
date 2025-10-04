@@ -593,45 +593,46 @@ const MultiplicationApp = () => {
             </div>
             
             {/* Actions */}
-            <div className="space-y-3">
+            <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
               <button 
                 onClick={generateProblems} 
-                className="w-full px-6 py-3.5 rounded-full text-lg font-bold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2.5"
+                className="px-4 py-3 rounded-full text-sm font-bold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
                 style={{
                   background: 'linear-gradient(135deg, #06b6d4 0%, #10b981 50%, #a855f7 100%)',
                 }}
               >
-                <span className="text-2xl">✨</span>
-                <span>AI สร้างโจทย์ใหม่</span>
+                <span className="text-xl">✨</span>
+                <span className="hidden sm:inline">AI สร้างโจทย์ใหม่</span>
+                <span className="sm:hidden">AI สร้าง</span>
               </button>
               <button 
                 onClick={checkAnswers} 
-                className="w-full px-5 py-3 rounded-full text-base font-semibold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
+                className="px-4 py-3 rounded-full text-sm font-semibold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
                 style={{
                   background: 'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)',
                 }}
               >
-                <CheckCircle2 className="w-5 h-5" />
+                <CheckCircle2 className="w-4 h-4" />
                 <span>ตรวจคำตอบ</span>
               </button>
               <button 
                 onClick={showAnswers} 
-                className="w-full px-5 py-3 rounded-full text-base font-semibold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
+                className="px-4 py-3 rounded-full text-sm font-semibold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
                 style={{
                   background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
                 }}
               >
-                <PlayCircle className="w-5 h-5" />
+                <PlayCircle className="w-4 h-4" />
                 <span>เฉลยคำตอบ</span>
               </button>
               <button 
                 onClick={printToPDF} 
-                className="w-full px-5 py-3 rounded-full text-base font-semibold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
+                className="px-4 py-3 rounded-full text-sm font-semibold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
                 style={{
                   background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                 }}
               >
-                <Printer className="w-5 h-5" />
+                <Printer className="w-4 h-4" />
                 <span>พิมพ์ PDF</span>
               </button>
             </div>
