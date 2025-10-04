@@ -173,22 +173,23 @@ const SubtractionApp: React.FC = () => {
         <div style="margin-bottom: 8mm; padding-bottom: 6mm; position: relative;">
           ${totalPages > 1 ? `<div style="position: absolute; top: 0; right: 0; font-size: 10pt; color: #666;">หน้า ${pageNum}/${totalPages}</div>` : ''}
           
-          <div style="display: flex; align-items: flex-start; gap: 10mm; margin-bottom: 5mm;">
-            ${schoolLogo ? `
-              <div style="flex-shrink: 0;">
-                <img src="${schoolLogo}" alt="โลโก้โรงเรียน" style="width: 50px; height: 50px; object-fit: contain; border: 1px solid #e5e7eb; border-radius: 8px; padding: 4px; background: white;" />
-              </div>
-            ` : ''}
-            <div style="flex: 1;">
-              <div style="font-size: 18pt; font-weight: bold; margin-bottom: 5mm; text-align: center;">ใบงานการลบ</div>
-              <div style="display: flex; justify-content: space-between; font-size: 11pt; margin-bottom: 3mm;">
-                <div>โรงเรียน: _______________________</div>
-                <div>ชั้น: __________</div>
-              </div>
-              <div style="font-size: 11pt;">
-                ชื่อ-สกุล: _______________________
-              </div>
+          ${schoolLogo ? `
+            <!-- Logo in top left corner -->
+            <div style="position: absolute; top: 0; left: 0;">
+              <img src="${schoolLogo}" alt="โลโก้โรงเรียน" style="width: 60px; height: 60px; object-fit: contain; border: 1px solid #e5e7eb; border-radius: 8px; padding: 4px; background: white;" />
             </div>
+          ` : ''}
+          
+          <!-- Title centered -->
+          <div style="font-size: 18pt; font-weight: bold; margin-bottom: 5mm; text-align: center; ${schoolLogo ? 'margin-top: 15mm;' : ''}">ใบงานการลบ</div>
+          
+          <!-- School and student info -->
+          <div style="display: flex; justify-content: space-between; font-size: 11pt; margin-bottom: 3mm;">
+            <div>โรงเรียน: _______________________</div>
+            <div>ชั้น: __________</div>
+          </div>
+          <div style="font-size: 11pt;">
+            ชื่อ-สกุล: _______________________
           </div>
         </div>
 
