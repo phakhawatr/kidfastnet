@@ -2,8 +2,10 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { ArrowLeft, RotateCcw, CheckCircle2, Timer, PlayCircle, RefreshCw } from 'lucide-react';
+import { ArrowLeft, RotateCcw, CheckCircle2, Timer, PlayCircle, RefreshCw, Printer, Upload, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 interface Problem {
   multiplicand: string;
@@ -31,6 +33,12 @@ const MultiplicationApp = () => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // PDF and Logo states
+  const [schoolLogo, setSchoolLogo] = useState<string | null>(null);
+  const [showPdfPreview, setShowPdfPreview] = useState(false);
+  const [pdfPreviewContent, setPdfPreviewContent] = useState<string>('');
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   // Timer effect
   useEffect(() => {
@@ -166,6 +174,14 @@ const MultiplicationApp = () => {
     } catch {}
   }, []);
 
+  // Load logo from localStorage
+  useEffect(() => {
+    const savedLogo = localStorage.getItem('schoolLogo');
+    if (savedLogo) {
+      setSchoolLogo(savedLogo);
+    }
+  }, []);
+
   // Start timer on first input
   const startTimer = () => {
     if (!startTime) {
@@ -294,6 +310,177 @@ const MultiplicationApp = () => {
     });
   };
 
+  // Handle logo upload
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        setSchoolLogo(base64);
+        localStorage.setItem('schoolLogo', base64);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Handle logo removal
+  const handleRemoveLogo = () => {
+    setSchoolLogo(null);
+    localStorage.removeItem('schoolLogo');
+    if (logoInputRef.current) {
+      logoInputRef.current.value = '';
+    }
+  };
+
+  // Create problem card HTML for PDF
+  const createProblemCard = (problem: Problem, index: number): string => {
+    if (problem.dimensions[0] === 1 && problem.dimensions[1] === 1) {
+      // Simple format for 1x1
+      return `
+        <div style="border: 2px solid #666; padding: 15px; background: white; border-radius: 8px; page-break-inside: avoid;">
+          <div style="font-weight: bold; margin-bottom: 10px;">ข้อ ${index + 1}</div>
+          <div style="text-align: center; font-size: 24px; margin: 20px 0;">
+            ${problem.multiplicand} × ${problem.multiplier} = 
+          </div>
+          <div style="display: flex; justify-content: center; gap: 4px; margin-top: 15px;">
+            ${problem.finalAnswer.split('').map(() => 
+              '<div style="width: 40px; height: 40px; border: 1px solid #999; border-radius: 4px;"></div>'
+            ).join('')}
+          </div>
+        </div>
+      `;
+    } else {
+      // Complex format with partial products
+      const maxWidth = Math.max(
+        problem.multiplicand.length + problem.multiplier.length,
+        problem.finalAnswer.length
+      );
+      
+      return `
+        <div style="border: 2px solid #666; padding: 15px; background: white; border-radius: 8px; page-break-inside: avoid;">
+          <div style="font-weight: bold; margin-bottom: 10px;">ข้อ ${index + 1}</div>
+          <div style="font-family: monospace; font-size: 18px;">
+            <!-- Multiplicand -->
+            <div style="text-align: right; padding: 5px 0;">${problem.multiplicand}</div>
+            <!-- Multiplier -->
+            <div style="text-align: right; padding: 5px 0;">× ${problem.multiplier}</div>
+            <!-- Line -->
+            <div style="border-top: 2px solid #000; margin: 5px 0;"></div>
+            <!-- Partial Products -->
+            ${problem.partialProducts.map((product, idx) => `
+              <div style="display: flex; justify-content: flex-end; gap: 4px; margin: 5px 0;">
+                <span style="width: 20px;">${idx === 0 ? '+' : ''}</span>
+                ${product.split('').map(() => 
+                  '<div style="width: 30px; height: 30px; border: 1px solid #999; border-radius: 4px; display: inline-block;"></div>'
+                ).join('')}
+              </div>
+            `).join('')}
+            <!-- Final Line -->
+            <div style="border-top: 2px solid #000; margin: 5px 0;"></div>
+            <!-- Final Answer -->
+            <div style="display: flex; justify-content: flex-end; gap: 4px; margin-top: 10px;">
+              ${problem.finalAnswer.split('').map(() => 
+                '<div style="width: 30px; height: 30px; border: 2px solid #666; border-radius: 4px; display: inline-block;"></div>'
+              ).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  };
+
+  // Generate page HTML
+  const generatePageHTML = (startIdx: number, endIdx: number): string => {
+    const pageProblems = problems.slice(startIdx, endIdx);
+    
+    return `
+      <div style="width: 210mm; min-height: 297mm; padding: 15mm; background: white; position: relative;">
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333;">
+          ${schoolLogo ? `<img src="${schoolLogo}" style="height: 60px; margin-bottom: 10px;" />` : ''}
+          <h1 style="margin: 10px 0; font-size: 24px;">แบบฝึกหัดการคูณ</h1>
+          <div style="display: flex; justify-content: space-around; margin-top: 10px; font-size: 14px;">
+            <div>ชื่อ-สกุล: _______________________________</div>
+            <div>โรงเรียน: _______________________________</div>
+          </div>
+        </div>
+        
+        <!-- Problems Grid -->
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+          ${pageProblems.map((problem, idx) => createProblemCard(problem, startIdx + idx)).join('')}
+        </div>
+      </div>
+    `;
+  };
+
+  // Print to PDF
+  const printToPDF = async () => {
+    const problemsPerPage = 8;
+    const totalPages = Math.ceil(problems.length / problemsPerPage);
+    
+    let allPagesHTML = '<div style="font-family: Arial, sans-serif;">';
+    
+    for (let page = 0; page < totalPages; page++) {
+      const startIdx = page * problemsPerPage;
+      const endIdx = Math.min(startIdx + problemsPerPage, problems.length);
+      allPagesHTML += generatePageHTML(startIdx, endIdx);
+      
+      if (page < totalPages - 1) {
+        allPagesHTML += '<div style="page-break-after: always;"></div>';
+      }
+    }
+    
+    allPagesHTML += '</div>';
+    
+    setPdfPreviewContent(allPagesHTML);
+    setShowPdfPreview(true);
+  };
+
+  // Save PDF from preview
+  const savePdfFromPreview = async () => {
+    const previewElement = document.getElementById('pdf-preview-content');
+    if (!previewElement) return;
+
+    try {
+      const pages = previewElement.querySelectorAll('div[style*="210mm"]') as NodeListOf<HTMLElement>;
+      const pdf = new jsPDF('p', 'mm', 'a4');
+
+      for (let i = 0; i < pages.length; i++) {
+        const page = pages[i];
+        const canvas = await html2canvas(page, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff'
+        });
+
+        const imgData = canvas.toDataURL('image/png');
+        
+        if (i > 0) {
+          pdf.addPage();
+        }
+        
+        pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+      }
+
+      pdf.save('multiplication-worksheet.pdf');
+      setShowPdfPreview(false);
+      
+      toast({
+        title: "✅ บันทึกสำเร็จ",
+        description: "ดาวน์โหลดไฟล์ PDF เรียบร้อยแล้ว",
+      });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast({
+        title: "❌ เกิดข้อผิดพลาด",
+        description: "ไม่สามารถสร้าง PDF ได้",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50">
       <Header />
@@ -319,6 +506,41 @@ const MultiplicationApp = () => {
           </div>
         </div>
 
+        {/* Logo Upload Section */}
+        <div className="card-glass p-4 mb-6">
+          <label className="block text-sm font-medium mb-3">อัพโหลดโลโก้โรงเรียน</label>
+          {schoolLogo ? (
+            <div className="relative inline-block">
+              <img 
+                src={schoolLogo} 
+                alt="School Logo" 
+                className="h-20 w-auto object-contain border-2 border-gray-200 rounded-lg p-2"
+              />
+              <button
+                onClick={handleRemoveLogo}
+                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => logoInputRef.current?.click()}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              <Upload className="w-4 h-4" />
+              เลือกรูปภาพ
+            </button>
+          )}
+          <input
+            ref={logoInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleLogoUpload}
+            className="hidden"
+          />
+        </div>
+
         {/* Controls */}
         <div className="card-glass p-6 mb-6">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-4">
@@ -326,7 +548,7 @@ const MultiplicationApp = () => {
             <div>
               <label className="block text-sm font-medium mb-2">จำนวนข้อ</label>
               <div className="flex flex-wrap gap-1">
-                {[10, 15, 20, 30].map(count => (
+                {[10, 15, 30, 40].map(count => (
                   <button
                     key={count}
                     onClick={() => setProblemCount(count)}
@@ -401,6 +623,16 @@ const MultiplicationApp = () => {
               >
                 <PlayCircle className="w-5 h-5" />
                 <span>เฉลยคำตอบ</span>
+              </button>
+              <button 
+                onClick={printToPDF} 
+                className="w-full px-5 py-3 rounded-full text-base font-semibold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
+                style={{
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                }}
+              >
+                <Printer className="w-5 h-5" />
+                <span>พิมพ์ PDF</span>
               </button>
             </div>
           </div>
@@ -690,6 +922,44 @@ const MultiplicationApp = () => {
               >
                 ดำเนินการต่อ
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* PDF Preview Modal */}
+        {showPdfPreview && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+              <div className="p-4 border-b flex justify-between items-center">
+                <h3 className="text-xl font-bold">ตัวอย่าง PDF</h3>
+                <button
+                  onClick={() => setShowPdfPreview(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-auto p-4 bg-gray-100">
+                <div 
+                  id="pdf-preview-content"
+                  dangerouslySetInnerHTML={{ __html: pdfPreviewContent }}
+                />
+              </div>
+              <div className="p-4 border-t flex justify-end gap-3">
+                <button
+                  onClick={() => setShowPdfPreview(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  ปิด
+                </button>
+                <button
+                  onClick={savePdfFromPreview}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center gap-2"
+                >
+                  <Printer className="w-4 h-4" />
+                  บันทึก PDF
+                </button>
+              </div>
             </div>
           </div>
         )}
