@@ -127,8 +127,8 @@ const SubtractionApp: React.FC = () => {
           
           <!-- Second row (minus sign + second number) -->
           <div style="display: flex; gap: 2px; align-items: center;">
-            <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: #fef3c7; border: 1.5px solid #fbbf24; border-radius: 6px;">
-              -
+            <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: #fef3c7; border: 1.5px solid #fbbf24; border-radius: 6px; line-height: 1;">
+              <span style="transform: translateY(-5px); display: inline-block;">-</span>
             </div>
             ${secondDigits.map(digit => `
               <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: white; border: 1.5px solid #e0e0e0; border-radius: 6px; line-height: 1;">
@@ -140,8 +140,8 @@ const SubtractionApp: React.FC = () => {
           ${thirdDigits ? `
           <!-- Third row (minus sign + third number) - only for 3-operand problems -->
           <div style="display: flex; gap: 2px; align-items: center;">
-            <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: #fef3c7; border: 1.5px solid #fbbf24; border-radius: 6px;">
-              -
+            <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: #fef3c7; border: 1.5px solid #fbbf24; border-radius: 6px; line-height: 1;">
+              <span style="transform: translateY(-5px); display: inline-block;">-</span>
             </div>
             ${thirdDigits.map(digit => `
               <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: white; border: 1.5px solid #e0e0e0; border-radius: 6px; line-height: 1;">
