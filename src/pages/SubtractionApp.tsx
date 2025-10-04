@@ -190,14 +190,14 @@ const SubtractionApp: React.FC = () => {
               
               <!-- School and student info -->
               <div style="display: flex; justify-content: space-between; font-size: 11pt; margin-bottom: 3mm;">
-                <div>โรงเรียน: _______________________</div>
+                <div>ชื่อ-สกุล: _______________________</div>
                 <div style="display: flex; gap: 15mm;">
                   <span>ชั้น: __________</span>
                   <span>เลขที่: __________</span>
                 </div>
               </div>
               <div style="font-size: 11pt;">
-                ชื่อ-สกุล: _______________________
+                โรงเรียน: _______________________
               </div>
             </div>
           </div>
