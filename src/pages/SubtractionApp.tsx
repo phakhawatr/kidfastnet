@@ -44,42 +44,42 @@ const SubtractionApp: React.FC = () => {
     const bottomDigits = prob.b.toString().padStart(totalDigits, ' ').split('');
     
     return `
-      <div style="border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 8px; background: #fefce8; font-family: 'Noto Sans Thai', sans-serif;">
-        <div style="font-size: 9pt; margin-bottom: 6px; color: #666; display: flex; align-items: center;">
-          <span style="color: #f59e0b; margin-right: 3px; font-size: 12pt;">★</span> ข้อ ${idx + 1}
+      <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 6px; background: #fefce8; font-family: 'Noto Sans Thai', sans-serif;">
+        <div style="font-size: 7pt; margin-bottom: 4px; color: #666; display: flex; align-items: center;">
+          <span style="color: #f59e0b; margin-right: 2px; font-size: 9pt;">★</span> ข้อ ${idx + 1}
         </div>
         
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 2px; padding-top: 4px;">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 1.5px; padding-top: 3px;">
           <!-- Top row (first number) with spacing for minus sign alignment -->
-          <div style="display: flex; gap: 3px;">
-            <div style="width: 32px; height: 32px; visibility: hidden;"></div>
+          <div style="display: flex; gap: 2px;">
+            <div style="width: 24px; height: 24px; visibility: hidden;"></div>
             ${topDigits.map(digit => `
-              <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 14pt; font-weight: bold; background: white; border: 2px solid #e0e0e0; border-radius: 8px;">
+              <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: white; border: 1.5px solid #e0e0e0; border-radius: 6px;">
                 ${digit.trim() || ''}
               </div>
             `).join('')}
           </div>
           
           <!-- Bottom row (minus sign + second number) -->
-          <div style="display: flex; gap: 3px; align-items: center;">
-            <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 14pt; font-weight: bold; background: #fef3c7; border: 2px solid #fbbf24; border-radius: 8px;">
+          <div style="display: flex; gap: 2px; align-items: center;">
+            <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: #fef3c7; border: 1.5px solid #fbbf24; border-radius: 6px;">
               -
             </div>
             ${bottomDigits.map(digit => `
-              <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 14pt; font-weight: bold; background: white; border: 2px solid #e0e0e0; border-radius: 8px;">
+              <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: white; border: 1.5px solid #e0e0e0; border-radius: 6px;">
                 ${digit.trim() || ''}
               </div>
             `).join('')}
           </div>
           
           <!-- Divider line -->
-          <div style="width: calc(100% - 4px); height: 2px; background: #333; margin: 3px 0;"></div>
+          <div style="width: calc(100% - 3px); height: 1.5px; background: #333; margin: 2px 0;"></div>
           
           <!-- Answer boxes with spacing for alignment -->
-          <div style="display: flex; gap: 3px;">
-            <div style="width: 32px; height: 32px; visibility: hidden;"></div>
+          <div style="display: flex; gap: 2px;">
+            <div style="width: 24px; height: 24px; visibility: hidden;"></div>
             ${Array(totalDigits).fill(0).map(() => `
-              <div style="width: 32px; height: 32px; border: 2px solid #93c5fd; border-radius: 8px; background: white;"></div>
+              <div style="width: 24px; height: 24px; border: 1.5px solid #93c5fd; border-radius: 6px; background: white;"></div>
             `).join('')}
           </div>
         </div>
