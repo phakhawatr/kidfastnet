@@ -37,52 +37,114 @@ const SubtractionApp: React.FC = () => {
 
   async function printToPDF() {
     try {
-      // Hide unnecessary elements for print
-      const elementsToHide = document.querySelectorAll('.no-print, header, footer, .control-panel');
-      elementsToHide.forEach(el => {
-        (el as HTMLElement).style.display = 'none';
+      // Create a special print container
+      const printContainer = document.createElement('div');
+      printContainer.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 210mm;
+        height: 297mm;
+        background: white;
+        padding: 20mm;
+        z-index: 9999;
+      `;
+
+      // Add header section
+      const header = document.createElement('div');
+      header.style.cssText = 'margin-bottom: 15mm; border-bottom: 2px solid #333; padding-bottom: 10mm;';
+      header.innerHTML = `
+        <div style="text-align: center; font-family: 'Noto Sans Thai', sans-serif;">
+          <div style="font-size: 18pt; font-weight: bold; margin-bottom: 8mm;">แบบฝึกหัดการลบ</div>
+          <div style="display: flex; justify-content: space-between; font-size: 12pt;">
+            <div>โรงเรียน: ___________________________</div>
+            <div>ชื่อ-สกุล: ___________________________</div>
+          </div>
+          <div style="text-align: left; font-size: 12pt; margin-top: 3mm;">
+            ชั้น: ___________________________
+          </div>
+        </div>
+      `;
+      printContainer.appendChild(header);
+
+      // Create problems grid (4 columns x 5 rows = 20 problems max per page)
+      const grid = document.createElement('div');
+      grid.style.cssText = `
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8mm;
+        max-width: 170mm;
+        margin: 0 auto;
+      `;
+
+      // Add up to 20 problems (5 rows x 4 columns)
+      const problemsToShow = problems.slice(0, 20);
+      problemsToShow.forEach((prob, idx) => {
+        const card = document.createElement('div');
+        card.style.cssText = `
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          padding: 8px;
+          background: #fafafa;
+          text-align: center;
+          font-family: 'Noto Sans Thai', sans-serif;
+        `;
+        
+        const problemNum = document.createElement('div');
+        problemNum.style.cssText = 'font-size: 9pt; margin-bottom: 4px; color: #666;';
+        problemNum.textContent = `ข้อ ${idx + 1}`;
+        
+        const problemContent = document.createElement('div');
+        problemContent.style.cssText = 'font-size: 16pt; font-weight: bold; margin: 8px 0;';
+        
+        const top = prob.a.toString().padStart(digits, ' ').split('').join(' ');
+        const bottom = prob.b.toString().padStart(digits, ' ').split('').join(' ');
+        
+        problemContent.innerHTML = `
+          <div style="text-align: right; margin-bottom: 2px;">${top}</div>
+          <div style="text-align: right; border-top: 2px solid #333; padding-top: 2px;">- ${bottom}</div>
+        `;
+        
+        const answerBoxes = document.createElement('div');
+        answerBoxes.style.cssText = 'display: flex; justify-content: center; gap: 4px; margin-top: 8px;';
+        for (let i = 0; i < digits; i++) {
+          const box = document.createElement('div');
+          box.style.cssText = `
+            width: 20px;
+            height: 25px;
+            border: 1px solid #999;
+            border-radius: 4px;
+            background: white;
+          `;
+          answerBoxes.appendChild(box);
+        }
+        
+        card.appendChild(problemNum);
+        card.appendChild(problemContent);
+        card.appendChild(answerBoxes);
+        grid.appendChild(card);
       });
 
-      // Get the problems grid
-      const problemsGrid = document.querySelector('.problems-grid') as HTMLElement;
-      if (!problemsGrid) return;
+      printContainer.appendChild(grid);
+      document.body.appendChild(printContainer);
 
-      const canvas = await html2canvas(problemsGrid, {
+      // Generate PDF
+      const canvas = await html2canvas(printContainer, {
         scale: 2,
         useCORS: true,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        width: 794, // A4 width in pixels at 96 DPI
+        height: 1123 // A4 height in pixels at 96 DPI
       });
 
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
       
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = pdfWidth - 20; // 10mm margin on each side
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      // Add title
-      pdf.setFontSize(16);
-      pdf.text('แบบฝึกหัดการลบ', pdfWidth / 2, 15, { align: 'center' });
-      
-      // Add image
-      let yPos = 25;
-      if (imgHeight > pdfHeight - 40) {
-        // Image too tall, need multiple pages
-        const pageHeight = pdfHeight - 40;
-        const ratio = pageHeight / imgHeight;
-        pdf.addImage(imgData, 'PNG', 10, yPos, imgWidth * ratio, pageHeight);
-      } else {
-        pdf.addImage(imgData, 'PNG', 10, yPos, imgWidth, imgHeight);
-      }
-
-      // Save the PDF
+      pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
       pdf.save(`แบบฝึกหัดการลบ-${new Date().toISOString().split('T')[0]}.pdf`);
 
-      // Show elements again
-      elementsToHide.forEach(el => {
-        (el as HTMLElement).style.display = '';
-      });
+      // Remove print container
+      document.body.removeChild(printContainer);
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('เกิดข้อผิดพลาดในการสร้าง PDF');
