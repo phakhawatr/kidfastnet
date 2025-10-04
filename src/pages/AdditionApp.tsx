@@ -1,6 +1,8 @@
 import React, { useMemo, useState, useRef, useEffect } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Printer, Upload, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 // ================= Utilities =================
 function randInt(min, max) {
@@ -360,11 +362,27 @@ export default function AdditionApp() {
     }
   });
 
+  // PDF Preview state
+  const [showPdfPreview, setShowPdfPreview] = useState(false);
+  const [pdfPreviewContent, setPdfPreviewContent] = useState('');
+  
+  // School Logo state
+  const [schoolLogo, setSchoolLogo] = useState('');
+  const logoInputRef = useRef(null);
+
   useEffect(() => {
     try {
       localStorage.setItem("add1000_history", JSON.stringify(history));
     } catch {}
   }, [history]);
+
+  // Load school logo from localStorage on mount
+  useEffect(() => {
+    const savedLogo = localStorage.getItem('addition-school-logo');
+    if (savedLogo) {
+      setSchoolLogo(savedLogo);
+    }
+  }, []);
 
   // migrate answers to per-digit arrays on first load
   useEffect(() => {
@@ -636,6 +654,232 @@ export default function AdditionApp() {
     try { localStorage.removeItem("add1000_history"); } catch {}
   }
 
+  // Handle logo upload
+  const handleLogoUpload = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    // Validate file type
+    if (!file.type.match(/^image\/(jpeg|jpg|png|webp)$/)) {
+      alert('กรุณาเลือกไฟล์รูปภาพ (JPG, PNG, WEBP)');
+      return;
+    }
+    
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      alert('ขนาดไฟล์ต้องไม่เกิน 2MB');
+      return;
+    }
+    
+    // Convert to base64
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result;
+      if (typeof result === 'string') {
+        setSchoolLogo(result);
+        localStorage.setItem('addition-school-logo', result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+  
+  const handleRemoveLogo = () => {
+    setSchoolLogo('');
+    localStorage.removeItem('addition-school-logo');
+    if (logoInputRef.current) {
+      logoInputRef.current.value = '';
+    }
+  };
+
+  function createProblemCard(prob, idx, operands) {
+    // Calculate correct answer and determine actual digits needed
+    const correctAnswer = operands === 3 ? prob.a + prob.b + prob.c : prob.a + prob.b;
+    const actualDigits = String(correctAnswer).length;
+    
+    // Convert to string and pad with spaces to ensure correct digit count
+    const aStr = prob.a.toString().padStart(actualDigits, ' ');
+    const bStr = prob.b.toString().padStart(actualDigits, ' ');
+    const cStr = prob.c != null ? prob.c.toString().padStart(actualDigits, ' ') : null;
+    
+    const aDigits = aStr.split('');
+    const bDigits = bStr.split('');
+    const cDigits = cStr ? cStr.split('') : null;
+    
+    return `
+      <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 6px; background: #f0f9ff; font-family: 'Noto Sans Thai', sans-serif;">
+        <div style="font-size: 7pt; margin-bottom: 4px; color: #666; display: flex; align-items: center;">
+          <span style="color: #0ea5e9; margin-right: 2px; font-size: 9pt;">★</span> ข้อ ${idx + 1}
+        </div>
+        
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 1.5px; padding-top: 3px;">
+          <!-- Top row (first number) with spacing for plus sign alignment -->
+          <div style="display: flex; gap: 2px;">
+            <div style="width: 24px; height: 24px; visibility: hidden;"></div>
+            ${aDigits.map(digit => `
+              <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: white; border: 1.5px solid #e0e0e0; border-radius: 6px; line-height: 1;">
+                <span style="transform: translateY(-3.5px); display: inline-block;">${digit.trim() || ''}</span>
+              </div>
+            `).join('')}
+          </div>
+          
+          <!-- Second row (plus sign + second number) -->
+          <div style="display: flex; gap: 2px; align-items: center;">
+            <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: #dbeafe; border: 1.5px solid #3b82f6; border-radius: 6px; line-height: 1;">
+              <span style="transform: translateY(-5px); display: inline-block;">+</span>
+            </div>
+            ${bDigits.map(digit => `
+              <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: white; border: 1.5px solid #e0e0e0; border-radius: 6px; line-height: 1;">
+                <span style="transform: translateY(-3.5px); display: inline-block;">${digit.trim() || ''}</span>
+              </div>
+            `).join('')}
+          </div>
+          
+          ${cDigits ? `
+          <!-- Third row (plus sign + third number) - only for 3-operand problems -->
+          <div style="display: flex; gap: 2px; align-items: center;">
+            <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: #dbeafe; border: 1.5px solid #3b82f6; border-radius: 6px; line-height: 1;">
+              <span style="transform: translateY(-5px); display: inline-block;">+</span>
+            </div>
+            ${cDigits.map(digit => `
+              <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; font-weight: bold; background: white; border: 1.5px solid #e0e0e0; border-radius: 6px; line-height: 1;">
+                <span style="transform: translateY(-3.5px); display: inline-block;">${digit.trim() || ''}</span>
+              </div>
+            `).join('')}
+          </div>
+          ` : ''}
+          
+          <!-- Divider line -->
+          <div style="width: calc(100% - 3px); height: 1.5px; background: #333; margin: 2px 0;"></div>
+          
+          <!-- Answer boxes with spacing for alignment -->
+          <div style="display: flex; gap: 2px;">
+            <div style="width: 24px; height: 24px; visibility: hidden;"></div>
+            ${Array(actualDigits).fill(0).map(() => `
+              <div style="width: 24px; height: 24px; border: 1.5px solid #93c5fd; border-radius: 6px; background: white;"></div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function generatePageHTML(pageProblems, startIdx, pageNum, totalPages) {
+    return `
+      <div style="width: 210mm; min-height: 297mm; background: white; padding: 8mm 20mm; page-break-after: always; font-family: 'Noto Sans Thai', sans-serif;">
+        <!-- Header -->
+        <div style="margin-bottom: 8mm; position: relative;">
+          ${totalPages > 1 ? `<div style="position: absolute; top: 0; right: 0; font-size: 10pt; color: #666;">หน้า ${pageNum}/${totalPages}</div>` : ''}
+          
+          <div style="display: flex; align-items: flex-start; gap: 8mm; margin-bottom: 6mm;">
+            ${schoolLogo ? `
+              <!-- Logo in top left -->
+              <div style="flex-shrink: 0; margin-top: -2mm;">
+                <img src="${schoolLogo}" alt="โลโก้โรงเรียน" style="width: 78px; height: 78px; object-fit: contain; border: 1.5px solid #e5e7eb; border-radius: 8px; padding: 5px; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1);" />
+              </div>
+            ` : ''}
+            
+            <!-- Main content area -->
+            <div style="flex: 1;">
+              <!-- Title centered -->
+              <div style="font-size: 20pt; font-weight: bold; margin-bottom: 6mm; text-align: center; border-top: 2px solid #333; border-bottom: 2px solid #333; padding: 4mm 0;">
+                ใบงานการบวก
+              </div>
+              
+              <!-- School and student info -->
+              <div style="display: flex; justify-content: space-between; font-size: 11pt; margin-bottom: 3mm;">
+                <div>ชื่อ-สกุล: _______________________</div>
+                <div style="display: flex; gap: 15mm;">
+                  <span>ชั้น: __________</span>
+                  <span>เลขที่: __________</span>
+                </div>
+              </div>
+              <div style="font-size: 11pt;">
+                โรงเรียน: _______________________
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Problems Grid -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5mm; max-width: 170mm; margin: 0 auto;">
+          ${pageProblems.map((prob, idx) => createProblemCard(prob, startIdx + idx, operands)).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  async function printToPDF() {
+    try {
+      // Calculate total pages needed (20 problems per page: 4 columns x 5 rows)
+      const problemsPerPage = 20;
+      const totalPages = Math.ceil(problems.length / problemsPerPage);
+      
+      // Generate HTML for all pages
+      let allPagesHTML = '<div style="font-family: \'Noto Sans Thai\', sans-serif;">';
+      
+      for (let page = 0; page < totalPages; page++) {
+        const startIdx = page * problemsPerPage;
+        const endIdx = Math.min(startIdx + problemsPerPage, problems.length);
+        const pageProblems = problems.slice(startIdx, endIdx);
+        
+        allPagesHTML += generatePageHTML(pageProblems, startIdx, page + 1, totalPages);
+      }
+      
+      allPagesHTML += '</div>';
+      
+      // Store preview content and show preview modal
+      setPdfPreviewContent(allPagesHTML);
+      setShowPdfPreview(true);
+      
+    } catch (error) {
+      console.error('Error generating PDF preview:', error);
+      alert('เกิดข้อผิดพลาดในการสร้าง PDF');
+    }
+  }
+
+  async function savePdfFromPreview() {
+    try {
+      // Create temporary container with preview content
+      const printContainer = document.createElement('div');
+      printContainer.innerHTML = pdfPreviewContent;
+      printContainer.style.cssText = 'position: fixed; top: -10000px; left: -10000px;';
+      document.body.appendChild(printContainer);
+
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pages = printContainer.querySelectorAll('div[style*="page-break-after"]');
+      
+      for (let i = 0; i < pages.length; i++) {
+        const page = pages[i] as HTMLElement;
+        
+        const canvas = await html2canvas(page, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff',
+          width: 794,
+          height: 1123
+        });
+
+        const imgData = canvas.toDataURL('image/png');
+        
+        if (i > 0) {
+          pdf.addPage();
+        }
+        
+        pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+      }
+      
+      pdf.save(`ใบงานการบวก-${new Date().toISOString().split('T')[0]}.pdf`);
+      
+      // Cleanup
+      document.body.removeChild(printContainer);
+      setShowPdfPreview(false);
+      
+    } catch (error) {
+      console.error('Error saving PDF:', error);
+      alert('เกิดข้อผิดพลาดในการบันทึก PDF');
+    }
+  }
+
   const Confetti = () => (
     <div className="pointer-events-none fixed inset-0 overflow-hidden flex items-center justify-center">
       <div className="text-6xl animate-bounce">🎉</div>
@@ -682,6 +926,37 @@ export default function AdditionApp() {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const PdfPreviewModal = ({ open, onClose, onSave }) => {
+    if (!open) return null;
+    
+    return (
+      <div className="fixed inset-0 z-50" role="dialog" aria-modal="true">
+        <div className="absolute inset-0 bg-black/30" onClick={onClose} />
+        <div className="relative z-10 mx-auto my-4 w-[96%] max-w-6xl">
+          <div className="rounded-2xl bg-white shadow-xl border flex flex-col overflow-hidden" style={{ height: '90vh' }}>
+            <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-white z-10">
+              <div className="font-bold text-lg">ดูตัวอย่างก่อนพิมพ์</div>
+              <div className="flex gap-2">
+                <button 
+                  onClick={onSave}
+                  className="px-4 py-2 rounded-lg bg-sky-600 text-white hover:bg-sky-700 flex items-center gap-2"
+                >
+                  <Printer className="w-4 h-4" />
+                  บันทึก PDF
+                </button>
+                <button onClick={onClose} className="px-4 py-2 rounded-lg bg-zinc-100 hover:bg-zinc-200">ปิด</button>
+              </div>
+            </div>
+            <div 
+              className="p-4 overflow-y-auto flex-1 bg-zinc-100"
+              dangerouslySetInnerHTML={{ __html: pdfPreviewContent }}
+            />
           </div>
         </div>
       </div>
@@ -763,10 +1038,61 @@ export default function AdditionApp() {
       </header>
 
       <main className="max-w-6xl mx-auto p-6 pt-3">
+        {/* Logo Upload Section */}
+        <div className="mb-6 bg-white/80 backdrop-blur rounded-2xl p-4 border-2 border-sky-100 shadow-sm">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="flex items-center gap-3">
+              <h3 className="text-sm font-semibold text-zinc-700">โลโก้โรงเรียน (สำหรับใบงาน PDF)</h3>
+              {schoolLogo && (
+                <img 
+                  src={schoolLogo} 
+                  alt="โลโก้โรงเรียน" 
+                  className="w-12 h-12 object-contain border border-zinc-200 rounded-lg bg-white p-1"
+                />
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                ref={logoInputRef}
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,image/webp"
+                onChange={handleLogoUpload}
+                className="hidden"
+                id="logo-upload-addition"
+              />
+              <label
+                htmlFor="logo-upload-addition"
+                className="px-4 py-2 rounded-lg bg-sky-600 text-white hover:bg-sky-700 cursor-pointer flex items-center gap-2 text-sm font-medium"
+              >
+                <Upload className="w-4 h-4" />
+                {schoolLogo ? 'เปลี่ยนโลโก้' : 'อัพโหลดโลโก้'}
+              </label>
+              {schoolLogo && (
+                <button
+                  onClick={handleRemoveLogo}
+                  className="px-4 py-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 flex items-center gap-2 text-sm font-medium"
+                >
+                  <X className="w-4 h-4" />
+                  ลบโลโก้
+                </button>
+              )}
+              <button
+                onClick={printToPDF}
+                disabled={problems.length === 0}
+                className="px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm font-medium shadow-md"
+              >
+                <Printer className="w-4 h-4" />
+                พิมพ์ PDF ({problems.length} ข้อ)
+              </button>
+            </div>
+          </div>
+          <p className="text-xs text-zinc-500 mt-2">รองรับไฟล์ JPG, PNG, WEBP (สูงสุด 2MB)</p>
+        </div>
+
         <div className="flex flex-wrap items-center gap-2 mb-4">
           <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 shadow-sm">
             <span className="text-sm text-zinc-600">จำนวนข้อ:</span>
-            {[10, 15, 20, 30].map((n) => (
+            {[10, 15, 30, 40].map((n) => (
               <button
                 key={n}
                 onClick={() => applyNewCount(n)}
@@ -958,6 +1284,12 @@ export default function AdditionApp() {
         onShowAnswers={() => showAll({ openSummary: false })}
         onSave={saveStats}
         alreadyShowing={showAnswers}
+      />
+
+      <PdfPreviewModal
+        open={showPdfPreview}
+        onClose={() => setShowPdfPreview(false)}
+        onSave={savePdfFromPreview}
       />
 
       <footer className="max-w-6xl mx-auto p-6 text-xs text-zinc-500">© Interactive math worksheet — addition ≤ 1000.</footer>
