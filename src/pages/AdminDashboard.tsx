@@ -59,8 +59,11 @@ const AdminDashboard = () => {
   };
 
   useEffect(() => {
-    fetchRegistrations();
-  }, []);
+    // Only fetch when email is available
+    if (email) {
+      fetchRegistrations();
+    }
+  }, [email]); // Add email as dependency
 
   // Set up presence tracking for online users
   useEffect(() => {
@@ -133,12 +136,28 @@ const AdminDashboard = () => {
   const fetchRegistrations = async () => {
     try {
       setIsLoading(true);
+      
+      // Validate email exists
+      if (!email) {
+        console.error('Admin email is not available');
+        ToastManager.show({
+          message: 'ไม่พบข้อมูลอีเมลผู้ดูแล กรุณาเข้าสู่ระบบใหม่',
+          type: 'error'
+        });
+        return;
+      }
+
+      console.log('Fetching registrations for admin:', email);
+      
       // Use new secure admin function with proper authorization
       const { data, error } = await supabase.rpc('admin_get_user_registrations', {
         admin_email: email
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('RPC Error:', error);
+        throw error;
+      }
       
       console.log('Fetched registrations with login stats:', data);
       setRegistrations((data || []) as UserRegistration[]);
