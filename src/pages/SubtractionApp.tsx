@@ -50,8 +50,9 @@ const SubtractionApp: React.FC = () => {
         </div>
         
         <div style="display: flex; flex-direction: column; align-items: center; gap: 2px; padding-top: 4px;">
-          <!-- Top row (first number) -->
+          <!-- Top row (first number) with spacing for minus sign alignment -->
           <div style="display: flex; gap: 3px;">
+            <div style="width: 32px; height: 32px; visibility: hidden;"></div>
             ${topDigits.map(digit => `
               <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 14pt; font-weight: bold; background: white; border: 2px solid #e0e0e0; border-radius: 8px;">
                 ${digit.trim() || ''}
@@ -74,8 +75,9 @@ const SubtractionApp: React.FC = () => {
           <!-- Divider line -->
           <div style="width: calc(100% - 4px); height: 2px; background: #333; margin: 3px 0;"></div>
           
-          <!-- Answer boxes -->
+          <!-- Answer boxes with spacing for alignment -->
           <div style="display: flex; gap: 3px;">
+            <div style="width: 32px; height: 32px; visibility: hidden;"></div>
             ${Array(totalDigits).fill(0).map(() => `
               <div style="width: 32px; height: 32px; border: 2px solid #93c5fd; border-radius: 8px; background: white;"></div>
             `).join('')}
