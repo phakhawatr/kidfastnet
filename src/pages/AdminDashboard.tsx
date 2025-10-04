@@ -59,9 +59,12 @@ const AdminDashboard = () => {
   };
 
   useEffect(() => {
-    // Only fetch when email is available
-    if (email) {
+    // Only fetch when email is available and component is mounted
+    if (email && !isLoading) {
+      console.log('useEffect: Fetching with email:', email);
       fetchRegistrations();
+    } else {
+      console.log('useEffect: Not fetching - email:', email, 'isLoading:', isLoading);
     }
   }, [email]); // Add email as dependency
 
@@ -137,34 +140,55 @@ const AdminDashboard = () => {
     try {
       setIsLoading(true);
       
+      // Get admin email from hook or localStorage as fallback
+      const adminEmail = email || (() => {
+        try {
+          const stored = localStorage.getItem('kidfast_admin_auth');
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            return parsed.email;
+          }
+        } catch (e) {
+          console.error('Failed to parse admin auth from localStorage:', e);
+        }
+        return null;
+      })();
+      
       // Validate email exists
-      if (!email) {
-        console.error('Admin email is not available');
+      if (!adminEmail) {
+        console.error('Admin email is not available in hook or localStorage');
         ToastManager.show({
           message: 'ไม่พบข้อมูลอีเมลผู้ดูแล กรุณาเข้าสู่ระบบใหม่',
           type: 'error'
         });
+        setIsLoading(false);
         return;
       }
 
-      console.log('Fetching registrations for admin:', email);
+      console.log('Fetching registrations for admin:', adminEmail);
+      console.log('Calling RPC with params:', { admin_email: adminEmail });
       
       // Use new secure admin function with proper authorization
       const { data, error } = await supabase.rpc('admin_get_user_registrations', {
-        admin_email: email
+        admin_email: adminEmail
       });
 
       if (error) {
-        console.error('RPC Error:', error);
+        console.error('RPC Error Details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
         throw error;
       }
       
-      console.log('Fetched registrations with login stats:', data);
+      console.log('✅ Successfully fetched registrations:', data?.length || 0, 'records');
       setRegistrations((data || []) as UserRegistration[]);
-    } catch (error) {
-      console.error('Error fetching registrations:', error);
+    } catch (error: any) {
+      console.error('❌ Error fetching registrations:', error);
       ToastManager.show({
-        message: 'เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + (error as Error).message,
+        message: 'เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + (error?.message || 'Unknown error'),
         type: 'error'
       });
     } finally {
