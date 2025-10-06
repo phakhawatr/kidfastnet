@@ -107,6 +107,61 @@ const Signup = () => {
     return phoneRegex.test(phone);
   };
 
+  // Phase 1: Sanitize phone number - convert similar characters and clean format
+  const sanitizePhoneNumber = (phone: string) => {
+    let cleaned = phone
+      // Convert similar characters to numbers
+      .replace(/[ØøＯｏ]/g, '0')  // O with stroke, fullwidth O, etc → 0
+      .replace(/[Oo]/g, '0')       // Letter O → 0
+      .replace(/[lLｌＬ]/g, '1')   // Letter l/L → 1
+      .replace(/[Ii]/g, '1')       // Letter i/I → 1
+      // Remove all non-digit characters except hyphens
+      .replace(/[^\d-]/g, '')
+      // Remove extra hyphens
+      .replace(/-+/g, '-')
+      // Remove leading/trailing hyphens
+      .replace(/^-|-$/g, '');
+    
+    // Auto-format: add hyphens if not present
+    const digitsOnly = cleaned.replace(/-/g, '');
+    if (digitsOnly.length === 10) {
+      return `${digitsOnly.slice(0, 3)}-${digitsOnly.slice(3, 6)}-${digitsOnly.slice(6, 10)}`;
+    }
+    
+    return cleaned;
+  };
+
+  // Phase 2: Format phone number as user types
+  const formatPhoneNumber = (value: string) => {
+    // Remove all non-digits
+    const digitsOnly = value.replace(/\D/g, '');
+    
+    // Apply formatting
+    if (digitsOnly.length <= 3) {
+      return digitsOnly;
+    } else if (digitsOnly.length <= 6) {
+      return `${digitsOnly.slice(0, 3)}-${digitsOnly.slice(3)}`;
+    } else {
+      return `${digitsOnly.slice(0, 3)}-${digitsOnly.slice(3, 6)}-${digitsOnly.slice(6, 10)}`;
+    }
+  };
+
+  // Handle phone input change with real-time sanitization and formatting
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    
+    // First sanitize similar characters
+    value = value
+      .replace(/[ØøＯｏ]/g, '0')
+      .replace(/[Oo]/g, '0')
+      .replace(/[lLｌＬ]/g, '1')
+      .replace(/[Ii]/g, '1');
+    
+    // Then format
+    const formatted = formatPhoneNumber(value);
+    updateFormData('parentPhone', formatted);
+  };
+
   const handleNext = () => {
     if (validateStep(currentStep)) {
       setCurrentStep(prev => prev + 1);
@@ -125,8 +180,11 @@ const Signup = () => {
   const handleSubmit = async () => {
     if (validateStep(3)) {
       try {
-        // Validate phone number format before submission
-        if (!validatePhoneNumber(formData.parentPhone)) {
+        // Phase 1: Sanitize phone number before validation
+        const sanitizedPhone = sanitizePhoneNumber(formData.parentPhone);
+        
+        // Validate phone number format after sanitization
+        if (!validatePhoneNumber(sanitizedPhone)) {
           ToastManager.show({
             message: 'รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง กรุณากรอกในรูปแบบ 08X-XXX-XXXX',
             type: 'error'
@@ -144,7 +202,7 @@ const Signup = () => {
             avatar: formData.avatar,
             learning_style: formData.learningStyle,
             parent_email: formData.parentEmail,
-            parent_phone: formData.parentPhone,
+            parent_phone: sanitizedPhone, // Use sanitized phone number
             password_hash: formData.password,
             status: 'pending',
             referred_by_code: affiliateCode,
@@ -382,18 +440,36 @@ const Signup = () => {
                   <label className="flex items-center gap-2 text-lg font-medium mb-3">
                     📱 <span>เบอร์โทรผู้ปกครอง <span className="text-red-500">*</span></span>
                   </label>
-                  <input
-                    type="tel"
-                    placeholder="08X-XXX-XXXX"
-                    className={`input-field ${formData.parentPhone && !validatePhoneNumber(formData.parentPhone) ? 'border-red-500' : ''}`}
-                    value={formData.parentPhone}
-                    onChange={(e) => updateFormData('parentPhone', e.target.value)}
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      type="tel"
+                      placeholder="08X-XXX-XXXX"
+                      className={`input-field pr-10 ${
+                        formData.parentPhone 
+                          ? validatePhoneNumber(formData.parentPhone) 
+                            ? 'border-green-500 focus:border-green-500' 
+                            : 'border-red-500 focus:border-red-500'
+                          : ''
+                      }`}
+                      value={formData.parentPhone}
+                      onChange={handlePhoneChange}
+                      maxLength={12}
+                      required
+                    />
+                    {formData.parentPhone && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        {validatePhoneNumber(formData.parentPhone) ? (
+                          <span className="text-green-500 text-xl">✓</span>
+                        ) : (
+                          <span className="text-red-500 text-xl">✗</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
                   <p className="text-sm text-[hsl(var(--text-muted))] mt-1">
                     {formData.parentPhone && !validatePhoneNumber(formData.parentPhone) 
                       ? <span className="text-red-500">รูปแบบเบอร์โทรไม่ถูกต้อง (ตัวอย่าง: 081-234-5678)</span>
-                      : 'ไม่บังคับ - สำหรับติดต่อในกรณีเร่งด่วน'
+                      : <span>ตัวอย่าง: <strong>081-234-5678</strong> หรือ <strong>089-765-4321</strong></span>
                     }
                   </p>
                 </div>
