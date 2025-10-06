@@ -49,6 +49,10 @@ const Signup = () => {
     acceptNewsletter: false
   });
   const [affiliateCode, setAffiliateCode] = useState<string | null>(null);
+  const [referrerValidationState, setReferrerValidationState] = useState<{
+    status: 'idle' | 'validating' | 'valid' | 'invalid';
+    message?: string;
+  }>({ status: 'idle' });
 
   const navigate = useNavigate();
   const { signup } = useAuth();
@@ -175,28 +179,85 @@ const Signup = () => {
     updateFormData('parentPhone', formatted);
   };
 
-  // Validate referrer member ID
+  // Validate referrer member ID with extensive logging
   const validateReferrerMemberId = async (memberId: string) => {
-    if (!memberId || memberId.trim() === '') return null;
+    console.log('🔍 Validating referrer member ID:', {
+      raw: memberId,
+      trimmed: memberId.trim(),
+      length: memberId.trim().length,
+      charCodes: Array.from(memberId.trim()).map(c => c.charCodeAt(0))
+    });
+    
+    if (!memberId || memberId.trim() === '') {
+      console.log('❌ Empty member ID');
+      return null;
+    }
+    
+    const cleanMemberId = memberId.trim();
     
     try {
       // Check if member_id exists in approved users
       const { data, error } = await supabase
         .from('user_registrations')
-        .select('member_id')
-        .eq('member_id', memberId.trim())
+        .select('id, member_id, nickname, status')
+        .eq('member_id', cleanMemberId)
         .eq('status', 'approved')
         .maybeSingle();
       
-      if (error || !data) {
+      console.log('📊 Query result:', { data, error, searchFor: cleanMemberId });
+      
+      if (error) {
+        console.error('❌ Supabase error:', error);
         return null;
       }
       
-      // Return the member_id if valid
+      if (!data) {
+        console.log('❌ No matching member found');
+        return null;
+      }
+      
+      console.log('✅ Valid referrer found:', data);
       return data.member_id;
     } catch (error) {
-      console.error('Error validating referrer:', error);
+      console.error('❌ Exception:', error);
       return null;
+    }
+  };
+
+  // Real-time validation handler for referrer input
+  const handleReferrerInputChange = async (value: string) => {
+    updateFormData('referrerMemberId', value);
+    
+    if (!value || value.trim() === '') {
+      setReferrerValidationState({ status: 'idle' });
+      return;
+    }
+    
+    if (value.trim().length !== 5) {
+      setReferrerValidationState({ 
+        status: 'invalid', 
+        message: 'รหัสสมาชิกต้องมี 5 หลัก' 
+      });
+      return;
+    }
+    
+    setReferrerValidationState({ status: 'validating', message: 'กำลังตรวจสอบ...' });
+    
+    // Debounce
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const result = await validateReferrerMemberId(value);
+    
+    if (result) {
+      setReferrerValidationState({ 
+        status: 'valid', 
+        message: `✓ พบผู้แนะนำ (รหัส: ${result})` 
+      });
+    } else {
+      setReferrerValidationState({ 
+        status: 'invalid', 
+        message: 'ไม่พบรหัสสมาชิกนี้ในระบบ' 
+      });
     }
   };
 
@@ -233,13 +294,15 @@ const Signup = () => {
         // Validate and get affiliate code from member ID if provided
         let finalAffiliateCode = affiliateCode;
         if (formData.referrerMemberId && formData.referrerMemberId.trim() !== '') {
+          console.log('🔄 Re-validating referrer before submission...');
           const validatedCode = await validateReferrerMemberId(formData.referrerMemberId);
           if (validatedCode) {
             finalAffiliateCode = validatedCode;
-            console.log('✅ Validated referrer member ID:', formData.referrerMemberId, '-> Code:', validatedCode);
+            console.log('✅ Final validation passed:', validatedCode);
           } else {
+            console.error('❌ Final validation failed for:', formData.referrerMemberId);
             ToastManager.show({
-              message: 'ไม่พบรหัสสมาชิกที่แนะนำ กรุณาตรวจสอบรหัสอีกครั้ง',
+              message: 'ไม่พบรหัสสมาชิกที่แนะนำ กรุณาตรวจสอบรหัสอีกครั้ง หรือเว้นว่างไว้หากไม่มีผู้แนะนำ',
               type: 'error'
             });
             return;
@@ -597,16 +660,51 @@ const Signup = () => {
                   <label className="flex items-center gap-2 text-lg font-medium mb-3">
                     🎁 <span>รหัสสมาชิกที่แนะนำ <span className="text-[hsl(var(--text-muted))]">(ถ้ามี)</span></span>
                   </label>
-                  <input
-                    type="text"
-                    placeholder="กรอกรหัสสมาชิก 5 หลัก (เช่น 00001)"
-                    className="input-field"
-                    value={formData.referrerMemberId}
-                    onChange={(e) => updateFormData('referrerMemberId', e.target.value)}
-                    maxLength={5}
-                  />
-                  <p className="text-sm text-[hsl(var(--text-muted))] mt-1">
-                    กรอกรหัสสมาชิกของผู้ที่แนะนำให้คุณสมัคร เพื่อให้ท่านได้รับสิทธิพิเศษ
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="กรอกรหัสสมาชิก 5 หลัก (เช่น 10003)"
+                      className={`input-field pr-10 ${
+                        referrerValidationState.status === 'valid' 
+                          ? 'border-green-500 focus:border-green-500'
+                          : referrerValidationState.status === 'invalid'
+                          ? 'border-red-500 focus:border-red-500'
+                          : ''
+                      }`}
+                      value={formData.referrerMemberId}
+                      onChange={(e) => handleReferrerInputChange(e.target.value)}
+                      maxLength={5}
+                    />
+                    {referrerValidationState.status !== 'idle' && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        {referrerValidationState.status === 'validating' && (
+                          <span className="text-gray-400 text-xl">⏳</span>
+                        )}
+                        {referrerValidationState.status === 'valid' && (
+                          <span className="text-green-500 text-xl">✓</span>
+                        )}
+                        {referrerValidationState.status === 'invalid' && (
+                          <span className="text-red-500 text-xl">✗</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-sm mt-1">
+                    {referrerValidationState.message ? (
+                      <span className={
+                        referrerValidationState.status === 'valid' 
+                          ? 'text-green-600 font-medium' 
+                          : referrerValidationState.status === 'invalid'
+                          ? 'text-red-600 font-medium'
+                          : 'text-gray-500'
+                      }>
+                        {referrerValidationState.message}
+                      </span>
+                    ) : (
+                      <span className="text-[hsl(var(--text-muted))]">
+                        กรอกรหัสสมาชิกของผู้ที่แนะนำให้คุณสมัคร เพื่อให้ท่านได้รับสิทธิพิเศษ
+                      </span>
+                    )}
                   </p>
                 </div>
 
