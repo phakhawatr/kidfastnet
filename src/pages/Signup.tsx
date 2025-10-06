@@ -242,50 +242,60 @@ const Signup = () => {
       } catch (error: any) {
         console.error('Signup error:', error);
         
-        // Phase 4: Enhanced Error Handling - Differentiate error types
+        // Phase 4: Enhanced Error Handling - Provide specific, actionable error messages
         let errorMessage = 'เกิดข้อผิดพลาดในการสมัครสมาชิก';
+        let duration = 6000;
         
         // Check for phone validation errors from database trigger
         if (error.message?.includes('Invalid phone format')) {
-          const phoneMatch = error.message.match(/Invalid phone format: ([^.]+)\./);
-          const phoneValue = phoneMatch ? phoneMatch[1] : formData.parentPhone;
-          errorMessage = `รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง: ${phoneValue}\nกรุณาตรวจสอบว่าเป็นเบอร์โทรศัพท์ที่ขึ้นต้นด้วย 08, 09 หรือ 06`;
+          const phoneMatch = error.message.match(/Invalid phone format: ([^.]+)/);
+          const attemptedPhone = phoneMatch ? phoneMatch[1] : formData.parentPhone;
+          errorMessage = `🔴 รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง\n\nเบอร์ที่กรอก: "${attemptedPhone}"\n\n✅ รูปแบบที่ถูกต้อง:\n• 08X-XXX-XXXX\n• 09X-XXX-XXXX\n• 06X-XXX-XXXX\n\nตัวอย่าง: 081-234-5678`;
+          duration = 8000;
         } 
         // Check for RLS policy violations
         else if (error.message?.includes('row-level security') || error.message?.includes('violates row-level security policy')) {
-          errorMessage = 'ข้อมูลไม่ผ่านการตรวจสอบความปลอดภัย กรุณาตรวจสอบความถูกต้องของข้อมูลทั้งหมดอีกครั้ง';
+          errorMessage = '🛡️ ข้อมูลไม่ผ่านการตรวจสอบความปลอดภัย\n\nกรุณาตรวจสอบ:\n✓ ข้อมูลทั้งหมดกรอกครบถ้วน\n✓ รูปแบบข้อมูลถูกต้อง\n✓ ไม่มีอักขระพิเศษที่ไม่อนุญาต';
+          duration = 7000;
         }
-        // Check for nickname, age, grade validation errors
+        // Check for duplicate email/phone
+        else if (error.message?.includes('duplicate') || error.message?.includes('already exists') || error.message?.includes('unique constraint')) {
+          errorMessage = '⚠️ อีเมลหรือเบอร์โทรศัพท์นี้ถูกใช้งานแล้ว\n\nกรุณา:\n• ใช้อีเมลอื่น\n• หรือเข้าสู่ระบบหากคุณมีบัญชีอยู่แล้ว';
+          duration = 7000;
+        }
+        // Check for nickname validation
         else if (error.message?.includes('Nickname must be between')) {
-          errorMessage = 'ชื่อเล่นต้องมีความยาว 1-50 ตัวอักษร';
+          errorMessage = '📝 ชื่อเล่นต้องมีความยาว 1-50 ตัวอักษร';
         }
+        // Check for age validation
         else if (error.message?.includes('Age must be between')) {
-          errorMessage = 'อายุต้องอยู่ระหว่าง 1-150 ปี';
+          errorMessage = '🎂 อายุต้องอยู่ระหว่าง 1-150 ปี';
         }
+        // Check for grade validation
         else if (error.message?.includes('Grade must be between')) {
-          errorMessage = 'กรุณาระบุชั้นเรียนที่ถูกต้อง';
+          errorMessage = '🏫 กรุณาระบุชั้นเรียนที่ถูกต้อง';
         }
-        // Check for email validation errors
+        // Check for email validation
         else if (error.message?.includes('Invalid email format')) {
-          errorMessage = 'รูปแบบอีเมลไม่ถูกต้อง กรุณากรอกอีเมลที่ถูกต้อง';
+          errorMessage = '📧 รูปแบบอีเมลไม่ถูกต้อง\n\nตัวอย่างที่ถูกต้อง: example@email.com';
         }
-        // Check for password validation errors
+        // Check for password validation
         else if (error.message?.includes('Password must be between')) {
-          errorMessage = 'รหัสผ่านต้องมีความยาว 6-100 ตัวอักษร';
+          errorMessage = '🔐 รหัสผ่านต้องมีความยาว 6-100 ตัวอักษร';
         }
         // Check for network errors
-        else if (error.message?.includes('Failed to fetch') || error.message?.includes('Network')) {
-          errorMessage = 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต';
+        else if (error.message?.includes('Failed to fetch') || error.message?.includes('Network') || error.message?.includes('network')) {
+          errorMessage = '🌐 ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์\n\nกรุณา:\n• ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต\n• ลองใหม่อีกครั้ง';
         }
-        // Default error message with details
+        // Default error with details
         else if (error.message) {
-          errorMessage = `เกิดข้อผิดพลาด: ${error.message}`;
+          errorMessage = `❌ เกิดข้อผิดพลาด:\n${error.message}`;
         }
         
         ToastManager.show({
           message: errorMessage,
           type: 'error',
-          duration: 6000 // Show error longer for users to read
+          duration: duration
         });
       }
     }
