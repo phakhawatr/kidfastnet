@@ -19,11 +19,6 @@ export function ProblemCard({
   const inputRef = useRef<HTMLInputElement>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  useEffect(() => {
-    const empty = !answer || (Array.isArray(answer) && answer.every((d) => !d));
-    if (empty && inputRef.current) inputRef.current.focus();
-  }, []);
-
   const status = useMemo(() => (showAnswer ? "showing" : result), [showAnswer, result]);
   const border = status === "correct" ? "border-green-400" : status === "wrong" ? "border-red-300" : "border-zinc-200";
 

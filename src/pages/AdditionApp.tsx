@@ -201,11 +201,6 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
   
   const [carry, setCarry] = useState(() => Array(actualDigits).fill(""));
 
-  useEffect(() => {
-    const empty = !answer || (Array.isArray(answer) && answer.every((d) => !d));
-    if (empty && inputRef.current) inputRef.current.focus();
-  }, []);
-
   const status = useMemo(() => (showAnswer ? "showing" : result), [showAnswer, result]);
   const border =
     status === "correct" ? "border-green-400" : status === "wrong" ? "border-red-300" : "border-zinc-200";
@@ -444,7 +439,6 @@ export default function AdditionApp() {
       setStartedAt(now);
       setElapsedMs(0);
     }
-    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
   }
 
   function finalizeAndLog(endTs = Date.now()) {
