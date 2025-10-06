@@ -145,9 +145,18 @@ const Signup = () => {
             learning_style: formData.learningStyle,
             parent_email: formData.parentEmail,
             parent_phone: formData.parentPhone,
-            password_hash: formData.password, // Will be hashed by trigger
+            password_hash: formData.password,
             status: 'pending',
-            referred_by_code: affiliateCode
+            referred_by_code: affiliateCode,
+            // Add required fields for RLS policy
+            is_online: false,
+            session_id: null,
+            last_activity_at: null,
+            device_info: null,
+            login_count: 0,
+            last_login_at: null,
+            approved_by: null,
+            approved_at: null
           })
           .select()
           .single();
@@ -172,9 +181,10 @@ const Signup = () => {
         });
         
         navigate('/login');
-      } catch (error) {
+      } catch (error: any) {
+        console.error('Signup error:', error);
         ToastManager.show({
-          message: 'เกิดข้อผิดพลาดในการสมัครสมาชิก',
+          message: `เกิดข้อผิดพลาดในการสมัครสมาชิก: ${error.message || 'กรุณาลองใหม่อีกครั้ง'}`,
           type: 'error'
         });
       }
