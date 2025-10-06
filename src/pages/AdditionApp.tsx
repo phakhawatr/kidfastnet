@@ -552,13 +552,13 @@ export default function AdditionApp() {
     try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
   }
 
-  function applyOperands(count) {
+  function applyOperands(newOperandCount) {
     if (startedAt && !showAnswers) finalizeAndLog(Date.now());
 
-    setOperands(count);
-    const next = generateAdditionProblems(count, level, digits, carryOption, count);
+    setOperands(newOperandCount);
+    const next = generateAdditionProblems(count, level, digits, carryOption, newOperandCount);
     setProblems(next);
-    setAnswers(createAnswersArray(next, count));
+    setAnswers(createAnswersArray(next, newOperandCount));
     setResults(next.map(() => "pending"));
     setShowAnswers(false);
     setCelebrate(false);
