@@ -126,6 +126,15 @@ const AdminDashboard = () => {
     };
   }, []);
 
+  // Auto-refresh every 5 minutes
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchRegistrations(true); // true = auto refresh
+    }, 300000); // 5 minutes = 300,000 ms
+
+    return () => clearInterval(intervalId);
+  }, []);
+
   // Check if user is currently online (both presence and database)
   const isUserOnline = (userId: string, dbIsOnline?: boolean) => {
     // Check both presence channel and database status
@@ -143,7 +152,7 @@ const AdminDashboard = () => {
     return isOnline;
   };
 
-  const fetchRegistrations = async () => {
+  const fetchRegistrations = async (isAutoRefresh = false) => {
     try {
       setIsLoading(true);
       
@@ -192,6 +201,14 @@ const AdminDashboard = () => {
       
       console.log('✅ Successfully fetched registrations:', data?.length || 0, 'records');
       setRegistrations((data || []) as UserRegistration[]);
+      
+      // Show toast for auto-refresh
+      if (isAutoRefresh) {
+        ToastManager.show({
+          message: '🔄 รีเฟรชข้อมูลอัตโนมัติแล้ว',
+          type: 'info'
+        });
+      }
     } catch (error: any) {
       console.error('❌ Error fetching registrations:', error);
       ToastManager.show({
@@ -530,11 +547,12 @@ const AdminDashboard = () => {
           </div>
           <div className="flex gap-2">
             <button
-              onClick={fetchRegistrations}
+              onClick={() => fetchRegistrations(false)}
               className="btn-secondary flex items-center gap-2"
               disabled={isLoading}
             >
-              {isLoading ? '🔄' : '🔄'} รีเฟรชข้อมูล
+              <span className={isLoading ? 'animate-spin' : ''}>🔄</span>
+              {isLoading ? 'กำลังโหลด...' : 'รีเฟรชข้อมูล'}
             </button>
             <button
               onClick={logout}
