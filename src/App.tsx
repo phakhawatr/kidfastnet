@@ -30,166 +30,168 @@ import { ToastContainer } from "./components/Toast";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/login" element={<Login />} />
-        <Route 
-          path="/profile" 
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/parent" 
-          element={
-            <ProtectedRoute>
-              <ParentDashboard />
-            </ProtectedRoute>
-          } 
-        />
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/dashboard" element={
-          <AdminProtectedRoute>
-            <AdminDashboard />
-          </AdminProtectedRoute>
-        } />
-        <Route path="/admin" element={
-          <AdminProtectedRoute>
-            <AdminDashboard />
-          </AdminProtectedRoute>
-        } />
-        <Route 
-          path="/subtraction" 
-          element={
-            <ProtectedRoute>
-              <SubtractionApp />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/addition" 
-          element={
-            <ProtectedRoute>
-              <AdditionApp />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/time" 
-          element={
-            <ProtectedRoute>
-              <TimeApp />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/weighing" 
-          element={
-            <ProtectedRoute>
-              <WeighingApp />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/measurement" 
-          element={
-            <ProtectedRoute>
-              <MeasurementApp />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/multiplication-table" 
-          element={
-            <ProtectedRoute>
-              <MultiplicationTable />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/multiply" 
-          element={
-            <ProtectedRoute>
-              <MultiplicationApp />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/division" 
-          element={
-            <ProtectedRoute>
-              <DivisionApp />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/quick-math" 
-          element={
-            <ProtectedRoute>
-              <QuickMathApp />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/length-comparison" 
-          element={
-            <ProtectedRoute>
-              <LengthComparisonApp />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/shape-matching" 
-          element={
-            <ProtectedRoute>
-              <ShapeMatchingApp />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/fraction-matching" 
-          element={
-            <ProtectedRoute>
-              <FractionMatchingApp />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/percentage" 
-          element={
-            <ProtectedRoute>
-              <PercentageApp />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/NumberSeries" 
-          element={
-            <ProtectedRoute>
-              <NumberSeriesApp />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/SumGridPuzzles" 
-          element={
-            <ProtectedRoute>
-              <SumGridPuzzles />
-            </ProtectedRoute>
-          } 
-        />
-        <Route path="/background-remover" element={<BackgroundRemoverPage />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      <ToastContainer />
-    </BrowserRouter>
-  </QueryClientProvider>
-);
+const App = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
+          <Route 
+            path="/profile" 
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/parent" 
+            element={
+              <ProtectedRoute>
+                <ParentDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={
+            <AdminProtectedRoute>
+              <AdminDashboard />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/admin" element={
+            <AdminProtectedRoute>
+              <AdminDashboard />
+            </AdminProtectedRoute>
+          } />
+          <Route 
+            path="/subtraction" 
+            element={
+              <ProtectedRoute>
+                <SubtractionApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/addition" 
+            element={
+              <ProtectedRoute>
+                <AdditionApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/time" 
+            element={
+              <ProtectedRoute>
+                <TimeApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/weighing" 
+            element={
+              <ProtectedRoute>
+                <WeighingApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/measurement" 
+            element={
+              <ProtectedRoute>
+                <MeasurementApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/multiplication-table" 
+            element={
+              <ProtectedRoute>
+                <MultiplicationTable />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/multiply" 
+            element={
+              <ProtectedRoute>
+                <MultiplicationApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/division" 
+            element={
+              <ProtectedRoute>
+                <DivisionApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/quick-math" 
+            element={
+              <ProtectedRoute>
+                <QuickMathApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/length-comparison" 
+            element={
+              <ProtectedRoute>
+                <LengthComparisonApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/shape-matching" 
+            element={
+              <ProtectedRoute>
+                <ShapeMatchingApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/fraction-matching" 
+            element={
+              <ProtectedRoute>
+                <FractionMatchingApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/percentage" 
+            element={
+              <ProtectedRoute>
+                <PercentageApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/NumberSeries" 
+            element={
+              <ProtectedRoute>
+                <NumberSeriesApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/SumGridPuzzles" 
+            element={
+              <ProtectedRoute>
+                <SumGridPuzzles />
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="/background-remover" element={<BackgroundRemoverPage />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <ToastContainer />
+      </BrowserRouter>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
