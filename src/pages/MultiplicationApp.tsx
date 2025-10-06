@@ -340,7 +340,7 @@ const MultiplicationApp = () => {
       return `
         <div style="border: 2px solid #666; padding: 8px; background: white; border-radius: 6px; page-break-inside: avoid;">
           <div style="font-weight: bold; margin-bottom: 0px; font-size: 14px;">ข้อ ${index + 1}</div>
-          <div style="text-align: center; font-size: 20px; font-weight: bold; margin: -1px 0;">
+          <div style="text-align: center; font-size: 20px; font-weight: bold; margin: -4px 0;">
             ${problem.multiplicand} × ${problem.multiplier} =
           </div>
           <div style="display: flex; justify-content: center; gap: 3px; margin-top: 10px;">
@@ -360,7 +360,7 @@ const MultiplicationApp = () => {
       return `
         <div style="border: 2px solid #666; padding: 8px; background: white; border-radius: 6px; page-break-inside: avoid;">
           <div style="font-weight: bold; margin-bottom: 0px; font-size: 14px;">ข้อ ${index + 1}</div>
-          <div style="font-family: monospace; font-size: 14px; margin-top: -6px;">
+          <div style="font-family: monospace; font-size: 14px; margin-top: -9px;">
             <!-- Multiplicand -->
             <div style="display: flex; justify-content: flex-end; gap: 3px; padding: 0px 0;">
               ${problem.multiplicand.toString().split('').map(digit => 
