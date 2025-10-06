@@ -340,15 +340,10 @@ const FractionMatchingApp: React.FC = () => {
             <h1 className="text-2xl font-bold text-gray-800">จับคู่เศษส่วน</h1>
           </div>
 
-          <div className="flex items-center gap-4">
-            <Badge variant="secondary" className="text-sm">
-              <Clock className="w-4 h-4 mr-1" />
-              {formatTime(timeElapsed)}
-            </Badge>
-            <Badge variant="outline" className="text-sm">
-              ชุดที่ {currentSet + 1}/{questionSets.length}
-            </Badge>
-          </div>
+          <Badge variant="secondary" className="text-sm">
+            <Clock className="w-4 h-4 mr-1" />
+            {formatTime(timeElapsed)}
+          </Badge>
         </div>
 
         {/* Game Instructions */}
