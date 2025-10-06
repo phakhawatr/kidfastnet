@@ -535,95 +535,101 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[hsl(var(--primary))] via-[hsl(var(--primary-variant))] to-[hsl(var(--accent))] p-4">
       {/* Header */}
-      <div className="card-glass p-6 mb-6">
+      <header className="card-glass p-6 mb-6" role="banner">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-[hsl(var(--primary))] mb-1">
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">
               🎛️ ระบบจัดการผู้ดูแล
             </h1>
-            <p className="text-[hsl(var(--text-secondary))]">
+            <p className="text-gray-700">
               สวัสดี คุณ{name} ({email})
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-3" role="group" aria-label="การดำเนินการหลัก">
             <button
               onClick={() => fetchRegistrations(false)}
-              className="btn-secondary flex items-center gap-2"
+              className="btn-secondary flex items-center gap-2 min-h-[44px] px-4 focus:ring-4 focus:ring-blue-300 focus:outline-none"
               disabled={isLoading}
+              aria-label={isLoading ? 'กำลังโหลดข้อมูล' : 'รีเฟรชข้อมูล'}
             >
-              <span className={isLoading ? 'animate-spin' : ''}>🔄</span>
-              {isLoading ? 'กำลังโหลด...' : 'รีเฟรชข้อมูล'}
+              <span className={isLoading ? 'animate-spin' : ''} aria-hidden="true">🔄</span>
+              <span>{isLoading ? 'กำลังโหลด...' : 'รีเฟรชข้อมูล'}</span>
             </button>
             <button
               onClick={logout}
-              className="btn-secondary"
+              className="btn-secondary min-h-[44px] px-4 focus:ring-4 focus:ring-red-300 focus:outline-none"
+              aria-label="ออกจากระบบผู้ดูแล"
             >
-              ออกจากระบบ 🚪
+              <span aria-hidden="true">🚪</span> ออกจากระบบ
             </button>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-6">
-        <div className="card-glass p-4 text-center">
-          <div className="text-2xl font-bold text-[hsl(var(--primary))]">{stats.total}</div>
-          <div className="text-sm text-[hsl(var(--text-secondary))]">ทั้งหมด</div>
+      <section aria-label="สถิติสมาชิก" className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-6">
+        <div className="card-glass p-4 text-center" role="status" aria-label="จำนวนสมาชิกทั้งหมด">
+          <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
+          <div className="text-sm text-gray-700">ทั้งหมด</div>
         </div>
-        <div className="card-glass p-4 text-center">
-          <div className="text-2xl font-bold text-orange-500">{stats.pending}</div>
-          <div className="text-sm text-[hsl(var(--text-secondary))]">รอการอนุมัติ</div>
+        <div className="card-glass p-4 text-center" role="status" aria-label="จำนวนสมาชิกรอการอนุมัติ">
+          <div className="text-2xl font-bold text-orange-700">{stats.pending}</div>
+          <div className="text-sm text-gray-700">รอการอนุมัติ</div>
         </div>
-        <div className="card-glass p-4 text-center">
-          <div className="text-2xl font-bold text-green-500">{stats.approved}</div>
-          <div className="text-sm text-[hsl(var(--text-secondary))]">อนุมัติแล้ว</div>
+        <div className="card-glass p-4 text-center" role="status" aria-label="จำนวนสมาชิกที่อนุมัติแล้ว">
+          <div className="text-2xl font-bold text-green-700">{stats.approved}</div>
+          <div className="text-sm text-gray-700">อนุมัติแล้ว</div>
         </div>
-        <div className="card-glass p-4 text-center">
-          <div className="text-2xl font-bold text-red-500">{stats.rejected}</div>
-          <div className="text-sm text-[hsl(var(--text-secondary))]">ปฏิเสธ</div>
+        <div className="card-glass p-4 text-center" role="status" aria-label="จำนวนสมาชิกที่ถูกปฏิเสธ">
+          <div className="text-2xl font-bold text-red-700">{stats.rejected}</div>
+          <div className="text-sm text-gray-700">ปฏิเสธ</div>
         </div>
-        <div className="card-glass p-4 text-center">
-          <div className="text-2xl font-bold text-yellow-500">{stats.suspended}</div>
-          <div className="text-sm text-[hsl(var(--text-secondary))]">หยุดการใช้งาน</div>
+        <div className="card-glass p-4 text-center" role="status" aria-label="จำนวนสมาชิกที่หยุดการใช้งาน">
+          <div className="text-2xl font-bold text-yellow-700">{stats.suspended}</div>
+          <div className="text-sm text-gray-700">หยุดการใช้งาน</div>
         </div>
-        <div className="card-glass p-4 text-center">
-          <div className="text-2xl font-bold text-blue-500">{stats.online}</div>
-          <div className="text-sm text-[hsl(var(--text-secondary))]">กำลังใช้งาน</div>
+        <div className="card-glass p-4 text-center" role="status" aria-label="จำนวนสมาชิกที่กำลังใช้งาน">
+          <div className="text-2xl font-bold text-blue-700">{stats.online}</div>
+          <div className="text-sm text-gray-700">กำลังใช้งาน</div>
         </div>
-        <div className="card-glass p-4 text-center">
-          <div className="text-2xl font-bold text-green-600">{stats.paid}</div>
-          <div className="text-sm text-[hsl(var(--text-secondary))]">💰 ชำระเงินแล้ว</div>
+        <div className="card-glass p-4 text-center" role="status" aria-label="จำนวนสมาชิกที่ชำระเงินแล้ว">
+          <div className="text-2xl font-bold text-green-800">{stats.paid}</div>
+          <div className="text-sm text-gray-700"><span aria-hidden="true">💰</span> ชำระเงินแล้ว</div>
         </div>
-        <div className="card-glass p-4 text-center">
-          <div className="text-2xl font-bold text-orange-600">{stats.unpaid}</div>
-          <div className="text-sm text-[hsl(var(--text-secondary))]">⏳ รอการชำระเงิน</div>
+        <div className="card-glass p-4 text-center" role="status" aria-label="จำนวนสมาชิกที่รอการชำระเงิน">
+          <div className="text-2xl font-bold text-orange-700">{stats.unpaid}</div>
+          <div className="text-sm text-gray-700"><span aria-hidden="true">⏳</span> รอการชำระเงิน</div>
         </div>
-      </div>
+      </section>
 
       {/* Search Box */}
-      <div className="card-glass p-4 mb-4">
+      <div className="card-glass p-4 mb-4" role="search">
+        <label htmlFor="member-search" className="sr-only">ค้นหาสมาชิก</label>
         <div className="relative">
           <input
-            type="text"
+            id="member-search"
+            type="search"
             placeholder="🔍 ค้นหาจากชื่อเล่น, เบอร์โทร, หรือรหัสสมาชิก..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-[hsl(var(--primary))] focus:outline-none text-[hsl(var(--text-primary))] placeholder:text-[hsl(var(--text-secondary))]"
+            className="w-full px-4 py-3 min-h-[44px] rounded-lg border-2 border-gray-300 focus:border-blue-600 focus:ring-4 focus:ring-blue-200 focus:outline-none text-gray-900 placeholder:text-gray-600"
+            aria-label="ค้นหาสมาชิกจากชื่อเล่น เบอร์โทร หรือรหัสสมาชิก"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xl"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-900 text-xl min-w-[44px] min-h-[44px] flex items-center justify-center focus:ring-4 focus:ring-blue-300 focus:outline-none rounded"
+              aria-label="ล้างการค้นหา"
             >
-              ✕
+              <span aria-hidden="true">✕</span>
             </button>
           )}
         </div>
       </div>
 
       {/* Filters */}
-      <div className="card-glass p-4 mb-6">
-        <div className="flex flex-wrap gap-2">
+      <nav className="card-glass p-4 mb-6" aria-label="ตัวกรองสมาชิก">
+        <div className="flex flex-wrap gap-2" role="group" aria-label="ตัวเลือกการกรอง">
           {[
             { key: 'all', label: 'ทั้งหมด', count: stats.total },
             { key: 'pending', label: 'รอการอนุมัติ', count: stats.pending },
@@ -637,63 +643,70 @@ const AdminDashboard = () => {
             <button
               key={key}
               onClick={() => setFilter(key as typeof filter)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+              className={`min-h-[44px] px-4 py-2 rounded-full text-sm font-medium transition-all focus:ring-4 focus:outline-none ${
                 filter === key
-                  ? 'bg-[hsl(var(--primary))] text-yellow-500'
-                  : 'bg-white/60 text-yellow-500 hover:bg-white/80'
+                  ? 'bg-blue-600 text-white focus:ring-blue-300'
+                  : 'bg-white text-gray-900 hover:bg-gray-100 focus:ring-gray-300 border-2 border-gray-300'
               }`}
+              aria-label={`กรอง${label} ${count} รายการ`}
+              aria-pressed={filter === key}
             >
               {label} ({count})
             </button>
           ))}
         </div>
-      </div>
+      </nav>
 
       {/* Registrations List */}
-      <div className="space-y-4">
+      <main className="space-y-4" role="main" aria-label="รายการสมาชิก">
+        <h2 className="sr-only">รายการสมาชิก</h2>
         {filteredRegistrations.length === 0 ? (
-          <div className="card-glass p-8 text-center">
-            <div className="text-4xl mb-4">📭</div>
-            <p className="text-[hsl(var(--text-secondary))]">ไม่มีข้อมูลการสมัครสมาชิก</p>
+          <div className="card-glass p-8 text-center" role="status">
+            <div className="text-4xl mb-4" aria-hidden="true">📭</div>
+            <p className="text-gray-700">ไม่มีข้อมูลการสมัครสมาชิก</p>
           </div>
         ) : (
           filteredRegistrations.map((registration) => (
-            <div key={registration.id} className="card-glass p-6">
+            <article key={registration.id} className="card-glass p-6" aria-label={`ข้อมูลสมาชิก ${registration.nickname}`}>
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <span className="text-2xl">{avatarEmojis[registration.avatar] || '🐱'}</span>
+                    <span className="text-2xl" aria-hidden="true">{avatarEmojis[registration.avatar] || '🐱'}</span>
                     <div>
-                      <h3 className="font-bold text-[hsl(var(--text-primary))] flex items-center gap-2">
+                      <h3 className="font-bold text-gray-900 flex items-center gap-2">
                         {registration.nickname}
                         {registration.member_id && (
-                          <span className="text-sm font-normal text-[hsl(var(--text-secondary))] bg-blue-50 px-2 py-1 rounded-full">
+                          <span className="text-sm font-normal text-gray-700 bg-blue-100 px-2 py-1 rounded-full">
                             รหัส: {registration.member_id}
                           </span>
                         )}
                         {(registration.status === 'approved' || registration.status === 'suspended') && (
                           isUserOnline(registration.id, registration.is_online) ? (
-                            <div className="flex items-center gap-1 px-2 py-1 bg-green-50 rounded-full border border-green-200">
-                              <div className="w-3 h-3 bg-green-500 rounded-full animate-online-blink shadow-sm"></div>
-                              <span className="text-xs text-green-700 font-semibold">🟢 กำลังใช้งาน</span>
+                            <div className="flex items-center gap-1 px-2 py-1 bg-green-50 rounded-full border border-green-300" role="status" aria-label="สถานะออนไลน์">
+                              <div className="w-3 h-3 bg-green-600 rounded-full animate-online-blink shadow-sm" aria-hidden="true"></div>
+                              <span className="text-xs text-green-900 font-semibold"><span aria-hidden="true">🟢</span> กำลังใช้งาน</span>
                             </div>
                           ) : (
-                            <div className="flex items-center gap-1 px-2 py-1 bg-gray-50 rounded-full border border-gray-200">
-                              <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
-                              <span className="text-xs text-red-500 font-medium">🔴 ออฟไลน์</span>
+                            <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full border border-gray-300" role="status" aria-label="สถานะออฟไลน์">
+                              <div className="w-3 h-3 bg-gray-500 rounded-full" aria-hidden="true"></div>
+                              <span className="text-xs text-gray-900 font-medium"><span aria-hidden="true">🔴</span> ออฟไลน์</span>
                             </div>
                           )
                         )}
                       </h3>
-                      <p className="text-sm text-[hsl(var(--text-secondary))]">
+                      <p className="text-sm text-gray-700">
                         {registration.age} ปี • {registration.grade}
                       </p>
                     </div>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      registration.status === 'pending' ? 'bg-orange-100 text-orange-800' :
-                      registration.status === 'approved' ? 'bg-green-100 text-green-800' :
-                      registration.status === 'suspended' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      registration.status === 'pending' ? 'bg-orange-100 text-orange-900 border border-orange-300' :
+                      registration.status === 'approved' ? 'bg-green-100 text-green-900 border border-green-300' :
+                      registration.status === 'suspended' ? 'bg-yellow-100 text-yellow-900 border border-yellow-300' :
+                      'bg-red-100 text-red-900 border border-red-300'
+                    }`} role="status" aria-label={`สถานะ: ${
+                      registration.status === 'pending' ? 'รอการอนุมัติ' :
+                      registration.status === 'approved' ? 'อนุมัติแล้ว' : 
+                      registration.status === 'suspended' ? 'หยุดการใช้งาน' : 'ปฏิเสธ'
                     }`}>
                       {registration.status === 'pending' ? 'รอการอนุมัติ' :
                        registration.status === 'approved' ? 'อนุมัติแล้ว' : 
@@ -797,39 +810,43 @@ const AdminDashboard = () => {
                 </div>
 
                 {registration.status === 'pending' && (
-                  <div className="flex gap-2">
+                  <div className="flex gap-3" role="group" aria-label="การดำเนินการอนุมัติ">
                     <button
                       onClick={() => handleApprove(registration.id)}
-                      className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm font-medium"
+                      className="min-h-[44px] px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:ring-4 focus:ring-green-300 focus:outline-none transition-colors text-sm font-medium"
+                      aria-label={`อนุมัติการสมัครของ ${registration.nickname}`}
                     >
-                      ✅ อนุมัติ
+                      <span aria-hidden="true">✅</span> อนุมัติ
                     </button>
                     <button
                       onClick={() => handleReject(registration.id)}
-                      className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                      className="min-h-[44px] px-5 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:ring-4 focus:ring-red-300 focus:outline-none transition-colors text-sm font-medium"
+                      aria-label={`ปฏิเสธการสมัครของ ${registration.nickname}`}
                     >
-                      ❌ ปฏิเสธ
+                      <span aria-hidden="true">❌</span> ปฏิเสธ
                     </button>
                   </div>
                 )}
 
                 {/* Payment Action Buttons - Only for approved members */}
                 {registration.status === 'approved' && (
-                  <div className="flex gap-2 flex-wrap">
+                  <div className="flex gap-3 flex-wrap" role="group" aria-label="การดำเนินการชำระเงิน">
                     {registration.payment_status === 'pending' && (
                       <button
                         onClick={() => openPaymentConfirmDialog(registration.id, registration.nickname)}
-                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-medium shadow-md"
+                        className="min-h-[44px] px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg focus:ring-4 focus:ring-green-300 focus:outline-none transition-colors text-sm font-medium shadow-md"
+                        aria-label={`ยืนยันการชำระเงินของ ${registration.nickname}`}
                       >
-                        💰 ชำระแล้ว
+                        <span aria-hidden="true">💰</span> ชำระแล้ว
                       </button>
                     )}
                     {registration.payment_status === 'paid' && (
                       <button
                         onClick={() => handleResetPayment(registration.id, registration.nickname)}
-                        className="px-3 py-1.5 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors text-xs font-medium"
+                        className="min-h-[44px] px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg focus:ring-4 focus:ring-gray-300 focus:outline-none transition-colors text-sm font-medium"
+                        aria-label={`รีเซ็ตสถานะการชำระเงินของ ${registration.nickname}`}
                       >
-                        🔄 รีเซ็ตการชำระเงิน
+                        <span aria-hidden="true">🔄</span> รีเซ็ตการชำระเงิน
                       </button>
                     )}
                   </div>
@@ -837,7 +854,7 @@ const AdminDashboard = () => {
 
                 {/* Suspension and Logout Buttons */}
                 {(registration.status === 'approved' || registration.status === 'suspended') && (
-                  <div className="flex gap-2 flex-wrap">
+                  <div className="flex gap-3 flex-wrap" role="group" aria-label="การจัดการบัญชี">
                     {/* Force Logout Button - Shows only when user is online */}
                     {isUserOnline(registration.id, registration.is_online) && (
                       <button
@@ -845,21 +862,23 @@ const AdminDashboard = () => {
                           console.log('Force logout clicked for:', registration.nickname, registration.id);
                           handleForceLogout(registration.parent_email, registration.nickname, registration.id);
                         }}
-                        className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium shadow-md"
+                        className="min-h-[44px] px-5 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 focus:ring-4 focus:ring-orange-300 focus:outline-none transition-colors text-sm font-medium shadow-md"
+                        aria-label={`บังคับออกจากระบบ ${registration.nickname}`}
                       >
-                        🚪 สมาชิกออกจากระบบ
+                        <span aria-hidden="true">🚪</span> สมาชิกออกจากระบบ
                       </button>
                     )}
                     
                     <button
                       onClick={() => handleToggleSuspension(registration.id)}
-                      className={`px-4 py-2 text-white rounded-lg transition-colors text-sm font-medium ${
+                      className={`min-h-[44px] px-5 py-2 text-white rounded-lg focus:ring-4 focus:outline-none transition-colors text-sm font-medium ${
                         registration.status === 'suspended' 
-                          ? 'bg-green-500 hover:bg-green-600' 
-                          : 'bg-yellow-500 hover:bg-yellow-600'
+                          ? 'bg-green-600 hover:bg-green-700 focus:ring-green-300' 
+                          : 'bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-300'
                       }`}
+                      aria-label={registration.status === 'suspended' ? `เปิดการใช้งาน ${registration.nickname}` : `หยุดการใช้งาน ${registration.nickname}`}
                     >
-                      {registration.status === 'suspended' ? '✅ เปิดการใช้งาน' : '⏸️ หยุดการใช้งาน'}
+                      {registration.status === 'suspended' ? <><span aria-hidden="true">✅</span> เปิดการใช้งาน</> : <><span aria-hidden="true">⏸️</span> หยุดการใช้งาน</>}
                     </button>
                     
                     <AlertDialog>
@@ -867,25 +886,26 @@ const AdminDashboard = () => {
                         <Button 
                           variant="destructive" 
                           size="sm"
-                          className="text-sm font-medium"
+                          className="min-h-[44px] text-sm font-medium focus:ring-4 focus:ring-red-300"
+                          aria-label={`ลบสมาชิก ${registration.nickname}`}
                         >
-                          🗑️ ลบสมาชิก
+                          <span aria-hidden="true">🗑️</span> ลบสมาชิก
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent className="bg-white border border-gray-200 shadow-lg">
                         <AlertDialogHeader>
                           <AlertDialogTitle className="text-gray-900 text-lg font-semibold">ยืนยันการลบสมาชิก</AlertDialogTitle>
-                          <AlertDialogDescription className="text-gray-600">
+                          <AlertDialogDescription className="text-gray-700">
                             คุณต้องการลบสมาชิก "{registration.nickname}" หรือไม่?
                             <br />
                             การดำเนินการนี้ไม่สามารถย้อนกลับได้
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+                          <AlertDialogCancel className="focus:ring-4 focus:ring-gray-300">ยกเลิก</AlertDialogCancel>
                           <AlertDialogAction
                             onClick={() => handleDelete(registration.id)}
-                            className="bg-red-500 hover:bg-red-600"
+                            className="bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300"
                           >
                             ลบสมาชิก
                           </AlertDialogAction>
@@ -895,17 +915,17 @@ const AdminDashboard = () => {
                   </div>
                 )}
               </div>
-            </div>
+            </article>
           ))
         )}
-      </div>
+      </main>
 
       {/* Payment Confirmation Dialog */}
       <AlertDialog open={paymentConfirmDialog?.isOpen || false} onOpenChange={(open) => !open && setPaymentConfirmDialog(null)}>
         <AlertDialogContent className="bg-white border border-gray-200 shadow-lg">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-gray-900 text-lg font-semibold">ยืนยันการชำระเงิน</AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-600">
+            <AlertDialogDescription className="text-gray-700">
               รับชำระเงินเรียบร้อยแล้ว
               <br />
               <span className="font-semibold text-gray-900 mt-2 inline-block">
@@ -914,10 +934,10 @@ const AdminDashboard = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setPaymentConfirmDialog(null)}>ยกเลิก</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setPaymentConfirmDialog(null)} className="focus:ring-4 focus:ring-gray-300">ยกเลิก</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmPayment}
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300"
             >
               ยืนยันการชำระเงิน
             </AlertDialogAction>
