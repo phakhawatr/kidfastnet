@@ -232,7 +232,6 @@ const Profile = () => {
     last_login_at: string | null;
     payment_date: string | null;
   } | null>(null);
-  const [affiliateCode, setAffiliateCode] = useState<string>('');
   const [affiliateStats, setAffiliateStats] = useState<{
     total_referrals: number;
     paid_referrals: number;
@@ -289,30 +288,19 @@ const Profile = () => {
           console.log('✅ Successfully loaded registration data');
           setRegistrationData(data);
 
-          // Fetch affiliate code and stats
+          // Fetch affiliate stats (using member_id now)
           const { data: statsData } = await supabase.rpc('get_user_affiliate_stats', {
             p_user_email: email
           });
 
           if (statsData && statsData.length > 0) {
             const stats = statsData[0];
-            setAffiliateCode(stats.affiliate_code || '');
             setAffiliateStats({
               total_referrals: Number(stats.total_referrals) || 0,
               paid_referrals: Number(stats.paid_referrals) || 0,
               total_points: Number(stats.total_points) || 0,
               pending_referrals: Number(stats.pending_referrals) || 0
             });
-          } else {
-            // Generate affiliate code if doesn't exist
-            if (data.id) {
-              const { data: codeData } = await supabase.rpc('generate_affiliate_code', {
-                p_user_id: data.id
-              });
-              if (codeData) {
-                setAffiliateCode(codeData);
-              }
-            }
           }
         } else if (error) {
           console.error('❌ Error loading registration data:', error);

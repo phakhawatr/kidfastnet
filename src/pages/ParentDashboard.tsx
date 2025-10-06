@@ -162,39 +162,28 @@ const ParentDashboard = () => {
       }
 
       if (userData) {
-        // Check if user has affiliate code
-        const { data: codeData, error: codeError } = await supabase
-          .from('affiliate_codes')
-          .select('affiliate_code')
-          .eq('user_id', userData.id)
+        // Get member_id from user data
+        const { data: memberData, error: memberError } = await supabase
+          .from('user_registrations')
+          .select('member_id')
+          .eq('id', userData.id)
           .maybeSingle();
 
-        console.log('Code data:', codeData, 'Error:', codeError);
+        console.log('Member data:', memberData, 'Error:', memberError);
 
-        let code = codeData?.affiliate_code;
-        
-        if (!code) {
-          // Generate new code
-          console.log('Generating new affiliate code for user:', userData.id);
-          const { data: newCode, error: genError } = await supabase.rpc('generate_affiliate_code', {
-            p_user_id: userData.id
-          });
-          console.log('Generated code:', newCode, 'Error:', genError);
-          
-          if (genError) {
-            console.error('Error generating code:', genError);
-            const errorMsg = 'ไม่สามารถสร้างรหัส affiliate ได้: ' + genError.message;
-            setError(errorMsg);
-            toast.error(errorMsg);
-            setIsLoading(false);
-            return;
-          }
-          code = newCode;
-          toast.success('สร้างรหัส affiliate สำเร็จ!');
+        if (memberError || !memberData?.member_id) {
+          console.error('Error fetching member_id:', memberError);
+          const errorMsg = 'ไม่สามารถโหลดรหัสสมาชิกได้';
+          setError(errorMsg);
+          toast.error(errorMsg);
+          setIsLoading(false);
+          return;
         }
 
-        // Set affiliate link
-        const link = `${window.location.origin}/signup?ref=${code}`;
+        const memberId = memberData.member_id;
+
+        // Set affiliate link using member_id
+        const link = `${window.location.origin}/signup?ref=${memberId}`;
         setAffiliateLink(link);
         console.log('Affiliate link set:', link);
 
@@ -215,7 +204,7 @@ const ParentDashboard = () => {
         } else {
           // Set default stats if no data
           setStats({
-            affiliate_code: code || '',
+            affiliate_code: memberId || '',
             total_referrals: 0,
             paid_referrals: 0,
             total_points: 0,

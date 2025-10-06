@@ -180,10 +180,10 @@ const Signup = () => {
     if (!memberId || memberId.trim() === '') return null;
     
     try {
-      // Check if member_id exists and get affiliate_code
+      // Check if member_id exists in approved users
       const { data, error } = await supabase
         .from('user_registrations')
-        .select('id, member_id, parent_email')
+        .select('member_id')
         .eq('member_id', memberId.trim())
         .eq('status', 'approved')
         .maybeSingle();
@@ -192,14 +192,8 @@ const Signup = () => {
         return null;
       }
       
-      // Get affiliate code for this user
-      const { data: affiliateData } = await supabase
-        .from('affiliate_codes')
-        .select('affiliate_code')
-        .eq('user_id', data.id)
-        .maybeSingle();
-      
-      return affiliateData?.affiliate_code || null;
+      // Return the member_id if valid
+      return data.member_id;
     } catch (error) {
       console.error('Error validating referrer:', error);
       return null;
@@ -289,7 +283,7 @@ const Signup = () => {
           try {
             await supabase.rpc('track_referral_signup', {
               p_referred_email: formData.parentEmail,
-              p_affiliate_code: finalAffiliateCode
+              p_referrer_member_id: finalAffiliateCode
             });
           } catch (error) {
             console.error('Error tracking referral:', error);

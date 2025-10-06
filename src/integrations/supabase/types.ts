@@ -556,8 +556,8 @@ export type Database = {
         Returns: boolean
       }
       track_referral_signup: {
-        Args: { p_affiliate_code: string; p_referred_email: string }
-        Returns: boolean
+        Args: { p_referred_email: string; p_referrer_member_id: string }
+        Returns: undefined
       }
       update_login_stats: {
         Args: { user_email: string }
