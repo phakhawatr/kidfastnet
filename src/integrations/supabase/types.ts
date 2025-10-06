@@ -468,6 +468,7 @@ export type Database = {
         Args: { p_user_email: string }
         Returns: {
           affiliate_code: string
+          awaiting_approval_referrals: number
           paid_referrals: number
           pending_referrals: number
           total_points: number

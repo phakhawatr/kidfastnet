@@ -24,6 +24,7 @@ interface AffiliateStats {
   paid_referrals: number;
   total_points: number;
   pending_referrals: number;
+  awaiting_approval_referrals: number;
 }
 
 interface Referral {
@@ -47,7 +48,8 @@ const ParentDashboard = () => {
     total_referrals: 0,
     paid_referrals: 0,
     total_points: 0,
-    pending_referrals: 0
+    pending_referrals: 0,
+    awaiting_approval_referrals: 0
   });
   const [referrals, setReferrals] = useState<Referral[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -208,7 +210,8 @@ const ParentDashboard = () => {
             total_referrals: 0,
             paid_referrals: 0,
             total_points: 0,
-            pending_referrals: 0
+            pending_referrals: 0,
+            awaiting_approval_referrals: 0
           });
         }
 
@@ -304,15 +307,15 @@ const ParentDashboard = () => {
   const getUserStatusBadge = (status?: string) => {
     switch (status) {
       case 'approved':
-        return <Badge className="bg-green-500 hover:bg-green-600">อนุมัติแล้ว</Badge>;
+        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400">อนุมัติแล้ว</Badge>;
       case 'pending':
-        return <Badge className="bg-yellow-500 hover:bg-yellow-600">รออนุมัติ</Badge>;
+        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300 dark:bg-blue-900/30 dark:text-blue-400">รออนุมัติจากแอดมิน</Badge>;
       case 'rejected':
-        return <Badge variant="destructive">ถูกปฏิเสธ</Badge>;
+        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-300 dark:bg-red-900/30 dark:text-red-400">ปฏิเสธ</Badge>;
       case 'suspended':
-        return <Badge className="bg-gray-500 hover:bg-gray-600">ถูกระงับ</Badge>;
+        return <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-300 dark:bg-gray-900/30 dark:text-gray-400">ระงับการใช้งาน</Badge>;
       default:
-        return <Badge variant="secondary">{status || 'ไม่ทราบ'}</Badge>;
+        return <Badge variant="outline">{status || 'ไม่ทราบ'}</Badge>;
     }
   };
 
@@ -424,7 +427,7 @@ const ParentDashboard = () => {
         </Card>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -438,45 +441,61 @@ const ParentDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-green-200 bg-green-50/50 dark:bg-green-900/10">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-green-500" />
+              <CardTitle className="text-sm font-medium flex items-center gap-2 text-green-700 dark:text-green-400">
+                <TrendingUp className="w-4 h-4" />
                 ชำระแล้ว
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-500">{stats?.paid_referrals || 0}</div>
-              <p className="text-xs text-muted-foreground">สมาชิกที่ชำระเงิน</p>
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">{stats?.paid_referrals || 0}</div>
+              <p className="text-xs text-muted-foreground">ได้รับคะแนนแล้ว</p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-blue-200 bg-blue-50/50 dark:bg-blue-900/10">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <QrCode className="w-4 h-4 text-yellow-500" />
-                รอชำระ
+              <CardTitle className="text-sm font-medium flex items-center gap-2 text-blue-700 dark:text-blue-400">
+                <QrCode className="w-4 h-4" />
+                รออนุมัติ
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-500">{stats?.pending_referrals || 0}</div>
-              <p className="text-xs text-muted-foreground">สมาชิกที่รอชำระ</p>
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats?.awaiting_approval_referrals || 0}</div>
+              <p className="text-xs text-muted-foreground">จากแอดมิน</p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-orange-200 bg-orange-50/50 dark:bg-orange-900/10">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Award className="w-4 h-4 text-purple-500" />
-                คะแนนสะสม
+              <CardTitle className="text-sm font-medium flex items-center gap-2 text-orange-700 dark:text-orange-400">
+                <Award className="w-4 h-4" />
+                รอชำระเงิน
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-500">{stats?.total_points || 0}</div>
-              <p className="text-xs text-muted-foreground">คะแนนทั้งหมด</p>
+              <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{stats?.pending_referrals || 0}</div>
+              <p className="text-xs text-muted-foreground">อนุมัติแล้ว</p>
             </CardContent>
           </Card>
         </div>
+
+        {/* Points Card */}
+        <Card className="mb-8 border-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+              <Award className="w-5 h-5" />
+              คะแนนสะสมทั้งหมด
+            </CardTitle>
+            <CardDescription>
+              🎁 ได้รับ 50 คะแนนต่อเพื่อนที่ชำระเงินแล้ว
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-4xl font-bold text-amber-600 dark:text-amber-400">{stats?.total_points || 0} คะแนน</div>
+          </CardContent>
+        </Card>
 
         {/* Referrals Table */}
         <Card>

@@ -237,11 +237,13 @@ const Profile = () => {
     paid_referrals: number;
     total_points: number;
     pending_referrals: number;
+    awaiting_approval_referrals: number;
   }>({
     total_referrals: 0,
     paid_referrals: 0,
     total_points: 0,
-    pending_referrals: 0
+    pending_referrals: 0,
+    awaiting_approval_referrals: 0
   });
 
   // Fetch user registration data
@@ -299,7 +301,8 @@ const Profile = () => {
               total_referrals: Number(stats.total_referrals) || 0,
               paid_referrals: Number(stats.paid_referrals) || 0,
               total_points: Number(stats.total_points) || 0,
-              pending_referrals: Number(stats.pending_referrals) || 0
+              pending_referrals: Number(stats.pending_referrals) || 0,
+              awaiting_approval_referrals: Number(stats.awaiting_approval_referrals) || 0
             });
           }
         } else if (error) {
@@ -559,10 +562,17 @@ const Profile = () => {
                     </div>
                     <div className="text-2xl font-bold text-green-600">{affiliateStats.paid_referrals}</div>
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-green-200">
+                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl">🔍</span>
+                      <span className="text-sm text-[hsl(var(--text-secondary))]">รออนุมัติจากแอดมิน</span>
+                    </div>
+                    <div className="text-2xl font-bold text-blue-600">{affiliateStats.awaiting_approval_referrals}</div>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg border border-orange-200">
                     <div className="flex items-center gap-2">
                       <span className="text-2xl">⏳</span>
-                      <span className="text-sm text-[hsl(var(--text-secondary))]">รออนุมัติ</span>
+                      <span className="text-sm text-[hsl(var(--text-secondary))]">รอชำระเงิน</span>
                     </div>
                     <div className="text-2xl font-bold text-orange-600">{affiliateStats.pending_referrals}</div>
                   </div>
