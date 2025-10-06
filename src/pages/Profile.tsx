@@ -6,7 +6,7 @@ import SkillsSection from '../components/SkillsSection';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
-import { Copy, Share2, ExternalLink } from 'lucide-react';
+import { Users } from 'lucide-react';
 import { ToastManager } from '../components/Toast';
 
 // Import mascot images
@@ -232,19 +232,6 @@ const Profile = () => {
     last_login_at: string | null;
     payment_date: string | null;
   } | null>(null);
-  const [affiliateStats, setAffiliateStats] = useState<{
-    total_referrals: number;
-    paid_referrals: number;
-    total_points: number;
-    pending_referrals: number;
-    awaiting_approval_referrals: number;
-  }>({
-    total_referrals: 0,
-    paid_referrals: 0,
-    total_points: 0,
-    pending_referrals: 0,
-    awaiting_approval_referrals: 0
-  });
 
   // Fetch user registration data
   useEffect(() => {
@@ -289,22 +276,6 @@ const Profile = () => {
         if (data && !error) {
           console.log('✅ Successfully loaded registration data');
           setRegistrationData(data);
-
-          // Fetch affiliate stats (using member_id now)
-          const { data: statsData } = await supabase.rpc('get_user_affiliate_stats', {
-            p_user_email: email
-          });
-
-          if (statsData && statsData.length > 0) {
-            const stats = statsData[0];
-            setAffiliateStats({
-              total_referrals: Number(stats.total_referrals) || 0,
-              paid_referrals: Number(stats.paid_referrals) || 0,
-              total_points: Number(stats.total_points) || 0,
-              pending_referrals: Number(stats.pending_referrals) || 0,
-              awaiting_approval_referrals: Number(stats.awaiting_approval_referrals) || 0
-            });
-          }
         } else if (error) {
           console.error('❌ Error loading registration data:', error);
         } else {
@@ -398,33 +369,6 @@ const Profile = () => {
     return grade ? grade.label : '';
   };
 
-  // Copy referral link to clipboard
-  const copyReferralLink = () => {
-    const referralLink = `${window.location.origin}/signup?ref=${memberId}`;
-    navigator.clipboard.writeText(referralLink);
-    ToastManager.show({
-      message: 'คัดลอกลิงก์แล้ว! 🎉',
-      type: 'success'
-    });
-  };
-
-  // Share referral link
-  const shareReferralLink = async () => {
-    const referralLink = `${window.location.origin}/signup?ref=${memberId}`;
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'มาเรียนคณิตกับ Kidfast',
-          text: `มาเรียนคณิตกับผมที่ Kidfast! ใช้รหัสของผม: ${memberId}`,
-          url: referralLink
-        });
-      } catch (err) {
-        copyReferralLink();
-      }
-    } else {
-      copyReferralLink();
-    }
-  };
 
   return <div className="min-h-screen">
       <Header />
@@ -445,6 +389,15 @@ const Profile = () => {
               </h1>
               <p className="text-[hsl(var(--text-secondary))]">ยินดีต้อนรับกลับสู่การเรียนรู้ที่สนุก</p>
             </div>
+            {!isDemo && memberId && (
+              <Link
+                to="/parent"
+                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <Users className="w-5 h-5" />
+                <span>โปรแกรมแนะนำเพื่อน</span>
+              </Link>
+            )}
           </div>
         </div>
 
@@ -493,101 +446,6 @@ const Profile = () => {
           </div>
         )}
 
-        {/* Referral Section */}
-        {!isDemo && memberId && (
-          <div className="grid md:grid-cols-2 gap-6 mb-6">
-            {/* Referral Link Card */}
-            <Card className="bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-200">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="text-3xl">🎁</div>
-                  <h2 className="text-xl font-bold text-[hsl(var(--text-primary))]">แนะนำเพื่อนและรับรางวัล</h2>
-                </div>
-                <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
-                  แชร์ลิงก์พิเศษนี้กับเพื่อนๆ เมื่อสมัครสมาชิกและชำระเงิน คุณจะได้รับคะแนนสะสม!
-                </p>
-                <div className="bg-white rounded-lg p-4 mb-4 border border-purple-200">
-                  <div className="text-xs text-[hsl(var(--text-secondary))] mb-1">รหัสสมาชิกของคุณ</div>
-                  <div className="text-2xl font-bold text-purple-600 mb-3">{memberId}</div>
-                  <div className="text-xs text-[hsl(var(--text-secondary))] mb-1">ลิงก์แนะนำของคุณ</div>
-                  <div className="text-sm font-mono bg-gray-50 p-2 rounded break-all text-[hsl(var(--text-primary))]">
-                    {window.location.origin}/signup?ref={memberId}
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={copyReferralLink}
-                    className="flex-1 btn-primary flex items-center justify-center gap-2"
-                  >
-                    <Copy className="w-4 h-4" />
-                    คัดลอกลิงก์
-                  </button>
-                  <button
-                    onClick={shareReferralLink}
-                    className="flex-1 btn-secondary flex items-center justify-center gap-2"
-                  >
-                    <Share2 className="w-4 h-4" />
-                    แชร์
-                  </button>
-                </div>
-                <Link
-                  to="/parent-dashboard"
-                  className="mt-3 flex items-center justify-center gap-2 text-sm text-purple-600 hover:text-purple-700 font-medium"
-                >
-                  ดูรายชื่อเพื่อนที่แนะนำ
-                  <ExternalLink className="w-4 h-4" />
-                </Link>
-              </CardContent>
-            </Card>
-
-            {/* Stats Card */}
-            <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="text-3xl">📊</div>
-                  <h2 className="text-xl font-bold text-[hsl(var(--text-primary))]">สรุปผลการแนะนำ</h2>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-green-200">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">👥</span>
-                      <span className="text-sm text-[hsl(var(--text-secondary))]">เพื่อนที่แนะนำทั้งหมด</span>
-                    </div>
-                    <div className="text-2xl font-bold text-green-600">{affiliateStats.total_referrals}</div>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-green-200">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">✅</span>
-                      <span className="text-sm text-[hsl(var(--text-secondary))]">ชำระเงินแล้ว</span>
-                    </div>
-                    <div className="text-2xl font-bold text-green-600">{affiliateStats.paid_referrals}</div>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">🔍</span>
-                      <span className="text-sm text-[hsl(var(--text-secondary))]">รออนุมัติจากแอดมิน</span>
-                    </div>
-                    <div className="text-2xl font-bold text-blue-600">{affiliateStats.awaiting_approval_referrals}</div>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg border border-orange-200">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">⏳</span>
-                      <span className="text-sm text-[hsl(var(--text-secondary))]">รอชำระเงิน</span>
-                    </div>
-                    <div className="text-2xl font-bold text-orange-600">{affiliateStats.pending_referrals}</div>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-yellow-100 to-amber-100 rounded-lg border-2 border-yellow-300">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">🏆</span>
-                      <span className="text-sm font-medium text-[hsl(var(--text-primary))]">คะแนนสะสม</span>
-                    </div>
-                    <div className="text-3xl font-bold text-amber-600">{affiliateStats.total_points}</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
 
         {/* Grade Selection */}
         <div className="flex gap-3 mb-6 overflow-x-auto pb-2">
