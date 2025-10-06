@@ -333,8 +333,8 @@ export default function TimeApp() {
         return `
           <div style="border: 2px solid #666; padding: 10px; background: white; border-radius: 8px; display: flex; flex-direction: column; align-items: center;">
             <div style="font-weight: bold; margin-bottom: 6px; font-size: 14px;">นาฬิกา ${globalIdx + 1}</div>
-            <div style="display: flex; justify-content: center; align-items: center; width: 100%; margin: 0 auto;">
-              <svg viewBox="0 0 ${size} ${size}" width="140" height="140" style="display: block; margin: 0 auto;">
+            <div style="display: flex; justify-content: flex-start; align-items: center; width: 100%; padding-left: 15px;">
+              <svg viewBox="0 0 ${size} ${size}" width="140" height="140" style="display: block;">
                 <circle cx="${cx}" cy="${cy}" r="${r + 6}" fill="white" stroke="black" stroke-width="2.5" />
                 ${ticksHTML}
                 ${numbersHTML}
