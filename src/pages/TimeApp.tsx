@@ -331,16 +331,18 @@ export default function TimeApp() {
         }
 
         return `
-          <div style="border: 2px solid #666; padding: 12px; background: white; border-radius: 8px; text-align: center;">
+          <div style="border: 2px solid #666; padding: 12px; background: white; border-radius: 8px; display: flex; flex-direction: column; align-items: center;">
             <div style="font-weight: bold; margin-bottom: 8px; font-size: 16px;">นาฬิกา ${globalIdx + 1}</div>
-            <svg viewBox="0 0 ${size} ${size}" width="160" height="160" style="margin: 0 auto;">
-              <circle cx="${cx}" cy="${cy}" r="${r + 6}" fill="white" stroke="black" stroke-width="2.5" />
-              ${ticksHTML}
-              ${numbersHTML}
-              ${hand(hourAngle, r * 0.55, 4.5)}
-              ${hand(minuteAngle, r * 0.8, 3)}
-              <circle cx="${cx}" cy="${cy}" r="3.5" fill="black" />
-            </svg>
+            <div style="display: flex; justify-content: center; align-items: center; width: 100%;">
+              <svg viewBox="0 0 ${size} ${size}" width="160" height="160" style="display: block;">
+                <circle cx="${cx}" cy="${cy}" r="${r + 6}" fill="white" stroke="black" stroke-width="2.5" />
+                ${ticksHTML}
+                ${numbersHTML}
+                ${hand(hourAngle, r * 0.55, 4.5)}
+                ${hand(minuteAngle, r * 0.8, 3)}
+                <circle cx="${cx}" cy="${cy}" r="3.5" fill="black" />
+              </svg>
+            </div>
             <div style="margin-top: 12px; display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 18px;">
               <div style="width: 50px; height: 45px; border: 2px solid #0ea5e9; border-radius: 8px; background: white;"></div>
               <span style="font-weight: bold;">:</span>
