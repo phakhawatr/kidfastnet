@@ -183,7 +183,7 @@ const Signup = () => {
       // Check if member_id exists and get affiliate_code
       const { data, error } = await supabase
         .from('user_registrations')
-        .select('member_id, parent_email')
+        .select('id, member_id, parent_email')
         .eq('member_id', memberId.trim())
         .eq('status', 'approved')
         .maybeSingle();
@@ -196,7 +196,7 @@ const Signup = () => {
       const { data: affiliateData } = await supabase
         .from('affiliate_codes')
         .select('affiliate_code')
-        .eq('user_id', data.member_id)
+        .eq('user_id', data.id)
         .maybeSingle();
       
       return affiliateData?.affiliate_code || null;
