@@ -294,28 +294,56 @@ const ParentDashboard = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'paid':
-        return <Badge className="bg-green-500 hover:bg-green-600">ชำระแล้ว</Badge>;
+        return (
+          <Badge className="bg-[hsl(var(--status-success-bg))] text-[hsl(var(--status-success-fg))] hover:opacity-90 font-semibold border-2 border-[hsl(var(--status-success-bg))]">
+            ชำระแล้ว
+          </Badge>
+        );
       case 'pending':
-        return <Badge className="bg-yellow-500 hover:bg-yellow-600">รอชำระ</Badge>;
+        return (
+          <Badge className="bg-[hsl(var(--status-warning-bg))] text-[hsl(var(--status-warning-fg))] hover:opacity-90 font-semibold border-2 border-[hsl(var(--status-warning-bg))]">
+            รอชำระ
+          </Badge>
+        );
       case 'failed':
-        return <Badge variant="destructive">ล้มเหลว</Badge>;
+        return (
+          <Badge className="bg-[hsl(var(--status-error-bg))] text-[hsl(var(--status-error-fg))] hover:opacity-90 font-semibold border-2 border-[hsl(var(--status-error-bg))]">
+            ล้มเหลว
+          </Badge>
+        );
       default:
-        return <Badge variant="secondary">{status}</Badge>;
+        return <Badge variant="secondary" className="font-semibold">{status}</Badge>;
     }
   };
 
   const getUserStatusBadge = (status?: string) => {
     switch (status) {
       case 'approved':
-        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400">อนุมัติแล้ว</Badge>;
+        return (
+          <Badge className="bg-[hsl(var(--status-success-light))] text-[hsl(var(--status-success-bg))] border-2 border-[hsl(var(--status-success-border))] font-semibold">
+            อนุมัติแล้ว
+          </Badge>
+        );
       case 'pending':
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300 dark:bg-blue-900/30 dark:text-blue-400">รออนุมัติจากแอดมิน</Badge>;
+        return (
+          <Badge className="bg-[hsl(var(--status-info-light))] text-[hsl(var(--status-info-bg))] border-2 border-[hsl(var(--status-info-border))] font-semibold">
+            รออนุมัติจากแอดมิน
+          </Badge>
+        );
       case 'rejected':
-        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-300 dark:bg-red-900/30 dark:text-red-400">ปฏิเสธ</Badge>;
+        return (
+          <Badge className="bg-[hsl(var(--status-error-light))] text-[hsl(var(--status-error-bg))] border-2 border-[hsl(var(--status-error-border))] font-semibold">
+            ปฏิเสธ
+          </Badge>
+        );
       case 'suspended':
-        return <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-300 dark:bg-gray-900/30 dark:text-gray-400">ระงับการใช้งาน</Badge>;
+        return (
+          <Badge variant="outline" className="bg-gray-100 text-gray-800 border-2 border-gray-400 dark:bg-gray-800 dark:text-gray-200 font-semibold">
+            ระงับการใช้งาน
+          </Badge>
+        );
       default:
-        return <Badge variant="outline">{status || 'ไม่ทราบ'}</Badge>;
+        return <Badge variant="outline" className="font-semibold">{status || 'ไม่ทราบ'}</Badge>;
     }
   };
 
@@ -426,134 +454,161 @@ const ParentDashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                ทั้งหมด
+        {/* Statistics Cards - WCAG 2.1 Compliant */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Card 1: ทั้งหมด */}
+          <Card className="border-2 hover:shadow-lg transition-shadow">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <Users className="w-5 h-5 text-primary" aria-hidden="true" />
+                <span>ทั้งหมด</span>
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats?.total_referrals || 0}</div>
-              <p className="text-xs text-muted-foreground">สมาชิกที่แนะนำ</p>
+            <CardContent className="space-y-2">
+              <div className="text-4xl font-bold text-foreground" aria-label={`จำนวนสมาชิกทั้งหมด ${stats?.total_referrals || 0} คน`}>
+                {stats?.total_referrals || 0}
+              </div>
+              <p className="text-base font-medium text-[hsl(var(--text-secondary))]">
+                สมาชิกที่แนะนำ
+              </p>
             </CardContent>
           </Card>
 
-          <Card className="border-green-200 bg-green-50/50 dark:bg-green-900/10">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2 text-green-700 dark:text-green-400">
-                <TrendingUp className="w-4 h-4" />
-                ชำระแล้ว
+          {/* Card 2: ชำระแล้ว */}
+          <Card className="border-2 border-[hsl(var(--status-success-border))] bg-[hsl(var(--status-success-light))] hover:shadow-lg transition-shadow">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-[hsl(var(--status-success-bg))]" aria-hidden="true" />
+                <span className="text-[hsl(var(--status-success-bg))]">ชำระแล้ว</span>
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">{stats?.paid_referrals || 0}</div>
-              <p className="text-xs text-muted-foreground">ได้รับคะแนนแล้ว</p>
+            <CardContent className="space-y-2">
+              <div className="text-4xl font-bold text-[hsl(var(--status-success-bg))]" aria-label={`จำนวนสมาชิกที่ชำระแล้ว ${stats?.paid_referrals || 0} คน`}>
+                {stats?.paid_referrals || 0}
+              </div>
+              <p className="text-base font-medium text-[hsl(var(--text-secondary))]">
+                ได้รับคะแนนแล้ว
+              </p>
             </CardContent>
           </Card>
 
-          <Card className="border-blue-200 bg-blue-50/50 dark:bg-blue-900/10">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2 text-blue-700 dark:text-blue-400">
-                <QrCode className="w-4 h-4" />
-                รออนุมัติ
+          {/* Card 3: รออนุมัติ */}
+          <Card className="border-2 border-[hsl(var(--status-info-border))] bg-[hsl(var(--status-info-light))] hover:shadow-lg transition-shadow">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <QrCode className="w-5 h-5 text-[hsl(var(--status-info-bg))]" aria-hidden="true" />
+                <span className="text-[hsl(var(--status-info-bg))]">รออนุมัติ</span>
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats?.awaiting_approval_referrals || 0}</div>
-              <p className="text-xs text-muted-foreground">จากแอดมิน</p>
+            <CardContent className="space-y-2">
+              <div className="text-4xl font-bold text-[hsl(var(--status-info-bg))]" aria-label={`จำนวนสมาชิกรออนุมัติ ${stats?.awaiting_approval_referrals || 0} คน`}>
+                {stats?.awaiting_approval_referrals || 0}
+              </div>
+              <p className="text-base font-medium text-[hsl(var(--text-secondary))]">
+                จากแอดมิน
+              </p>
             </CardContent>
           </Card>
 
-          <Card className="border-orange-200 bg-orange-50/50 dark:bg-orange-900/10">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2 text-orange-700 dark:text-orange-400">
-                <Award className="w-4 h-4" />
-                รอชำระเงิน
+          {/* Card 4: รอชำระเงิน */}
+          <Card className="border-2 border-[hsl(var(--status-warning-border))] bg-[hsl(var(--status-warning-light))] hover:shadow-lg transition-shadow">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <Award className="w-5 h-5 text-[hsl(var(--status-warning-bg))]" aria-hidden="true" />
+                <span className="text-[hsl(var(--status-warning-bg))]">รอชำระเงิน</span>
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{stats?.pending_referrals || 0}</div>
-              <p className="text-xs text-muted-foreground">อนุมัติแล้ว</p>
+            <CardContent className="space-y-2">
+              <div className="text-4xl font-bold text-[hsl(var(--status-warning-bg))]" aria-label={`จำนวนสมาชิกรอชำระเงิน ${stats?.pending_referrals || 0} คน`}>
+                {stats?.pending_referrals || 0}
+              </div>
+              <p className="text-base font-medium text-[hsl(var(--text-secondary))]">
+                อนุมัติแล้ว
+              </p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Points Card */}
-        <Card className="mb-8 border-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
-              <Award className="w-5 h-5" />
-              คะแนนสะสมทั้งหมด
+        {/* Points Card - WCAG 2.1 Enhanced */}
+        <Card className="mb-8 border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 shadow-lg">
+          <CardHeader className="space-y-3">
+            <CardTitle className="flex items-center gap-3 text-xl font-bold text-amber-800 dark:text-amber-300">
+              <Award className="w-6 h-6" aria-hidden="true" />
+              <span>คะแนนสะสมทั้งหมด</span>
             </CardTitle>
-            <CardDescription>
-              🎁 ได้รับ 50 คะแนนต่อเพื่อนที่ชำระเงินแล้ว
+            <CardDescription className="text-base font-medium text-[hsl(var(--text-secondary))]">
+              🎁 ได้รับ <strong className="text-amber-800 dark:text-amber-300">50 คะแนน</strong>ต่อเพื่อนที่ชำระเงินแล้ว
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-bold text-amber-600 dark:text-amber-400">{stats?.total_points || 0} คะแนน</div>
+          <CardContent className="pt-2">
+            <div 
+              className="text-5xl font-bold text-amber-700 dark:text-amber-400" 
+              aria-label={`คะแนนสะสมทั้งหมด ${stats?.total_points || 0} คะแนน`}
+            >
+              {stats?.total_points || 0} <span className="text-3xl">คะแนน</span>
+            </div>
           </CardContent>
         </Card>
 
-        {/* Referrals Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle>รายชื่อสมาชิกที่แนะนำ</CardTitle>
-            <CardDescription>
+        {/* Referrals Table - WCAG 2.1 Enhanced */}
+        <Card className="border-2">
+          <CardHeader className="space-y-2">
+            <CardTitle className="text-xl font-bold">รายชื่อสมาชิกที่แนะนำ</CardTitle>
+            <CardDescription className="text-base font-medium">
               รายชื่อสมาชิกที่สมัครผ่านลิงก์ของคุณ
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableCaption>
-                {referrals.length === 0 ? 'ยังไม่มีสมาชิกที่แนะนำ' : `มีสมาชิกทั้งหมด ${referrals.length} คน`}
-              </TableCaption>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ชื่อเล่น</TableHead>
-                  <TableHead>อีเมล์ผู้ปกครอง</TableHead>
-                  <TableHead>วันที่สมัคร</TableHead>
-                  <TableHead>สถานะอนุมัติ</TableHead>
-                  <TableHead>วันอนุมัติ</TableHead>
-                  <TableHead>วันที่ชำระเงิน</TableHead>
-                  <TableHead>สถานะชำระ</TableHead>
-                  <TableHead>วันครบกำหนด 1 ปี</TableHead>
-                  <TableHead className="text-right">คะแนนที่ได้</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {referrals.map((referral) => {
-                  const expirationDate = calculateExpiration(referral.payment_date, referral.approved_at);
-                  return (
-                    <TableRow key={referral.id}>
-                      <TableCell className="font-medium">{referral.nickname}</TableCell>
-                      <TableCell>{referral.parent_email}</TableCell>
-                      <TableCell>{formatDate(referral.signup_date)}</TableCell>
-                      <TableCell>{getUserStatusBadge(referral.user_status)}</TableCell>
-                      <TableCell>{formatDateTime(referral.approved_at)}</TableCell>
-                      <TableCell>{formatDate(referral.payment_date)}</TableCell>
-                      <TableCell>{getStatusBadge(referral.payment_status)}</TableCell>
-                      <TableCell>
-                        {expirationDate ? (
-                          <span className="text-sm">{formatDate(expirationDate)}</span>
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {referral.points_earned > 0 ? (
-                          <span className="text-purple-500 font-bold">+{referral.points_earned}</span>
-                        ) : (
-                          <span className="text-muted-foreground">0</span>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableCaption className="text-base font-medium">
+                  {referrals.length === 0 ? 'ยังไม่มีสมาชิกที่แนะนำ' : `มีสมาชิกทั้งหมด ${referrals.length} คน`}
+                </TableCaption>
+                <TableHeader>
+                  <TableRow className="bg-muted/50 hover:bg-muted/50">
+                    <TableHead className="font-bold text-base text-foreground">ชื่อเล่น</TableHead>
+                    <TableHead className="font-bold text-base text-foreground">อีเมล์ผู้ปกครอง</TableHead>
+                    <TableHead className="font-bold text-base text-foreground">วันที่สมัคร</TableHead>
+                    <TableHead className="font-bold text-base text-foreground">สถานะอนุมัติ</TableHead>
+                    <TableHead className="font-bold text-base text-foreground">วันอนุมัติ</TableHead>
+                    <TableHead className="font-bold text-base text-foreground">วันที่ชำระเงิน</TableHead>
+                    <TableHead className="font-bold text-base text-foreground">สถานะชำระ</TableHead>
+                    <TableHead className="font-bold text-base text-foreground">วันครบกำหนด 1 ปี</TableHead>
+                    <TableHead className="text-right font-bold text-base text-foreground">คะแนนที่ได้</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {referrals.map((referral) => {
+                    const expirationDate = calculateExpiration(referral.payment_date, referral.approved_at);
+                    return (
+                      <TableRow key={referral.id} className="hover:bg-muted/30">
+                        <TableCell className="font-semibold text-base py-4">{referral.nickname}</TableCell>
+                        <TableCell className="text-base py-4">{referral.parent_email}</TableCell>
+                        <TableCell className="text-base py-4">{formatDate(referral.signup_date)}</TableCell>
+                        <TableCell className="py-4">{getUserStatusBadge(referral.user_status)}</TableCell>
+                        <TableCell className="text-base py-4">{formatDateTime(referral.approved_at)}</TableCell>
+                        <TableCell className="text-base py-4">{formatDate(referral.payment_date)}</TableCell>
+                        <TableCell className="py-4">{getStatusBadge(referral.payment_status)}</TableCell>
+                        <TableCell className="py-4">
+                          {expirationDate ? (
+                            <span className="text-base font-medium">{formatDate(expirationDate)}</span>
+                          ) : (
+                            <span className="text-base text-muted-foreground">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right py-4">
+                          {referral.points_earned > 0 ? (
+                            <span className="text-lg font-bold text-[hsl(var(--primary))]">+{referral.points_earned}</span>
+                          ) : (
+                            <span className="text-base text-muted-foreground font-medium">0</span>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
       </main>

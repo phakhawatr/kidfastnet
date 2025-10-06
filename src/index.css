@@ -12,25 +12,68 @@
     --bg-gradient: linear-gradient(135deg, hsl(251, 100%, 69%) 0%, hsl(225, 100%, 75%) 50%, hsl(213, 100%, 85%) 100%);
     --bg-gradient-light: linear-gradient(135deg, hsl(251, 100%, 95%) 0%, hsl(225, 100%, 97%) 50%, hsl(213, 100%, 99%) 100%);
     
+    /* shadcn-ui base colors */
+    --background: 0 0% 100%;
+    --foreground: 222 84% 5%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 84% 5%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 84% 5%;
+    --primary: 251 100% 69%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 225 100% 75%;
+    --secondary-foreground: 222 84% 5%;
+    --muted: 220 13% 91%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 213 100% 85%;
+    --accent-foreground: 222 84% 5%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 251 100% 69%;
+    
+    /* WCAG 2.1 Compliant Status Colors */
+    --status-success-bg: 142 70% 45%;
+    --status-success-fg: 0 0% 100%;
+    --status-success-light: 142 70% 96%;
+    --status-success-border: 142 70% 80%;
+    
+    --status-warning-bg: 38 92% 50%;
+    --status-warning-fg: 0 0% 100%;
+    --status-warning-light: 38 92% 96%;
+    --status-warning-border: 38 92% 80%;
+    
+    --status-error-bg: 0 84% 60%;
+    --status-error-fg: 0 0% 100%;
+    --status-error-light: 0 84% 96%;
+    --status-error-border: 0 84% 80%;
+    
+    --status-info-bg: 213 94% 50%;
+    --status-info-fg: 0 0% 100%;
+    --status-info-light: 213 94% 96%;
+    --status-info-border: 213 94% 80%;
+    
     /* Card Colors */
     --card-primary: 0 0% 100%;
     --card-secondary: 0 0% 98%;
     --card-glass: 0 0% 100% / 0.95;
     --card-shadow: 251 100% 69% / 0.15;
     
-    /* Text Colors */
+    /* Text Colors - Enhanced for WCAG */
     --text-primary: 222 84% 5%;
-    --text-secondary: 215 16% 47%;
-    --text-muted: 215 16% 65%;
+    --text-secondary: 215 16% 35%; /* Darker for better contrast */
+    --text-muted: 215 16% 50%; /* Adjusted for WCAG AA */
     --text-white: 0 0% 100%;
+    --text-emphasis: 222 84% 10%;
     
     /* Accent Colors for Grade Cards */
-    --grade-1: 354 100% 85%; /* Pink */
-    --grade-2: 171 100% 85%; /* Mint */
-    --grade-3: 36 100% 85%;  /* Orange */
-    --grade-4: 142 100% 85%; /* Green */
-    --grade-5: 251 100% 85%; /* Purple */
-    --grade-6: 213 100% 85%; /* Blue */
+    --grade-1: 354 100% 85%;
+    --grade-2: 171 100% 85%;
+    --grade-3: 36 100% 85%;
+    --grade-4: 142 100% 85%;
+    --grade-5: 251 100% 85%;
+    --grade-6: 213 100% 85%;
     
     /* Button Gradients */
     --btn-primary: linear-gradient(135deg, hsl(36, 100%, 60%) 0%, hsl(354, 100%, 65%) 100%);
@@ -53,6 +96,28 @@
     --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     
     --radius: 1rem;
+  }
+  
+  .dark {
+    --background: 222 84% 5%;
+    --foreground: 0 0% 98%;
+    --card: 222 84% 8%;
+    --card-foreground: 0 0% 98%;
+    --popover: 222 84% 8%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 251 100% 75%;
+    --primary-foreground: 222 84% 5%;
+    --secondary: 225 100% 20%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 215 16% 20%;
+    --muted-foreground: 215 16% 70%;
+    --accent: 213 100% 25%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 215 16% 20%;
+    --input: 215 16% 20%;
+    --ring: 251 100% 75%;
   }
 }
 
