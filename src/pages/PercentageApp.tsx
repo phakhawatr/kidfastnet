@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { ArrowLeft, RotateCcw, Clock, CheckCircle, XCircle, Trophy, Target, Shuffle, Eye } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { ArrowLeft, RotateCcw, Clock, CheckCircle, XCircle, Trophy, Target, Shuffle, Eye, Printer, Upload, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 // Types for percentage problems
 interface PercentageProblem {
@@ -168,6 +170,12 @@ const PercentageApp: React.FC = () => {
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [gameMode, setGameMode] = useState<'fraction' | 'decimal' | 'mixed'>('mixed');
+  
+  // PDF states
+  const [showPdfPreview, setShowPdfPreview] = useState(false);
+  const [pdfPreviewContent, setPdfPreviewContent] = useState('');
+  const [schoolLogo, setSchoolLogo] = useState('');
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   // Initialize problems
   useEffect(() => {
@@ -317,6 +325,142 @@ const PercentageApp: React.FC = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // PDF Functions
+  const printPDF = useCallback(() => {
+    const timestamp = new Date().toLocaleDateString('th-TH', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+
+    const problemsPerPage = 20;
+    const totalPages = Math.ceil(problems.length / problemsPerPage);
+    
+    let allPagesHTML = '';
+    
+    for (let page = 0; page < totalPages; page++) {
+      const startIdx = page * problemsPerPage;
+      const endIdx = Math.min(startIdx + problemsPerPage, problems.length);
+      const pageProblems = problems.slice(startIdx, endIdx);
+      
+      const problemsHTML = pageProblems.map((problem, idx) => {
+        const globalIdx = startIdx + idx;
+        return `
+          <div style="border: 2px solid #666; padding: 12px; background: white; border-radius: 8px; text-align: center;">
+            <div style="font-weight: bold; margin-bottom: 8px; font-size: 16px; color: #7c3aed;">ข้อ ${globalIdx + 1}</div>
+            <div style="font-size: 22px; font-weight: bold; color: #7c3aed; margin: 12px 0;">
+              ${problem.type === 'fraction' ? `🍕 ร้อยละ ${problem.percentage} = ` : `🔢 ${problem.percentage}% = `}
+            </div>
+            <div style="display: flex; justify-content: center; gap: 4px; margin-top: 16px;">
+              ${Array.from({ length: 8 }).map(() => 
+                `<div style="width: 32px; height: 40px; border: 2px solid #7c3aed; border-radius: 6px; background: white;"></div>`
+              ).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      allPagesHTML += `
+        <div style="page-break-after: always; padding: 30px; font-family: 'Sarabun', Arial, sans-serif; position: relative; min-height: 297mm;">
+          <!-- Header -->
+          <div style="text-align: center; margin-bottom: 25px; border-bottom: 3px solid #7c3aed; padding-bottom: 20px;">
+            ${schoolLogo ? `<img src="${schoolLogo}" alt="Logo" style="max-width: 80px; max-height: 80px; margin-bottom: 10px;" />` : ''}
+            <h1 style="margin: 10px 0; font-size: 28px; color: #7c3aed; font-weight: bold;">
+              🎯 แบบฝึกหัดร้อยละ 💯
+            </h1>
+            <div style="font-size: 16px; color: #666; margin-top: 8px;">
+              ${gameMode === 'fraction' ? '🍕 เศษส่วน' : gameMode === 'decimal' ? '🔢 ทศนิยม' : '🎨 ผสม'} • ${problems.length} ข้อ
+            </div>
+          </div>
+
+          <!-- Student Info -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; font-size: 16px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-weight: bold;">ชื่อ-สกุล:</span>
+              <div style="flex: 1; border-bottom: 2px dotted #999; height: 30px;"></div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-weight: bold;">ชั้น:</span>
+              <div style="flex: 1; border-bottom: 2px dotted #999; height: 30px;"></div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-weight: bold;">โรงเรียน:</span>
+              <div style="flex: 1; border-bottom: 2px dotted #999; height: 30px;"></div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-weight: bold;">วันที่:</span>
+              <div style="flex: 1; border-bottom: 2px dotted #999; height: 30px;"></div>
+            </div>
+          </div>
+
+          <!-- Problems Grid -->
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 20px;">
+            ${problemsHTML}
+          </div>
+
+          <!-- Footer -->
+          <div style="position: absolute; bottom: 20px; left: 30px; right: 30px; text-align: center; font-size: 12px; color: #666; border-top: 1px solid #ddd; padding-top: 10px;">
+            สร้างโดยแอปฝึกร้อยละ | ${timestamp} | หน้า ${page + 1}/${totalPages}
+          </div>
+        </div>
+      `;
+    }
+
+    setPdfPreviewContent(allPagesHTML);
+    setShowPdfPreview(true);
+  }, [problems, gameMode, schoolLogo]);
+
+  const savePdfFromPreview = async () => {
+    const previewElement = document.getElementById('pdf-preview-content');
+    if (!previewElement) return;
+
+    try {
+      const pages = previewElement.querySelectorAll('[style*="page-break-after"]');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      for (let i = 0; i < pages.length; i++) {
+        const page = pages[i] as HTMLElement;
+        const canvas = await html2canvas(page, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff'
+        });
+        
+        const imgData = canvas.toDataURL('image/png');
+        
+        if (i > 0) pdf.addPage();
+        
+        const imgWidth = 210;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      }
+      
+      const timestamp = new Date().toLocaleDateString('th-TH');
+      pdf.save(`แบบฝึกหัดร้อยละ_${timestamp}.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
+  };
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSchoolLogo(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveLogo = () => {
+    setSchoolLogo('');
+    if (logoInputRef.current) {
+      logoInputRef.current.value = '';
+    }
+  };
+
   const score = getScore();
 
   return (
@@ -396,6 +540,44 @@ const PercentageApp: React.FC = () => {
           </CardContent>
         </Card>
 
+        {/* Logo Upload */}
+        {!showResults && (
+          <Card className="mb-6 border-4 border-purple-300 shadow-2xl bg-white/90 backdrop-blur">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <span className="font-bold text-lg">📸 โลโก้โรงเรียน (ถ้ามี):</span>
+                  <input
+                    ref={logoInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                    className="hidden"
+                    id="logo-upload"
+                  />
+                  <label htmlFor="logo-upload">
+                    <Button variant="outline" size="sm" className="cursor-pointer" asChild>
+                      <span>
+                        <Upload className="w-4 h-4 mr-2" />
+                        อัพโหลดโลโก้
+                      </span>
+                    </Button>
+                  </label>
+                  {schoolLogo && (
+                    <Button variant="outline" size="sm" onClick={handleRemoveLogo}>
+                      <X className="w-4 h-4 mr-2" />
+                      ลบโลโก้
+                    </Button>
+                  )}
+                </div>
+                {schoolLogo && (
+                  <img src={schoolLogo} alt="School Logo" className="h-16 w-16 object-contain border-2 border-purple-300 rounded-lg p-1 bg-white" />
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Controls */}
         <div className="flex flex-wrap gap-4 mb-6 justify-center">
           {!isTimerRunning && !showResults && (
@@ -431,6 +613,15 @@ const PercentageApp: React.FC = () => {
             </>
           )}
           
+          <Button
+            onClick={printPDF}
+            size="lg"
+            className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white font-black text-xl px-8 py-6 rounded-3xl shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all border-4 border-white"
+          >
+            <Printer className="w-6 h-6 mr-3" />
+            📄 พิมพ์ PDF
+          </Button>
+
           <button
             onClick={generateRandomProblems}
             className="px-8 py-6 rounded-3xl text-xl font-black text-white shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-200 flex items-center gap-3 border-4 border-white"
@@ -491,6 +682,27 @@ const PercentageApp: React.FC = () => {
             />
           ))}
         </div>
+
+        {/* PDF Preview Modal */}
+        {showPdfPreview && (
+          <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 overflow-auto">
+            <div className="bg-white rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-auto shadow-2xl">
+              <div className="sticky top-0 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white p-6 rounded-t-2xl z-10">
+                <h2 className="text-2xl font-bold mb-4">📄 ตัวอย่าง PDF ก่อนพิมพ์</h2>
+                <div className="flex gap-3 flex-wrap">
+                  <Button onClick={savePdfFromPreview} size="lg" className="bg-white text-purple-600 hover:bg-purple-50 font-bold">
+                    <Printer className="w-5 h-5 mr-2" />
+                    💾 บันทึก PDF
+                  </Button>
+                  <Button onClick={() => setShowPdfPreview(false)} size="lg" variant="outline" className="bg-white/10 hover:bg-white/20 text-white border-white">
+                    ❌ ปิด
+                  </Button>
+                </div>
+              </div>
+              <div id="pdf-preview-content" className="bg-gray-100" dangerouslySetInnerHTML={{ __html: pdfPreviewContent }} />
+            </div>
+          </div>
+        )}
 
         {/* Instructions */}
         <Card className="mt-6 bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 border-4 border-purple-300 shadow-xl">

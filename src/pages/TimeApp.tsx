@@ -1,6 +1,9 @@
 import React, { useMemo, useState, useRef, useEffect } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Printer, Upload, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 // ---------- Utilities ----------
 function randInt(min, max) {
@@ -201,6 +204,12 @@ export default function TimeApp() {
   const [results, setResults] = useState(() => times.map(() => "pending"));
   const [showAnswers, setShowAnswers] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
+  
+  // PDF states
+  const [showPdfPreview, setShowPdfPreview] = useState(false);
+  const [pdfPreviewContent, setPdfPreviewContent] = useState('');
+  const [schoolLogo, setSchoolLogo] = useState('');
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   // Ensure page starts at top when component mounts
   useEffect(() => {
@@ -264,6 +273,180 @@ export default function TimeApp() {
     setResults((prev) => prev.map((r, i) => (i === idx ? "pending" : r)));
   }
 
+  // PDF Functions
+  const printPDF = () => {
+    const timestamp = new Date().toLocaleDateString('th-TH', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+
+    const problemsPerPage = 20;
+    const totalPages = Math.ceil(times.length / problemsPerPage);
+    
+    let allPagesHTML = '';
+    
+    for (let page = 0; page < totalPages; page++) {
+      const startIdx = page * problemsPerPage;
+      const endIdx = Math.min(startIdx + problemsPerPage, times.length);
+      const pageTimes = times.slice(startIdx, endIdx);
+      
+      const clocksHTML = pageTimes.map((time, idx) => {
+        const globalIdx = startIdx + idx;
+        
+        // Generate SVG clock
+        const size = 180;
+        const r = 80;
+        const cx = size / 2;
+        const cy = size / 2;
+        const minuteAngle = time.m * 6;
+        const hourAngle = (time.h % 12) * 30 + time.m * 0.5;
+        
+        const hand = (angle: number, length: number, width: number) => {
+          const rad = (Math.PI / 180) * (angle - 90);
+          const x = cx + length * Math.cos(rad);
+          const y = cy + length * Math.sin(rad);
+          return `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke-width="${width}" stroke="black" stroke-linecap="round" />`;
+        };
+        
+        let ticksHTML = '';
+        for (let i = 0; i < 60; i++) {
+          const ang = (Math.PI / 30) * i;
+          const isHourTick = i % 5 === 0;
+          const r1 = r - (isHourTick ? 8 : 4);
+          const x1 = cx + r1 * Math.cos(ang - Math.PI / 2);
+          const y1 = cy + r1 * Math.sin(ang - Math.PI / 2);
+          const x2 = cx + r * Math.cos(ang - Math.PI / 2);
+          const y2 = cy + r * Math.sin(ang - Math.PI / 2);
+          ticksHTML += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="black" stroke-opacity="${isHourTick ? 0.8 : 0.35}" stroke-width="${isHourTick ? 2 : 1}" />`;
+        }
+        
+        let numbersHTML = '';
+        for (let n = 1; n <= 12; n++) {
+          const ang = (Math.PI / 6) * n;
+          const rnum = r - 22;
+          const x = cx + rnum * Math.cos(ang - Math.PI / 2);
+          const y = cy + rnum * Math.sin(ang - Math.PI / 2) + 4;
+          numbersHTML += `<text x="${x}" y="${y}" text-anchor="middle" font-size="12px" fill="black">${n}</text>`;
+        }
+
+        return `
+          <div style="border: 2px solid #666; padding: 12px; background: white; border-radius: 8px; text-align: center;">
+            <div style="font-weight: bold; margin-bottom: 8px; font-size: 16px;">นาฬิกา ${globalIdx + 1}</div>
+            <svg viewBox="0 0 ${size} ${size}" width="160" height="160" style="margin: 0 auto;">
+              <circle cx="${cx}" cy="${cy}" r="${r + 6}" fill="white" stroke="black" stroke-width="2.5" />
+              ${ticksHTML}
+              ${numbersHTML}
+              ${hand(hourAngle, r * 0.55, 4.5)}
+              ${hand(minuteAngle, r * 0.8, 3)}
+              <circle cx="${cx}" cy="${cy}" r="3.5" fill="black" />
+            </svg>
+            <div style="margin-top: 12px; display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 18px;">
+              <div style="width: 50px; height: 45px; border: 2px solid #0ea5e9; border-radius: 8px; background: white;"></div>
+              <span style="font-weight: bold;">:</span>
+              <div style="width: 50px; height: 45px; border: 2px solid #0ea5e9; border-radius: 8px; background: white;"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      allPagesHTML += `
+        <div style="page-break-after: always; padding: 30px; font-family: 'Sarabun', Arial, sans-serif; position: relative; min-height: 297mm;">
+          <div style="text-align: center; margin-bottom: 25px; border-bottom: 3px solid #0ea5e9; padding-bottom: 20px;">
+            ${schoolLogo ? `<img src="${schoolLogo}" alt="Logo" style="max-width: 80px; max-height: 80px; margin-bottom: 10px;" />` : ''}
+            <h1 style="margin: 10px 0; font-size: 28px; color: #0ea5e9; font-weight: bold;">
+              ⏰ ฝึกอ่านเวลา
+            </h1>
+            <div style="font-size: 16px; color: #666; margin-top: 8px;">
+              ${times.length} ข้อ • อ่านเวลาจากนาฬิกาและเขียนเป็นตัวเลข
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; font-size: 16px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-weight: bold;">ชื่อ-สกุล:</span>
+              <div style="flex: 1; border-bottom: 2px dotted #999; height: 30px;"></div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-weight: bold;">ชั้น:</span>
+              <div style="flex: 1; border-bottom: 2px dotted #999; height: 30px;"></div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-weight: bold;">โรงเรียน:</span>
+              <div style="flex: 1; border-bottom: 2px dotted #999; height: 30px;"></div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-weight: bold;">วันที่:</span>
+              <div style="flex: 1; border-bottom: 2px dotted #999; height: 30px;"></div>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+            ${clocksHTML}
+          </div>
+
+          <div style="position: absolute; bottom: 20px; left: 30px; right: 30px; text-align: center; font-size: 12px; color: #666; border-top: 1px solid #ddd; padding-top: 10px;">
+            สร้างโดยแอปฝึกอ่านเวลา | ${timestamp} | หน้า ${page + 1}/${totalPages}
+          </div>
+        </div>
+      `;
+    }
+
+    setPdfPreviewContent(allPagesHTML);
+    setShowPdfPreview(true);
+  };
+
+  const savePdfFromPreview = async () => {
+    const previewElement = document.getElementById('pdf-preview-content');
+    if (!previewElement) return;
+
+    try {
+      const pages = previewElement.querySelectorAll('[style*="page-break-after"]');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      for (let i = 0; i < pages.length; i++) {
+        const page = pages[i] as HTMLElement;
+        const canvas = await html2canvas(page, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff'
+        });
+        
+        const imgData = canvas.toDataURL('image/png');
+        
+        if (i > 0) pdf.addPage();
+        
+        const imgWidth = 210;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      }
+      
+      const timestamp = new Date().toLocaleDateString('th-TH');
+      pdf.save(`แบบฝึกอ่านเวลา_${timestamp}.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
+  };
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSchoolLogo(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveLogo = () => {
+    setSchoolLogo('');
+    if (logoInputRef.current) {
+      logoInputRef.current.value = '';
+    }
+  };
+
   // tiny confetti
   const Confetti = () => (
     <div className="pointer-events-none fixed inset-0 overflow-hidden flex items-center justify-center">
@@ -291,16 +474,20 @@ export default function TimeApp() {
 
       <main className="max-w-6xl mx-auto p-6 pt-3">
         <div className="flex flex-wrap gap-2 mb-4">
-          <button
+          <button 
             onClick={() => resetAll()}
-            className="px-6 py-3.5 rounded-full text-lg font-bold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2.5"
+            className="px-6 py-3 rounded-full text-base font-bold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
             style={{
               background: 'linear-gradient(135deg, #06b6d4 0%, #10b981 50%, #a855f7 100%)',
             }}
           >
-            <span className="text-2xl">✨</span>
+            <span className="text-xl">✨</span>
             <span>AI สร้างโจทย์ใหม่</span>
           </button>
+          <Button onClick={printPDF} variant="outline" className="flex items-center gap-2">
+            <Printer className="w-4 h-4" />
+            พิมพ์ PDF
+          </Button>
           <button
             onClick={checkAnswers}
             className="px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 shadow"
@@ -332,6 +519,38 @@ export default function TimeApp() {
           </div>
         </div>
 
+        {/* Logo Upload */}
+        <div className="bg-white/70 rounded-lg p-3 mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium">โลโก้โรงเรียน:</span>
+            <input
+              ref={logoInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleLogoUpload}
+              className="hidden"
+              id="logo-upload-time"
+            />
+            <label htmlFor="logo-upload-time">
+              <Button variant="outline" size="sm" className="cursor-pointer" asChild>
+                <span>
+                  <Upload className="w-4 h-4 mr-2" />
+                  อัพโหลด
+                </span>
+              </Button>
+            </label>
+            {schoolLogo && (
+              <Button variant="outline" size="sm" onClick={handleRemoveLogo}>
+                <X className="w-4 h-4 mr-1" />
+                ลบ
+              </Button>
+            )}
+          </div>
+          {schoolLogo && (
+            <img src={schoolLogo} alt="Logo" className="h-12 w-12 object-contain border rounded p-1" />
+          )}
+        </div>
+
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {times.map((t, i) => (
             <Card
@@ -346,6 +565,27 @@ export default function TimeApp() {
             />
           ))}
         </div>
+
+        {/* PDF Preview Modal */}
+        {showPdfPreview && (
+          <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 overflow-auto">
+            <div className="bg-white rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-auto shadow-2xl">
+              <div className="sticky top-0 bg-gradient-to-r from-sky-600 to-blue-600 text-white p-6 rounded-t-2xl z-10">
+                <h2 className="text-2xl font-bold mb-4">📄 ตัวอย่าง PDF ก่อนพิมพ์</h2>
+                <div className="flex gap-3">
+                  <Button onClick={savePdfFromPreview} size="lg" className="bg-white text-sky-600 hover:bg-sky-50 font-bold">
+                    <Printer className="w-5 h-5 mr-2" />
+                    💾 บันทึก PDF
+                  </Button>
+                  <Button onClick={() => setShowPdfPreview(false)} size="lg" variant="outline" className="bg-white/10 hover:bg-white/20 text-white border-white">
+                    ❌ ปิด
+                  </Button>
+                </div>
+              </div>
+              <div id="pdf-preview-content" className="bg-gray-100" dangerouslySetInnerHTML={{ __html: pdfPreviewContent }} />
+            </div>
+          </div>
+        )}
 
         <section className="mt-8 max-w-3xl text-sm text-zinc-600 leading-relaxed">
           <h2 className="font-semibold text-zinc-800">เคล็ดลับการสอน (Tips for Grown‑ups)</h2>

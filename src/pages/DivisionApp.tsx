@@ -2,7 +2,9 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Printer, Upload, X } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 // Types and interfaces
 interface Problem {
@@ -43,6 +45,12 @@ const DivisionApp: React.FC = () => {
   const [celebrate, setCelebrate] = useState<boolean>(false);
   const [stats, setStats] = useState<Stats[]>([]);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // PDF states
+  const [showPdfPreview, setShowPdfPreview] = useState(false);
+  const [pdfPreviewContent, setPdfPreviewContent] = useState('');
+  const [schoolLogo, setSchoolLogo] = useState('');
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   // Generate division problems based on level (all exact divisions, no remainder)
   const generateDivisionProblem = (level: Level): Problem => {
@@ -184,146 +192,136 @@ const DivisionApp: React.FC = () => {
     setShowAnswers(true);
   };
 
-  // Print PDF function
-  const printPDF = () => {
-    const printWindow = window.open('', '_blank', 'width=800,height=600');
-    if (!printWindow) return;
-    const printContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <title>แบบฝึกหัดการคูณ</title>
-        <style>
-          @page {
-            size: A4;
-            margin: 20mm;
-          }
-          body {
-            font-family: 'Sarabun', Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: white;
-          }
-          .header {
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #000;
-            padding-bottom: 15px;
-          }
-          .title {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 10px;
-          }
-          .info {
-            font-size: 14px;
-            color: #666;
-          }
-          .problems-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-top: 20px;
-          }
-          .problem {
-            border: 1px solid #ddd;
-            padding: 15px;
-            border-radius: 8px;
-            background: #fafafa;
-            page-break-inside: avoid;
-            text-align: center;
-          }
-          .problem-header {
-            font-weight: bold;
-            margin-bottom: 10px;
-            font-size: 16px;
-            color: #333;
-          }
-          .problem-number {
-            width: 25px;
-            height: 25px;
-            background: #007bff;
-            color: white;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-right: 8px;
-          }
-          .division-equation {
-            font-size: 18px;
-            margin: 10px 0;
-            color: #007bff;
-            font-weight: 500;
-          }
-          .answer-boxes {
-            display: flex;
-            justify-content: center;
-            gap: 5px;
-            margin-top: 15px;
-          }
-          .answer-box {
-            width: 35px;
-            height: 35px;
-            border: 2px solid #333;
-            background: white;
-            border-radius: 4px;
-          }
-          @media print {
-            .problems-grid {
-              grid-template-columns: repeat(4, 1fr);
-              gap: 15px;
-            }
-            .problem {
-              padding: 12px;
-            }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <div class="title">แบบฝึกหัดการหาร</div>
-          <div class="info">
-            จำนวนข้อ: ${count} ข้อ | ระดับ: ${level}
-          </div>
-          <div class="info">
-            ชื่อ: __________________ วันที่: __________
-          </div>
-        </div>
-        
-        <div class="problems-grid">
-          ${problems.map((problem, index) => `
-            <div class="problem">
-              <div class="problem-header">
-                <span class="problem-number">${index + 1}</span>ข้อ ${index + 1}
-              </div>
-              <div class="division-equation">
-                ${problem.dividend?.toLocaleString() || '0'} ÷ ${problem.divisor?.toLocaleString() || '0'} =
-              </div>
-              <div class="answer-boxes">
-                ${Array.from({
-      length: Math.max(2, problem.quotient.toString().length)
-    }, () => '<div class="answer-box"></div>').join('')}
-              </div>
+  // Print PDF function - Updated to use modal preview
+  const printPDF = useCallback(() => {
+    const timestamp = new Date().toLocaleDateString('th-TH', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+
+    const problemsPerPage = 20;
+    const totalPages = Math.ceil(problems.length / problemsPerPage);
+    
+    let allPagesHTML = '';
+    
+    for (let page = 0; page < totalPages; page++) {
+      const startIdx = page * problemsPerPage;
+      const endIdx = Math.min(startIdx + problemsPerPage, problems.length);
+      const pageProblems = problems.slice(startIdx, endIdx);
+      
+      const problemsHTML = pageProblems.map((problem, idx) => {
+        const globalIdx = startIdx + idx;
+        return `
+          <div style="border: 2px solid #666; padding: 12px; background: white; border-radius: 8px; text-align: center;">
+            <div style="font-weight: bold; margin-bottom: 8px; font-size: 16px;">ข้อ ${globalIdx + 1}</div>
+            <div style="font-size: 22px; font-weight: bold; margin: 10px 0; color: #0066cc;">
+              ${problem.dividend?.toLocaleString() || '0'} ÷ ${problem.divisor?.toLocaleString() || '0'} =
             </div>
-          `).join('')}
+            <div style="display: flex; justify-content: center; gap: 4px; margin-top: 14px;">
+              ${Array.from({ length: Math.max(2, problem.quotient.toString().length + 1) }).map(() => 
+                `<div style="width: 36px; height: 42px; border: 2px solid #0066cc; border-radius: 6px; background: white;"></div>`
+              ).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      allPagesHTML += `
+        <div style="page-break-after: always; padding: 30px; font-family: 'Sarabun', Arial, sans-serif; position: relative; min-height: 297mm;">
+          <div style="text-align: center; margin-bottom: 25px; border-bottom: 3px solid #0066cc; padding-bottom: 20px;">
+            ${schoolLogo ? `<img src="${schoolLogo}" alt="Logo" style="max-width: 80px; max-height: 80px; margin-bottom: 10px;" />` : ''}
+            <h1 style="margin: 10px 0; font-size: 28px; color: #0066cc; font-weight: bold;">
+              ✏️ แบบฝึกหัดการหาร
+            </h1>
+            <div style="font-size: 16px; color: #666; margin-top: 8px;">
+              ${problems.length} ข้อ • ระดับ: ${level === 'easy' ? 'ง่าย' : level === 'medium' ? 'ปานกลาง' : 'ยาก'}
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; font-size: 16px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-weight: bold;">ชื่อ-สกุล:</span>
+              <div style="flex: 1; border-bottom: 2px dotted #999; height: 30px;"></div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-weight: bold;">ชั้น:</span>
+              <div style="flex: 1; border-bottom: 2px dotted #999; height: 30px;"></div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-weight: bold;">โรงเรียน:</span>
+              <div style="flex: 1; border-bottom: 2px dotted #999; height: 30px;"></div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-weight: bold;">วันที่:</span>
+              <div style="flex: 1; border-bottom: 2px dotted #999; height: 30px;"></div>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+            ${problemsHTML}
+          </div>
+
+          <div style="position: absolute; bottom: 20px; left: 30px; right: 30px; text-align: center; font-size: 12px; color: #666; border-top: 1px solid #ddd; padding-top: 10px;">
+            สร้างโดยแอปฝึกการหาร | ${timestamp} | หน้า ${page + 1}/${totalPages}
+          </div>
         </div>
+      `;
+    }
+
+    setPdfPreviewContent(allPagesHTML);
+    setShowPdfPreview(true);
+  }, [problems, level, schoolLogo]);
+
+  const savePdfFromPreview = async () => {
+    const previewElement = document.getElementById('pdf-preview-content');
+    if (!previewElement) return;
+
+    try {
+      const pages = previewElement.querySelectorAll('[style*="page-break-after"]');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      for (let i = 0; i < pages.length; i++) {
+        const page = pages[i] as HTMLElement;
+        const canvas = await html2canvas(page, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff'
+        });
         
-        <div class="footer">
-          สร้างจากเว็บฝึกการหาร | พิมพ์เมื่อ: ${new Date().toLocaleDateString('th-TH')}
-        </div>
+        const imgData = canvas.toDataURL('image/png');
         
-        <div class="no-print" style="position: fixed; top: 10px; right: 10px;">
-          <button onclick="window.print()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">พิมพ์</button>
-          <button onclick="window.close()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer;">ปิด</button>
-        </div>
-      </body>
-      </html>
-    `;
-    printWindow.document.write(printContent);
-    printWindow.document.close();
+        if (i > 0) pdf.addPage();
+        
+        const imgWidth = 210;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      }
+      
+      const timestamp = new Date().toLocaleDateString('th-TH');
+      pdf.save(`แบบฝึกการหาร_${timestamp}.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
+  };
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSchoolLogo(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveLogo = () => {
+    setSchoolLogo('');
+    if (logoInputRef.current) {
+      logoInputRef.current.value = '';
+    }
   };
 
   // Get card background color based on index
@@ -372,12 +370,13 @@ const DivisionApp: React.FC = () => {
         </div>
 
         {/* Header */}
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-foreground mb-2">เทคนิคการหารระดับโปร</h1>
-          <div className="flex items-center justify-between">
-            <Button variant="outline" size="sm" onClick={printPDF} className="text-sm" disabled={problems.length === 0}>
-              พิมพ์ PDF
-            </Button>
+          <div className="text-center mb-6">
+            <h1 className="text-3xl font-bold text-foreground mb-2">เทคนิคการหารระดับโปร</h1>
+            <div className="flex items-center justify-between">
+              <Button variant="outline" size="sm" onClick={printPDF} className="text-sm flex items-center gap-2" disabled={problems.length === 0}>
+                <Printer className="w-4 h-4" />
+                พิมพ์ PDF
+              </Button>
             <div className="text-lg font-mono bg-card rounded-lg px-4 py-2 shadow-sm">
               เวลา: {formatTime(elapsedMs)}
             </div>
@@ -443,6 +442,38 @@ const DivisionApp: React.FC = () => {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Logo Upload */}
+          <div className="bg-card rounded-lg p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium">โลโก้โรงเรียน:</span>
+              <input
+                ref={logoInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleLogoUpload}
+                className="hidden"
+                id="logo-upload-division"
+              />
+              <label htmlFor="logo-upload-division">
+                <Button variant="outline" size="sm" className="cursor-pointer" asChild>
+                  <span>
+                    <Upload className="w-4 h-4 mr-2" />
+                    อัพโหลด
+                  </span>
+                </Button>
+              </label>
+              {schoolLogo && (
+                <Button variant="outline" size="sm" onClick={handleRemoveLogo}>
+                  <X className="w-4 h-4 mr-1" />
+                  ลบ
+                </Button>
+              )}
+            </div>
+            {schoolLogo && (
+              <img src={schoolLogo} alt="Logo" className="h-12 w-12 object-contain border rounded p-1" />
+            )}
           </div>
         </div>
 
