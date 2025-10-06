@@ -5,6 +5,15 @@ import { useAuth } from '../hooks/useAuth';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { ToastManager } from '../components/Toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface SignupData {
   // Step 1
@@ -24,6 +33,7 @@ interface SignupData {
 
 const Signup = () => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [formData, setFormData] = useState<SignupData>({
     nickname: '',
     age: '',
@@ -236,12 +246,8 @@ const Signup = () => {
           }
         }
 
-        ToastManager.show({
-          message: 'ส่งคำขอสมัครเรียบร้อย! กรุณารอการอนุมัติจากผู้ดูแล คุณจะได้รับอีเมลเมื่อได้รับการอนุมัติแล้ว',
-          type: 'success'
-        });
-        
-        navigate('/login');
+        // Show success dialog instead of toast and immediate navigation
+        setShowSuccessDialog(true);
       } catch (error: any) {
         console.error('Signup error:', error);
         
@@ -580,8 +586,40 @@ const Signup = () => {
           </div>
         </div>
       </main>
-
+      
       <Footer />
+
+      {/* Success Dialog */}
+      <AlertDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <AlertDialogContent className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-500">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-green-700 text-center text-2xl flex items-center justify-center gap-3">
+              <span className="text-4xl">🎉</span>
+              สมัครสมาชิกสำเร็จ!
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-green-600 text-center text-base mt-4">
+              <div className="space-y-3">
+                <p className="font-semibold text-lg">ส่งคำขอสมัครเรียบร้อยแล้ว!</p>
+                <div className="bg-white/60 rounded-lg p-4 text-left">
+                  <p className="mb-2">📧 กรุณารอการอนุมัติจากผู้ดูแล</p>
+                  <p>✉️ คุณจะได้รับอีเมลเมื่อได้รับการอนุมัติแล้ว</p>
+                </div>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="justify-center mt-4">
+            <AlertDialogAction 
+              className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 text-lg font-semibold"
+              onClick={() => {
+                setShowSuccessDialog(false);
+                navigate('/login');
+              }}
+            >
+              ตกลง
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
