@@ -338,14 +338,14 @@ const MultiplicationApp = () => {
     if (problem.dimensions[0] === 1 && problem.dimensions[1] === 1) {
       // Simple format for 1x1
       return `
-        <div style="border: 2px solid #666; padding: 10px; background: white; border-radius: 6px; page-break-inside: avoid;">
+        <div style="border: 2px solid #666; padding: 8px; background: white; border-radius: 6px; page-break-inside: avoid;">
           <div style="font-weight: bold; margin-bottom: 5px; font-size: 14px;">ข้อ ${index + 1}</div>
-          <div style="text-align: center; font-size: 22px; font-weight: bold; margin: 10px 0;">
+          <div style="text-align: center; font-size: 20px; font-weight: bold; margin: 10px 0;">
             ${problem.multiplicand} × ${problem.multiplier} = 
           </div>
           <div style="display: flex; justify-content: center; gap: 3px; margin-top: 10px;">
             ${problem.finalAnswer.split('').map(() => 
-              '<div style="width: 32px; height: 32px; border: 1px solid #999; border-radius: 4px;"></div>'
+              '<div style="width: 28px; height: 28px; border: 1px solid #999; border-radius: 4px;"></div>'
             ).join('')}
           </div>
         </div>
@@ -364,14 +364,14 @@ const MultiplicationApp = () => {
             <!-- Multiplicand -->
             <div style="display: flex; justify-content: flex-end; gap: 3px; padding: 3px 0;">
               ${problem.multiplicand.toString().split('').map(digit => 
-                `<span style="width: 24px; text-align: center; font-size: 15.4px; font-weight: bold; display: inline-block;">${digit}</span>`
+                `<span style="width: 22px; text-align: center; font-size: 14px; font-weight: bold; display: inline-block;">${digit}</span>`
               ).join('')}
             </div>
             <!-- Multiplier -->
             <div style="display: flex; justify-content: flex-end; gap: 3px; padding: 3px 0; border-bottom: 2px solid #000; margin-bottom: 5px;">
-              <span style="width: 16px; font-size: 15.4px; font-weight: bold; text-align: right;">×</span>
+              <span style="width: 16px; font-size: 14px; font-weight: bold; text-align: right;">×</span>
               ${problem.multiplier.toString().split('').map(digit => 
-                `<span style="width: 24px; text-align: center; font-size: 15.4px; font-weight: bold; display: inline-block;">${digit}</span>`
+                `<span style="width: 22px; text-align: center; font-size: 14px; font-weight: bold; display: inline-block;">${digit}</span>`
               ).join('')}
             </div>
             <!-- Partial Products -->
@@ -379,7 +379,7 @@ const MultiplicationApp = () => {
               <div style="display: flex; justify-content: flex-end; gap: 3px; margin: 3px 0;">
                 <span style="width: 16px; font-size: 12px;">${idx === 0 ? '+' : ''}</span>
                 ${product.split('').map(() => 
-                  '<div style="width: 24px; height: 24px; border: 1px solid #999; border-radius: 3px; display: inline-block;"></div>'
+                  '<div style="width: 22px; height: 22px; border: 1px solid #999; border-radius: 3px; display: inline-block;"></div>'
                 ).join('')}
               </div>
             `).join('')}
@@ -388,7 +388,7 @@ const MultiplicationApp = () => {
             <!-- Final Answer -->
             <div style="display: flex; justify-content: flex-end; gap: 3px; margin-top: 8px;">
               ${problem.finalAnswer.split('').map(() => 
-                '<div style="width: 24px; height: 24px; border: 2px solid #666; border-radius: 3px; display: inline-block;"></div>'
+                '<div style="width: 22px; height: 22px; border: 2px solid #666; border-radius: 3px; display: inline-block;"></div>'
               ).join('')}
             </div>
           </div>
@@ -402,7 +402,7 @@ const MultiplicationApp = () => {
     const pageProblems = problems.slice(startIdx, endIdx);
     
     return `
-      <div style="width: 210mm; min-height: 297mm; padding: 12mm; background: white; position: relative;">
+      <div style="width: 210mm; min-height: 297mm; padding: 8mm; background: white; position: relative;">
         <!-- Header -->
         <div style="text-align: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #333;">
           ${schoolLogo ? `<img src="${schoolLogo}" style="height: 50px; margin-bottom: 8px;" />` : ''}
@@ -414,7 +414,7 @@ const MultiplicationApp = () => {
         </div>
         
         <!-- Problems Grid -->
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
           ${pageProblems.map((problem, idx) => createProblemCard(problem, startIdx + idx)).join('')}
         </div>
       </div>
