@@ -527,6 +527,20 @@ export type Database = {
         Args: { p_referred_email: string }
         Returns: boolean
       }
+      register_new_user: {
+        Args: {
+          p_affiliate_code?: string
+          p_age: number
+          p_avatar: string
+          p_grade: string
+          p_learning_style: string
+          p_nickname: string
+          p_parent_email: string
+          p_parent_phone: string
+          p_password: string
+        }
+        Returns: string
+      }
       reject_user_registration: {
         Args: { admin_id: string; registration_id: string }
         Returns: boolean

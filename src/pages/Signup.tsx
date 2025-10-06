@@ -192,34 +192,37 @@ const Signup = () => {
           return;
         }
 
-        // First create registration request for admin approval
-        const { data: registrationData, error: registrationError } = await supabase
-          .from('user_registrations')
-          .insert({
-            nickname: formData.nickname,
-            age: parseInt(formData.age),
-            grade: `ป.${formData.grade}`,
-            avatar: formData.avatar,
-            learning_style: formData.learningStyle,
-            parent_email: formData.parentEmail,
-            parent_phone: sanitizedPhone, // Use sanitized phone number
-            password_hash: formData.password,
-            status: 'pending',
-            referred_by_code: affiliateCode,
-            // Add required fields for RLS policy
-            is_online: false,
-            session_id: null,
-            last_activity_at: null,
-            device_info: null,
-            login_count: 0,
-            last_login_at: null,
-            approved_by: null,
-            approved_at: null
-          })
-          .select()
-          .single();
+        // Debug logging
+        console.log('📤 Calling register_new_user with:', {
+          nickname: formData.nickname,
+          age: parseInt(formData.age),
+          grade: `ป.${formData.grade}`,
+          email: formData.parentEmail,
+          phone: sanitizedPhone,
+          has_affiliate: !!affiliateCode
+        });
+
+        // Call Security Definer function instead of direct INSERT
+        // This bypasses RLS policies while maintaining security through database triggers
+        const { data: userId, error: registrationError } = await supabase
+          .rpc('register_new_user', {
+            p_nickname: formData.nickname,
+            p_age: parseInt(formData.age),
+            p_grade: `ป.${formData.grade}`,
+            p_avatar: formData.avatar,
+            p_learning_style: formData.learningStyle,
+            p_parent_email: formData.parentEmail,
+            p_parent_phone: sanitizedPhone,
+            p_password: formData.password,
+            p_affiliate_code: affiliateCode || null
+          });
 
         if (registrationError) throw registrationError;
+
+        // Create registrationData object for affiliate tracking
+        const registrationData = userId ? { id: userId } : null;
+
+        console.log('✅ Registration successful:', { userId });
 
         // Track affiliate referral if code exists
         if (affiliateCode && registrationData) {
