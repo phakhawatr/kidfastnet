@@ -281,7 +281,7 @@ export default function TimeApp() {
       day: 'numeric',
     });
 
-    const problemsPerPage = 20;
+    const problemsPerPage = 16;
     const totalPages = Math.ceil(times.length / problemsPerPage);
     
     let allPagesHTML = '';
@@ -295,8 +295,8 @@ export default function TimeApp() {
         const globalIdx = startIdx + idx;
         
         // Generate SVG clock
-        const size = 180;
-        const r = 80;
+        const size = 160;
+        const r = 70;
         const cx = size / 2;
         const cy = size / 2;
         const minuteAngle = time.m * 6;
@@ -331,10 +331,10 @@ export default function TimeApp() {
         }
 
         return `
-          <div style="border: 2px solid #666; padding: 12px; background: white; border-radius: 8px; display: flex; flex-direction: column; align-items: center;">
-            <div style="font-weight: bold; margin-bottom: 8px; font-size: 16px;">นาฬิกา ${globalIdx + 1}</div>
-            <div style="display: flex; justify-content: center; align-items: center; width: 100%;">
-              <svg viewBox="0 0 ${size} ${size}" width="160" height="160" style="display: block;">
+          <div style="border: 2px solid #666; padding: 10px; background: white; border-radius: 8px; display: flex; flex-direction: column; align-items: center;">
+            <div style="font-weight: bold; margin-bottom: 6px; font-size: 14px;">นาฬิกา ${globalIdx + 1}</div>
+            <div style="display: flex; justify-content: center; align-items: center; width: 100%; margin: 0 auto;">
+              <svg viewBox="0 0 ${size} ${size}" width="140" height="140" style="display: block; margin: 0 auto;">
                 <circle cx="${cx}" cy="${cy}" r="${r + 6}" fill="white" stroke="black" stroke-width="2.5" />
                 ${ticksHTML}
                 ${numbersHTML}
@@ -343,10 +343,10 @@ export default function TimeApp() {
                 <circle cx="${cx}" cy="${cy}" r="3.5" fill="black" />
               </svg>
             </div>
-            <div style="margin-top: 12px; display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 18px;">
-              <div style="width: 50px; height: 45px; border: 2px solid #0ea5e9; border-radius: 8px; background: white;"></div>
+            <div style="margin-top: 10px; display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 16px;">
+              <div style="width: 45px; height: 40px; border: 2px solid #0ea5e9; border-radius: 6px; background: white;"></div>
               <span style="font-weight: bold;">:</span>
-              <div style="width: 50px; height: 45px; border: 2px solid #0ea5e9; border-radius: 8px; background: white;"></div>
+              <div style="width: 45px; height: 40px; border: 2px solid #0ea5e9; border-radius: 6px; background: white;"></div>
             </div>
           </div>
         `;
@@ -383,7 +383,7 @@ export default function TimeApp() {
             </div>
           </div>
 
-          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
             ${clocksHTML}
           </div>
 
