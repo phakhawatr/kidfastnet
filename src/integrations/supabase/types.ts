@@ -452,6 +452,7 @@ export type Database = {
       get_affiliate_referrals: {
         Args: { p_user_email: string }
         Returns: {
+          approved_at: string
           id: string
           nickname: string
           parent_email: string
@@ -460,6 +461,7 @@ export type Database = {
           points_earned: number
           referral_status: string
           signup_date: string
+          user_status: string
         }[]
       }
       get_user_affiliate_stats: {
