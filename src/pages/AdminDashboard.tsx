@@ -795,30 +795,31 @@ const AdminDashboard = () => {
                   </div>
                 )}
 
+                {/* Payment Action Buttons - Only for approved members */}
+                {registration.status === 'approved' && (
+                  <div className="flex gap-2 flex-wrap">
+                    {registration.payment_status === 'pending' && (
+                      <button
+                        onClick={() => openPaymentConfirmDialog(registration.id, registration.nickname)}
+                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-medium shadow-md"
+                      >
+                        💰 ชำระแล้ว
+                      </button>
+                    )}
+                    {registration.payment_status === 'paid' && (
+                      <button
+                        onClick={() => handleResetPayment(registration.id, registration.nickname)}
+                        className="px-3 py-1.5 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors text-xs font-medium"
+                      >
+                        🔄 รีเซ็ตการชำระเงิน
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* Suspension and Logout Buttons */}
                 {(registration.status === 'approved' || registration.status === 'suspended') && (
                   <div className="flex gap-2 flex-wrap">
-                    {/* Payment Action Buttons - Only for approved members */}
-                    {registration.status === 'approved' && (
-                      <>
-                        {registration.payment_status === 'pending' && (
-                          <button
-                            onClick={() => openPaymentConfirmDialog(registration.id, registration.nickname)}
-                            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-medium shadow-md"
-                          >
-                            💰 ชำระแล้ว
-                          </button>
-                        )}
-                        {registration.payment_status === 'paid' && (
-                          <button
-                            onClick={() => handleResetPayment(registration.id, registration.nickname)}
-                            className="px-3 py-1.5 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors text-xs font-medium"
-                          >
-                            🔄 รีเซ็ตการชำระเงิน
-                          </button>
-                        )}
-                      </>
-                    )}
-                    
                     {/* Force Logout Button - Shows only when user is online */}
                     {isUserOnline(registration.id, registration.is_online) && (
                       <button
