@@ -390,6 +390,8 @@ export type Database = {
           nickname: string
           parent_email: string
           parent_phone: string
+          payment_date: string
+          payment_status: string
           status: string
         }[]
       }
