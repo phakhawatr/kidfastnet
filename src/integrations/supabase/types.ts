@@ -526,6 +526,10 @@ export type Database = {
         Args: { session_id?: string; user_email: string }
         Returns: boolean
       }
+      mark_payment_completed: {
+        Args: { p_admin_id: string; p_registration_id: string }
+        Returns: boolean
+      }
       process_affiliate_reward: {
         Args: { p_referred_email: string }
         Returns: boolean
@@ -546,6 +550,10 @@ export type Database = {
       }
       reject_user_registration: {
         Args: { admin_id: string; registration_id: string }
+        Returns: boolean
+      }
+      reset_payment_status: {
+        Args: { p_admin_id: string; p_registration_id: string }
         Returns: boolean
       }
       revoke_admin_role: {

@@ -32,6 +32,8 @@ interface UserRegistration {
   last_login_at?: string;
   is_online?: boolean;
   last_activity_at?: string;
+  payment_status?: 'pending' | 'paid';
+  payment_date?: string;
 }
 
 interface UserPresence {
@@ -43,7 +45,7 @@ const AdminDashboard = () => {
   const { name, email, logout, adminId } = useAdmin();
   const [registrations, setRegistrations] = useState<UserRegistration[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'suspended' | 'online'>('pending');
+  const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'suspended' | 'online' | 'paid' | 'unpaid'>('pending');
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -358,11 +360,75 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleMarkPaymentCompleted = async (registrationId: string, nickname: string) => {
+    try {
+      const { data, error } = await supabase.rpc('mark_payment_completed', {
+        p_registration_id: registrationId,
+        p_admin_id: adminId
+      });
+
+      if (error) throw error;
+
+      if (data) {
+        ToastManager.show({
+          message: `✅ บันทึกการชำระเงินของ "${nickname}" เรียบร้อย และมอบคะแนนให้ผู้แนะนำแล้ว!`,
+          type: 'success'
+        });
+        fetchRegistrations();
+      } else {
+        ToastManager.show({
+          message: 'ไม่สามารถบันทึกการชำระเงินได้ กรุณาตรวจสอบสถานะสมาชิก',
+          type: 'error'
+        });
+      }
+    } catch (error) {
+      console.error('Error marking payment completed:', error);
+      ToastManager.show({
+        message: 'เกิดข้อผิดพลาดในการบันทึกการชำระเงิน',
+        type: 'error'
+      });
+    }
+  };
+
+  const handleResetPayment = async (registrationId: string, nickname: string) => {
+    try {
+      const { data, error } = await supabase.rpc('reset_payment_status', {
+        p_registration_id: registrationId,
+        p_admin_id: adminId
+      });
+
+      if (error) throw error;
+
+      if (data) {
+        ToastManager.show({
+          message: `🔄 รีเซ็ตสถานะการชำระเงินของ "${nickname}" เรียบร้อย!`,
+          type: 'info'
+        });
+        fetchRegistrations();
+      } else {
+        ToastManager.show({
+          message: 'ไม่สามารถรีเซ็ตสถานะได้',
+          type: 'error'
+        });
+      }
+    } catch (error) {
+      console.error('Error resetting payment:', error);
+      ToastManager.show({
+        message: 'เกิดข้อผิดพลาดในการรีเซ็ตสถานะการชำระเงิน',
+        type: 'error'
+      });
+    }
+  };
+
   const filteredRegistrations = registrations.filter(reg => {
     // Apply status filter
     let matchesFilter = false;
     if (filter === 'online') {
       matchesFilter = isUserOnline(reg.id, reg.is_online);
+    } else if (filter === 'paid') {
+      matchesFilter = reg.status === 'approved' && reg.payment_status === 'paid';
+    } else if (filter === 'unpaid') {
+      matchesFilter = reg.status === 'approved' && reg.payment_status === 'pending';
     } else {
       matchesFilter = filter === 'all' || reg.status === filter;
     }
@@ -387,7 +453,9 @@ const AdminDashboard = () => {
     approved: registrations.filter(r => r.status === 'approved').length,
     rejected: registrations.filter(r => r.status === 'rejected').length,
     suspended: registrations.filter(r => r.status === 'suspended').length,
-    online: registrations.filter(r => isUserOnline(r.id, r.is_online)).length
+    online: registrations.filter(r => isUserOnline(r.id, r.is_online)).length,
+    paid: registrations.filter(r => r.status === 'approved' && r.payment_status === 'paid').length,
+    unpaid: registrations.filter(r => r.status === 'approved' && r.payment_status === 'pending').length,
   };
 
   if (isLoading) {
@@ -433,7 +501,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-6">
         <div className="card-glass p-4 text-center">
           <div className="text-2xl font-bold text-[hsl(var(--primary))]">{stats.total}</div>
           <div className="text-sm text-[hsl(var(--text-secondary))]">ทั้งหมด</div>
@@ -457,6 +525,14 @@ const AdminDashboard = () => {
         <div className="card-glass p-4 text-center">
           <div className="text-2xl font-bold text-blue-500">{stats.online}</div>
           <div className="text-sm text-[hsl(var(--text-secondary))]">กำลังใช้งาน</div>
+        </div>
+        <div className="card-glass p-4 text-center">
+          <div className="text-2xl font-bold text-green-600">{stats.paid}</div>
+          <div className="text-sm text-[hsl(var(--text-secondary))]">💰 ชำระเงินแล้ว</div>
+        </div>
+        <div className="card-glass p-4 text-center">
+          <div className="text-2xl font-bold text-orange-600">{stats.unpaid}</div>
+          <div className="text-sm text-[hsl(var(--text-secondary))]">⏳ รอการชำระเงิน</div>
         </div>
       </div>
 
@@ -490,7 +566,9 @@ const AdminDashboard = () => {
             { key: 'approved', label: 'อนุมัติแล้ว', count: stats.approved },
             { key: 'rejected', label: 'ปฏิเสธ', count: stats.rejected },
             { key: 'suspended', label: 'หยุดการใช้งาน', count: stats.suspended },
-            { key: 'online', label: 'กำลังใช้งาน', count: stats.online }
+            { key: 'online', label: 'กำลังใช้งาน', count: stats.online },
+            { key: 'paid', label: '💰 ชำระเงินแล้ว', count: stats.paid },
+            { key: 'unpaid', label: '⏳ รอการชำระเงิน', count: stats.unpaid }
           ].map(({ key, label, count }) => (
             <button
               key={key}
@@ -588,41 +666,68 @@ const AdminDashboard = () => {
                                )}
                              </p>
                              
-                             {/* Login Statistics */}
-                             <div className="mt-2 pt-2 border-t border-gray-200">
-                               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                                 <p className="text-blue-600">
-                                   <strong>จำนวนครั้งการ Login:</strong> 
-                                   <span className="ml-1 px-2 py-1 bg-blue-100 rounded-full text-xs font-semibold">
-                                     {registration.login_count || 0} ครั้ง
-                                   </span>
-                                 </p>
-                                 {registration.last_login_at ? (
-                                   <p className="text-green-600">
-                                     <strong>Login ครั้งล่าสุดเมื่อ:</strong> 
-                                     <span className="ml-1 px-2 py-1 bg-green-100 rounded-full text-xs font-semibold">
-                                       {new Date(registration.last_login_at).toLocaleString('th-TH', {
-                                         year: 'numeric',
-                                         month: '2-digit',
-                                         day: '2-digit',
-                                         hour: '2-digit',
-                                         minute: '2-digit'
-                                       })}
-                                     </span>
-                                   </p>
-                                 ) : (
-                                   <p className="text-gray-500">
-                                     <strong>Login ครั้งล่าสุดเมื่อ:</strong> 
-                                     <span className="ml-1 px-2 py-1 bg-gray-100 rounded-full text-xs">
-                                       ยังไม่เคย Login
-                                     </span>
-                                   </p>
-                                 )}
-                               </div>
-                             </div>
-                           </div>
-                         );
-                       })()}
+                              {/* Login Statistics */}
+                              <div className="mt-2 pt-2 border-t border-gray-200">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                                  <p className="text-blue-600">
+                                    <strong>จำนวนครั้งการ Login:</strong> 
+                                    <span className="ml-1 px-2 py-1 bg-blue-100 rounded-full text-xs font-semibold">
+                                      {registration.login_count || 0} ครั้ง
+                                    </span>
+                                  </p>
+                                  {registration.last_login_at ? (
+                                    <p className="text-green-600">
+                                      <strong>Login ครั้งล่าสุดเมื่อ:</strong> 
+                                      <span className="ml-1 px-2 py-1 bg-green-100 rounded-full text-xs font-semibold">
+                                        {new Date(registration.last_login_at).toLocaleString('th-TH', {
+                                          year: 'numeric',
+                                          month: '2-digit',
+                                          day: '2-digit',
+                                          hour: '2-digit',
+                                          minute: '2-digit'
+                                        })}
+                                      </span>
+                                    </p>
+                                  ) : (
+                                    <p className="text-gray-500">
+                                      <strong>Login ครั้งล่าสุดเมื่อ:</strong> 
+                                      <span className="ml-1 px-2 py-1 bg-gray-100 rounded-full text-xs">
+                                        ยังไม่เคย Login
+                                      </span>
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Payment Status - Only for approved members */}
+                              <div className="mt-2 pt-2 border-t border-gray-200">
+                                <div className="flex items-center gap-2 text-sm">
+                                  <span className="font-medium">💳 สถานะการชำระเงิน:</span>
+                                  {registration.payment_status === 'paid' ? (
+                                    <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                                      ✅ ชำระเงินแล้ว
+                                    </span>
+                                  ) : (
+                                    <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-medium">
+                                      ⏳ รอการชำระเงิน
+                                    </span>
+                                  )}
+                                </div>
+                                {registration.payment_date && (
+                                  <p className="text-xs text-green-600 mt-1">
+                                    <strong>วันที่ชำระ:</strong> {new Date(registration.payment_date).toLocaleString('th-TH', {
+                                      year: 'numeric',
+                                      month: '2-digit',
+                                      day: '2-digit',
+                                      hour: '2-digit',
+                                      minute: '2-digit'
+                                    })}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })()}
                     </div>
                   </div>
                 </div>
@@ -646,6 +751,27 @@ const AdminDashboard = () => {
 
                 {(registration.status === 'approved' || registration.status === 'suspended') && (
                   <div className="flex gap-2 flex-wrap">
+                    {/* Payment Action Buttons - Only for approved members */}
+                    {registration.status === 'approved' && (
+                      <>
+                        {registration.payment_status === 'pending' ? (
+                          <button
+                            onClick={() => handleMarkPaymentCompleted(registration.id, registration.nickname)}
+                            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-medium shadow-md"
+                          >
+                            💰 ชำระแล้ว
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleResetPayment(registration.id, registration.nickname)}
+                            className="px-3 py-1.5 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors text-xs font-medium"
+                          >
+                            🔄 รีเซ็ตการชำระเงิน
+                          </button>
+                        )}
+                      </>
+                    )}
+                    
                     {/* Force Logout Button - Shows only when user is online */}
                     {isUserOnline(registration.id, registration.is_online) && (
                       <button
