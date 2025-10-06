@@ -35,6 +35,8 @@ interface Referral {
   payment_status: string;
   points_earned: number;
   referral_status: string;
+  user_status?: string;
+  approved_at?: string | null;
 }
 
 const ParentDashboard = () => {
@@ -277,16 +279,51 @@ const ParentDashboard = () => {
     });
   };
 
+  const formatDateTime = (dateString: string | null) => {
+    if (!dateString) return '-';
+    return new Date(dateString).toLocaleDateString('th-TH', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  const calculateExpiration = (payment_date: string | null, approved_at: string | null) => {
+    const baseDate = payment_date || approved_at;
+    if (!baseDate) return null;
+    
+    const date = new Date(baseDate);
+    date.setFullYear(date.getFullYear() + 1);
+    return date.toISOString();
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'paid':
-        return <Badge className="bg-green-500">ชำระแล้ว</Badge>;
+        return <Badge className="bg-green-500 hover:bg-green-600">ชำระแล้ว</Badge>;
       case 'pending':
-        return <Badge variant="outline">รอชำระ</Badge>;
+        return <Badge className="bg-yellow-500 hover:bg-yellow-600">รอชำระ</Badge>;
       case 'failed':
         return <Badge variant="destructive">ล้มเหลว</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
+    }
+  };
+
+  const getUserStatusBadge = (status?: string) => {
+    switch (status) {
+      case 'approved':
+        return <Badge className="bg-green-500 hover:bg-green-600">อนุมัติแล้ว</Badge>;
+      case 'pending':
+        return <Badge className="bg-yellow-500 hover:bg-yellow-600">รออนุมัติ</Badge>;
+      case 'rejected':
+        return <Badge variant="destructive">ถูกปฏิเสธ</Badge>;
+      case 'suspended':
+        return <Badge className="bg-gray-500 hover:bg-gray-600">ถูกระงับ</Badge>;
+      default:
+        return <Badge variant="secondary">{status || 'ไม่ทราบ'}</Badge>;
     }
   };
 
@@ -470,28 +507,43 @@ const ParentDashboard = () => {
                   <TableHead>ชื่อเล่น</TableHead>
                   <TableHead>อีเมล์ผู้ปกครอง</TableHead>
                   <TableHead>วันที่สมัคร</TableHead>
+                  <TableHead>สถานะอนุมัติ</TableHead>
+                  <TableHead>วันอนุมัติ</TableHead>
                   <TableHead>วันที่ชำระเงิน</TableHead>
-                  <TableHead>สถานะ</TableHead>
+                  <TableHead>สถานะชำระ</TableHead>
+                  <TableHead>วันครบกำหนด 1 ปี</TableHead>
                   <TableHead className="text-right">คะแนนที่ได้</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {referrals.map((referral) => (
-                  <TableRow key={referral.id}>
-                    <TableCell className="font-medium">{referral.nickname}</TableCell>
-                    <TableCell>{referral.parent_email}</TableCell>
-                    <TableCell>{formatDate(referral.signup_date)}</TableCell>
-                    <TableCell>{formatDate(referral.payment_date)}</TableCell>
-                    <TableCell>{getStatusBadge(referral.payment_status)}</TableCell>
-                    <TableCell className="text-right">
-                      {referral.points_earned > 0 ? (
-                        <span className="text-purple-500 font-bold">+{referral.points_earned}</span>
-                      ) : (
-                        <span className="text-muted-foreground">0</span>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {referrals.map((referral) => {
+                  const expirationDate = calculateExpiration(referral.payment_date, referral.approved_at);
+                  return (
+                    <TableRow key={referral.id}>
+                      <TableCell className="font-medium">{referral.nickname}</TableCell>
+                      <TableCell>{referral.parent_email}</TableCell>
+                      <TableCell>{formatDate(referral.signup_date)}</TableCell>
+                      <TableCell>{getUserStatusBadge(referral.user_status)}</TableCell>
+                      <TableCell>{formatDateTime(referral.approved_at)}</TableCell>
+                      <TableCell>{formatDate(referral.payment_date)}</TableCell>
+                      <TableCell>{getStatusBadge(referral.payment_status)}</TableCell>
+                      <TableCell>
+                        {expirationDate ? (
+                          <span className="text-sm">{formatDate(expirationDate)}</span>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {referral.points_earned > 0 ? (
+                          <span className="text-purple-500 font-bold">+{referral.points_earned}</span>
+                        ) : (
+                          <span className="text-muted-foreground">0</span>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </CardContent>

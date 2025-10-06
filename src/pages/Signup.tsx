@@ -27,6 +27,7 @@ interface SignupData {
   parentEmail: string;
   parentPhone: string;
   password: string;
+  referrerMemberId: string;
   acceptTerms: boolean;
   acceptNewsletter: boolean;
 }
@@ -43,6 +44,7 @@ const Signup = () => {
     parentEmail: '',
     parentPhone: '',
     password: '',
+    referrerMemberId: '',
     acceptTerms: false,
     acceptNewsletter: false
   });
@@ -56,6 +58,7 @@ const Signup = () => {
     const refCode = searchParams.get('ref');
     if (refCode) {
       setAffiliateCode(refCode);
+      updateFormData('referrerMemberId', refCode);
       ToastManager.show({
         message: `สมัครผ่านรหัสแนะนำ: ${refCode}`,
         type: 'info'
@@ -172,6 +175,37 @@ const Signup = () => {
     updateFormData('parentPhone', formatted);
   };
 
+  // Validate referrer member ID
+  const validateReferrerMemberId = async (memberId: string) => {
+    if (!memberId || memberId.trim() === '') return null;
+    
+    try {
+      // Check if member_id exists and get affiliate_code
+      const { data, error } = await supabase
+        .from('user_registrations')
+        .select('member_id, parent_email')
+        .eq('member_id', memberId.trim())
+        .eq('status', 'approved')
+        .maybeSingle();
+      
+      if (error || !data) {
+        return null;
+      }
+      
+      // Get affiliate code for this user
+      const { data: affiliateData } = await supabase
+        .from('affiliate_codes')
+        .select('affiliate_code')
+        .eq('user_id', data.member_id)
+        .maybeSingle();
+      
+      return affiliateData?.affiliate_code || null;
+    } catch (error) {
+      console.error('Error validating referrer:', error);
+      return null;
+    }
+  };
+
   const handleNext = () => {
     if (validateStep(currentStep)) {
       setCurrentStep(prev => prev + 1);
@@ -202,6 +236,22 @@ const Signup = () => {
           return;
         }
 
+        // Validate and get affiliate code from member ID if provided
+        let finalAffiliateCode = affiliateCode;
+        if (formData.referrerMemberId && formData.referrerMemberId.trim() !== '') {
+          const validatedCode = await validateReferrerMemberId(formData.referrerMemberId);
+          if (validatedCode) {
+            finalAffiliateCode = validatedCode;
+            console.log('✅ Validated referrer member ID:', formData.referrerMemberId, '-> Code:', validatedCode);
+          } else {
+            ToastManager.show({
+              message: 'ไม่พบรหัสสมาชิกที่แนะนำ กรุณาตรวจสอบรหัสอีกครั้ง',
+              type: 'error'
+            });
+            return;
+          }
+        }
+
         // Debug logging
         console.log('📤 Calling register_new_user with:', {
           nickname: formData.nickname,
@@ -209,7 +259,7 @@ const Signup = () => {
           grade: `ป.${formData.grade}`,
           email: formData.parentEmail,
           phone: sanitizedPhone,
-          has_affiliate: !!affiliateCode
+          has_affiliate: !!finalAffiliateCode
         });
 
         // Call Security Definer function instead of direct INSERT
@@ -224,7 +274,7 @@ const Signup = () => {
             p_parent_email: formData.parentEmail,
             p_parent_phone: sanitizedPhone,
             p_password: formData.password,
-            p_affiliate_code: affiliateCode || null
+            p_affiliate_code: finalAffiliateCode || null
           });
 
         if (registrationError) throw registrationError;
@@ -235,11 +285,11 @@ const Signup = () => {
         console.log('✅ Registration successful:', { userId });
 
         // Track affiliate referral if code exists
-        if (affiliateCode && registrationData) {
+        if (finalAffiliateCode && registrationData) {
           try {
             await supabase.rpc('track_referral_signup', {
               p_referred_email: formData.parentEmail,
-              p_affiliate_code: affiliateCode
+              p_affiliate_code: finalAffiliateCode
             });
           } catch (error) {
             console.error('Error tracking referral:', error);
@@ -547,6 +597,23 @@ const Signup = () => {
                     onChange={(e) => updateFormData('password', e.target.value)}
                   />
                   <p className="text-sm text-[hsl(var(--text-muted))] mt-1">ควรเป็นรหัสที่เด็กจำง่ายแต่ปลอดภัย</p>
+                </div>
+
+                <div>
+                  <label className="flex items-center gap-2 text-lg font-medium mb-3">
+                    🎁 <span>รหัสสมาชิกที่แนะนำ <span className="text-[hsl(var(--text-muted))]">(ถ้ามี)</span></span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="กรอกรหัสสมาชิก 5 หลัก (เช่น 00001)"
+                    className="input-field"
+                    value={formData.referrerMemberId}
+                    onChange={(e) => updateFormData('referrerMemberId', e.target.value)}
+                    maxLength={5}
+                  />
+                  <p className="text-sm text-[hsl(var(--text-muted))] mt-1">
+                    กรอกรหัสสมาชิกของผู้ที่แนะนำให้คุณสมัคร เพื่อให้ท่านได้รับสิทธิพิเศษ
+                  </p>
                 </div>
 
                 <div className="space-y-3">
