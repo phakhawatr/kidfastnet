@@ -754,14 +754,15 @@ const AdminDashboard = () => {
                     {/* Payment Action Buttons - Only for approved members */}
                     {registration.status === 'approved' && (
                       <>
-                        {registration.payment_status === 'pending' ? (
+                        {registration.payment_status === 'pending' && (
                           <button
                             onClick={() => handleMarkPaymentCompleted(registration.id, registration.nickname)}
                             className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-medium shadow-md"
                           >
                             💰 ชำระแล้ว
                           </button>
-                        ) : (
+                        )}
+                        {registration.payment_status === 'paid' && (
                           <button
                             onClick={() => handleResetPayment(registration.id, registration.nickname)}
                             className="px-3 py-1.5 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors text-xs font-medium"
