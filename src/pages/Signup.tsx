@@ -241,9 +241,51 @@ const Signup = () => {
         navigate('/login');
       } catch (error: any) {
         console.error('Signup error:', error);
+        
+        // Phase 4: Enhanced Error Handling - Differentiate error types
+        let errorMessage = 'เกิดข้อผิดพลาดในการสมัครสมาชิก';
+        
+        // Check for phone validation errors from database trigger
+        if (error.message?.includes('Invalid phone format')) {
+          const phoneMatch = error.message.match(/Invalid phone format: ([^.]+)\./);
+          const phoneValue = phoneMatch ? phoneMatch[1] : formData.parentPhone;
+          errorMessage = `รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง: ${phoneValue}\nกรุณาตรวจสอบว่าเป็นเบอร์โทรศัพท์ที่ขึ้นต้นด้วย 08, 09 หรือ 06`;
+        } 
+        // Check for RLS policy violations
+        else if (error.message?.includes('row-level security') || error.message?.includes('violates row-level security policy')) {
+          errorMessage = 'ข้อมูลไม่ผ่านการตรวจสอบความปลอดภัย กรุณาตรวจสอบความถูกต้องของข้อมูลทั้งหมดอีกครั้ง';
+        }
+        // Check for nickname, age, grade validation errors
+        else if (error.message?.includes('Nickname must be between')) {
+          errorMessage = 'ชื่อเล่นต้องมีความยาว 1-50 ตัวอักษร';
+        }
+        else if (error.message?.includes('Age must be between')) {
+          errorMessage = 'อายุต้องอยู่ระหว่าง 1-150 ปี';
+        }
+        else if (error.message?.includes('Grade must be between')) {
+          errorMessage = 'กรุณาระบุชั้นเรียนที่ถูกต้อง';
+        }
+        // Check for email validation errors
+        else if (error.message?.includes('Invalid email format')) {
+          errorMessage = 'รูปแบบอีเมลไม่ถูกต้อง กรุณากรอกอีเมลที่ถูกต้อง';
+        }
+        // Check for password validation errors
+        else if (error.message?.includes('Password must be between')) {
+          errorMessage = 'รหัสผ่านต้องมีความยาว 6-100 ตัวอักษร';
+        }
+        // Check for network errors
+        else if (error.message?.includes('Failed to fetch') || error.message?.includes('Network')) {
+          errorMessage = 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต';
+        }
+        // Default error message with details
+        else if (error.message) {
+          errorMessage = `เกิดข้อผิดพลาด: ${error.message}`;
+        }
+        
         ToastManager.show({
-          message: `เกิดข้อผิดพลาดในการสมัครสมาชิก: ${error.message || 'กรุณาลองใหม่อีกครั้ง'}`,
-          type: 'error'
+          message: errorMessage,
+          type: 'error',
+          duration: 6000 // Show error longer for users to read
         });
       }
     }
