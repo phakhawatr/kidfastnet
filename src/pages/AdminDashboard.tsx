@@ -48,6 +48,11 @@ const AdminDashboard = () => {
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'suspended' | 'online' | 'paid' | 'unpaid'>('pending');
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
+  const [paymentConfirmDialog, setPaymentConfirmDialog] = useState<{
+    isOpen: boolean;
+    registrationId: string;
+    nickname: string;
+  } | null>(null);
 
   const avatarEmojis: Record<string, string> = {
     cat: '🐱',
@@ -420,6 +425,47 @@ const AdminDashboard = () => {
     }
   };
 
+  const openPaymentConfirmDialog = (registrationId: string, nickname: string) => {
+    setPaymentConfirmDialog({
+      isOpen: true,
+      registrationId,
+      nickname
+    });
+  };
+
+  const handleConfirmPayment = async () => {
+    if (!paymentConfirmDialog) return;
+
+    try {
+      const { data, error } = await supabase.rpc('mark_payment_completed', {
+        p_registration_id: paymentConfirmDialog.registrationId,
+        p_admin_id: adminId
+      });
+
+      if (error) throw error;
+
+      if (data) {
+        ToastManager.show({
+          message: `✅ บันทึกการชำระเงินของ "${paymentConfirmDialog.nickname}" เรียบร้อย และมอบคะแนนให้ผู้แนะนำแล้ว!`,
+          type: 'success'
+        });
+        setPaymentConfirmDialog(null);
+        fetchRegistrations();
+      } else {
+        ToastManager.show({
+          message: 'ไม่สามารถบันทึกการชำระเงินได้ กรุณาตรวจสอบสถานะสมาชิก',
+          type: 'error'
+        });
+      }
+    } catch (error) {
+      console.error('Error marking payment completed:', error);
+      ToastManager.show({
+        message: 'เกิดข้อผิดพลาดในการบันทึกการชำระเงิน',
+        type: 'error'
+      });
+    }
+  };
+
   const filteredRegistrations = registrations.filter(reg => {
     // Apply status filter
     let matchesFilter = false;
@@ -756,7 +802,7 @@ const AdminDashboard = () => {
                       <>
                         {registration.payment_status === 'pending' && (
                           <button
-                            onClick={() => handleMarkPaymentCompleted(registration.id, registration.nickname)}
+                            onClick={() => openPaymentConfirmDialog(registration.id, registration.nickname)}
                             className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-medium shadow-md"
                           >
                             💰 ชำระแล้ว
@@ -834,6 +880,31 @@ const AdminDashboard = () => {
           ))
         )}
       </div>
+
+      {/* Payment Confirmation Dialog */}
+      <AlertDialog open={paymentConfirmDialog?.isOpen || false} onOpenChange={(open) => !open && setPaymentConfirmDialog(null)}>
+        <AlertDialogContent className="bg-white border border-gray-200 shadow-lg">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-gray-900 text-lg font-semibold">ยืนยันการชำระเงิน</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-600">
+              รับชำระเงินเรียบร้อยแล้ว
+              <br />
+              <span className="font-semibold text-gray-900 mt-2 inline-block">
+                สมาชิก: {paymentConfirmDialog?.nickname}
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setPaymentConfirmDialog(null)}>ยกเลิก</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmPayment}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              ยืนยันการชำระเงิน
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
