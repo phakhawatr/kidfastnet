@@ -362,11 +362,18 @@ const MultiplicationApp = () => {
           <div style="font-weight: bold; margin-bottom: 5px; font-size: 14px;">ข้อ ${index + 1}</div>
           <div style="font-family: monospace; font-size: 14px;">
             <!-- Multiplicand -->
-            <div style="text-align: right; padding: 3px 0;">${problem.multiplicand}</div>
+            <div style="display: flex; justify-content: flex-end; gap: 3px; padding: 3px 0;">
+              ${problem.multiplicand.toString().split('').map(digit => 
+                `<span style="width: 24px; text-align: center; font-size: 14px; display: inline-block;">${digit}</span>`
+              ).join('')}
+            </div>
             <!-- Multiplier -->
-            <div style="text-align: right; padding: 3px 0;">× ${problem.multiplier}</div>
-            <!-- Line -->
-            <div style="border-top: 2px solid #000; margin: 3px 0;"></div>
+            <div style="display: flex; justify-content: flex-end; gap: 3px; padding: 3px 0; border-bottom: 2px solid #000; margin-bottom: 5px;">
+              <span style="width: 16px; font-size: 14px; text-align: right;">×</span>
+              ${problem.multiplier.toString().split('').map(digit => 
+                `<span style="width: 24px; text-align: center; font-size: 14px; display: inline-block;">${digit}</span>`
+              ).join('')}
+            </div>
             <!-- Partial Products -->
             ${problem.partialProducts.map((product, idx) => `
               <div style="display: flex; justify-content: flex-end; gap: 3px; margin: 3px 0;">
