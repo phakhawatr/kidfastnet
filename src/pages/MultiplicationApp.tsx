@@ -338,14 +338,14 @@ const MultiplicationApp = () => {
     if (problem.dimensions[0] === 1 && problem.dimensions[1] === 1) {
       // Simple format for 1x1
       return `
-        <div style="border: 2px solid #666; padding: 15px; background: white; border-radius: 8px; page-break-inside: avoid;">
-          <div style="font-weight: bold; margin-bottom: 10px;">ข้อ ${index + 1}</div>
-          <div style="text-align: center; font-size: 24px; margin: 20px 0;">
+        <div style="border: 2px solid #666; padding: 10px; background: white; border-radius: 6px; page-break-inside: avoid;">
+          <div style="font-weight: bold; margin-bottom: 5px; font-size: 14px;">ข้อ ${index + 1}</div>
+          <div style="text-align: center; font-size: 20px; margin: 10px 0;">
             ${problem.multiplicand} × ${problem.multiplier} = 
           </div>
-          <div style="display: flex; justify-content: center; gap: 4px; margin-top: 15px;">
+          <div style="display: flex; justify-content: center; gap: 3px; margin-top: 10px;">
             ${problem.finalAnswer.split('').map(() => 
-              '<div style="width: 40px; height: 40px; border: 1px solid #999; border-radius: 4px;"></div>'
+              '<div style="width: 32px; height: 32px; border: 1px solid #999; border-radius: 4px;"></div>'
             ).join('')}
           </div>
         </div>
@@ -358,30 +358,30 @@ const MultiplicationApp = () => {
       );
       
       return `
-        <div style="border: 2px solid #666; padding: 15px; background: white; border-radius: 8px; page-break-inside: avoid;">
-          <div style="font-weight: bold; margin-bottom: 10px;">ข้อ ${index + 1}</div>
-          <div style="font-family: monospace; font-size: 18px;">
+        <div style="border: 2px solid #666; padding: 8px; background: white; border-radius: 6px; page-break-inside: avoid;">
+          <div style="font-weight: bold; margin-bottom: 5px; font-size: 14px;">ข้อ ${index + 1}</div>
+          <div style="font-family: monospace; font-size: 14px;">
             <!-- Multiplicand -->
-            <div style="text-align: right; padding: 5px 0;">${problem.multiplicand}</div>
+            <div style="text-align: right; padding: 3px 0;">${problem.multiplicand}</div>
             <!-- Multiplier -->
-            <div style="text-align: right; padding: 5px 0;">× ${problem.multiplier}</div>
+            <div style="text-align: right; padding: 3px 0;">× ${problem.multiplier}</div>
             <!-- Line -->
-            <div style="border-top: 2px solid #000; margin: 5px 0;"></div>
+            <div style="border-top: 2px solid #000; margin: 3px 0;"></div>
             <!-- Partial Products -->
             ${problem.partialProducts.map((product, idx) => `
-              <div style="display: flex; justify-content: flex-end; gap: 4px; margin: 5px 0;">
-                <span style="width: 20px;">${idx === 0 ? '+' : ''}</span>
+              <div style="display: flex; justify-content: flex-end; gap: 3px; margin: 3px 0;">
+                <span style="width: 16px; font-size: 12px;">${idx === 0 ? '+' : ''}</span>
                 ${product.split('').map(() => 
-                  '<div style="width: 30px; height: 30px; border: 1px solid #999; border-radius: 4px; display: inline-block;"></div>'
+                  '<div style="width: 24px; height: 24px; border: 1px solid #999; border-radius: 3px; display: inline-block;"></div>'
                 ).join('')}
               </div>
             `).join('')}
             <!-- Final Line -->
-            <div style="border-top: 2px solid #000; margin: 5px 0;"></div>
+            <div style="border-top: 2px solid #000; margin: 3px 0;"></div>
             <!-- Final Answer -->
-            <div style="display: flex; justify-content: flex-end; gap: 4px; margin-top: 10px;">
+            <div style="display: flex; justify-content: flex-end; gap: 3px; margin-top: 8px;">
               ${problem.finalAnswer.split('').map(() => 
-                '<div style="width: 30px; height: 30px; border: 2px solid #666; border-radius: 4px; display: inline-block;"></div>'
+                '<div style="width: 24px; height: 24px; border: 2px solid #666; border-radius: 3px; display: inline-block;"></div>'
               ).join('')}
             </div>
           </div>
@@ -395,19 +395,19 @@ const MultiplicationApp = () => {
     const pageProblems = problems.slice(startIdx, endIdx);
     
     return `
-      <div style="width: 210mm; min-height: 297mm; padding: 15mm; background: white; position: relative;">
+      <div style="width: 210mm; min-height: 297mm; padding: 12mm; background: white; position: relative;">
         <!-- Header -->
-        <div style="text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333;">
-          ${schoolLogo ? `<img src="${schoolLogo}" style="height: 60px; margin-bottom: 10px;" />` : ''}
-          <h1 style="margin: 10px 0; font-size: 24px;">แบบฝึกหัดการคูณ</h1>
-          <div style="display: flex; justify-content: space-around; margin-top: 10px; font-size: 14px;">
-            <div>ชื่อ-สกุล: _______________________________</div>
-            <div>โรงเรียน: _______________________________</div>
+        <div style="text-align: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #333;">
+          ${schoolLogo ? `<img src="${schoolLogo}" style="height: 50px; margin-bottom: 8px;" />` : ''}
+          <h1 style="margin: 8px 0; font-size: 20px;">แบบฝึกหัดการคูณ</h1>
+          <div style="display: flex; justify-content: space-around; margin-top: 8px; font-size: 12px;">
+            <div>ชื่อ-สกุล: ________________________</div>
+            <div>โรงเรียน: ________________________</div>
           </div>
         </div>
         
         <!-- Problems Grid -->
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
           ${pageProblems.map((problem, idx) => createProblemCard(problem, startIdx + idx)).join('')}
         </div>
       </div>
@@ -416,7 +416,7 @@ const MultiplicationApp = () => {
 
   // Print to PDF
   const printToPDF = async () => {
-    const problemsPerPage = 8;
+    const problemsPerPage = 20;
     const totalPages = Math.ceil(problems.length / problemsPerPage);
     
     let allPagesHTML = '<div style="font-family: Arial, sans-serif;">';
