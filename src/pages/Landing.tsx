@@ -286,7 +286,7 @@ const Landing = () => {
                 <div className="inline-block bg-gradient-to-r from-yellow-400 via-orange-400 to-red-500 p-1 rounded-3xl shadow-2xl mb-4 animate-pulse-slow">
                   <div className="bg-white rounded-3xl px-12 py-6">
                     <span className="text-6xl md:text-7xl lg:text-8xl font-black bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 bg-clip-text text-transparent drop-shadow-xl">
-                      299 บาท
+                      399 บาท
                     </span>
                   </div>
                 </div>
