@@ -272,7 +272,7 @@ const Landing = () => {
               {/* Price section */}
               <div className="mb-6">
                 <div className="flex items-center justify-center gap-4 mb-4 flex-wrap">
-                  <span className="text-2xl md:text-3xl text-gray-500">จากราคาสมาชิกรายปี</span>
+                  <span className="text-2xl md:text-3xl text-gray-500">จากราคาสมาชิกราย 6 เดือน</span>
                   <span className="relative text-3xl md:text-4xl font-bold text-gray-400">
                     <span className="line-through">799 บาท</span>
                     <span className="absolute -top-2 -right-8 text-red-500 text-2xl rotate-12">❌</span>
