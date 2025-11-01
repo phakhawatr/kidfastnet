@@ -135,10 +135,8 @@ export const useBackgroundMusic = (tracks: MusicTrack[]) => {
           }, 50);
         })
         .catch(err => {
-          // Silently handle autoplay errors - browser will allow after user interaction
-          if (!unlockAttemptedRef.current) {
-            console.log('กรุณาคลิกที่หน้าจอก่อนเพื่อเปิดเพลง');
-          }
+          // Log error but don't show to user
+          console.log('Audio play error:', err.message);
           setIsPlaying(false);
         });
     }

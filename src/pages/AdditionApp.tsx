@@ -281,7 +281,11 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
                     value={Array.isArray(answer) ? (answer[j] || "") : ""}
                     onFocus={() => {
                       // Start music immediately when user focuses on any input field
-                      onFirstType?.();
+                      // This ensures music plays after user interaction
+                      if (onFirstType) {
+                        // Small delay to ensure audio context is ready
+                        setTimeout(() => onFirstType(), 50);
+                      }
                     }}
                     onChange={(e) => {
                       const v = e.target.value.replace(/\D/g, "").slice(0, 1);
