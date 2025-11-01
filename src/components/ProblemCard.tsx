@@ -72,10 +72,12 @@ export function ProblemCard({
                     maxLength={1}
                     className="w-12 h-12 text-center border-2 border-sky-300 rounded-md text-3xl font-extrabold text-sky-700 bg-white shadow focus:outline-none focus:ring-2 focus:ring-sky-300"
                     value={Array.isArray(answer) ? (answer[j] || "") : ""}
+                    onFocus={() => {
+                      // Start music immediately when user focuses on any input field
+                      if (onFirstType) onFirstType();
+                    }}
                     onChange={(e) => {
                       const v = e.target.value.replace(/\D/g, "").slice(0, 1);
-                      const emptyBefore = !answer || (Array.isArray(answer) && answer.every((d) => !d));
-                      if (v && emptyBefore && onFirstType) onFirstType();
                       setAnswer(idx, j, v);
                       if (v && j < digits - 1) {
                         const nxt = inputRefs.current[j + 1];
