@@ -20,9 +20,21 @@ import {
 const SubtractionApp: React.FC = () => {
   // Background music with 3 track options
   const backgroundMusic = useBackgroundMusic([
-    { id: 'happy', name: 'เพลงสนุกสนาน', url: 'https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3' },
-    { id: 'calm', name: 'เพลงผ่อนคลาย', url: 'https://assets.mixkit.co/music/preview/mixkit-dreaming-big-31.mp3' },
-    { id: 'focus', name: 'เพลงเน้นสมาธิ', url: 'https://assets.mixkit.co/music/preview/mixkit-a-very-happy-christmas-897.mp3' }
+    { 
+      id: 'happy', 
+      name: 'เพลงสนุกสนาน', 
+      url: 'https://freesound.org/data/previews/320/320655_5260872-lq.mp3'
+    },
+    { 
+      id: 'calm', 
+      name: 'เพลงผ่อนคลาย', 
+      url: 'https://freesound.org/data/previews/442/442816_5121236-lq.mp3'
+    },
+    { 
+      id: 'focus', 
+      name: 'เพลงเน้นสมาธิ', 
+      url: 'https://freesound.org/data/previews/415/415564_6387345-lq.mp3'
+    }
   ]);
 
   // Wrap startTimerIfNeeded to include music

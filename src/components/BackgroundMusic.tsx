@@ -65,6 +65,15 @@ export const BackgroundMusic: React.FC<BackgroundMusicProps> = ({
               </Button>
             </div>
             
+            {/* Important Note */}
+            {isEnabled && !isPlaying && (
+              <div className="p-2 bg-amber-50 border border-amber-200 rounded-lg">
+                <p className="text-xs text-amber-800">
+                  💡 เพลงจะเล่นเมื่อเริ่มทำโจทย์ (พิมพ์คำตอบครั้งแรก)
+                </p>
+              </div>
+            )}
+            
             {/* Music Selection */}
             <div className="space-y-2">
               <span className="text-sm text-muted-foreground">เลือกเพลง</span>

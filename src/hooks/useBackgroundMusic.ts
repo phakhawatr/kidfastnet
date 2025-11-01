@@ -92,31 +92,44 @@ export const useBackgroundMusic = (tracks: MusicTrack[]) => {
     if (!audioRef.current) return;
 
     audioRef.current.volume = 0;
-    audioRef.current.play().catch(err => console.error('Audio play failed:', err));
-    setIsPlaying(true);
+    
+    // Try to play with error handling
+    const playPromise = audioRef.current.play();
+    
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          setIsPlaying(true);
+          
+          // Start fade in animation
+          let currentVolume = 0;
+          const targetVolume = volume;
+          const step = targetVolume / 20;
 
-    let currentVolume = 0;
-    const targetVolume = volume;
-    const step = targetVolume / 20; // 20 steps
+          if (fadeIntervalRef.current) {
+            clearInterval(fadeIntervalRef.current);
+          }
 
-    if (fadeIntervalRef.current) {
-      clearInterval(fadeIntervalRef.current);
+          fadeIntervalRef.current = setInterval(() => {
+            if (!audioRef.current) {
+              if (fadeIntervalRef.current) clearInterval(fadeIntervalRef.current);
+              return;
+            }
+
+            currentVolume += step;
+            if (currentVolume >= targetVolume) {
+              audioRef.current.volume = targetVolume;
+              if (fadeIntervalRef.current) clearInterval(fadeIntervalRef.current);
+            } else {
+              audioRef.current.volume = currentVolume;
+            }
+          }, 50);
+        })
+        .catch(err => {
+          console.log('เปิดเพลงไม่ได้ - รอให้คลิกที่หน้าจอก่อน:', err.message);
+          setIsPlaying(false);
+        });
     }
-
-    fadeIntervalRef.current = setInterval(() => {
-      if (!audioRef.current) {
-        if (fadeIntervalRef.current) clearInterval(fadeIntervalRef.current);
-        return;
-      }
-
-      currentVolume += step;
-      if (currentVolume >= targetVolume) {
-        audioRef.current.volume = targetVolume;
-        if (fadeIntervalRef.current) clearInterval(fadeIntervalRef.current);
-      } else {
-        audioRef.current.volume = currentVolume;
-      }
-    }, 50);
   }, [volume]);
 
   // Fade out effect
