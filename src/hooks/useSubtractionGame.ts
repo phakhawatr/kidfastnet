@@ -25,6 +25,10 @@ export function useSubtractionGame() {
   const [showSummary, setShowSummary] = useState(false);
   const [summary, setSummary] = useState<SummaryData | null>(null);
 
+  // LINE sending states (for manual send)
+  const [isSendingLine, setIsSendingLine] = useState(false);
+  const [lineSent, setLineSent] = useState(false);
+
   // Timer states
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [finishedAt, setFinishedAt] = useState<number | null>(null);
@@ -152,12 +156,10 @@ export function useSubtractionGame() {
     const now = Date.now();
     if (startedAt) setElapsedMs(now - startedAt);
     setSummary({ correct: correctCount, total: problems.length, elapsedMs: startedAt ? now - startedAt : elapsedMs, level, count });
+    setLineSent(false); // Reset sent status when checking new answers
     setShowSummary(true);
 
-    // Send LINE notification
-    sendLineNotification(next, correctCount, now);
-
-    if (next.every((r) => r === "correct")) { 
+    if (next.every((r) => r === "correct")) {
       setCelebrate(true); 
       setTimeout(() => setCelebrate(false), 2000); 
     } else { 
@@ -165,24 +167,37 @@ export function useSubtractionGame() {
     }
   }
 
-  async function sendLineNotification(results: string[], correctCount: number, timestamp: number) {
+  async function handleSendToLine() {
+    if (isSendingLine || lineSent) return;
+    
+    setIsSendingLine(true);
+    
     try {
       const authStored = localStorage.getItem('kidfast_auth');
-      if (!authStored) return;
+      if (!authStored) {
+        alert('⚠️ ยังไม่ได้เชื่อมต่อบัญชี LINE\nกรุณาไปที่หน้าโปรไฟล์เพื่อเชื่อมต่อบัญชี LINE');
+        setIsSendingLine(false);
+        return;
+      }
 
       const authState = JSON.parse(authStored);
       const userId = authState.registrationId;
       const userNickname = localStorage.getItem('user_nickname') || authState.username || 'นักเรียน';
 
-      if (!userId) return;
+      if (!userId) {
+        alert('⚠️ ไม่พบข้อมูลผู้ใช้\nกรุณาเข้าสู่ระบบใหม่อีกครั้ง');
+        setIsSendingLine(false);
+        return;
+      }
 
       // Format time
-      const timeMs = startedAt ? timestamp - startedAt : elapsedMs;
+      const timeMs = startedAt ? Date.now() - startedAt : elapsedMs;
       const minutes = Math.floor(timeMs / 60000);
       const seconds = Math.floor((timeMs % 60000) / 1000);
       const timeSpent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
-      // Prepare problems data
+      // Prepare problems data with current results
+      const correctCount = results.filter(r => r === 'correct').length;
       const problemsData = problems.map((p, i) => {
         const userAnswer = answers[i].join('') || 'ไม่ได้ตอบ';
         const correctAnswer = (p.c != null ? p.a - p.b - p.c : p.a - p.b).toString();
@@ -223,9 +238,14 @@ export function useSubtractionGame() {
         }
       });
 
+      alert('✅ ส่งผลการทำแบบฝึกหัดไปยัง LINE แล้ว');
+      setLineSent(true);
       console.log('LINE notification sent successfully');
     } catch (err) {
       console.log('LINE notification error:', err);
+      alert('❌ ไม่สามารถส่งข้อความได้ กรุณาลองใหม่อีกครั้ง');
+    } finally {
+      setIsSendingLine(false);
     }
   }
 
@@ -267,11 +287,11 @@ export function useSubtractionGame() {
     // State
     count, level, digits, allowBorrow, operands, problems, answers, results,
     showAnswers, celebrate, showSummary, summary, startedAt, finishedAt, 
-    elapsedMs, history,
+    elapsedMs, history, isSendingLine, lineSent,
     
     // Actions
     setAnswer, startTimerIfNeeded, applyNewCount, applyLevel, applyDigits,
     applyBorrow, applyOperands, resetAll, checkAnswers, showAll, onReset,
-    clearHistory, saveStats, setShowSummary, setSummary,
+    clearHistory, saveStats, setShowSummary, setSummary, handleSendToLine,
   };
 }

@@ -370,6 +370,10 @@ export default function AdditionApp() {
   const [showSummary, setShowSummary] = useState(false);
   const [summary, setSummary] = useState(null);
   
+  // LINE sending states
+  const [isSendingLine, setIsSendingLine] = useState(false);
+  const [lineSent, setLineSent] = useState(false);
+  
   // timer states
   const [startedAt, setStartedAt] = useState(null);
   const [finishedAt, setFinishedAt] = useState(null);
@@ -631,10 +635,8 @@ export default function AdditionApp() {
       level,
       count,
     });
+    setLineSent(false); // Reset sent status when checking new answers
     setShowSummary(true);
-
-    // Send LINE notification
-    sendLineNotification(next, correctCount, now);
 
     if (next.every((r) => r === "correct")) {
       setCelebrate(true);
@@ -644,24 +646,47 @@ export default function AdditionApp() {
     }
   }
 
-  async function sendLineNotification(results: string[], correctCount: number, timestamp: number) {
+  async function handleSendToLine() {
+    if (isSendingLine || lineSent) return;
+    
+    setIsSendingLine(true);
+    
     try {
       const authStored = localStorage.getItem('kidfast_auth');
-      if (!authStored) return;
+      if (!authStored) {
+        const { toast } = await import('@/hooks/use-toast');
+        toast({
+          title: "⚠️ ยังไม่ได้เชื่อมต่อ LINE",
+          description: "กรุณาไปที่หน้าโปรไฟล์เพื่อเชื่อมต่อบัญชี LINE",
+          variant: "destructive",
+        });
+        setIsSendingLine(false);
+        return;
+      }
 
       const authState = JSON.parse(authStored);
       const userId = authState.registrationId;
       const userNickname = localStorage.getItem('user_nickname') || authState.username || 'นักเรียน';
 
-      if (!userId) return;
+      if (!userId) {
+        const { toast } = await import('@/hooks/use-toast');
+        toast({
+          title: "⚠️ ไม่พบข้อมูลผู้ใช้",
+          description: "กรุณาเข้าสู่ระบบใหม่อีกครั้ง",
+          variant: "destructive",
+        });
+        setIsSendingLine(false);
+        return;
+      }
 
       // Format time
-      const timeMs = startedAt ? timestamp - startedAt : elapsedMs;
+      const timeMs = startedAt ? Date.now() - startedAt : elapsedMs;
       const minutes = Math.floor(timeMs / 60000);
       const seconds = Math.floor((timeMs % 60000) / 1000);
       const timeSpent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
       // Prepare problems data
+      const correctCount = results.filter(r => r === 'correct').length;
       const problemsData = problems.map((p, i) => {
         const userAnswer = (answers[i] || []).join('') || 'ไม่ได้ตอบ';
         const correctAnswer = (operands === 3 ? p.a + p.b + p.c : p.a + p.b).toString();
@@ -678,7 +703,6 @@ export default function AdditionApp() {
         };
       });
 
-      // Map level to Thai
       const levelMap: Record<string, string> = {
         easy: 'ง่าย',
         medium: 'ปานกลาง',
@@ -687,7 +711,6 @@ export default function AdditionApp() {
 
       const percentage = Math.round((correctCount / problems.length) * 100);
 
-      // Invoke edge function
       await supabase.functions.invoke('send-line-message', {
         body: {
           userId,
@@ -702,11 +725,24 @@ export default function AdditionApp() {
         }
       });
 
-      // Silent success - don't interrupt user experience
+      const { toast } = await import('@/hooks/use-toast');
+      toast({
+        title: "✅ ส่งสำเร็จ",
+        description: "ส่งผลการทำแบบฝึกหัดไปยัง LINE แล้ว",
+      });
+      
+      setLineSent(true);
       console.log('LINE notification sent successfully');
     } catch (err) {
-      // Silent fail - don't interrupt user experience
       console.log('LINE notification error:', err);
+      const { toast } = await import('@/hooks/use-toast');
+      toast({
+        title: "❌ ส่งไม่สำเร็จ",
+        description: "ไม่สามารถส่งข้อความได้ กรุณาลองใหม่อีกครั้ง",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSendingLine(false);
     }
   }
 
@@ -1100,13 +1136,44 @@ export default function AdditionApp() {
             </div>
           </div>
 
-          <div className="mt-5 flex gap-2 justify-end">
-            {alreadyShowing ? (
-              <div className="px-4 py-2 rounded-xl bg-amber-100 text-amber-800 font-medium">👀 แสดงเฉลยแล้ว</div>
-            ) : (
-              <button onClick={onShowAnswers} className="px-4 py-2 rounded-xl bg-amber-500 text-white hover:bg-amber-600">ดูเฉลยทั้งหมด</button>
-            )}
-            <button onClick={() => { if (onSave) onSave(); if (onClose) onClose(); }} className="px-4 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200">ปิด</button>
+          <div className="mt-5 flex flex-col gap-3">
+            {/* LINE Send Button */}
+            <button 
+              onClick={handleSendToLine}
+              disabled={isSendingLine || lineSent}
+              className={`w-full px-4 py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors ${
+                lineSent 
+                  ? 'bg-zinc-100 text-zinc-500 cursor-not-allowed'
+                  : isSendingLine
+                  ? 'bg-green-400 text-white cursor-wait'
+                  : 'bg-green-500 text-white hover:bg-green-600'
+              }`}
+            >
+              {isSendingLine ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
+                  <span>กำลังส่ง...</span>
+                </>
+              ) : lineSent ? (
+                <>
+                  <span>✅ ส่งแล้ว</span>
+                </>
+              ) : (
+                <>
+                  <span>📤 ส่งผลให้ผู้ปกครองทาง LINE</span>
+                </>
+              )}
+            </button>
+            
+            {/* Existing buttons */}
+            <div className="flex gap-2 justify-end">
+              {alreadyShowing ? (
+                <div className="px-4 py-2 rounded-xl bg-amber-100 text-amber-800 font-medium">👀 แสดงเฉลยแล้ว</div>
+              ) : (
+                <button onClick={onShowAnswers} className="px-4 py-2 rounded-xl bg-amber-500 text-white hover:bg-amber-600">ดูเฉลยทั้งหมด</button>
+              )}
+              <button onClick={() => { if (onSave) onSave(); if (onClose) onClose(); }} className="px-4 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200">ปิด</button>
+            </div>
           </div>
         </div>
       </div>

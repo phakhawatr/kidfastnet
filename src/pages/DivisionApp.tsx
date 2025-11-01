@@ -70,6 +70,10 @@ const DivisionApp: React.FC = () => {
   const [stats, setStats] = useState<Stats[]>([]);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
+  // LINE sending states
+  const [isSendingLine, setIsSendingLine] = useState(false);
+  const [lineSent, setLineSent] = useState(false);
+  
   // PDF states
   const [showPdfPreview, setShowPdfPreview] = useState(false);
   const [pdfPreviewContent, setPdfPreviewContent] = useState('');
@@ -223,6 +227,7 @@ const DivisionApp: React.FC = () => {
     setCorrectCount(correct);
     setResults('checked');
     setShowResults(true);
+    setLineSent(false); // Reset sent status when checking new answers
 
     // Save to stats
     const newStat: Stats = {
@@ -238,26 +243,35 @@ const DivisionApp: React.FC = () => {
     setStats(updatedStats);
     localStorage.setItem('divisionStats', JSON.stringify(updatedStats));
     
-    // Send LINE notification
-    sendLineNotification(correct, now);
-    
     if (correct === problems.length) {
       setCelebrate(true);
     }
   };
 
-  const sendLineNotification = async (correctCount: number, timestamp: number) => {
+  const handleSendToLine = async () => {
+    if (isSendingLine || lineSent) return;
+    
+    setIsSendingLine(true);
+    
     try {
       const authStored = localStorage.getItem('kidfast_auth');
-      if (!authStored) return;
+      if (!authStored) {
+        alert('⚠️ ยังไม่ได้เชื่อมต่อบัญชี LINE\nกรุณาไปที่หน้าโปรไฟล์เพื่อเชื่อมต่อบัญชี LINE');
+        setIsSendingLine(false);
+        return;
+      }
 
       const authState = JSON.parse(authStored);
       const userId = authState.registrationId;
       const userNickname = localStorage.getItem('user_nickname') || authState.username || 'นักเรียน';
 
-      if (!userId) return;
+      if (!userId) {
+        alert('⚠️ ไม่พบข้อมูลผู้ใช้\nกรุณาเข้าสู่ระบบใหม่อีกครั้ง');
+        setIsSendingLine(false);
+        return;
+      }
 
-      const timeMs = timestamp - (startedAt || timestamp);
+      const timeMs = (finishedAt || Date.now()) - (startedAt || (finishedAt || Date.now()));
       const minutes = Math.floor(timeMs / 60000);
       const seconds = Math.floor((timeMs % 60000) / 1000);
       const timeSpent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
@@ -298,9 +312,14 @@ const DivisionApp: React.FC = () => {
         }
       });
 
+      alert('✅ ส่งผลการทำแบบฝึกหัดไปยัง LINE แล้ว');
+      setLineSent(true);
       console.log('LINE notification sent successfully');
     } catch (err) {
       console.log('LINE notification error:', err);
+      alert('❌ ไม่สามารถส่งข้อความได้ กรุณาลองใหม่อีกครั้ง');
+    } finally {
+      setIsSendingLine(false);
     }
   };
 
@@ -704,6 +723,35 @@ const DivisionApp: React.FC = () => {
             {celebrate && <div className="text-lg text-green-600 font-medium">
                 ทำได้ถูกต้องทุกข้อ! 🌟
               </div>}
+            
+            {/* LINE Send Button */}
+            <button 
+              onClick={handleSendToLine}
+              disabled={isSendingLine || lineSent}
+              className={`w-full px-4 py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors ${
+                lineSent 
+                  ? 'bg-zinc-100 text-zinc-500 cursor-not-allowed'
+                  : isSendingLine
+                  ? 'bg-green-400 text-white cursor-wait'
+                  : 'bg-green-500 text-white hover:bg-green-600'
+              }`}
+            >
+              {isSendingLine ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
+                  <span>กำลังส่ง...</span>
+                </>
+              ) : lineSent ? (
+                <>
+                  <span>✅ ส่งแล้ว</span>
+                </>
+              ) : (
+                <>
+                  <span>📤 ส่งผลให้ผู้ปกครองทาง LINE</span>
+                </>
+              )}
+            </button>
+            
             <Button onClick={() => setShowResults(false)} className="w-full">
               ปิด
             </Button>

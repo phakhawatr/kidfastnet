@@ -54,7 +54,12 @@ const MultiplicationApp = () => {
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [isCompleted, setIsCompleted] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [showResultsModal, setShowResultsModal] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // LINE sending states
+  const [isSendingLine, setIsSendingLine] = useState(false);
+  const [lineSent, setLineSent] = useState(false);
   
   // PDF and Logo states
   const [schoolLogo, setSchoolLogo] = useState<string | null>(null);
@@ -270,9 +275,8 @@ const MultiplicationApp = () => {
     });
     
     setResults(newResults);
-    
-    // Send LINE notification
-    sendLineNotification(newResults, allCorrect);
+    setLineSent(false); // Reset sent status when checking new answers
+    setShowResultsModal(true); // Show results modal
     
     if (allCorrect) {
       setIsCompleted(true);
@@ -292,16 +296,36 @@ const MultiplicationApp = () => {
     }
   };
 
-  const sendLineNotification = async (resultsData: ('correct' | 'incorrect' | null)[][][], allCorrect: boolean) => {
+  const handleSendToLine = async () => {
+    if (isSendingLine || lineSent) return;
+    
+    setIsSendingLine(true);
+    
     try {
       const authStored = localStorage.getItem('kidfast_auth');
-      if (!authStored) return;
+      if (!authStored) {
+        toast({
+          title: "⚠️ ยังไม่ได้เชื่อมต่อ LINE",
+          description: "กรุณาไปที่หน้าโปรไฟล์เพื่อเชื่อมต่อบัญชี LINE",
+          variant: "destructive",
+        });
+        setIsSendingLine(false);
+        return;
+      }
 
       const authState = JSON.parse(authStored);
       const userId = authState.registrationId;
       const userNickname = localStorage.getItem('user_nickname') || authState.username || 'นักเรียน';
 
-      if (!userId) return;
+      if (!userId) {
+        toast({
+          title: "⚠️ ไม่พบข้อมูลผู้ใช้",
+          description: "กรุณาเข้าสู่ระบบใหม่อีกครั้ง",
+          variant: "destructive",
+        });
+        setIsSendingLine(false);
+        return;
+      }
 
       const timeSpent = formatTime(currentTime);
 
@@ -345,9 +369,22 @@ const MultiplicationApp = () => {
         }
       });
 
+      toast({
+        title: "✅ ส่งสำเร็จ",
+        description: "ส่งผลการทำแบบฝึกหัดไปยัง LINE แล้ว",
+      });
+      
+      setLineSent(true);
       console.log('LINE notification sent successfully');
     } catch (err) {
       console.log('LINE notification error:', err);
+      toast({
+        title: "❌ ส่งไม่สำเร็จ",
+        description: "ไม่สามารถส่งข้อความได้ กรุณาลองใหม่อีกครั้ง",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSendingLine(false);
     }
   };
 
@@ -1003,6 +1040,64 @@ const MultiplicationApp = () => {
             <span className="font-mono">{formatTime(currentTime)}</span>
           </div>
         </div>
+
+        {/* Results Modal */}
+        {showResultsModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-8 text-center max-w-md mx-4">
+              <div className="text-4xl mb-4">{isCompleted ? '🎉' : '📊'}</div>
+              <h2 className="text-2xl font-bold mb-4">{isCompleted ? 'ยอดเยี่ยม!' : 'ผลการตรวจ'}</h2>
+              <div className="space-y-3 mb-6">
+                <div className="text-5xl font-bold text-primary">
+                  {problems.filter((p, idx) => answers[idx].finalAnswer.join('') === p.finalAnswer).length}/{problems.length}
+                </div>
+                <div className="text-lg">
+                  คะแนน: {Math.round((problems.filter((p, idx) => answers[idx].finalAnswer.join('') === p.finalAnswer).length / problems.length) * 100)}%
+                </div>
+                <div className="text-lg">
+                  เวลา: {formatTime(currentTime)}
+                </div>
+              </div>
+              
+              {/* LINE Send Button */}
+              <div className="space-y-3">
+                <button 
+                  onClick={handleSendToLine}
+                  disabled={isSendingLine || lineSent}
+                  className={`w-full px-4 py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors ${
+                    lineSent 
+                      ? 'bg-zinc-100 text-zinc-500 cursor-not-allowed'
+                      : isSendingLine
+                      ? 'bg-green-400 text-white cursor-wait'
+                      : 'bg-green-500 text-white hover:bg-green-600'
+                  }`}
+                >
+                  {isSendingLine ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
+                      <span>กำลังส่ง...</span>
+                    </>
+                  ) : lineSent ? (
+                    <>
+                      <span>✅ ส่งแล้ว</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>📤 ส่งผลให้ผู้ปกครองทาง LINE</span>
+                    </>
+                  )}
+                </button>
+                
+                <button 
+                  onClick={() => setShowResultsModal(false)}
+                  className="w-full px-4 py-3 rounded-xl font-medium bg-zinc-100 hover:bg-zinc-200"
+                >
+                  ปิด
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Celebration Modal */}
         {showCelebration && (

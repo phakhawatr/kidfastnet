@@ -52,10 +52,10 @@ const SubtractionApp: React.FC = () => {
   const {
     count, level, digits, allowBorrow, operands, problems, answers, results,
     showAnswers, celebrate, showSummary, summary, startedAt, finishedAt, 
-    elapsedMs, history,
+    elapsedMs, history, isSendingLine, lineSent,
     setAnswer, startTimerIfNeeded, applyNewCount, applyLevel, applyDigits,
     applyBorrow, applyOperands, resetAll, checkAnswers, showAll, onReset,
-    clearHistory, saveStats, setShowSummary, setSummary,
+    clearHistory, saveStats, setShowSummary, setSummary, handleSendToLine,
   } = useSubtractionGame();
 
   // Detail modal state for viewing previous results
@@ -423,13 +423,44 @@ const SubtractionApp: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-5 flex gap-2 justify-end">
-            {alreadyShowing ? (
-              <div className="px-4 py-2 rounded-xl bg-amber-100 text-amber-800 font-medium">👀 แสดงเฉลยแล้ว</div>
-            ) : (
-              <button onClick={onShowAnswers} className="px-4 py-2 rounded-xl bg-amber-500 text-white hover:bg-amber-600">ดูเฉลยทั้งหมด</button>
-            )}
-            <button onClick={() => { if (onSave) onSave(); if (onClose) onClose(); }} className="px-4 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200">ปิด</button>
+          <div className="mt-5 flex flex-col gap-3">
+            {/* LINE Send Button */}
+            <button 
+              onClick={handleSendToLine}
+              disabled={isSendingLine || lineSent}
+              className={`w-full px-4 py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors ${
+                lineSent 
+                  ? 'bg-zinc-100 text-zinc-500 cursor-not-allowed'
+                  : isSendingLine
+                  ? 'bg-green-400 text-white cursor-wait'
+                  : 'bg-green-500 text-white hover:bg-green-600'
+              }`}
+            >
+              {isSendingLine ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
+                  <span>กำลังส่ง...</span>
+                </>
+              ) : lineSent ? (
+                <>
+                  <span>✅ ส่งแล้ว</span>
+                </>
+              ) : (
+                <>
+                  <span>📤 ส่งผลให้ผู้ปกครองทาง LINE</span>
+                </>
+              )}
+            </button>
+            
+            {/* Existing buttons */}
+            <div className="flex gap-2 justify-end">
+              {alreadyShowing ? (
+                <div className="px-4 py-2 rounded-xl bg-amber-100 text-amber-800 font-medium">👀 แสดงเฉลยแล้ว</div>
+              ) : (
+                <button onClick={onShowAnswers} className="px-4 py-2 rounded-xl bg-amber-500 text-white hover:bg-amber-600">ดูเฉลยทั้งหมด</button>
+              )}
+              <button onClick={() => { if (onSave) onSave(); if (onClose) onClose(); }} className="px-4 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200">ปิด</button>
+            </div>
           </div>
         </div>
       </div>
