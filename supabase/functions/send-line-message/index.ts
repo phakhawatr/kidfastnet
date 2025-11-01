@@ -64,15 +64,25 @@ async function sendLineFlexMessage(lineUserId: string, data: any) {
   
   const { exerciseType, nickname, score, total, percentage, timeSpent, level, problems } = data;
 
+  // Exercise type name mapping (English to Thai)
+  const exerciseNameMap: Record<string, string> = {
+    'addition': 'บวก',
+    'subtraction': 'ลบ',
+    'multiplication': 'คูณ',
+    'division': 'หาร',
+    'test': 'ทดสอบ'
+  };
+
   // Emoji mapping
   const emojiMap: Record<string, string> = {
-    'บวกเลข': '➕',
-    'ลบเลข': '➖',
-    'คูณเลข': '✖️',
-    'หารเลข': '➗',
+    'addition': '➕',
+    'subtraction': '➖',
+    'multiplication': '✖️',
+    'division': '➗',
     'test': '🧪'
   };
 
+  const exerciseName = exerciseNameMap[exerciseType] || exerciseType;
   const emoji = emojiMap[exerciseType] || '📝';
 
   // Determine result color and message
@@ -104,7 +114,7 @@ async function sendLineFlexMessage(lineUserId: string, data: any) {
 
   const flexMessage = {
     type: 'flex',
-    altText: `${nickname} ทำโจทย์ ${exerciseType} ได้ ${score}/${total} คะแนน`,
+    altText: `${nickname} ทำโจทย์${exerciseName}ได้ ${score}/${total} คะแนน`,
     contents: {
       type: 'bubble',
       hero: {
@@ -120,7 +130,7 @@ async function sendLineFlexMessage(lineUserId: string, data: any) {
           },
           {
             type: 'text',
-            text: exerciseType === 'test' ? 'ข้อความทดสอบ' : exerciseType,
+            text: exerciseType === 'test' ? 'ข้อความทดสอบ' : exerciseName,
             weight: 'bold',
             size: 'xl',
             align: 'center',
