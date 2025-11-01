@@ -236,6 +236,10 @@ const Profile = () => {
     approved_at: string | null;
     last_login_at: string | null;
     payment_date: string | null;
+    subscription_tier: string | null;
+    ai_features_enabled: boolean | null;
+    ai_monthly_quota: number | null;
+    ai_usage_count: number | null;
   } | null>(null);
 
   // Fetch user registration data
@@ -272,7 +276,7 @@ const Profile = () => {
         console.log('Fetching registration data for:', email);
         const { data, error } = await supabase
           .from('user_registrations')
-          .select('created_at, approved_at, last_login_at, payment_date, id')
+          .select('created_at, approved_at, last_login_at, payment_date, id, subscription_tier, ai_features_enabled, ai_monthly_quota, ai_usage_count')
           .eq('parent_email', email)
           .maybeSingle();
         
