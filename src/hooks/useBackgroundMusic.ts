@@ -46,9 +46,11 @@ export const useBackgroundMusic = (tracks: MusicTrack[]) => {
     const wasPlaying = isPlaying;
     
     // Stop current audio if playing
-    if (audioRef.current && isPlaying) {
-      audioRef.current.pause();
-      setIsPlaying(false);
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      }
+      audioRef.current = null;
     }
     
     // Get selected track URL
@@ -65,7 +67,10 @@ export const useBackgroundMusic = (tracks: MusicTrack[]) => {
 
     // Resume playing if it was playing before
     if (wasPlaying && isEnabled) {
-      setTimeout(() => fadeIn(), 100);
+      setIsPlaying(false); // Reset state first
+      setTimeout(() => {
+        fadeIn();
+      }, 150);
     }
 
     return () => {
@@ -77,7 +82,7 @@ export const useBackgroundMusic = (tracks: MusicTrack[]) => {
         clearInterval(fadeIntervalRef.current);
       }
     };
-  }, [selectedTrackId, tracks]);
+  }, [selectedTrackId, tracks, isEnabled]);
 
   // Save settings to localStorage
   const saveSettings = useCallback((enabled: boolean, vol: number, trackId: string) => {
