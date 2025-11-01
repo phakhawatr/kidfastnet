@@ -189,6 +189,44 @@ export type Database = {
           },
         ]
       }
+      line_link_codes: {
+        Row: {
+          created_at: string | null
+          expires_at: string
+          id: string
+          line_user_id: string | null
+          link_code: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          line_user_id?: string | null
+          link_code: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          line_user_id?: string | null
+          link_code?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "line_link_codes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           age: number
@@ -344,7 +382,10 @@ export type Database = {
           last_activity_at: string | null
           last_login_at: string | null
           learning_style: string | null
-          line_notify_token: string | null
+          line_connected_at: string | null
+          line_display_name: string | null
+          line_picture_url: string | null
+          line_user_id: string | null
           login_count: number | null
           member_id: string | null
           nickname: string
@@ -375,7 +416,10 @@ export type Database = {
           last_activity_at?: string | null
           last_login_at?: string | null
           learning_style?: string | null
-          line_notify_token?: string | null
+          line_connected_at?: string | null
+          line_display_name?: string | null
+          line_picture_url?: string | null
+          line_user_id?: string | null
           login_count?: number | null
           member_id?: string | null
           nickname: string
@@ -406,7 +450,10 @@ export type Database = {
           last_activity_at?: string | null
           last_login_at?: string | null
           learning_style?: string | null
-          line_notify_token?: string | null
+          line_connected_at?: string | null
+          line_display_name?: string | null
+          line_picture_url?: string | null
+          line_user_id?: string | null
           login_count?: number | null
           member_id?: string | null
           nickname?: string

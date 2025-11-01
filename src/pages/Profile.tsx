@@ -224,9 +224,13 @@ const Profile = () => {
   const [schoolName, setSchoolName] = useState('');
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [lineNotifyToken, setLineNotifyToken] = useState('');
-  const [lineNotifyStatus, setLineNotifyStatus] = useState<'connected' | 'disconnected'>('disconnected');
-  const [isSavingToken, setIsSavingToken] = useState(false);
+  const [lineUserId, setLineUserId] = useState('');
+  const [lineDisplayName, setLineDisplayName] = useState('');
+  const [linePictureUrl, setLinePictureUrl] = useState('');
+  const [showLinkCodeDialog, setShowLinkCodeDialog] = useState(false);
+  const [linkCode, setLinkCode] = useState('');
+  const [isLinking, setIsLinking] = useState(false);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
   
   // Get member ID from auth state
   const getMemberId = () => {
@@ -433,7 +437,7 @@ const Profile = () => {
           setNickname(username || '');
         }
 
-        // Load LINE Notify token if editing and registration data exists
+        // Load LINE connection status if editing and registration data exists
         if (isEditingProfile && registrationData) {
           const authStored = localStorage.getItem('kidfast_auth');
           if (authStored) {
@@ -443,13 +447,14 @@ const Profile = () => {
             if (registrationId) {
               const { data, error } = await supabase
                 .from('user_registrations')
-                .select('line_notify_token')
+                .select('line_user_id, line_display_name, line_picture_url')
                 .eq('id', registrationId)
                 .single();
 
               if (data && !error) {
-                setLineNotifyToken(data.line_notify_token || '');
-                setLineNotifyStatus(data.line_notify_token ? 'connected' : 'disconnected');
+                setLineUserId(data.line_user_id || '');
+                setLineDisplayName(data.line_display_name || '');
+                setLinePictureUrl(data.line_picture_url || '');
               }
             }
           }
@@ -486,7 +491,7 @@ const Profile = () => {
 
   const handleSaveProfile = async () => {
     try {
-      setIsSavingToken(true);
+      setIsSavingProfile(true);
 
       const profileData = {
         nickname,
@@ -503,43 +508,119 @@ const Profile = () => {
         authState.username = nickname;
         localStorage.setItem('kidfast_auth', JSON.stringify(authState));
       }
-
-      // Save LINE Notify token to database
-      if (registrationData) {
-        const authState = JSON.parse(authStored || '{}');
-        const registrationId = authState.registrationId;
-
-        if (registrationId) {
-          const { error: updateError } = await supabase
-            .from('user_registrations')
-            .update({ 
-              line_notify_token: lineNotifyToken.trim() || null 
-            })
-            .eq('id', registrationId);
-
-          if (updateError) {
-            console.error('Error updating LINE token:', updateError);
-            alert('เกิดข้อผิดพลาดในการบันทึก LINE Notify Token');
-            setIsSavingToken(false);
-            return;
-          }
-        }
-      }
       
-      setIsSavingToken(false);
+      setIsSavingProfile(false);
       setIsEditingProfile(false);
       // Reload page to reflect changes
       window.location.reload();
     } catch (e) {
       console.error('Error saving profile:', e);
       alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
-      setIsSavingToken(false);
+      setIsSavingProfile(false);
     }
   };
 
-  const handleTestLineNotify = async () => {
-    if (!lineNotifyToken) {
-      alert('กรุณาใส่ LINE Notify Token ก่อน');
+  const handleConnectLine = async () => {
+    try {
+      const authStored = localStorage.getItem('kidfast_auth');
+      if (!authStored) return;
+
+      const authState = JSON.parse(authStored);
+      const registrationId = authState.registrationId;
+
+      if (!registrationId) return;
+
+      // Generate link code
+      const { data, error } = await supabase.functions.invoke('line-generate-link-code', {
+        body: { userId: registrationId }
+      });
+
+      if (error || !data.linkCode) {
+        alert('ไม่สามารถสร้างรหัสเชื่อมได้');
+        return;
+      }
+
+      setLinkCode(data.linkCode);
+      setShowLinkCodeDialog(true);
+      setIsLinking(true);
+
+      // Start polling to check if linked (check every 3 seconds for 5 minutes)
+      let attempts = 0;
+      const maxAttempts = 100; // 5 minutes
+      
+      const checkInterval = setInterval(async () => {
+        attempts++;
+        
+        if (attempts > maxAttempts) {
+          clearInterval(checkInterval);
+          setIsLinking(false);
+          return;
+        }
+
+        const { data: userData } = await supabase
+          .from('user_registrations')
+          .select('line_user_id, line_display_name, line_picture_url')
+          .eq('id', registrationId)
+          .single();
+
+        if (userData && userData.line_user_id) {
+          clearInterval(checkInterval);
+          setLineUserId(userData.line_user_id);
+          setLineDisplayName(userData.line_display_name || '');
+          setLinePictureUrl(userData.line_picture_url || '');
+          setShowLinkCodeDialog(false);
+          setIsLinking(false);
+          alert('✅ เชื่อมต่อสำเร็จ!');
+          window.location.reload();
+        }
+      }, 3000);
+
+      // Clean up interval when dialog closes
+      return () => clearInterval(checkInterval);
+    } catch (err) {
+      console.error('Connect LINE error:', err);
+      alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+    }
+  };
+
+  const handleDisconnectLine = async () => {
+    const confirmed = confirm('คุณต้องการยกเลิกการเชื่อมต่อ LINE หรือไม่?');
+    if (!confirmed) return;
+
+    try {
+      const authStored = localStorage.getItem('kidfast_auth');
+      if (!authStored) return;
+
+      const authState = JSON.parse(authStored);
+      const registrationId = authState.registrationId;
+
+      if (!registrationId) return;
+
+      const { error } = await supabase
+        .from('user_registrations')
+        .update({
+          line_user_id: null,
+          line_display_name: null,
+          line_picture_url: null,
+          line_connected_at: null
+        })
+        .eq('id', registrationId);
+
+      if (!error) {
+        setLineUserId('');
+        setLineDisplayName('');
+        setLinePictureUrl('');
+        alert('ยกเลิกการเชื่อมต่อแล้ว');
+      }
+    } catch (err) {
+      console.error('Disconnect LINE error:', err);
+      alert('เกิดข้อผิดพลาดในการยกเลิกการเชื่อมต่อ');
+    }
+  };
+
+  const handleTestLineMessage = async () => {
+    if (!lineUserId) {
+      alert('กรุณาเชื่อมต่อ LINE ก่อน');
       return;
     }
 
@@ -552,7 +633,7 @@ const Profile = () => {
 
       if (!registrationId) return;
 
-      const { error } = await supabase.functions.invoke('send-line-notification', {
+      const { error } = await supabase.functions.invoke('send-line-message', {
         body: {
           userId: registrationId,
           exerciseType: 'test',
@@ -561,7 +642,7 @@ const Profile = () => {
           total: 0,
           percentage: 0,
           timeSpent: '0:00',
-          level: 'ทดสอบระบบ',
+          level: 'ทดสอบ',
           problems: []
         }
       });
@@ -569,10 +650,10 @@ const Profile = () => {
       if (error) {
         alert('ส่งข้อความไม่สำเร็จ: ' + error.message);
       } else {
-        alert('✅ ส่งข้อความทดสอบสำเร็จ! กรุณาตรวจสอบ LINE ของท่าน');
+        alert('✅ ส่งข้อความทดสอบสำเร็จ! ตรวจสอบ LINE @kidfast');
       }
     } catch (err) {
-      console.error('Test notification error:', err);
+      console.error('Test message error:', err);
       alert('เกิดข้อผิดพลาดในการทดสอบ');
     }
   };
@@ -1088,7 +1169,7 @@ const Profile = () => {
               />
             </div>
 
-            {/* LINE Notify Settings */}
+            {/* LINE Connection Settings */}
             {!isDemo && registrationData && (
               <div className="space-y-3 pt-4 border-t-2 border-purple-200">
                 <div className="flex items-center gap-2">
@@ -1099,47 +1180,67 @@ const Profile = () => {
                 </div>
                 
                 <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-xl">
-                  <div className="flex items-center gap-2 mb-2">
-                    {lineNotifyStatus === 'connected' ? (
-                      <>
-                        <span className="text-green-600 font-semibold">✅ เชื่อมต่อแล้ว</span>
-                        <button 
-                          type="button"
-                          onClick={handleTestLineNotify}
-                          className="ml-auto text-xs px-3 py-1 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
+                  {lineUserId ? (
+                    <>
+                      <div className="flex items-center gap-3 mb-3">
+                        {linePictureUrl && (
+                          <img 
+                            src={linePictureUrl} 
+                            alt="LINE Profile" 
+                            className="w-10 h-10 rounded-full border-2 border-green-400"
+                          />
+                        )}
+                        <div className="flex-1">
+                          <div className="text-green-600 font-semibold flex items-center gap-2">
+                            ✅ เชื่อมต่อแล้ว
+                          </div>
+                          <div className="text-xs text-gray-600">{lineDisplayName}</div>
+                        </div>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={handleDisconnectLine}
+                          className="text-xs"
                         >
-                          ทดสอบส่งข้อความ
-                        </button>
-                      </>
-                    ) : (
-                      <span className="text-orange-500 font-semibold">⚠️ ยังไม่ได้เชื่อมต่อ</span>
-                    )}
-                  </div>
-                  
-                  <Input
-                    type="text"
-                    value={lineNotifyToken}
-                    onChange={(e) => {
-                      setLineNotifyToken(e.target.value);
-                      setLineNotifyStatus(e.target.value.trim() ? 'connected' : 'disconnected');
-                    }}
-                    placeholder="ใส่ LINE Notify Token"
-                    className="text-sm mb-2"
-                  />
-                  
-                  <div className="text-xs text-gray-600 space-y-1">
-                    <p className="font-semibold">📌 วิธีขอ Token:</p>
-                    <ol className="list-decimal ml-4 space-y-1">
-                      <li>เปิด <a href="https://notify-bot.line.me/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">notify-bot.line.me</a></li>
-                      <li>เข้าสู่ระบบด้วย LINE</li>
-                      <li>กด "Generate token"</li>
-                      <li>เลือก "1-on-1 chat with LINE Notify"</li>
-                      <li>คัดลอก Token มาวางที่นี่</li>
-                    </ol>
-                    <p className="mt-2 text-xs text-blue-600">
-                      💡 เมื่อตั้งค่าแล้ว ผู้ปกครองจะได้รับผลการทำโจทย์ทุกครั้งที่ลูกกดตรวจคำตอบ
-                    </p>
-                  </div>
+                          ยกเลิก
+                        </Button>
+                      </div>
+                      <Button 
+                        onClick={handleTestLineMessage} 
+                        className="w-full bg-[#00B900] hover:bg-[#00A000] text-white"
+                        size="sm"
+                      >
+                        📤 ทดสอบส่งข้อความ
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-orange-500 font-semibold">⚠️ ยังไม่ได้เชื่อมต่อ</span>
+                      </div>
+                      
+                      <div className="bg-white p-3 rounded-lg mb-3 text-sm">
+                        <p className="font-semibold mb-2">📍 ขั้นตอนการเชื่อมต่อ:</p>
+                        <ol className="list-decimal ml-4 space-y-1 text-xs">
+                          <li>Add Friend <a href="https://line.me/R/ti/p/@kidfast" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-bold underline">@kidfast</a></li>
+                          <li>กดปุ่ม "เชื่อมต่อบัญชี" ด้านล่าง</li>
+                          <li>ส่งรหัส 6 หลักในแชท LINE @kidfast</li>
+                          <li>รอระบบยืนยัน (ประมาณ 5 วินาที)</li>
+                        </ol>
+                      </div>
+                      
+                      <Button 
+                        onClick={handleConnectLine}
+                        className="w-full bg-[#00B900] hover:bg-[#00A000] text-white"
+                        size="sm"
+                      >
+                        <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="white">
+                          <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
+                        </svg>
+                        เชื่อมต่อบัญชี LINE
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
             )}
@@ -1156,11 +1257,47 @@ const Profile = () => {
               <Button
                 onClick={handleSaveProfile}
                 className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-base py-6"
-                disabled={!nickname.trim() || isSavingToken}
+                disabled={!nickname.trim() || isSavingProfile}
               >
-                {isSavingToken ? 'กำลังบันทึก...' : 'บันทึก'}
+                {isSavingProfile ? 'กำลังบันทึก...' : 'บันทึก'}
               </Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Link Code Dialog */}
+      <Dialog open={showLinkCodeDialog} onOpenChange={setShowLinkCodeDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>🔗 เชื่อมต่อบัญชี LINE</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="text-center">
+              <p className="text-sm mb-2">ส่งรหัสนี้ในแชท LINE @kidfast</p>
+              <div className="text-4xl font-bold text-green-600 bg-green-50 py-4 rounded-lg tracking-widest">
+                {linkCode}
+              </div>
+              <p className="text-xs text-gray-500 mt-2">รหัสจะหมดอายุใน 5 นาที</p>
+            </div>
+            
+            <div className="bg-blue-50 p-3 rounded-lg text-sm">
+              <p className="font-semibold mb-1">📋 ขั้นตอน:</p>
+              <ol className="list-decimal ml-4 space-y-1 text-xs">
+                <li>คัดลอกรหัส 6 หลักด้านบน</li>
+                <li>เปิดแชท LINE @kidfast</li>
+                <li>ส่งรหัส</li>
+                <li>รอระบบยืนยัน</li>
+              </ol>
+            </div>
+            
+            {isLinking && (
+              <div className="text-center text-sm text-gray-600">
+                <div className="animate-spin h-6 w-6 border-4 border-green-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+                กำลังรอการเชื่อมต่อ...
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>

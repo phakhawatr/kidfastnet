@@ -2,3 +2,12 @@ project_id = "yxvuivtnyrcrtiqxhbkl"
 
 [functions.ai-math-tutor]
 verify_jwt = false
+
+[functions.line-webhook]
+verify_jwt = false
+
+[functions.line-generate-link-code]
+verify_jwt = false
+
+[functions.send-line-message]
+verify_jwt = false

@@ -284,7 +284,7 @@ const DivisionApp: React.FC = () => {
 
       const percentage = Math.round((correctCount / problems.length) * 100);
 
-      await supabase.functions.invoke('send-line-notification', {
+      await supabase.functions.invoke('send-line-message', {
         body: {
           userId,
           exerciseType: 'division',

@@ -688,7 +688,7 @@ export default function AdditionApp() {
       const percentage = Math.round((correctCount / problems.length) * 100);
 
       // Invoke edge function
-      await supabase.functions.invoke('send-line-notification', {
+      await supabase.functions.invoke('send-line-message', {
         body: {
           userId,
           exerciseType: 'addition',
