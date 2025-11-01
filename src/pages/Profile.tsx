@@ -503,6 +503,127 @@ const Profile = () => {
           </div>
         )}
 
+        {/* AI Features Section */}
+        {!isDemo && registrationData && (
+          <div className="card-glass p-6 mb-6 border-l-4 border-purple-500">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <Sparkles className="w-8 h-8 text-purple-500" />
+                <div>
+                  <h2 className="text-2xl font-bold text-[hsl(var(--text-primary))]">
+                    🤖 AI Learning Assistant
+                  </h2>
+                  <p className="text-sm text-[hsl(var(--text-secondary))]">
+                    ผู้ช่วยเรียนคณิตศาสตร์ด้วย AI ที่ฉลาด
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {registrationData.subscription_tier === 'premium' && registrationData.ai_features_enabled ? (
+              <>
+                {/* AI Quota Display */}
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 rounded-xl p-5 mb-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <p className="text-sm text-[hsl(var(--text-secondary))] mb-1">โควต้า AI เดือนนี้</p>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-3xl font-bold text-purple-600">
+                          {registrationData.ai_monthly_quota - registrationData.ai_usage_count}
+                        </span>
+                        <span className="text-lg text-[hsl(var(--text-secondary))]">
+                          / {registrationData.ai_monthly_quota} ครั้ง
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-[hsl(var(--text-secondary))] mb-1">ใช้ไปแล้ว</p>
+                      <div className="text-2xl font-bold text-orange-500">
+                        {registrationData.ai_usage_count}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Progress Bar */}
+                  <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                    <div 
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 h-full transition-all duration-500 rounded-full"
+                      style={{ 
+                        width: `${((registrationData.ai_monthly_quota - registrationData.ai_usage_count) / registrationData.ai_monthly_quota) * 100}%` 
+                      }}
+                    />
+                  </div>
+                  
+                  <p className="text-xs text-[hsl(var(--text-secondary))] mt-2">
+                    💡 โควต้าจะรีเซ็ตในวันที่ 1 ของเดือนหน้า
+                  </p>
+                </div>
+
+                {/* AI Access Button */}
+                <Link 
+                  to="/ai-tutor"
+                  className="block w-full"
+                >
+                  <div className="bg-gradient-to-r from-purple-500 via-pink-500 to-purple-600 hover:from-purple-600 hover:via-pink-600 hover:to-purple-700 text-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] cursor-pointer">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+                          <Sparkles className="w-6 h-6" />
+                          เริ่มใช้ AI Math Tutor
+                        </h3>
+                        <p className="text-sm text-white/90 mb-3">
+                          ถามคำถาม แก้โจทย์ และเรียนรู้กับ AI ที่เข้าใจคุณ
+                        </p>
+                        <ul className="text-xs space-y-1 text-white/80">
+                          <li>✓ ตอบคำถามทันที 24/7</li>
+                          <li>✓ อธิบายแบบเข้าใจง่าย</li>
+                          <li>✓ แนะนำวิธีทำโจทย์ทีละขั้นตอน</li>
+                        </ul>
+                      </div>
+                      <div className="text-6xl ml-4">
+                        🚀
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+
+                {/* Quick Tips */}
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="bg-white/50 rounded-lg p-3 text-center border border-purple-200">
+                    <div className="text-2xl mb-1">💬</div>
+                    <p className="text-xs font-medium text-[hsl(var(--text-primary))]">ถามได้ทุกเรื่อง</p>
+                  </div>
+                  <div className="bg-white/50 rounded-lg p-3 text-center border border-pink-200">
+                    <div className="text-2xl mb-1">📝</div>
+                    <p className="text-xs font-medium text-[hsl(var(--text-primary))]">แก้โจทย์ให้</p>
+                  </div>
+                  <div className="bg-white/50 rounded-lg p-3 text-center border border-purple-200">
+                    <div className="text-2xl mb-1">🎯</div>
+                    <p className="text-xs font-medium text-[hsl(var(--text-primary))]">เรียนรู้ได้เร็ว</p>
+                  </div>
+                </div>
+              </>
+            ) : (
+              /* Basic/No AI Access */
+              <div className="text-center py-8">
+                <div className="text-6xl mb-4">🔒</div>
+                <h3 className="text-xl font-bold text-[hsl(var(--text-primary))] mb-2">
+                  ฟีเจอร์ AI สำหรับสมาชิก Premium
+                </h3>
+                <p className="text-[hsl(var(--text-secondary))] mb-6 max-w-md mx-auto">
+                  อัพเกรดเป็น Premium เพื่อใช้งาน AI Math Tutor และรับความช่วยเหลือจาก AI ได้ทันที
+                </p>
+                <Link 
+                  to="/profile?tab=subscription"
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                >
+                  <Sparkles className="w-5 h-5" />
+                  อัพเกรด Premium ตอนนี้
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={(value) => setSearchParams({ tab: value })}>
