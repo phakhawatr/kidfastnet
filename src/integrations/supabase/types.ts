@@ -533,6 +533,10 @@ export type Database = {
         Args: { admin_id: string; registration_id: string }
         Returns: boolean
       }
+      downgrade_to_basic: {
+        Args: { p_admin_id: string; p_registration_id: string }
+        Returns: boolean
+      }
       generate_affiliate_code: { Args: { p_user_id: string }; Returns: string }
       generate_member_id: { Args: never; Returns: string }
       get_affiliate_referrals: {
@@ -659,6 +663,10 @@ export type Database = {
       update_login_stats: { Args: { user_email: string }; Returns: boolean }
       update_user_session: {
         Args: { device_info?: string; session_id: string; user_email: string }
+        Returns: boolean
+      }
+      upgrade_to_premium: {
+        Args: { p_admin_id: string; p_registration_id: string }
         Returns: boolean
       }
       validate_email_format: { Args: { email: string }; Returns: boolean }

@@ -23,6 +23,7 @@ import NumberSeriesApp from "./pages/NumberSeriesApp";
 import SumGridPuzzles from "./pages/SumGridPuzzles";
 import BackgroundRemoverPage from "./pages/BackgroundRemover";
 import ParentDashboard from "./pages/ParentDashboard";
+import AIMathTutor from "./pages/AIMathTutor";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
@@ -182,6 +183,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <SumGridPuzzles />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/ai-math-tutor" 
+            element={
+              <ProtectedRoute>
+                <AIMathTutor />
               </ProtectedRoute>
             } 
           />

@@ -115,6 +115,79 @@ const Landing = () => {
           </div>
         </section>
 
+        {/* AI Premium Features Section */}
+        <section className="mb-12">
+          <div className="card-glass p-8 border-4 border-purple-400/50">
+            <div className="text-center mb-8">
+              <div className="inline-block mb-4">
+                <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white px-6 py-2 rounded-full text-lg font-bold shadow-lg">
+                  👑 Premium Features
+                </span>
+              </div>
+              <h2 className="text-2xl md:text-3xl font-bold text-[hsl(var(--text-primary))] mb-4">
+                ✨ ฟีเจอร์พิเศษสำหรับสมาชิก Premium
+              </h2>
+              <p className="text-lg text-[hsl(var(--text-secondary))] max-w-3xl mx-auto">
+                ปลดล็อกฟีเจอร์ AI ที่จะช่วยให้การเรียนคณิตศาสตร์สนุกและมีประสิทธิภาพมากขึ้น!
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Link to="/ai-math-tutor" className="group bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                <div className="text-6xl mb-4 text-center">🤖</div>
+                <h3 className="font-bold text-xl mb-3 text-white text-center">
+                  AI ครูคณิตศาสตร์
+                </h3>
+                <p className="text-sm text-white/90 text-center">
+                  คุณครู AI พร้อมตอบคำถาม อธิบายโจทย์ และให้คำแนะนำเป็นภาษาไทยที่เข้าใจง่าย สนุกทุกคำถาม!
+                </p>
+                <div className="mt-4 text-center">
+                  <span className="inline-block bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium">
+                    คลิกเพื่อเริ่มสนทนา →
+                  </span>
+                </div>
+              </Link>
+
+              <div className="group bg-gradient-to-br from-blue-500 via-cyan-500 to-teal-500 p-6 rounded-2xl shadow-xl opacity-60 relative">
+                <div className="absolute top-4 right-4 bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-xs font-bold">
+                  เร็วๆ นี้
+                </div>
+                <div className="text-6xl mb-4 text-center opacity-70">📊</div>
+                <h3 className="font-bold text-xl mb-3 text-white text-center">
+                  AI วิเคราะห์จุดแข็ง-จุดอ่อน
+                </h3>
+                <p className="text-sm text-white/90 text-center">
+                  วิเคราะห์ผลการเรียนและให้คำแนะนำแบบเฉพาะบุคคล เพื่อพัฒนาทักษะที่ยังขาดอยู่
+                </p>
+              </div>
+
+              <div className="group bg-gradient-to-br from-green-500 via-emerald-500 to-teal-500 p-6 rounded-2xl shadow-xl opacity-60 relative">
+                <div className="absolute top-4 right-4 bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-xs font-bold">
+                  เร็วๆ นี้
+                </div>
+                <div className="text-6xl mb-4 text-center opacity-70">🎯</div>
+                <h3 className="font-bold text-xl mb-3 text-white text-center">
+                  AI สร้างโจทย์แบบ Adaptive
+                </h3>
+                <p className="text-sm text-white/90 text-center">
+                  สร้างโจทย์ที่ปรับความยากตามระดับความสามารถ เพื่อให้เด็กเรียนรู้อย่างต่อเนื่อง
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-8 text-center">
+              <Link 
+                to="/profile?tab=subscription"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              >
+                <span className="text-2xl">✨</span>
+                <span>อัพเกรด Premium เพื่อใช้ฟีเจอร์เหล่านี้</span>
+                <span className="text-2xl">👑</span>
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {/* AI Examples Section */}
         <section className="mb-12">
           <div className="card-glass p-8">

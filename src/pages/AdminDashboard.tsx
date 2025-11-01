@@ -34,6 +34,10 @@ interface UserRegistration {
   last_activity_at?: string;
   payment_status?: 'pending' | 'paid';
   payment_date?: string;
+  subscription_tier?: 'basic' | 'premium';
+  ai_features_enabled?: boolean;
+  ai_monthly_quota?: number;
+  ai_usage_count?: number;
 }
 
 interface UserPresence {
@@ -442,6 +446,66 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleUpgradeToPremium = async (registrationId: string, nickname: string) => {
+    try {
+      const { data, error } = await supabase.rpc('upgrade_to_premium', {
+        p_registration_id: registrationId,
+        p_admin_id: adminId
+      });
+
+      if (error) throw error;
+
+      if (data) {
+        ToastManager.show({
+          message: `✨ อัพเกรด "${nickname}" เป็น Premium เรียบร้อย!`,
+          type: 'success'
+        });
+        fetchRegistrations();
+      } else {
+        ToastManager.show({
+          message: 'ไม่สามารถอัพเกรดได้ กรุณาตรวจสอบสถานะสมาชิก',
+          type: 'error'
+        });
+      }
+    } catch (error) {
+      console.error('Error upgrading to premium:', error);
+      ToastManager.show({
+        message: 'เกิดข้อผิดพลาดในการอัพเกรด Premium',
+        type: 'error'
+      });
+    }
+  };
+
+  const handleDowngradeToBasic = async (registrationId: string, nickname: string) => {
+    try {
+      const { data, error } = await supabase.rpc('downgrade_to_basic', {
+        p_registration_id: registrationId,
+        p_admin_id: adminId
+      });
+
+      if (error) throw error;
+
+      if (data) {
+        ToastManager.show({
+          message: `📉 ปรับ "${nickname}" เป็น Basic เรียบร้อย!`,
+          type: 'info'
+        });
+        fetchRegistrations();
+      } else {
+        ToastManager.show({
+          message: 'ไม่สามารถปรับเป็น Basic ได้',
+          type: 'error'
+        });
+      }
+    } catch (error) {
+      console.error('Error downgrading to basic:', error);
+      ToastManager.show({
+        message: 'เกิดข้อผิดพลาดในการปรับเป็น Basic',
+        type: 'error'
+      });
+    }
+  };
+
   const openPaymentConfirmDialog = (registrationId: string, nickname: string) => {
     setPaymentConfirmDialog({
       isOpen: true,
@@ -776,7 +840,7 @@ const AdminDashboard = () => {
                                 </div>
                               </div>
 
-                              {/* Payment Status - Only for approved members */}
+                               {/* Payment Status - Only for approved members */}
                               <div className="mt-2 pt-2 border-t border-gray-200">
                                 <div className="flex items-center gap-2 text-sm">
                                   <span className="font-medium">💳 สถานะการชำระเงิน:</span>
@@ -801,6 +865,27 @@ const AdminDashboard = () => {
                                     })}
                                   </p>
                                 )}
+                              </div>
+
+                              {/* Subscription Tier */}
+                              <div className="mt-2 pt-2 border-t border-gray-200">
+                                <div className="flex items-center gap-2 text-sm flex-wrap">
+                                  <span className="font-medium">✨ แพ็กเกจ:</span>
+                                  {registration.subscription_tier === 'premium' ? (
+                                    <span className="px-2 py-1 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 rounded-full text-xs font-medium border border-purple-300">
+                                      👑 Premium
+                                    </span>
+                                  ) : (
+                                    <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">
+                                      🆓 Basic (Free)
+                                    </span>
+                                  )}
+                                  {registration.ai_features_enabled && (
+                                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                                      🤖 AI: {registration.ai_usage_count || 0}/{registration.ai_monthly_quota || 0}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           );
@@ -847,6 +932,25 @@ const AdminDashboard = () => {
                         aria-label={`รีเซ็ตสถานะการชำระเงินของ ${registration.nickname}`}
                       >
                         <span aria-hidden="true">🔄</span> รีเซ็ตการชำระเงิน
+                      </button>
+                    )}
+                    
+                    {/* Premium Management Buttons */}
+                    {registration.subscription_tier === 'basic' ? (
+                      <button
+                        onClick={() => handleUpgradeToPremium(registration.id, registration.nickname)}
+                        className="min-h-[44px] px-5 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg focus:ring-4 focus:ring-purple-300 focus:outline-none transition-all text-sm font-medium shadow-md"
+                        aria-label={`อัพเกรดเป็น Premium สำหรับ ${registration.nickname}`}
+                      >
+                        <span aria-hidden="true">✨</span> อัพเกรด Premium
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleDowngradeToBasic(registration.id, registration.nickname)}
+                        className="min-h-[44px] px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg focus:ring-4 focus:ring-gray-300 focus:outline-none transition-colors text-sm font-medium"
+                        aria-label={`ปรับเป็น Basic สำหรับ ${registration.nickname}`}
+                      >
+                        <span aria-hidden="true">📉</span> ปรับเป็น Basic
                       </button>
                     )}
                   </div>
