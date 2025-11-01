@@ -6,6 +6,8 @@ import { ArrowLeft, RotateCcw, CheckCircle2, Timer, PlayCircle, RefreshCw, Print
 import { useToast } from '@/hooks/use-toast';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { useBackgroundMusic } from '../hooks/useBackgroundMusic';
+import { BackgroundMusic } from '../components/BackgroundMusic';
 
 interface Problem {
   multiplicand: string;
@@ -21,6 +23,9 @@ interface Answer {
 }
 
 const MultiplicationApp = () => {
+  // Background music
+  const backgroundMusic = useBackgroundMusic('https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3');
+  
   const { toast } = useToast();
   const [problemCount, setProblemCount] = useState(15);
   const [difficulty, setDifficulty] = useState('ง่าย');
@@ -186,6 +191,7 @@ const MultiplicationApp = () => {
   const startTimer = () => {
     if (!startTime) {
       setStartTime(Date.now());
+      backgroundMusic.play(); // Start background music
     }
   };
 
@@ -211,6 +217,8 @@ const MultiplicationApp = () => {
   // Check answers
   const checkAnswers = () => {
     if (!problems.length) return;
+    
+    backgroundMusic.stop(); // Stop background music when checking
     
     let allCorrect = true;
     const newResults = [...results];
@@ -974,6 +982,14 @@ const MultiplicationApp = () => {
           </div>
         )}
       </main>
+
+      <BackgroundMusic
+        isPlaying={backgroundMusic.isPlaying}
+        isEnabled={backgroundMusic.isEnabled}
+        volume={backgroundMusic.volume}
+        onToggle={backgroundMusic.toggleEnabled}
+        onVolumeChange={backgroundMusic.changeVolume}
+      />
 
       <Footer />
     </div>

@@ -3,6 +3,8 @@ import { ArrowLeft, Printer, Upload, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { useBackgroundMusic } from "../hooks/useBackgroundMusic";
+import { BackgroundMusic } from "../components/BackgroundMusic";
 
 // ================= Utilities =================
 function randInt(min, max) {
@@ -327,6 +329,9 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
 
 // ================= Main App =================
 export default function AdditionApp() {
+  // Background music
+  const backgroundMusic = useBackgroundMusic('https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3');
+  
   const [count, setCount] = useState(15);
   const [level, setLevel] = useState("easy"); // easy | medium | hard
   const [digits, setDigits] = useState(2);
@@ -438,6 +443,7 @@ export default function AdditionApp() {
       const now = Date.now();
       setStartedAt(now);
       setElapsedMs(0);
+      backgroundMusic.play(); // Start background music
     }
   }
 
@@ -1278,6 +1284,14 @@ export default function AdditionApp() {
         onShowAnswers={() => showAll({ openSummary: false })}
         onSave={saveStats}
         alreadyShowing={showAnswers}
+      />
+
+      <BackgroundMusic
+        isPlaying={backgroundMusic.isPlaying}
+        isEnabled={backgroundMusic.isEnabled}
+        volume={backgroundMusic.volume}
+        onToggle={backgroundMusic.toggleEnabled}
+        onVolumeChange={backgroundMusic.changeVolume}
       />
 
       <PdfPreviewModal

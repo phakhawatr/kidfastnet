@@ -5,6 +5,8 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { useSubtractionGame } from "../hooks/useSubtractionGame";
 import { ProblemCard } from "../components/ProblemCard";
+import { useBackgroundMusic } from "../hooks/useBackgroundMusic";
+import { BackgroundMusic } from "../components/BackgroundMusic";
 import { 
   formatMS, 
   fmtDate, 
@@ -15,7 +17,22 @@ import {
   type SummaryData 
 } from "../utils/subtractionUtils";
 
-const SubtractionApp: React.FC = () => {
+  const SubtractionApp: React.FC = () => {
+  // Background music
+  const backgroundMusic = useBackgroundMusic('https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3');
+
+  // Wrap startTimerIfNeeded to include music
+  const wrappedStartTimer = () => {
+    startTimerIfNeeded();
+    backgroundMusic.play();
+  };
+
+  // Wrap checkAnswers to stop music
+  const wrappedCheckAnswers = () => {
+    backgroundMusic.stop();
+    checkAnswers();
+  };
+  
   const {
     count, level, digits, allowBorrow, operands, problems, answers, results,
     showAnswers, celebrate, showSummary, summary, startedAt, finishedAt, 
@@ -574,7 +591,7 @@ const SubtractionApp: React.FC = () => {
             <span className="text-2xl">✨</span>
             <span>AI สร้างโจทย์ใหม่</span>
           </button>
-          <button onClick={checkAnswers} className="px-5 py-3 rounded-2xl text-lg bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg">✅ ตรวจคำตอบ (Check)</button>
+          <button onClick={wrappedCheckAnswers} className="px-5 py-3 rounded-2xl text-lg bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg">✅ ตรวจคำตอบ (Check)</button>
           <button onClick={() => showAll({ openSummary: true })} className="px-5 py-3 rounded-2xl text-lg bg-amber-500 text-white hover:bg-amber-600 shadow-lg">👀 เฉลยทั้งหมด (Show Answers)</button>
           <button onClick={printToPDF} className="px-5 py-3 rounded-2xl text-lg bg-purple-600 text-white hover:bg-purple-700 shadow-lg flex items-center gap-2">
             <Printer size={20} />
@@ -597,7 +614,7 @@ const SubtractionApp: React.FC = () => {
               result={results[i]}
               showAnswer={showAnswers}
               onReset={onReset}
-              onFirstType={startTimerIfNeeded}
+              onFirstType={wrappedStartTimer}
               digits={digits}
             />
           ))}
@@ -605,7 +622,7 @@ const SubtractionApp: React.FC = () => {
 
         {/* Bottom action bar */}
         <div className="mt-6 flex justify-center">
-          <button onClick={checkAnswers} className="px-8 py-4 rounded-3xl text-xl bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg">✅ ตรวจคำตอบ</button>
+          <button onClick={wrappedCheckAnswers} className="px-8 py-4 rounded-3xl text-xl bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg">✅ ตรวจคำตอบ</button>
         </div>
 
         {/* History panel */}
@@ -653,6 +670,14 @@ const SubtractionApp: React.FC = () => {
 
       {/* Modals and Overlays */}
       {celebrate && <Confetti />}
+      
+      <BackgroundMusic
+        isPlaying={backgroundMusic.isPlaying}
+        isEnabled={backgroundMusic.isEnabled}
+        volume={backgroundMusic.volume}
+        onToggle={backgroundMusic.toggleEnabled}
+        onVolumeChange={backgroundMusic.changeVolume}
+      />
       
       <SummaryModal 
         open={showSummary} 

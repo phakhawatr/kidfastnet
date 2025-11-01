@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Printer, Upload, X } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { useBackgroundMusic } from '../hooks/useBackgroundMusic';
+import { BackgroundMusic } from '../components/BackgroundMusic';
 
 // Types and interfaces
 interface Problem {
@@ -28,6 +30,9 @@ type Level = 'easy' | 'medium' | 'hard';
 
 // Main component
 const DivisionApp: React.FC = () => {
+  // Background music
+  const backgroundMusic = useBackgroundMusic('https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3');
+  
   const navigate = useNavigate();
   
   // State management
@@ -151,6 +156,7 @@ const DivisionApp: React.FC = () => {
     if (!startedAt && value !== '') {
       const now = Date.now();
       setStartedAt(now);
+      backgroundMusic.play(); // Start background music
       intervalRef.current = setInterval(() => {
         setElapsedMs(Date.now() - now);
       }, 100);
@@ -174,6 +180,8 @@ const DivisionApp: React.FC = () => {
 
   // Check all answers
   const checkAnswers = () => {
+    backgroundMusic.stop(); // Stop background music
+    
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
@@ -648,7 +656,7 @@ const DivisionApp: React.FC = () => {
                          </div>
                        </div>
                     </div>
-                  </div>)}
+                   </div>)}
               </div>}
           </div>
           <Button onClick={() => setShowStats(false)} className="w-full">
@@ -656,6 +664,14 @@ const DivisionApp: React.FC = () => {
           </Button>
         </DialogContent>
       </Dialog>
+      
+      <BackgroundMusic
+        isPlaying={backgroundMusic.isPlaying}
+        isEnabled={backgroundMusic.isEnabled}
+        volume={backgroundMusic.volume}
+        onToggle={backgroundMusic.toggleEnabled}
+        onVolumeChange={backgroundMusic.changeVolume}
+      />
     </div>;
 };
 export default DivisionApp;
