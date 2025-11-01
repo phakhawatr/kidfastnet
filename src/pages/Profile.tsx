@@ -1,13 +1,15 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SkillsSection from '../components/SkillsSection';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
-import { Users } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Users, Sparkles } from 'lucide-react';
 import { ToastManager } from '../components/Toast';
+import { SubscriptionTab } from '../components/SubscriptionTab';
 
 // Import mascot images
 import mascotAddition from '../assets/mascot-addition.png';
@@ -207,6 +209,10 @@ const Profile = () => {
     isDemo,
     logout
   } = useAuth();
+  
+  // Get active tab from URL
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get('tab') || 'overview';
   
   // Get member ID from auth state
   const getMemberId = () => {
@@ -447,8 +453,19 @@ const Profile = () => {
         )}
 
 
-        {/* Grade Selection */}
-        <div className="flex gap-3 mb-6 overflow-x-auto pb-2">
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={(value) => setSearchParams({ tab: value })}>
+          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-6">
+            <TabsTrigger value="overview">ภาพรวม</TabsTrigger>
+            <TabsTrigger value="subscription">
+              <Sparkles className="w-4 h-4 mr-2" />
+              แพ็กเกจ
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview">
+            {/* Grade Selection */}
+            <div className="flex gap-3 mb-6 overflow-x-auto pb-2">
           {grades.map(grade => (
             <button 
               key={grade.id} 
@@ -574,6 +591,13 @@ const Profile = () => {
 
         {/* Skills Section */}
         <SkillsSection />
+
+      </TabsContent>
+
+      <TabsContent value="subscription">
+        <SubscriptionTab />
+      </TabsContent>
+    </Tabs>
 
       </main>
 

@@ -154,6 +154,41 @@ export type Database = {
           },
         ]
       }
+      ai_usage_logs: {
+        Row: {
+          cost_estimate: number | null
+          created_at: string | null
+          feature_type: string
+          id: string
+          tokens_used: number | null
+          user_id: string | null
+        }
+        Insert: {
+          cost_estimate?: number | null
+          created_at?: string | null
+          feature_type: string
+          id?: string
+          tokens_used?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          cost_estimate?: number | null
+          created_at?: string | null
+          feature_type?: string
+          id?: string
+          tokens_used?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_usage_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           age: number
@@ -229,6 +264,39 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_plans: {
+        Row: {
+          ai_features_enabled: boolean | null
+          ai_monthly_quota: number | null
+          created_at: string | null
+          features: Json | null
+          id: string
+          plan_name: string
+          price_6_months: number | null
+          price_monthly: number | null
+        }
+        Insert: {
+          ai_features_enabled?: boolean | null
+          ai_monthly_quota?: number | null
+          created_at?: string | null
+          features?: Json | null
+          id?: string
+          plan_name: string
+          price_6_months?: number | null
+          price_monthly?: number | null
+        }
+        Update: {
+          ai_features_enabled?: boolean | null
+          ai_monthly_quota?: number | null
+          created_at?: string | null
+          features?: Json | null
+          id?: string
+          plan_name?: string
+          price_6_months?: number | null
+          price_monthly?: number | null
+        }
+        Relationships: []
+      }
       user_points: {
         Row: {
           id: string
@@ -261,6 +329,10 @@ export type Database = {
       user_registrations: {
         Row: {
           age: number
+          ai_features_enabled: boolean | null
+          ai_monthly_quota: number | null
+          ai_quota_reset_date: string | null
+          ai_usage_count: number | null
           approved_at: string | null
           approved_by: string | null
           avatar: string
@@ -283,9 +355,14 @@ export type Database = {
           referred_by_code: string | null
           session_id: string | null
           status: string
+          subscription_tier: string | null
         }
         Insert: {
           age: number
+          ai_features_enabled?: boolean | null
+          ai_monthly_quota?: number | null
+          ai_quota_reset_date?: string | null
+          ai_usage_count?: number | null
           approved_at?: string | null
           approved_by?: string | null
           avatar: string
@@ -308,9 +385,14 @@ export type Database = {
           referred_by_code?: string | null
           session_id?: string | null
           status?: string
+          subscription_tier?: string | null
         }
         Update: {
           age?: number
+          ai_features_enabled?: boolean | null
+          ai_monthly_quota?: number | null
+          ai_quota_reset_date?: string | null
+          ai_usage_count?: number | null
           approved_at?: string | null
           approved_by?: string | null
           avatar?: string
@@ -333,6 +415,7 @@ export type Database = {
           referred_by_code?: string | null
           session_id?: string | null
           status?: string
+          subscription_tier?: string | null
         }
         Relationships: [
           {
@@ -418,6 +501,13 @@ export type Database = {
           user_id: string
         }[]
       }
+      check_and_reset_ai_quota: {
+        Args: { p_user_id: string }
+        Returns: {
+          has_quota: boolean
+          remaining: number
+        }[]
+      }
       check_user_session_status: {
         Args: {
           new_device_info?: string
@@ -443,14 +533,8 @@ export type Database = {
         Args: { admin_id: string; registration_id: string }
         Returns: boolean
       }
-      generate_affiliate_code: {
-        Args: { p_user_id: string }
-        Returns: string
-      }
-      generate_member_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      generate_affiliate_code: { Args: { p_user_id: string }; Returns: string }
+      generate_member_id: { Args: never; Returns: string }
       get_affiliate_referrals: {
         Args: { p_user_email: string }
         Returns: {
@@ -478,7 +562,7 @@ export type Database = {
         }[]
       }
       get_user_registrations: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           age: number
           approved_at: string
@@ -504,14 +588,16 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_authenticated_admin: {
-        Args: Record<PropertyKey, never>
+      increment_ai_usage: {
+        Args: {
+          p_feature_type: string
+          p_tokens_used?: number
+          p_user_id: string
+        }
         Returns: boolean
       }
-      is_user_affiliate_owner: {
-        Args: { p_user_id: string }
-        Returns: boolean
-      }
+      is_authenticated_admin: { Args: never; Returns: boolean }
+      is_user_affiliate_owner: { Args: { p_user_id: string }; Returns: boolean }
       log_admin_action: {
         Args: { action_data?: Json; action_type: string; admin_email: string }
         Returns: string
@@ -570,26 +656,14 @@ export type Database = {
         Args: { p_referred_email: string; p_referrer_member_id: string }
         Returns: undefined
       }
-      update_login_stats: {
-        Args: { user_email: string }
-        Returns: boolean
-      }
+      update_login_stats: { Args: { user_email: string }; Returns: boolean }
       update_user_session: {
         Args: { device_info?: string; session_id: string; user_email: string }
         Returns: boolean
       }
-      validate_email_format: {
-        Args: { email: string }
-        Returns: boolean
-      }
-      validate_phone_format: {
-        Args: { phone: string }
-        Returns: boolean
-      }
-      verify_admin_session: {
-        Args: { admin_email: string }
-        Returns: boolean
-      }
+      validate_email_format: { Args: { email: string }; Returns: boolean }
+      validate_phone_format: { Args: { phone: string }; Returns: boolean }
+      verify_admin_session: { Args: { admin_email: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "parent" | "user"

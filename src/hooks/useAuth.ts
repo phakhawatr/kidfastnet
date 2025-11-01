@@ -20,6 +20,11 @@ interface ProfileData {
   grade: string;
   avatar: string;
   is_approved: boolean;
+  subscription_tier?: string;
+  ai_features_enabled?: boolean;
+  ai_monthly_quota?: number;
+  ai_usage_count?: number;
+  ai_quota_reset_date?: string;
 }
 
 export const useAuth = () => {
@@ -89,17 +94,35 @@ export const useAuth = () => {
 
   const fetchUserProfile = async (userId: string) => {
     try {
-      const { data, error } = await supabase
+      // Try to get profile from profiles table first
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('nickname, age, grade, avatar, is_approved')
+        .select('nickname, age, grade, avatar, is_approved, parent_email')
         .eq('user_id', userId)
         .maybeSingle();
 
-      if (error) {
+      if (profileError) {
         return;
       }
 
-      setProfile(data);
+      // If we have profile data, also fetch subscription data from user_registrations
+      if (profileData) {
+        const { data: regData } = await supabase
+          .from('user_registrations')
+          .select('subscription_tier, ai_features_enabled, ai_monthly_quota, ai_usage_count, ai_quota_reset_date')
+          .eq('parent_email', profileData.parent_email)
+          .maybeSingle();
+
+        // Merge both data sources
+        setProfile({
+          ...profileData,
+          subscription_tier: regData?.subscription_tier,
+          ai_features_enabled: regData?.ai_features_enabled,
+          ai_monthly_quota: regData?.ai_monthly_quota,
+          ai_usage_count: regData?.ai_usage_count,
+          ai_quota_reset_date: regData?.ai_quota_reset_date,
+        });
+      }
     } catch (error) {
       // Error fetching profile
     }
