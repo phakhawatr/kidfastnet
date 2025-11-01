@@ -7,7 +7,11 @@ import { useAuth } from '../hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Sparkles } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Users, Sparkles, Edit, Upload, X } from 'lucide-react';
 import { SubscriptionTab } from '../components/SubscriptionTab';
 
 // Import mascot images
@@ -213,6 +217,13 @@ const Profile = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'overview';
   
+  // Profile editing states
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [nickname, setNickname] = useState('');
+  const [studentClass, setStudentClass] = useState('');
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  
   // Get member ID from auth state
   const getMemberId = () => {
     try {
@@ -403,6 +414,92 @@ const Profile = () => {
     return grade ? grade.label : '';
   };
 
+  // Load profile data from localStorage
+  useEffect(() => {
+    const loadProfileData = () => {
+      try {
+        const stored = localStorage.getItem('kidfast_profile');
+        if (stored) {
+          const profileData = JSON.parse(stored);
+          setNickname(profileData.nickname || username || '');
+          setStudentClass(profileData.studentClass || '');
+          setProfileImage(profileData.profileImage || null);
+        } else {
+          setNickname(username || '');
+        }
+      } catch (e) {
+        console.error('Error loading profile data:', e);
+        setNickname(username || '');
+      }
+    };
+    loadProfileData();
+  }, [username]);
+
+  // Handle profile editing
+  const handleEditProfile = () => {
+    setIsEditingProfile(true);
+  };
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setProfileImage(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setProfileImage(null);
+    setImageFile(null);
+  };
+
+  const handleSaveProfile = () => {
+    try {
+      const profileData = {
+        nickname,
+        studentClass,
+        profileImage
+      };
+      localStorage.setItem('kidfast_profile', JSON.stringify(profileData));
+      
+      // Update auth state with new nickname
+      const authStored = localStorage.getItem('kidfast_auth');
+      if (authStored) {
+        const authState = JSON.parse(authStored);
+        authState.username = nickname;
+        localStorage.setItem('kidfast_auth', JSON.stringify(authState));
+      }
+      
+      setIsEditingProfile(false);
+      // Reload page to reflect changes
+      window.location.reload();
+    } catch (e) {
+      console.error('Error saving profile:', e);
+      alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    // Reset to original values
+    const stored = localStorage.getItem('kidfast_profile');
+    if (stored) {
+      const profileData = JSON.parse(stored);
+      setNickname(profileData.nickname || username || '');
+      setStudentClass(profileData.studentClass || '');
+      setProfileImage(profileData.profileImage || null);
+    } else {
+      setNickname(username || '');
+      setStudentClass('');
+      setProfileImage(null);
+    }
+    setImageFile(null);
+    setIsEditingProfile(false);
+  };
+
 
   return <div className="min-h-screen">
       <Header />
@@ -411,19 +508,42 @@ const Profile = () => {
         {/* Welcome Header */}
         <div className="card-glass p-6 mb-6">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-[hsl(var(--text-primary))] mb-2">
-                สวัสดี {isDemo ? 'นักเรียนทดลอง' : `น้อง${username}`}!
-                {!isDemo && memberId && (
-                  <span className="text-lg font-normal text-[hsl(var(--text-secondary))] ml-2 bg-blue-50 px-3 py-1 rounded-full">
-                    รหัส: {memberId}
-                  </span>
-                )}
-                🌟
-              </h1>
-              <p className="text-[hsl(var(--text-secondary))]">ยินดีต้อนรับกลับสู่การเรียนรู้ที่สนุก</p>
+            <div className="flex items-center gap-4">
+              {/* Profile Image */}
+              {profileImage && (
+                <img 
+                  src={profileImage} 
+                  alt="Profile" 
+                  className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg"
+                />
+              )}
+              <div>
+                <h1 className="text-2xl font-bold text-[hsl(var(--text-primary))] mb-2">
+                  สวัสดี {isDemo ? 'นักเรียนทดลอง' : `น้อง${nickname || username}`}!
+                  {!isDemo && memberId && (
+                    <span className="text-lg font-normal text-[hsl(var(--text-secondary))] ml-2 bg-blue-50 px-3 py-1 rounded-full">
+                      รหัส: {memberId}
+                    </span>
+                  )}
+                  🌟
+                </h1>
+                <p className="text-[hsl(var(--text-secondary))]">
+                  {studentClass ? `${studentClass} • ` : ''}ยินดีต้อนรับกลับสู่การเรียนรู้ที่สนุก
+                </p>
+              </div>
             </div>
             <div className="flex items-center gap-3">
+              {/* Edit Profile Button */}
+              <Button
+                onClick={handleEditProfile}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2 hover:bg-blue-50 border-blue-300"
+              >
+                <Edit className="w-4 h-4" />
+                <span>แก้ไขโปรไฟล์</span>
+              </Button>
+              
               {/* Subscription Badge */}
               {!isDemo && registrationData && (
                 <div className={`px-5 py-3 rounded-xl font-semibold text-lg shadow-md ${
@@ -772,6 +892,108 @@ const Profile = () => {
     </Tabs>
 
       </main>
+
+      {/* Edit Profile Dialog */}
+      <Dialog open={isEditingProfile} onOpenChange={setIsEditingProfile}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-center">แก้ไขโปรไฟล์</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            {/* Profile Image Upload */}
+            <div className="flex flex-col items-center gap-4">
+              <div className="relative">
+                {profileImage ? (
+                  <div className="relative">
+                    <img 
+                      src={profileImage} 
+                      alt="Profile Preview" 
+                      className="w-32 h-32 rounded-full object-cover border-4 border-purple-300 shadow-lg"
+                    />
+                    <button
+                      onClick={handleRemoveImage}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 hover:bg-red-600 transition-colors shadow-md"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 border-4 border-purple-300 flex items-center justify-center">
+                    <Upload className="w-12 h-12 text-purple-400" />
+                  </div>
+                )}
+              </div>
+              
+              <div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                  id="profile-image-upload"
+                />
+                <label htmlFor="profile-image-upload">
+                  <Button variant="outline" size="sm" className="cursor-pointer" asChild>
+                    <span className="flex items-center gap-2">
+                      <Upload className="w-4 h-4" />
+                      {profileImage ? 'เปลี่ยนรูปภาพ' : 'อัปโหลดรูปภาพ'}
+                    </span>
+                  </Button>
+                </label>
+              </div>
+            </div>
+
+            {/* Nickname Input */}
+            <div className="space-y-2">
+              <Label htmlFor="nickname" className="text-base font-semibold">
+                ชื่อเล่น <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="nickname"
+                type="text"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                placeholder="ใส่ชื่อเล่น เช่น น้องApple"
+                className="text-base"
+              />
+            </div>
+
+            {/* Class Input */}
+            <div className="space-y-2">
+              <Label htmlFor="studentClass" className="text-base font-semibold">
+                ชั้นเรียน
+              </Label>
+              <Input
+                id="studentClass"
+                type="text"
+                value={studentClass}
+                onChange={(e) => setStudentClass(e.target.value)}
+                placeholder="เช่น ชั้น ป.3, ม.1"
+                className="text-base"
+              />
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-4">
+              <Button
+                onClick={handleCancelEdit}
+                variant="outline"
+                className="flex-1 text-base py-6"
+              >
+                ยกเลิก
+              </Button>
+              <Button
+                onClick={handleSaveProfile}
+                className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-base py-6"
+                disabled={!nickname.trim()}
+              >
+                บันทึก
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>;
