@@ -329,8 +329,12 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
 
 // ================= Main App =================
 export default function AdditionApp() {
-  // Background music
-  const backgroundMusic = useBackgroundMusic('https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3');
+  // Background music with 3 track options
+  const backgroundMusic = useBackgroundMusic([
+    { id: 'happy', name: 'เพลงสนุกสนาน', url: 'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3' },
+    { id: 'calm', name: 'เพลงผ่อนคลาย', url: 'https://cdn.pixabay.com/audio/2022/03/10/audio_c48d4dc581.mp3' },
+    { id: 'focus', name: 'เพลงเน้นสมาธิ', url: 'https://cdn.pixabay.com/audio/2023/03/03/audio_fe6f9b7e03.mp3' }
+  ]);
   
   const [count, setCount] = useState(15);
   const [level, setLevel] = useState("easy"); // easy | medium | hard
@@ -1290,8 +1294,11 @@ export default function AdditionApp() {
         isPlaying={backgroundMusic.isPlaying}
         isEnabled={backgroundMusic.isEnabled}
         volume={backgroundMusic.volume}
+        selectedTrackId={backgroundMusic.selectedTrackId}
+        tracks={backgroundMusic.tracks}
         onToggle={backgroundMusic.toggleEnabled}
         onVolumeChange={backgroundMusic.changeVolume}
+        onTrackChange={backgroundMusic.changeTrack}
       />
 
       <PdfPreviewModal

@@ -1,18 +1,26 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
+export interface MusicTrack {
+  id: string;
+  name: string;
+  url: string;
+}
+
 interface BackgroundMusicSettings {
   isEnabled: boolean;
   volume: number;
+  selectedTrackId: string;
 }
 
 const STORAGE_KEY = 'background-music-settings';
 const DEFAULT_VOLUME = 0.3;
 
-export const useBackgroundMusic = (musicUrl: string) => {
+export const useBackgroundMusic = (tracks: MusicTrack[]) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isEnabled, setIsEnabled] = useState(true);
   const [volume, setVolume] = useState(DEFAULT_VOLUME);
+  const [selectedTrackId, setSelectedTrackId] = useState(tracks[0]?.id || '');
   const fadeIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Load settings from localStorage
@@ -23,17 +31,40 @@ export const useBackgroundMusic = (musicUrl: string) => {
         const settings: BackgroundMusicSettings = JSON.parse(stored);
         setIsEnabled(settings.isEnabled);
         setVolume(settings.volume);
+        if (settings.selectedTrackId && tracks.find(t => t.id === settings.selectedTrackId)) {
+          setSelectedTrackId(settings.selectedTrackId);
+        }
       } catch (e) {
         console.error('Failed to load music settings', e);
       }
     }
-  }, []);
+  }, [tracks]);
 
-  // Initialize audio
+  // Initialize audio and change track when selection changes
   useEffect(() => {
+    const wasPlaying = isPlaying;
+    
+    // Stop current audio if playing
+    if (audioRef.current && isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    }
+    
+    // Get selected track URL
+    const selectedTrack = tracks.find(t => t.id === selectedTrackId);
+    const musicUrl = selectedTrack?.url || tracks[0]?.url;
+    
+    if (!musicUrl) return;
+    
+    // Create new audio
     audioRef.current = new Audio(musicUrl);
     audioRef.current.loop = true;
     audioRef.current.volume = 0;
+
+    // Resume playing if it was playing before
+    if (wasPlaying && isEnabled) {
+      fadeIn();
+    }
 
     return () => {
       if (audioRef.current) {
@@ -44,13 +75,14 @@ export const useBackgroundMusic = (musicUrl: string) => {
         clearInterval(fadeIntervalRef.current);
       }
     };
-  }, [musicUrl]);
+  }, [selectedTrackId, tracks]);
 
   // Save settings to localStorage
-  const saveSettings = useCallback((enabled: boolean, vol: number) => {
+  const saveSettings = useCallback((enabled: boolean, vol: number, trackId: string) => {
     const settings: BackgroundMusicSettings = {
       isEnabled: enabled,
       volume: vol,
+      selectedTrackId: trackId,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
   }, []);
@@ -131,30 +163,38 @@ export const useBackgroundMusic = (musicUrl: string) => {
   const toggleEnabled = useCallback(() => {
     const newEnabled = !isEnabled;
     setIsEnabled(newEnabled);
-    saveSettings(newEnabled, volume);
+    saveSettings(newEnabled, volume, selectedTrackId);
     
     if (!newEnabled && isPlaying) {
       stop();
     }
-  }, [isEnabled, isPlaying, volume, saveSettings, stop]);
+  }, [isEnabled, isPlaying, volume, selectedTrackId, saveSettings, stop]);
 
   const changeVolume = useCallback((newVolume: number) => {
     const vol = Math.max(0, Math.min(1, newVolume));
     setVolume(vol);
-    saveSettings(isEnabled, vol);
+    saveSettings(isEnabled, vol, selectedTrackId);
     
     if (audioRef.current && isPlaying) {
       audioRef.current.volume = vol;
     }
-  }, [isEnabled, isPlaying, saveSettings]);
+  }, [isEnabled, isPlaying, selectedTrackId, saveSettings]);
+
+  const changeTrack = useCallback((trackId: string) => {
+    setSelectedTrackId(trackId);
+    saveSettings(isEnabled, volume, trackId);
+  }, [isEnabled, volume, saveSettings]);
 
   return {
     isPlaying,
     isEnabled,
     volume,
+    selectedTrackId,
+    tracks,
     play,
     stop,
     toggleEnabled,
     changeVolume,
+    changeTrack,
   };
 };
