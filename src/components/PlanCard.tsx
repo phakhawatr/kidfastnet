@@ -61,11 +61,11 @@ export const PlanCard = ({ plan, currentPlan, highlighted }: PlanCardProps) => {
             </>
           ) : (
             <>
-              <div className="text-4xl font-bold mb-2">
-                ฟรี
+              <div className="text-4xl font-bold text-primary mb-2">
+                ฿{plan.price_monthly}
               </div>
               <div className="text-sm text-muted-foreground">
-                ตลอดไป
+                ตลอดชีพ
               </div>
             </>
           )}
