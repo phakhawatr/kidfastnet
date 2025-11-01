@@ -331,22 +331,22 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
 
 // ================= Main App =================
 export default function AdditionApp() {
-  // Background music with 3 track options - using free music from freesound
+  // Background music with 3 track options - using SoundHelix royalty-free music
   const backgroundMusic = useBackgroundMusic([
     { 
       id: 'happy', 
       name: 'เพลงสนุกสนาน', 
-      url: 'https://freesound.org/data/previews/320/320655_5260872-lq.mp3'
+      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
     },
     { 
       id: 'calm', 
       name: 'เพลงผ่อนคลาย', 
-      url: 'https://freesound.org/data/previews/442/442816_5121236-lq.mp3'
+      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'
     },
     { 
       id: 'focus', 
       name: 'เพลงเน้นสมาธิ', 
-      url: 'https://freesound.org/data/previews/415/415564_6387345-lq.mp3'
+      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3'
     }
   ]);
   
