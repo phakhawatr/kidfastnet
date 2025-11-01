@@ -265,6 +265,31 @@ const Profile = () => {
           return;
         }
         
+        // Use registrationId if available, otherwise fall back to email
+        const registrationId = authState.registrationId;
+        
+        if (registrationId) {
+          console.log('Fetching registration data by ID:', registrationId);
+          const { data, error } = await supabase
+            .from('user_registrations')
+            .select('created_at, approved_at, last_login_at, payment_date, id, subscription_tier, ai_features_enabled, ai_monthly_quota, ai_usage_count')
+            .eq('id', registrationId)
+            .maybeSingle();
+          
+          console.log('Registration data query result:', { data, error });
+          
+          if (data && !error) {
+            console.log('✅ Successfully loaded registration data');
+            setRegistrationData(data);
+          } else if (error) {
+            console.error('❌ Error loading registration data:', error);
+          } else {
+            console.log('⚠️ No registration data found for ID:', registrationId);
+          }
+          return;
+        }
+        
+        // Fallback to email query
         const email = authState.email || authState.username;
         console.log('Profile - email/username for query:', email);
         
