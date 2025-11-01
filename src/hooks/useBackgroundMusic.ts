@@ -21,8 +21,8 @@ export const useBackgroundMusic = (tracks: MusicTrack[]) => {
   const [isEnabled, setIsEnabled] = useState(true);
   const [volume, setVolume] = useState(DEFAULT_VOLUME);
   const [selectedTrackId, setSelectedTrackId] = useState(tracks[0]?.id || '');
-  const [isUnlocked, setIsUnlocked] = useState(false);
   const fadeIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const unlockAttemptedRef = useRef(false);
 
   // Load settings from localStorage
   useEffect(() => {
@@ -64,8 +64,8 @@ export const useBackgroundMusic = (tracks: MusicTrack[]) => {
     audioRef.current.preload = 'auto';
 
     // Resume playing if it was playing before
-    if (wasPlaying && isEnabled && isUnlocked) {
-      fadeIn();
+    if (wasPlaying && isEnabled) {
+      setTimeout(() => fadeIn(), 100);
     }
 
     return () => {
@@ -77,36 +77,7 @@ export const useBackgroundMusic = (tracks: MusicTrack[]) => {
         clearInterval(fadeIntervalRef.current);
       }
     };
-  }, [selectedTrackId, tracks, isUnlocked]);
-
-  // Unlock audio on first user interaction
-  useEffect(() => {
-    const unlockAudio = () => {
-      if (!isUnlocked && audioRef.current) {
-        // Try to play and immediately pause to unlock
-        audioRef.current.play()
-          .then(() => {
-            audioRef.current?.pause();
-            setIsUnlocked(true);
-            console.log('Audio unlocked!');
-          })
-          .catch(() => {
-            // Ignore errors during unlock attempt
-          });
-      }
-    };
-
-    // Listen for any user interaction
-    document.addEventListener('click', unlockAudio, { once: true });
-    document.addEventListener('touchstart', unlockAudio, { once: true });
-    document.addEventListener('keydown', unlockAudio, { once: true });
-
-    return () => {
-      document.removeEventListener('click', unlockAudio);
-      document.removeEventListener('touchstart', unlockAudio);
-      document.removeEventListener('keydown', unlockAudio);
-    };
-  }, [isUnlocked]);
+  }, [selectedTrackId, tracks]);
 
   // Save settings to localStorage
   const saveSettings = useCallback((enabled: boolean, vol: number, trackId: string) => {
@@ -118,19 +89,21 @@ export const useBackgroundMusic = (tracks: MusicTrack[]) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
   }, []);
 
-  // Fade in effect
+  // Fade in effect with better error handling
   const fadeIn = useCallback(() => {
     if (!audioRef.current) return;
 
+    // Reset volume
     audioRef.current.volume = 0;
     
-    // Try to play with error handling
+    // Try to play with comprehensive error handling
     const playPromise = audioRef.current.play();
     
     if (playPromise !== undefined) {
       playPromise
         .then(() => {
           setIsPlaying(true);
+          unlockAttemptedRef.current = true;
           
           // Start fade in animation
           let currentVolume = 0;
@@ -157,7 +130,10 @@ export const useBackgroundMusic = (tracks: MusicTrack[]) => {
           }, 50);
         })
         .catch(err => {
-          console.log('เปิดเพลงไม่ได้ - รอให้คลิกที่หน้าจอก่อน:', err.message);
+          // Silently handle autoplay errors - browser will allow after user interaction
+          if (!unlockAttemptedRef.current) {
+            console.log('กรุณาคลิกที่หน้าจอก่อนเพื่อเปิดเพลง');
+          }
           setIsPlaying(false);
         });
     }
@@ -193,12 +169,10 @@ export const useBackgroundMusic = (tracks: MusicTrack[]) => {
   }, []);
 
   const play = useCallback(() => {
-    if (isEnabled && audioRef.current && isUnlocked) {
+    if (isEnabled && audioRef.current) {
       fadeIn();
-    } else if (isEnabled && !isUnlocked) {
-      console.log('Audio not unlocked yet - waiting for user interaction');
     }
-  }, [isEnabled, isUnlocked, fadeIn]);
+  }, [isEnabled, fadeIn]);
 
   const stop = useCallback(() => {
     if (audioRef.current) {
@@ -237,7 +211,6 @@ export const useBackgroundMusic = (tracks: MusicTrack[]) => {
     volume,
     selectedTrackId,
     tracks,
-    isUnlocked,
     play,
     stop,
     toggleEnabled,
