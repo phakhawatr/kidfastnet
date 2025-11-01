@@ -23,22 +23,22 @@ interface Answer {
 }
 
 const MultiplicationApp = () => {
-  // Background music with 3 track options - using SoundHelix royalty-free music
+  // Background music with 3 track options - beautiful instrumental music
   const backgroundMusic = useBackgroundMusic([
     { 
       id: 'happy', 
       name: 'เพลงสนุกสนาน', 
-      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
+      url: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3'
     },
     { 
       id: 'calm', 
       name: 'เพลงผ่อนคลาย', 
-      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'
+      url: 'https://cdn.pixabay.com/download/audio/2022/08/02/audio_d1718ab41b.mp3'
     },
     { 
       id: 'focus', 
       name: 'เพลงเน้นสมาธิ', 
-      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3'
+      url: 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_c48f87a7d7.mp3'
     }
   ]);
   
