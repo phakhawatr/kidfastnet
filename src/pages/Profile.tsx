@@ -221,6 +221,7 @@ const Profile = () => {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [nickname, setNickname] = useState('');
   const [studentClass, setStudentClass] = useState('');
+  const [schoolName, setSchoolName] = useState('');
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   
@@ -423,6 +424,7 @@ const Profile = () => {
           const profileData = JSON.parse(stored);
           setNickname(profileData.nickname || username || '');
           setStudentClass(profileData.studentClass || '');
+          setSchoolName(profileData.schoolName || '');
           setProfileImage(profileData.profileImage || null);
         } else {
           setNickname(username || '');
@@ -462,6 +464,7 @@ const Profile = () => {
       const profileData = {
         nickname,
         studentClass,
+        schoolName,
         profileImage
       };
       localStorage.setItem('kidfast_profile', JSON.stringify(profileData));
@@ -490,10 +493,12 @@ const Profile = () => {
       const profileData = JSON.parse(stored);
       setNickname(profileData.nickname || username || '');
       setStudentClass(profileData.studentClass || '');
+      setSchoolName(profileData.schoolName || '');
       setProfileImage(profileData.profileImage || null);
     } else {
       setNickname(username || '');
       setStudentClass('');
+      setSchoolName('');
       setProfileImage(null);
     }
     setImageFile(null);
@@ -528,7 +533,10 @@ const Profile = () => {
                   🌟
                 </h1>
                 <p className="text-[hsl(var(--text-secondary))]">
-                  {studentClass ? `${studentClass} • ` : ''}ยินดีต้อนรับกลับสู่การเรียนรู้ที่สนุก
+                  {studentClass && `${studentClass}`}
+                  {schoolName && (studentClass ? ` • ${schoolName}` : schoolName)}
+                  {(studentClass || schoolName) && ' • '}
+                  ยินดีต้อนรับกลับสู่การเรียนรู้ที่สนุก
                 </p>
               </div>
             </div>
@@ -970,6 +978,21 @@ const Profile = () => {
                 value={studentClass}
                 onChange={(e) => setStudentClass(e.target.value)}
                 placeholder="เช่น ชั้น ป.3, ม.1"
+                className="text-base"
+              />
+            </div>
+
+            {/* School Name Input */}
+            <div className="space-y-2">
+              <Label htmlFor="schoolName" className="text-base font-semibold">
+                ชื่อโรงเรียน
+              </Label>
+              <Input
+                id="schoolName"
+                type="text"
+                value={schoolName}
+                onChange={(e) => setSchoolName(e.target.value)}
+                placeholder="เช่น โรงเรียนอนุบาลกรุงเทพ"
                 className="text-base"
               />
             </div>
