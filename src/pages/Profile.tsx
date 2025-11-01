@@ -423,15 +423,38 @@ const Profile = () => {
               </h1>
               <p className="text-[hsl(var(--text-secondary))]">ยินดีต้อนรับกลับสู่การเรียนรู้ที่สนุก</p>
             </div>
-            {!isDemo && memberId && (
-              <Link
-                to="/parent"
-                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
-              >
-                <Users className="w-5 h-5" />
-                <span>โปรแกรมแนะนำเพื่อน</span>
-              </Link>
-            )}
+            <div className="flex items-center gap-3">
+              {/* Subscription Badge */}
+              {!isDemo && registrationData && (
+                <div className={`px-5 py-3 rounded-xl font-semibold text-lg shadow-md ${
+                  registrationData.subscription_tier === 'premium'
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                    : 'bg-gray-100 text-gray-800 border-2 border-gray-300'
+                }`}>
+                  {registrationData.subscription_tier === 'premium' ? (
+                    <span className="flex items-center gap-2">
+                      <span>👑</span>
+                      <span>Premium</span>
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <span>📦</span>
+                      <span>Basic</span>
+                    </span>
+                  )}
+                </div>
+              )}
+              
+              {!isDemo && memberId && (
+                <Link
+                  to="/parent"
+                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                >
+                  <Users className="w-5 h-5" />
+                  <span>โปรแกรมแนะนำเพื่อน</span>
+                </Link>
+              )}
+            </div>
           </div>
         </div>
 
