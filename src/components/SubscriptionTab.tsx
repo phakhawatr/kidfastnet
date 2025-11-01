@@ -85,7 +85,7 @@ export const SubscriptionTab = () => {
               <div>
                 <div className="text-sm text-muted-foreground">สถานะ</div>
                 <div className="font-semibold">
-                  {isPremium ? 'เปิดใช้งาน' : 'แพ็กเกจฟรี'}
+                  {isPremium ? 'เปิดใช้งาน' : 'แพ็กเกจ Basic'}
                 </div>
               </div>
             </div>
