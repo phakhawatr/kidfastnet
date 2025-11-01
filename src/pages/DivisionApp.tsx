@@ -22,6 +22,7 @@ interface Stats {
   correct: number;
   total: number;
   timeMs: number;
+  allowDecimals?: boolean;
 }
 type Level = 'easy' | 'medium' | 'hard';
 
@@ -32,6 +33,7 @@ const DivisionApp: React.FC = () => {
   // State management
   const [count, setCount] = useState<number>(10);
   const [level, setLevel] = useState<Level>('easy');
+  const [allowDecimals, setAllowDecimals] = useState<boolean>(false);
   const [problems, setProblems] = useState<Problem[]>([]);
   const [answers, setAnswers] = useState<string[][]>([]);
   const [results, setResults] = useState<'pending' | 'checked'>('pending');
@@ -52,34 +54,55 @@ const DivisionApp: React.FC = () => {
   const [schoolLogo, setSchoolLogo] = useState('');
   const logoInputRef = useRef<HTMLInputElement>(null);
 
-  // Generate division problems based on level (all exact divisions, no remainder)
-  const generateDivisionProblem = (level: Level): Problem => {
+  // Generate division problems based on level
+  const generateDivisionProblem = (level: Level, allowDecimals: boolean): Problem => {
     let divisor = 2;
     let quotient = 1;
     let dividend = 2;
-    if (level === 'easy') {
-      // 1-2 digit dividends, single-digit divisors, single-digit quotients
-      divisor = Math.floor(Math.random() * 8) + 2; // 2-9
-      quotient = Math.floor(Math.random() * 9) + 1; // 1-9
-      dividend = divisor * quotient; // always exact
-      // keep dividends reasonably small
-      if (dividend > 81) dividend = divisor * Math.max(1, Math.floor(81 / divisor));
-    } else if (level === 'medium') {
-      // Two-digit dividend ÷ single-digit divisor -> exact
-      do {
+    let remainder = 0;
+
+    if (!allowDecimals) {
+      // Exact division mode (original logic)
+      if (level === 'easy') {
+        // 1-2 digit dividends, single-digit divisors, single-digit quotients
         divisor = Math.floor(Math.random() * 8) + 2; // 2-9
-        quotient = Math.floor(Math.random() * 12) + 2; // 2-13
-        dividend = divisor * quotient;
-      } while (dividend < 10 || dividend > 99);
-    } else if (level === 'hard') {
-      // Three-digit dividend -> exact division; divisor can be 2-20, quotient 5-50
-      do {
+        quotient = Math.floor(Math.random() * 9) + 1; // 1-9
+        dividend = divisor * quotient; // always exact
+        // keep dividends reasonably small
+        if (dividend > 81) dividend = divisor * Math.max(1, Math.floor(81 / divisor));
+      } else if (level === 'medium') {
+        // Two-digit dividend ÷ single-digit divisor -> exact
+        do {
+          divisor = Math.floor(Math.random() * 8) + 2; // 2-9
+          quotient = Math.floor(Math.random() * 12) + 2; // 2-13
+          dividend = divisor * quotient;
+        } while (dividend < 10 || dividend > 99);
+      } else if (level === 'hard') {
+        // Three-digit dividend -> exact division; divisor can be 2-20, quotient 5-50
+        do {
+          divisor = Math.floor(Math.random() * 19) + 2; // 2-20
+          quotient = Math.floor(Math.random() * 46) + 5; // 5-50
+          dividend = divisor * quotient;
+        } while (dividend < 100 || dividend > 999);
+      }
+    } else {
+      // Decimal mode - division may not be exact
+      if (level === 'easy') {
+        divisor = Math.floor(Math.random() * 8) + 2; // 2-9
+        dividend = Math.floor(Math.random() * 81) + 10; // 10-90
+      } else if (level === 'medium') {
+        divisor = Math.floor(Math.random() * 8) + 2; // 2-9
+        dividend = Math.floor(Math.random() * 90) + 10; // 10-99
+      } else { // hard
         divisor = Math.floor(Math.random() * 19) + 2; // 2-20
-        quotient = Math.floor(Math.random() * 46) + 5; // 5-50
-        dividend = divisor * quotient;
-      } while (dividend < 100 || dividend > 999);
+        dividend = Math.floor(Math.random() * 900) + 100; // 100-999
+      }
+      
+      // Calculate decimal result (2 decimal places)
+      const decimalResult = (dividend / divisor).toFixed(2);
+      quotient = parseFloat(decimalResult);
+      remainder = 0; // Not used in decimal mode
     }
-    const remainder = 0; // ensure exact division for all levels
 
     return {
       dividend,
@@ -92,17 +115,17 @@ const DivisionApp: React.FC = () => {
   };
 
   // Generate division problems based on settings
-  const generateDivisionProblems = useCallback((count: number, level: Level): Problem[] => {
+  const generateDivisionProblems = useCallback((count: number, level: Level, allowDecimals: boolean): Problem[] => {
     const generatedProblems: Problem[] = [];
     for (let i = 0; i < count; i++) {
-      generatedProblems.push(generateDivisionProblem(level));
+      generatedProblems.push(generateDivisionProblem(level, allowDecimals));
     }
     return generatedProblems;
   }, []);
 
   // Initialize new problem set
   const generateNewSet = useCallback(() => {
-    const newProblems = generateDivisionProblems(count, level);
+    const newProblems = generateDivisionProblems(count, level, allowDecimals);
     setProblems(newProblems);
     // Simple single answer input per problem
     setAnswers(Array.from({
@@ -120,7 +143,7 @@ const DivisionApp: React.FC = () => {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
-  }, [count, level, generateDivisionProblems]);
+  }, [count, level, allowDecimals, generateDivisionProblems]);
 
   // Handle answer input
   const handleAnswerChange = (problemIndex: number, value: string) => {
@@ -159,8 +182,17 @@ const DivisionApp: React.FC = () => {
     setFinishedAt(now);
     let correct = 0;
     problems.forEach((problem, index) => {
-      const userAnswer = parseInt(answers[index][0]) || 0;
-      if (userAnswer === problem.quotient && problem.remainder === 0) {
+      const userAnswer = parseFloat(answers[index][0]) || 0;
+      let isCorrect = false;
+      
+      if (allowDecimals) {
+        // Allow small margin of error for decimal answers (±0.01)
+        isCorrect = Math.abs(userAnswer - problem.quotient) < 0.01;
+      } else {
+        isCorrect = userAnswer === problem.quotient && problem.remainder === 0;
+      }
+      
+      if (isCorrect) {
         correct++;
       }
     });
@@ -175,7 +207,8 @@ const DivisionApp: React.FC = () => {
       level,
       correct,
       total: problems.length,
-      timeMs: elapsedMs
+      timeMs: elapsedMs,
+      allowDecimals
     };
     const updatedStats = [newStat, ...stats].slice(0, 10);
     setStats(updatedStats);
@@ -219,8 +252,8 @@ const DivisionApp: React.FC = () => {
               ${problem.dividend?.toLocaleString() || '0'} ÷ ${problem.divisor?.toLocaleString() || '0'} =
             </div>
             <div style="display: flex; justify-content: center; gap: 4px; margin-top: 14px;">
-              ${Array.from({ length: Math.max(2, problem.quotient.toString().length + 1) }).map(() => 
-                `<div style="width: 36px; height: 42px; border: 2px solid #0066cc; border-radius: 6px; background: white;"></div>`
+              ${Array.from({ length: allowDecimals ? 5 : Math.max(2, problem.quotient.toString().length + 1) }).map(() => 
+                `<div style="width: ${allowDecimals ? '32px' : '36px'}; height: 42px; border: 2px solid #0066cc; border-radius: 6px; background: white;"></div>`
               ).join('')}
             </div>
           </div>
@@ -235,7 +268,7 @@ const DivisionApp: React.FC = () => {
               ✏️ แบบฝึกหัดการหาร
             </h1>
             <div style="font-size: 16px; color: #666; margin-top: 8px;">
-              ${problems.length} ข้อ • ระดับ: ${level === 'easy' ? 'ง่าย' : level === 'medium' ? 'ปานกลาง' : 'ยาก'}
+              ${problems.length} ข้อ • ระดับ: ${level === 'easy' ? 'ง่าย' : level === 'medium' ? 'ปานกลาง' : 'ยาก'} • ผลลัพธ์: ${allowDecimals ? 'ทศนิยม' : 'จำนวนเต็ม'}
             </div>
           </div>
 
@@ -418,6 +451,31 @@ const DivisionApp: React.FC = () => {
               </div>
             </div>
 
+            {/* Decimal Option */}
+            <div>
+              <label className="block text-sm font-medium mb-2">ผลลัพธ์เป็นทศนิยม:</label>
+              <div className="flex gap-2">
+                <Button
+                  variant={!allowDecimals ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setAllowDecimals(false)}
+                  className={`flex-1 ${!allowDecimals ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-100 hover:bg-gray-200'}`}
+                >
+                  ไม่มี
+                </Button>
+                <Button
+                  variant={allowDecimals ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setAllowDecimals(true)}
+                  className={`flex-1 ${allowDecimals ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-100 hover:bg-gray-200'}`}
+                >
+                  มี
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4">
             {/* Actions */}
             <div>
               <label className="block text-sm font-medium mb-2">การดำเนินการ:</label>
@@ -502,9 +560,24 @@ const DivisionApp: React.FC = () => {
               
               {/* Answer input box - placed below the equation */}
               <div className="flex justify-center mt-4">
-                <input id={`answer-${problemIndex}`} type="number" min={0} step={1} value={answers[problemIndex]?.[0] || ""} onChange={e => handleAnswerChange(problemIndex, e.target.value)} onKeyDown={e => handleKeyDown(e, problemIndex)} disabled={showAnswers} placeholder="" className={`w-20 h-12 text-center text-xl font-bold border-2 rounded-lg 
-                    ${results === "checked" ? parseInt(answers[problemIndex]?.[0]) === problem.quotient && problem.remainder === 0 ? "border-green-500 bg-green-50" : "border-red-500 bg-red-50" : "border-input bg-background focus:border-ring focus:ring-2 focus:ring-ring/30"} 
-                    transition-all duration-200 focus:outline-none`} />
+                <input 
+                  id={`answer-${problemIndex}`} 
+                  type="text" 
+                  inputMode="decimal"
+                  value={answers[problemIndex]?.[0] || ""} 
+                  onChange={e => handleAnswerChange(problemIndex, e.target.value)} 
+                  onKeyDown={e => handleKeyDown(e, problemIndex)} 
+                  disabled={showAnswers} 
+                  placeholder={allowDecimals ? "0.00" : ""} 
+                  className={`${allowDecimals ? 'w-24' : 'w-20'} h-12 text-center text-xl font-bold border-2 rounded-lg 
+                    ${results === "checked" ? 
+                      (allowDecimals ? 
+                        Math.abs(parseFloat(answers[problemIndex]?.[0]) - problem.quotient) < 0.01 : 
+                        parseInt(answers[problemIndex]?.[0]) === problem.quotient && problem.remainder === 0
+                      ) ? "border-green-500 bg-green-50" : "border-red-500 bg-red-50" 
+                      : "border-input bg-background focus:border-ring focus:ring-2 focus:ring-ring/30"} 
+                    transition-all duration-200 focus:outline-none`} 
+                />
               </div>
             </div>)}
         </div>
@@ -568,12 +641,12 @@ const DivisionApp: React.FC = () => {
                           ({Math.round(stat.correct / stat.total * 100)}%)
                         </span>
                       </div>
-                      <div className="text-right">
+                       <div className="text-right">
                         <div>{formatTime(stat.timeMs)}</div>
                          <div className="text-xs text-muted-foreground">
-                           {stat.count}ข้อ {stat.level}
+                           {stat.count}ข้อ {stat.level} {stat.allowDecimals ? '(ทศนิยม)' : ''}
                          </div>
-                      </div>
+                       </div>
                     </div>
                   </div>)}
               </div>}
