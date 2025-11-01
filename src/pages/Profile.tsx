@@ -561,7 +561,7 @@ const Profile = () => {
 
                 {/* AI Access Button */}
                 <Link 
-                  to="/ai-tutor"
+                  to="/ai-math-tutor"
                   className="block w-full"
                 >
                   <div className="bg-gradient-to-r from-purple-500 via-pink-500 to-purple-600 hover:from-purple-600 hover:via-pink-600 hover:to-purple-700 text-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] cursor-pointer">
