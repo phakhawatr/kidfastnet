@@ -344,6 +344,7 @@ export type Database = {
           last_activity_at: string | null
           last_login_at: string | null
           learning_style: string | null
+          line_notify_token: string | null
           login_count: number | null
           member_id: string | null
           nickname: string
@@ -374,6 +375,7 @@ export type Database = {
           last_activity_at?: string | null
           last_login_at?: string | null
           learning_style?: string | null
+          line_notify_token?: string | null
           login_count?: number | null
           member_id?: string | null
           nickname: string
@@ -404,6 +406,7 @@ export type Database = {
           last_activity_at?: string | null
           last_login_at?: string | null
           learning_style?: string | null
+          line_notify_token?: string | null
           login_count?: number | null
           member_id?: string | null
           nickname?: string

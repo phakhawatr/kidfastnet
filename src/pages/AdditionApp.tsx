@@ -5,6 +5,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { useBackgroundMusic } from "../hooks/useBackgroundMusic";
 import { BackgroundMusic } from "../components/BackgroundMusic";
+import { supabase } from "@/integrations/supabase/client";
 
 // ================= Utilities =================
 function randInt(min, max) {
@@ -632,11 +633,80 @@ export default function AdditionApp() {
     });
     setShowSummary(true);
 
+    // Send LINE notification
+    sendLineNotification(next, correctCount, now);
+
     if (next.every((r) => r === "correct")) {
       setCelebrate(true);
       setTimeout(() => setCelebrate(false), 2000);
     } else {
       setCelebrate(false);
+    }
+  }
+
+  async function sendLineNotification(results: string[], correctCount: number, timestamp: number) {
+    try {
+      const authStored = localStorage.getItem('kidfast_auth');
+      if (!authStored) return;
+
+      const authState = JSON.parse(authStored);
+      const userId = authState.registrationId;
+      const userNickname = localStorage.getItem('user_nickname') || authState.username || 'นักเรียน';
+
+      if (!userId) return;
+
+      // Format time
+      const timeMs = startedAt ? timestamp - startedAt : elapsedMs;
+      const minutes = Math.floor(timeMs / 60000);
+      const seconds = Math.floor((timeMs % 60000) / 1000);
+      const timeSpent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+      // Prepare problems data
+      const problemsData = problems.map((p, i) => {
+        const userAnswer = (answers[i] || []).join('') || 'ไม่ได้ตอบ';
+        const correctAnswer = (operands === 3 ? p.a + p.b + p.c : p.a + p.b).toString();
+        const question = operands === 3 
+          ? `${p.a}+${p.b}+${p.c}`
+          : `${p.a}+${p.b}`;
+        
+        return {
+          questionNumber: i + 1,
+          question,
+          userAnswer,
+          correctAnswer,
+          isCorrect: results[i] === 'correct'
+        };
+      });
+
+      // Map level to Thai
+      const levelMap: Record<string, string> = {
+        easy: 'ง่าย',
+        medium: 'ปานกลาง',
+        hard: 'ยาก'
+      };
+
+      const percentage = Math.round((correctCount / problems.length) * 100);
+
+      // Invoke edge function
+      await supabase.functions.invoke('send-line-notification', {
+        body: {
+          userId,
+          exerciseType: 'addition',
+          nickname: userNickname,
+          score: correctCount,
+          total: problems.length,
+          percentage,
+          timeSpent,
+          level: levelMap[level] || level,
+          problems: problemsData
+        }
+      });
+
+      // Silent success - don't interrupt user experience
+      console.log('LINE notification sent successfully');
+    } catch (err) {
+      // Silent fail - don't interrupt user experience
+      console.log('LINE notification error:', err);
     }
   }
 

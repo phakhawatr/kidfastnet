@@ -224,6 +224,9 @@ const Profile = () => {
   const [schoolName, setSchoolName] = useState('');
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [lineNotifyToken, setLineNotifyToken] = useState('');
+  const [lineNotifyStatus, setLineNotifyStatus] = useState<'connected' | 'disconnected'>('disconnected');
+  const [isSavingToken, setIsSavingToken] = useState(false);
   
   // Get member ID from auth state
   const getMemberId = () => {
@@ -415,9 +418,9 @@ const Profile = () => {
     return grade ? grade.label : '';
   };
 
-  // Load profile data from localStorage
+  // Load profile data from localStorage and LINE token
   useEffect(() => {
-    const loadProfileData = () => {
+    const loadProfileData = async () => {
       try {
         const stored = localStorage.getItem('kidfast_profile');
         if (stored) {
@@ -429,13 +432,35 @@ const Profile = () => {
         } else {
           setNickname(username || '');
         }
+
+        // Load LINE Notify token if editing and registration data exists
+        if (isEditingProfile && registrationData) {
+          const authStored = localStorage.getItem('kidfast_auth');
+          if (authStored) {
+            const authState = JSON.parse(authStored);
+            const registrationId = authState.registrationId;
+
+            if (registrationId) {
+              const { data, error } = await supabase
+                .from('user_registrations')
+                .select('line_notify_token')
+                .eq('id', registrationId)
+                .single();
+
+              if (data && !error) {
+                setLineNotifyToken(data.line_notify_token || '');
+                setLineNotifyStatus(data.line_notify_token ? 'connected' : 'disconnected');
+              }
+            }
+          }
+        }
       } catch (e) {
         console.error('Error loading profile data:', e);
         setNickname(username || '');
       }
     };
     loadProfileData();
-  }, [username]);
+  }, [username, isEditingProfile, registrationData]);
 
   // Handle profile editing
   const handleEditProfile = () => {
@@ -459,8 +484,10 @@ const Profile = () => {
     setImageFile(null);
   };
 
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async () => {
     try {
+      setIsSavingToken(true);
+
       const profileData = {
         nickname,
         studentClass,
@@ -476,13 +503,77 @@ const Profile = () => {
         authState.username = nickname;
         localStorage.setItem('kidfast_auth', JSON.stringify(authState));
       }
+
+      // Save LINE Notify token to database
+      if (registrationData) {
+        const authState = JSON.parse(authStored || '{}');
+        const registrationId = authState.registrationId;
+
+        if (registrationId) {
+          const { error: updateError } = await supabase
+            .from('user_registrations')
+            .update({ 
+              line_notify_token: lineNotifyToken.trim() || null 
+            })
+            .eq('id', registrationId);
+
+          if (updateError) {
+            console.error('Error updating LINE token:', updateError);
+            alert('เกิดข้อผิดพลาดในการบันทึก LINE Notify Token');
+            setIsSavingToken(false);
+            return;
+          }
+        }
+      }
       
+      setIsSavingToken(false);
       setIsEditingProfile(false);
       // Reload page to reflect changes
       window.location.reload();
     } catch (e) {
       console.error('Error saving profile:', e);
       alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+      setIsSavingToken(false);
+    }
+  };
+
+  const handleTestLineNotify = async () => {
+    if (!lineNotifyToken) {
+      alert('กรุณาใส่ LINE Notify Token ก่อน');
+      return;
+    }
+
+    try {
+      const authStored = localStorage.getItem('kidfast_auth');
+      if (!authStored) return;
+
+      const authState = JSON.parse(authStored);
+      const registrationId = authState.registrationId;
+
+      if (!registrationId) return;
+
+      const { error } = await supabase.functions.invoke('send-line-notification', {
+        body: {
+          userId: registrationId,
+          exerciseType: 'test',
+          nickname: nickname || username || 'ทดสอบ',
+          score: 0,
+          total: 0,
+          percentage: 0,
+          timeSpent: '0:00',
+          level: 'ทดสอบระบบ',
+          problems: []
+        }
+      });
+
+      if (error) {
+        alert('ส่งข้อความไม่สำเร็จ: ' + error.message);
+      } else {
+        alert('✅ ส่งข้อความทดสอบสำเร็จ! กรุณาตรวจสอบ LINE ของท่าน');
+      }
+    } catch (err) {
+      console.error('Test notification error:', err);
+      alert('เกิดข้อผิดพลาดในการทดสอบ');
     }
   };
 
@@ -997,6 +1088,62 @@ const Profile = () => {
               />
             </div>
 
+            {/* LINE Notify Settings */}
+            {!isDemo && registrationData && (
+              <div className="space-y-3 pt-4 border-t-2 border-purple-200">
+                <div className="flex items-center gap-2">
+                  <div className="text-lg">📱</div>
+                  <Label className="text-base font-semibold">
+                    แจ้งผลการเรียนผ่าน LINE
+                  </Label>
+                </div>
+                
+                <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-xl">
+                  <div className="flex items-center gap-2 mb-2">
+                    {lineNotifyStatus === 'connected' ? (
+                      <>
+                        <span className="text-green-600 font-semibold">✅ เชื่อมต่อแล้ว</span>
+                        <button 
+                          type="button"
+                          onClick={handleTestLineNotify}
+                          className="ml-auto text-xs px-3 py-1 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
+                        >
+                          ทดสอบส่งข้อความ
+                        </button>
+                      </>
+                    ) : (
+                      <span className="text-orange-500 font-semibold">⚠️ ยังไม่ได้เชื่อมต่อ</span>
+                    )}
+                  </div>
+                  
+                  <Input
+                    type="text"
+                    value={lineNotifyToken}
+                    onChange={(e) => {
+                      setLineNotifyToken(e.target.value);
+                      setLineNotifyStatus(e.target.value.trim() ? 'connected' : 'disconnected');
+                    }}
+                    placeholder="ใส่ LINE Notify Token"
+                    className="text-sm mb-2"
+                  />
+                  
+                  <div className="text-xs text-gray-600 space-y-1">
+                    <p className="font-semibold">📌 วิธีขอ Token:</p>
+                    <ol className="list-decimal ml-4 space-y-1">
+                      <li>เปิด <a href="https://notify-bot.line.me/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">notify-bot.line.me</a></li>
+                      <li>เข้าสู่ระบบด้วย LINE</li>
+                      <li>กด "Generate token"</li>
+                      <li>เลือก "1-on-1 chat with LINE Notify"</li>
+                      <li>คัดลอก Token มาวางที่นี่</li>
+                    </ol>
+                    <p className="mt-2 text-xs text-blue-600">
+                      💡 เมื่อตั้งค่าแล้ว ผู้ปกครองจะได้รับผลการทำโจทย์ทุกครั้งที่ลูกกดตรวจคำตอบ
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Action Buttons */}
             <div className="flex gap-3 pt-4">
               <Button
@@ -1009,9 +1156,9 @@ const Profile = () => {
               <Button
                 onClick={handleSaveProfile}
                 className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-base py-6"
-                disabled={!nickname.trim()}
+                disabled={!nickname.trim() || isSavingToken}
               >
-                บันทึก
+                {isSavingToken ? 'กำลังบันทึก...' : 'บันทึก'}
               </Button>
             </div>
           </div>

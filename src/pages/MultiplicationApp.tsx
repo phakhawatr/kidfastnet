@@ -8,6 +8,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { useBackgroundMusic } from '../hooks/useBackgroundMusic';
 import { BackgroundMusic } from '../components/BackgroundMusic';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Problem {
   multiplicand: string;
@@ -270,6 +271,9 @@ const MultiplicationApp = () => {
     
     setResults(newResults);
     
+    // Send LINE notification
+    sendLineNotification(newResults, allCorrect);
+    
     if (allCorrect) {
       setIsCompleted(true);
       setShowCelebration(true);
@@ -285,6 +289,65 @@ const MultiplicationApp = () => {
         description: "ยังมีคำตอบที่ไม่ถูกต้องอยู่",
         variant: "destructive",
       });
+    }
+  };
+
+  const sendLineNotification = async (resultsData: ('correct' | 'incorrect' | null)[][][], allCorrect: boolean) => {
+    try {
+      const authStored = localStorage.getItem('kidfast_auth');
+      if (!authStored) return;
+
+      const authState = JSON.parse(authStored);
+      const userId = authState.registrationId;
+      const userNickname = localStorage.getItem('user_nickname') || authState.username || 'นักเรียน';
+
+      if (!userId) return;
+
+      const timeSpent = formatTime(currentTime);
+
+      // Count correct problems
+      let correctCount = 0;
+      const problemsData = problems.map((problem, idx) => {
+        const userFinalAnswer = answers[idx].finalAnswer.join('');
+        const isCorrect = userFinalAnswer === problem.finalAnswer;
+        if (isCorrect) correctCount++;
+        
+        const question = `${problem.multiplicand}×${problem.multiplier}`;
+        
+        return {
+          questionNumber: idx + 1,
+          question,
+          userAnswer: userFinalAnswer || 'ไม่ได้ตอบ',
+          correctAnswer: problem.finalAnswer,
+          isCorrect
+        };
+      });
+
+      const levelMap: Record<string, string> = {
+        'ง่าย': 'ง่าย',
+        'ปานกลาง': 'ปานกลาง',
+        'ยาก': 'ยาก'
+      };
+
+      const percentage = Math.round((correctCount / problems.length) * 100);
+
+      await supabase.functions.invoke('send-line-notification', {
+        body: {
+          userId,
+          exerciseType: 'multiplication',
+          nickname: userNickname,
+          score: correctCount,
+          total: problems.length,
+          percentage,
+          timeSpent,
+          level: levelMap[difficulty] || difficulty,
+          problems: problemsData
+        }
+      });
+
+      console.log('LINE notification sent successfully');
+    } catch (err) {
+      console.log('LINE notification error:', err);
     }
   };
 

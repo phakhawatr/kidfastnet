@@ -7,6 +7,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { useBackgroundMusic } from '../hooks/useBackgroundMusic';
 import { BackgroundMusic } from '../components/BackgroundMusic';
+import { supabase } from '@/integrations/supabase/client';
 
 // Types and interfaces
 interface Problem {
@@ -196,7 +197,7 @@ const DivisionApp: React.FC = () => {
 
   // Check all answers
   const checkAnswers = () => {
-    backgroundMusic.stop(); // Stop background music
+    backgroundMusic.stop();
     
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -210,7 +211,6 @@ const DivisionApp: React.FC = () => {
       let isCorrect = false;
       
       if (allowDecimals) {
-        // Allow small margin of error for decimal answers (±0.01)
         isCorrect = Math.abs(userAnswer - problem.quotient) < 0.01;
       } else {
         isCorrect = userAnswer === problem.quotient && problem.remainder === 0;
@@ -237,8 +237,70 @@ const DivisionApp: React.FC = () => {
     const updatedStats = [newStat, ...stats].slice(0, 10);
     setStats(updatedStats);
     localStorage.setItem('divisionStats', JSON.stringify(updatedStats));
+    
+    // Send LINE notification
+    sendLineNotification(correct, now);
+    
     if (correct === problems.length) {
       setCelebrate(true);
+    }
+  };
+
+  const sendLineNotification = async (correctCount: number, timestamp: number) => {
+    try {
+      const authStored = localStorage.getItem('kidfast_auth');
+      if (!authStored) return;
+
+      const authState = JSON.parse(authStored);
+      const userId = authState.registrationId;
+      const userNickname = localStorage.getItem('user_nickname') || authState.username || 'นักเรียน';
+
+      if (!userId) return;
+
+      const timeMs = timestamp - (startedAt || timestamp);
+      const minutes = Math.floor(timeMs / 60000);
+      const seconds = Math.floor((timeMs % 60000) / 1000);
+      const timeSpent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+      const problemsData = problems.map((problem, i) => {
+        const userAnswer = answers[i][0] || 'ไม่ได้ตอบ';
+        const correctAnswer = problem.quotient.toString();
+        const isCorrect = parseFloat(userAnswer) === problem.quotient;
+        
+        return {
+          questionNumber: i + 1,
+          question: `${problem.dividend}÷${problem.divisor}`,
+          userAnswer,
+          correctAnswer,
+          isCorrect
+        };
+      });
+
+      const levelMap: Record<string, string> = {
+        easy: 'ง่าย',
+        medium: 'ปานกลาง',
+        hard: 'ยาก'
+      };
+
+      const percentage = Math.round((correctCount / problems.length) * 100);
+
+      await supabase.functions.invoke('send-line-notification', {
+        body: {
+          userId,
+          exerciseType: 'division',
+          nickname: userNickname,
+          score: correctCount,
+          total: problems.length,
+          percentage,
+          timeSpent,
+          level: levelMap[level] || level,
+          problems: problemsData
+        }
+      });
+
+      console.log('LINE notification sent successfully');
+    } catch (err) {
+      console.log('LINE notification error:', err);
     }
   };
 
