@@ -40,7 +40,30 @@ const AIMathTutor = () => {
 
   const checkUserAndQuota = async () => {
     try {
-      const userEmail = localStorage.getItem('kidfast_user_email');
+      // Get user email from localStorage
+      let userEmail = localStorage.getItem('kidfast_last_email');
+      
+      // If not found, try to get from auth object
+      if (!userEmail) {
+        const authData = localStorage.getItem('kidfast_auth');
+        if (authData) {
+          try {
+            const auth = JSON.parse(authData);
+            // For demo mode, skip AI features
+            if (auth.isDemo) {
+              ToastManager.show({
+                message: 'ฟีเจอร์ AI ไม่รองรับโหมดทดลอง',
+                type: 'info'
+              });
+              navigate('/profile');
+              return;
+            }
+          } catch (e) {
+            console.error('Error parsing auth data:', e);
+          }
+        }
+      }
+
       if (!userEmail) {
         ToastManager.show({
           message: 'กรุณาเข้าสู่ระบบก่อนใช้งาน AI',
