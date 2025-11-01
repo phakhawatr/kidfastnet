@@ -460,6 +460,9 @@ export type Database = {
         Args: { admin_email: string }
         Returns: {
           age: number
+          ai_features_enabled: boolean
+          ai_monthly_quota: number
+          ai_usage_count: number
           approved_at: string
           approved_by: string
           avatar: string
@@ -476,6 +479,7 @@ export type Database = {
           payment_date: string
           payment_status: string
           status: string
+          subscription_tier: string
         }[]
       }
       approve_user_registration: {

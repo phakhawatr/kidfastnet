@@ -34,10 +34,10 @@ interface UserRegistration {
   last_activity_at?: string;
   payment_status?: 'pending' | 'paid';
   payment_date?: string;
-  subscription_tier?: 'basic' | 'premium';
-  ai_features_enabled?: boolean;
-  ai_monthly_quota?: number;
-  ai_usage_count?: number;
+  subscription_tier: 'basic' | 'premium';
+  ai_features_enabled: boolean;
+  ai_monthly_quota: number;
+  ai_usage_count: number;
 }
 
 interface UserPresence {
