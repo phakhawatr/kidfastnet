@@ -687,6 +687,7 @@ const DivisionApp: React.FC = () => {
         volume={backgroundMusic.volume}
         selectedTrackId={backgroundMusic.selectedTrackId}
         tracks={backgroundMusic.tracks}
+        isUnlocked={backgroundMusic.isUnlocked}
         onToggle={backgroundMusic.toggleEnabled}
         onVolumeChange={backgroundMusic.changeVolume}
         onTrackChange={backgroundMusic.changeTrack}

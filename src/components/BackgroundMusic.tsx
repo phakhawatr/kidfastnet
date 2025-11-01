@@ -15,6 +15,7 @@ interface BackgroundMusicProps {
   volume: number;
   selectedTrackId: string;
   tracks: MusicTrack[];
+  isUnlocked: boolean;
   onToggle: () => void;
   onVolumeChange: (volume: number) => void;
   onTrackChange: (trackId: string) => void;
@@ -26,6 +27,7 @@ export const BackgroundMusic: React.FC<BackgroundMusicProps> = ({
   volume,
   selectedTrackId,
   tracks,
+  isUnlocked,
   onToggle,
   onVolumeChange,
   onTrackChange,
@@ -65,8 +67,17 @@ export const BackgroundMusic: React.FC<BackgroundMusicProps> = ({
               </Button>
             </div>
             
+            {/* Unlock Status */}
+            {isEnabled && !isUnlocked && (
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-xs text-blue-800 font-medium">
+                  🎵 คลิกที่ใดก็ได้บนหน้าจอเพื่อเปิดเพลง
+                </p>
+              </div>
+            )}
+            
             {/* Important Note */}
-            {isEnabled && !isPlaying && (
+            {isEnabled && isUnlocked && !isPlaying && (
               <div className="p-2 bg-amber-50 border border-amber-200 rounded-lg">
                 <p className="text-xs text-amber-800">
                   💡 เพลงจะเล่นเมื่อเริ่มทำโจทย์ (พิมพ์คำตอบครั้งแรก)

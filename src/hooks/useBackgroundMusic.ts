@@ -21,6 +21,7 @@ export const useBackgroundMusic = (tracks: MusicTrack[]) => {
   const [isEnabled, setIsEnabled] = useState(true);
   const [volume, setVolume] = useState(DEFAULT_VOLUME);
   const [selectedTrackId, setSelectedTrackId] = useState(tracks[0]?.id || '');
+  const [isUnlocked, setIsUnlocked] = useState(false);
   const fadeIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Load settings from localStorage
@@ -60,9 +61,10 @@ export const useBackgroundMusic = (tracks: MusicTrack[]) => {
     audioRef.current = new Audio(musicUrl);
     audioRef.current.loop = true;
     audioRef.current.volume = 0;
+    audioRef.current.preload = 'auto';
 
     // Resume playing if it was playing before
-    if (wasPlaying && isEnabled) {
+    if (wasPlaying && isEnabled && isUnlocked) {
       fadeIn();
     }
 
@@ -75,7 +77,36 @@ export const useBackgroundMusic = (tracks: MusicTrack[]) => {
         clearInterval(fadeIntervalRef.current);
       }
     };
-  }, [selectedTrackId, tracks]);
+  }, [selectedTrackId, tracks, isUnlocked]);
+
+  // Unlock audio on first user interaction
+  useEffect(() => {
+    const unlockAudio = () => {
+      if (!isUnlocked && audioRef.current) {
+        // Try to play and immediately pause to unlock
+        audioRef.current.play()
+          .then(() => {
+            audioRef.current?.pause();
+            setIsUnlocked(true);
+            console.log('Audio unlocked!');
+          })
+          .catch(() => {
+            // Ignore errors during unlock attempt
+          });
+      }
+    };
+
+    // Listen for any user interaction
+    document.addEventListener('click', unlockAudio, { once: true });
+    document.addEventListener('touchstart', unlockAudio, { once: true });
+    document.addEventListener('keydown', unlockAudio, { once: true });
+
+    return () => {
+      document.removeEventListener('click', unlockAudio);
+      document.removeEventListener('touchstart', unlockAudio);
+      document.removeEventListener('keydown', unlockAudio);
+    };
+  }, [isUnlocked]);
 
   // Save settings to localStorage
   const saveSettings = useCallback((enabled: boolean, vol: number, trackId: string) => {
@@ -162,10 +193,12 @@ export const useBackgroundMusic = (tracks: MusicTrack[]) => {
   }, []);
 
   const play = useCallback(() => {
-    if (isEnabled && audioRef.current) {
+    if (isEnabled && audioRef.current && isUnlocked) {
       fadeIn();
+    } else if (isEnabled && !isUnlocked) {
+      console.log('Audio not unlocked yet - waiting for user interaction');
     }
-  }, [isEnabled, fadeIn]);
+  }, [isEnabled, isUnlocked, fadeIn]);
 
   const stop = useCallback(() => {
     if (audioRef.current) {
@@ -204,6 +237,7 @@ export const useBackgroundMusic = (tracks: MusicTrack[]) => {
     volume,
     selectedTrackId,
     tracks,
+    isUnlocked,
     play,
     stop,
     toggleEnabled,
