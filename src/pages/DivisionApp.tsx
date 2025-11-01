@@ -32,9 +32,9 @@ type Level = 'easy' | 'medium' | 'hard';
 const DivisionApp: React.FC = () => {
   // Background music with 3 track options
   const backgroundMusic = useBackgroundMusic([
-    { id: 'happy', name: 'เพลงสนุกสนาน', url: 'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3' },
-    { id: 'calm', name: 'เพลงผ่อนคลาย', url: 'https://cdn.pixabay.com/audio/2022/03/10/audio_c48d4dc581.mp3' },
-    { id: 'focus', name: 'เพลงเน้นสมาธิ', url: 'https://cdn.pixabay.com/audio/2023/03/03/audio_fe6f9b7e03.mp3' }
+    { id: 'happy', name: 'เพลงสนุกสนาน', url: 'https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3' },
+    { id: 'calm', name: 'เพลงผ่อนคลาย', url: 'https://assets.mixkit.co/music/preview/mixkit-dreaming-big-31.mp3' },
+    { id: 'focus', name: 'เพลงเน้นสมาธิ', url: 'https://assets.mixkit.co/music/preview/mixkit-a-very-happy-christmas-897.mp3' }
   ]);
   
   const navigate = useNavigate();
