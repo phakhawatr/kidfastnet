@@ -34,6 +34,48 @@ serve(async (req) => {
       );
     }
 
+    // Check LINE message quota (20 per day)
+    const { data: quotaData, error: quotaError } = await supabase
+      .rpc('check_line_message_quota', { p_user_id: userId });
+
+    if (quotaError) {
+      console.error('Error checking quota:', quotaError);
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Failed to check quota'
+        }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const quota = quotaData[0];
+    console.log('Quota check:', quota);
+
+    if (!quota.can_send) {
+      console.log(`User ${userId} exceeded daily quota: ${quota.messages_sent_today}/${quota.quota_limit}`);
+      
+      // Log denied attempt
+      await supabase.from('line_message_logs').insert({
+        user_id: userId,
+        exercise_type: exerciseType,
+        message_data: { reason: 'quota_exceeded', quota: quota },
+        sent_at: new Date().toISOString(),
+        success: false,
+        error_message: `Daily quota exceeded: ${quota.messages_sent_today}/${quota.quota_limit}`
+      });
+      
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'quota_exceeded',
+          message: `คุณส่งข้อความครบ ${quota.quota_limit} ครั้งแล้ววันนี้ กรุณารอพรุ่งนี้ค่ะ`,
+          quota: quota
+        }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Send Flex Message
     await sendLineFlexMessage(user.line_user_id, {
       exerciseType,
@@ -46,12 +88,50 @@ serve(async (req) => {
       problems
     });
 
+    // Log successful send
+    await supabase.from('line_message_logs').insert({
+      user_id: userId,
+      exercise_type: exerciseType,
+      message_data: {
+        score: score,
+        total: total,
+        percentage: percentage,
+        time_spent: timeSpent
+      },
+      sent_at: new Date().toISOString(),
+      success: true
+    });
+
+    console.log('Message logged successfully');
+
     return new Response(
-      JSON.stringify({ success: true }),
+      JSON.stringify({ 
+        success: true,
+        quota: {
+          remaining: quota.remaining - 1,
+          quota_limit: quota.quota_limit
+        }
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
     console.error('Error sending LINE message:', error);
+    
+    // Log failed attempt
+    try {
+      const { userId, exerciseType } = await req.json();
+      await supabase.from('line_message_logs').insert({
+        user_id: userId,
+        exercise_type: exerciseType || 'unknown',
+        message_data: { error: error.message },
+        sent_at: new Date().toISOString(),
+        success: false,
+        error_message: error.message || 'Unknown error'
+      });
+    } catch (logError) {
+      console.error('Failed to log error:', logError);
+    }
+    
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

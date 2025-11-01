@@ -60,6 +60,7 @@ const MultiplicationApp = () => {
   // LINE sending states
   const [isSendingLine, setIsSendingLine] = useState(false);
   const [lineSent, setLineSent] = useState(false);
+  const [lineQuota, setLineQuota] = useState<{ remaining: number; total: number } | null>(null);
   
   // PDF and Logo states
   const [schoolLogo, setSchoolLogo] = useState<string | null>(null);
@@ -355,7 +356,7 @@ const MultiplicationApp = () => {
 
       const percentage = Math.round((correctCount / problems.length) * 100);
 
-      await supabase.functions.invoke('send-line-message', {
+      const { data, error } = await supabase.functions.invoke('send-line-message', {
         body: {
           userId,
           exerciseType: 'multiplication',
@@ -368,6 +369,34 @@ const MultiplicationApp = () => {
           problems: problemsData
         }
       });
+
+      if (error) {
+        console.error('LINE Error:', error);
+        
+        if (data?.error === 'quota_exceeded') {
+          toast({
+            title: "❌ ส่งครบ 20 ครั้งแล้ว",
+            description: data.message || 'คุณส่งข้อความครบ 20 ครั้งแล้ววันนี้',
+            variant: "destructive",
+          });
+          setLineQuota({ remaining: 0, total: 20 });
+        } else {
+          toast({
+            title: "❌ ส่งไม่สำเร็จ",
+            description: "ไม่สามารถส่งข้อความได้ กรุณาลองใหม่อีกครั้ง",
+            variant: "destructive",
+          });
+        }
+        setIsSendingLine(false);
+        return;
+      }
+
+      if (data?.quota) {
+        setLineQuota({
+          remaining: data.quota.remaining,
+          total: data.quota.quota_limit
+        });
+      }
 
       toast({
         title: "✅ ส่งสำเร็จ",
@@ -1063,10 +1092,12 @@ const MultiplicationApp = () => {
               <div className="space-y-3">
                 <button 
                   onClick={handleSendToLine}
-                  disabled={isSendingLine || lineSent}
+                  disabled={isSendingLine || lineSent || (lineQuota && lineQuota.remaining <= 0)}
                   className={`w-full px-4 py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors ${
                     lineSent 
                       ? 'bg-zinc-100 text-zinc-500 cursor-not-allowed'
+                      : (lineQuota && lineQuota.remaining <= 0)
+                      ? 'bg-red-100 text-red-600 cursor-not-allowed'
                       : isSendingLine
                       ? 'bg-green-400 text-white cursor-wait'
                       : 'bg-green-500 text-white hover:bg-green-600'
@@ -1080,10 +1111,22 @@ const MultiplicationApp = () => {
                   ) : lineSent ? (
                     <>
                       <span>✅ ส่งแล้ว</span>
+                      {lineQuota && (
+                        <span className="text-xs opacity-75">
+                          (เหลือ {lineQuota.remaining}/{lineQuota.total})
+                        </span>
+                      )}
                     </>
+                  ) : (lineQuota && lineQuota.remaining <= 0) ? (
+                    <span>🚫 ส่งครบ 20 ครั้งแล้ววันนี้</span>
                   ) : (
                     <>
                       <span>📤 ส่งผลให้ผู้ปกครองทาง LINE</span>
+                      {lineQuota && (
+                        <span className="text-xs opacity-75">
+                          ({lineQuota.remaining}/{lineQuota.total})
+                        </span>
+                      )}
                     </>
                   )}
                 </button>

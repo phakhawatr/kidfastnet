@@ -227,6 +227,47 @@ export type Database = {
           },
         ]
       }
+      line_message_logs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          exercise_type: string
+          id: string
+          message_data: Json | null
+          sent_at: string
+          success: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          exercise_type: string
+          id?: string
+          message_data?: Json | null
+          sent_at?: string
+          success?: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          exercise_type?: string
+          id?: string
+          message_data?: Json | null
+          sent_at?: string
+          success?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "line_message_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           age: number
@@ -559,6 +600,15 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: {
           has_quota: boolean
+          remaining: number
+        }[]
+      }
+      check_line_message_quota: {
+        Args: { p_user_id: string }
+        Returns: {
+          can_send: boolean
+          messages_sent_today: number
+          quota_limit: number
           remaining: number
         }[]
       }

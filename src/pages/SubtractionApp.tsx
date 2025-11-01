@@ -52,7 +52,7 @@ const SubtractionApp: React.FC = () => {
   const {
     count, level, digits, allowBorrow, operands, problems, answers, results,
     showAnswers, celebrate, showSummary, summary, startedAt, finishedAt, 
-    elapsedMs, history, isSendingLine, lineSent,
+    elapsedMs, history, isSendingLine, lineSent, lineQuota,
     setAnswer, startTimerIfNeeded, applyNewCount, applyLevel, applyDigits,
     applyBorrow, applyOperands, resetAll, checkAnswers, showAll, onReset,
     clearHistory, saveStats, setShowSummary, setSummary, handleSendToLine,
@@ -427,10 +427,12 @@ const SubtractionApp: React.FC = () => {
             {/* LINE Send Button */}
             <button 
               onClick={handleSendToLine}
-              disabled={isSendingLine || lineSent}
+              disabled={isSendingLine || lineSent || (lineQuota && lineQuota.remaining <= 0)}
               className={`w-full px-4 py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors ${
                 lineSent 
                   ? 'bg-zinc-100 text-zinc-500 cursor-not-allowed'
+                  : (lineQuota && lineQuota.remaining <= 0)
+                  ? 'bg-red-100 text-red-600 cursor-not-allowed'
                   : isSendingLine
                   ? 'bg-green-400 text-white cursor-wait'
                   : 'bg-green-500 text-white hover:bg-green-600'
@@ -444,10 +446,22 @@ const SubtractionApp: React.FC = () => {
               ) : lineSent ? (
                 <>
                   <span>✅ ส่งแล้ว</span>
+                  {lineQuota && (
+                    <span className="text-xs opacity-75">
+                      (เหลือ {lineQuota.remaining}/{lineQuota.total})
+                    </span>
+                  )}
                 </>
+              ) : (lineQuota && lineQuota.remaining <= 0) ? (
+                <span>🚫 ส่งครบ 20 ครั้งแล้ววันนี้</span>
               ) : (
                 <>
                   <span>📤 ส่งผลให้ผู้ปกครองทาง LINE</span>
+                  {lineQuota && (
+                    <span className="text-xs opacity-75">
+                      ({lineQuota.remaining}/{lineQuota.total})
+                    </span>
+                  )}
                 </>
               )}
             </button>

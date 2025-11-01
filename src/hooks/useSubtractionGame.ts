@@ -28,6 +28,7 @@ export function useSubtractionGame() {
   // LINE sending states (for manual send)
   const [isSendingLine, setIsSendingLine] = useState(false);
   const [lineSent, setLineSent] = useState(false);
+  const [lineQuota, setLineQuota] = useState<{ remaining: number; total: number } | null>(null);
 
   // Timer states
   const [startedAt, setStartedAt] = useState<number | null>(null);
@@ -224,7 +225,7 @@ export function useSubtractionGame() {
       const percentage = Math.round((correctCount / problems.length) * 100);
 
       // Invoke edge function
-      await supabase.functions.invoke('send-line-message', {
+      const { data, error } = await supabase.functions.invoke('send-line-message', {
         body: {
           userId,
           exerciseType: 'subtraction',
@@ -237,6 +238,26 @@ export function useSubtractionGame() {
           problems: problemsData
         }
       });
+
+      if (error) {
+        console.error('LINE Error:', error);
+        
+        if (data?.error === 'quota_exceeded') {
+          alert(data.message || 'คุณส่งข้อความครบ 20 ครั้งแล้ววันนี้');
+          setLineQuota({ remaining: 0, total: 20 });
+        } else {
+          alert('❌ ไม่สามารถส่งข้อความได้ กรุณาลองใหม่อีกครั้ง');
+        }
+        setIsSendingLine(false);
+        return;
+      }
+
+      if (data?.quota) {
+        setLineQuota({
+          remaining: data.quota.remaining,
+          total: data.quota.quota_limit
+        });
+      }
 
       alert('✅ ส่งผลการทำแบบฝึกหัดไปยัง LINE แล้ว');
       setLineSent(true);
@@ -287,7 +308,7 @@ export function useSubtractionGame() {
     // State
     count, level, digits, allowBorrow, operands, problems, answers, results,
     showAnswers, celebrate, showSummary, summary, startedAt, finishedAt, 
-    elapsedMs, history, isSendingLine, lineSent,
+    elapsedMs, history, isSendingLine, lineSent, lineQuota,
     
     // Actions
     setAnswer, startTimerIfNeeded, applyNewCount, applyLevel, applyDigits,

@@ -73,6 +73,7 @@ const DivisionApp: React.FC = () => {
   // LINE sending states
   const [isSendingLine, setIsSendingLine] = useState(false);
   const [lineSent, setLineSent] = useState(false);
+  const [lineQuota, setLineQuota] = useState<{ remaining: number; total: number } | null>(null);
   
   // PDF states
   const [showPdfPreview, setShowPdfPreview] = useState(false);
@@ -298,7 +299,7 @@ const DivisionApp: React.FC = () => {
 
       const percentage = Math.round((correctCount / problems.length) * 100);
 
-      await supabase.functions.invoke('send-line-message', {
+      const { data, error } = await supabase.functions.invoke('send-line-message', {
         body: {
           userId,
           exerciseType: 'division',
@@ -311,6 +312,26 @@ const DivisionApp: React.FC = () => {
           problems: problemsData
         }
       });
+
+      if (error) {
+        console.error('LINE Error:', error);
+        
+        if (data?.error === 'quota_exceeded') {
+          alert(data.message || 'คุณส่งข้อความครบ 20 ครั้งแล้ววันนี้');
+          setLineQuota({ remaining: 0, total: 20 });
+        } else {
+          alert('❌ ไม่สามารถส่งข้อความได้ กรุณาลองใหม่อีกครั้ง');
+        }
+        setIsSendingLine(false);
+        return;
+      }
+
+      if (data?.quota) {
+        setLineQuota({
+          remaining: data.quota.remaining,
+          total: data.quota.quota_limit
+        });
+      }
 
       alert('✅ ส่งผลการทำแบบฝึกหัดไปยัง LINE แล้ว');
       setLineSent(true);
@@ -727,10 +748,12 @@ const DivisionApp: React.FC = () => {
             {/* LINE Send Button */}
             <button 
               onClick={handleSendToLine}
-              disabled={isSendingLine || lineSent}
+              disabled={isSendingLine || lineSent || (lineQuota && lineQuota.remaining <= 0)}
               className={`w-full px-4 py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors ${
                 lineSent 
                   ? 'bg-zinc-100 text-zinc-500 cursor-not-allowed'
+                  : (lineQuota && lineQuota.remaining <= 0)
+                  ? 'bg-red-100 text-red-600 cursor-not-allowed'
                   : isSendingLine
                   ? 'bg-green-400 text-white cursor-wait'
                   : 'bg-green-500 text-white hover:bg-green-600'
@@ -744,10 +767,22 @@ const DivisionApp: React.FC = () => {
               ) : lineSent ? (
                 <>
                   <span>✅ ส่งแล้ว</span>
+                  {lineQuota && (
+                    <span className="text-xs opacity-75">
+                      (เหลือ {lineQuota.remaining}/{lineQuota.total})
+                    </span>
+                  )}
                 </>
+              ) : (lineQuota && lineQuota.remaining <= 0) ? (
+                <span>🚫 ส่งครบ 20 ครั้งแล้ววันนี้</span>
               ) : (
                 <>
                   <span>📤 ส่งผลให้ผู้ปกครองทาง LINE</span>
+                  {lineQuota && (
+                    <span className="text-xs opacity-75">
+                      ({lineQuota.remaining}/{lineQuota.total})
+                    </span>
+                  )}
                 </>
               )}
             </button>
