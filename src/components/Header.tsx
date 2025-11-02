@@ -10,7 +10,7 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 text-2xl font-bold text-white hover:scale-105 transition-transform duration-200">
-            <img src={logoAIBrain} alt="KidFastAI Logo" className="w-12 h-12 object-contain drop-shadow-[0_0_8px_rgba(168,85,247,0.6)]" />
+            <img src={logoAIBrain} alt="KidFastAI Logo" className="w-12 h-12 scale-110 object-contain drop-shadow-[0_0_8px_rgba(168,85,247,0.6)]" />
             <span className="text-amber-400">KidFastAI.com</span>
           </Link>
           
