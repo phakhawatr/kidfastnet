@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import logoAIBrain from '../assets/logo-ai-brain.png';
 const Header = () => {
   const {
     isLoggedIn,
@@ -8,8 +9,9 @@ const Header = () => {
   return <header className="sticky top-0 z-50 backdrop-blur-md bg-white/20 border-b border-white/20">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 text-2xl font-bold text-white hover:scale-105 transition-transform duration-200">
-            🧮 <span className="text-amber-400">KidFastAI.com</span>
+          <Link to="/" className="flex items-center gap-3 text-2xl font-bold text-white hover:scale-105 transition-transform duration-200">
+            <img src={logoAIBrain} alt="KidFastAI Logo" className="w-10 h-10 object-contain" />
+            <span className="text-amber-400">KidFastAI.com</span>
           </Link>
           
           <div className="flex items-center gap-3">
