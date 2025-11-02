@@ -38,7 +38,7 @@ export const useAuth = () => {
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -57,7 +57,39 @@ export const useAuth = () => {
             logout();
           });
         } else {
-          setProfile(null);
+          // Fallback: Check localStorage auth
+          const lastEmail = localStorage.getItem('kidfast_last_email');
+          const authState = getAuthState();
+          
+          if (lastEmail && authState?.loggedIn) {
+            try {
+              const { data: regData } = await supabase
+                .from('user_registrations')
+                .select('nickname, age, grade, avatar, subscription_tier, ai_features_enabled, ai_monthly_quota, ai_usage_count, ai_quota_reset_date')
+                .eq('parent_email', lastEmail)
+                .eq('status', 'approved')
+                .maybeSingle();
+              
+              if (regData) {
+                setProfile({
+                  nickname: regData.nickname,
+                  age: regData.age,
+                  grade: regData.grade,
+                  avatar: regData.avatar,
+                  is_approved: true,
+                  subscription_tier: regData.subscription_tier,
+                  ai_features_enabled: regData.ai_features_enabled,
+                  ai_monthly_quota: regData.ai_monthly_quota,
+                  ai_usage_count: regData.ai_usage_count,
+                  ai_quota_reset_date: regData.ai_quota_reset_date,
+                });
+              }
+            } catch (error) {
+              console.error('[useAuth] Error in auth state change:', error);
+            }
+          } else {
+            setProfile(null);
+          }
           sessionManager.endSession();
         }
         setIsLoading(false);
@@ -65,7 +97,7 @@ export const useAuth = () => {
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       
@@ -82,6 +114,39 @@ export const useAuth = () => {
           });
           logout();
         });
+      } else {
+        // Fallback: Check localStorage auth and fetch AI features
+        const lastEmail = localStorage.getItem('kidfast_last_email');
+        const authState = getAuthState();
+        
+        if (lastEmail && authState?.loggedIn) {
+          try {
+            const { data: regData } = await supabase
+              .from('user_registrations')
+              .select('nickname, age, grade, avatar, subscription_tier, ai_features_enabled, ai_monthly_quota, ai_usage_count, ai_quota_reset_date, status')
+              .eq('parent_email', lastEmail)
+              .eq('status', 'approved')
+              .maybeSingle();
+            
+            if (regData) {
+              console.log('[useAuth] Loaded profile from localStorage auth:', regData);
+              setProfile({
+                nickname: regData.nickname,
+                age: regData.age,
+                grade: regData.grade,
+                avatar: regData.avatar,
+                is_approved: true,
+                subscription_tier: regData.subscription_tier,
+                ai_features_enabled: regData.ai_features_enabled,
+                ai_monthly_quota: regData.ai_monthly_quota,
+                ai_usage_count: regData.ai_usage_count,
+                ai_quota_reset_date: regData.ai_quota_reset_date,
+              });
+            }
+          } catch (error) {
+            console.error('[useAuth] Error fetching localStorage profile:', error);
+          }
+        }
       }
       setIsLoading(false);
     });
