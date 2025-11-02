@@ -209,8 +209,7 @@ const defaultSkills: Skill[] = [{
   backgroundGradient: 'bg-gradient-to-br from-emerald-400 via-green-500 to-teal-500',
   textColor: 'text-white',
   sticker: '💰',
-  hrefPreview: '/money',
-  mascotImage: additionMascot
+  hrefPreview: '/money'
 }];
 const SkillCard: React.FC<{
   skill: Skill;

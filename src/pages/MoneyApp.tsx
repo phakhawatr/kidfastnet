@@ -8,6 +8,44 @@ import { ArrowLeft, ArrowRight, Check, RotateCcw, Settings, Lightbulb, Trophy, C
 import Confetti from 'react-confetti';
 import { getCoinEmoji, getMoneyColor } from '../utils/moneyUtils';
 
+// Import mascots and images
+import moneyMascot from '../assets/mascot-money.png';
+import piggyBank from '../assets/money-piggybank.png';
+import shopImage from '../assets/money-shop.png';
+
+// Import coin images
+import coin1Baht from '../assets/coins/coin-1-baht.png';
+import coin2Baht from '../assets/coins/coin-2-baht.png';
+import coin5Baht from '../assets/coins/coin-5-baht.png';
+import coin10Baht from '../assets/coins/coin-10-baht.png';
+
+// Import bill images
+import bill20Baht from '../assets/coins/bill-20-baht.png';
+import bill50Baht from '../assets/coins/bill-50-baht.png';
+import bill100Baht from '../assets/coins/bill-100-baht.png';
+import bill500Baht from '../assets/coins/bill-500-baht.png';
+import bill1000Baht from '../assets/coins/bill-1000-baht.png';
+
+// Helper function to get coin/bill image
+const getMoneyImage = (value: number, unit: string) => {
+  if (unit === 'สตางค์') {
+    if (value === 25) return coin1Baht; // Use 1 baht as placeholder
+    if (value === 50) return coin1Baht; // Use 1 baht as placeholder
+  }
+  if (unit === 'บาท') {
+    if (value === 1) return coin1Baht;
+    if (value === 2) return coin2Baht;
+    if (value === 5) return coin5Baht;
+    if (value === 10) return coin10Baht;
+    if (value === 20) return bill20Baht;
+    if (value === 50) return bill50Baht;
+    if (value === 100) return bill100Baht;
+    if (value === 500) return bill500Baht;
+    if (value === 1000) return bill1000Baht;
+  }
+  return coin1Baht; // Default fallback
+};
+
 const MoneyApp = () => {
   const navigate = useNavigate();
   const [showSettings, setShowSettings] = useState(false);
@@ -69,6 +107,13 @@ const MoneyApp = () => {
           <Card className="bg-white/90 backdrop-blur shadow-xl">
             <CardContent className="p-8">
               <div className="text-center mb-8">
+                <div className="flex justify-center mb-4">
+                  <img 
+                    src={moneyMascot} 
+                    alt="Money Mascot Celebration" 
+                    className="w-32 h-32 animate-bounce"
+                  />
+                </div>
                 <Trophy className="w-20 h-20 mx-auto mb-4 text-yellow-500" />
                 <h1 className="text-4xl font-bold mb-2 text-primary">เยี่ยมมาก!</h1>
                 <p className="text-2xl text-muted-foreground mb-4">
@@ -272,13 +317,14 @@ const MoneyApp = () => {
             <ArrowLeft className="mr-2 h-4 w-4" />
             กลับ
           </Button>
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-semibold">
-              💰 เงินตรา
-            </span>
-            <span className="text-sm text-muted-foreground">
-              ({currentProblemIndex + 1}/{problems.length})
-            </span>
+          <div className="flex items-center gap-3">
+            <img src={moneyMascot} alt="Money Mascot" className="w-10 h-10" />
+            <div>
+              <div className="text-lg font-semibold">เงินตรา</div>
+              <div className="text-xs text-muted-foreground">
+                ข้อ {currentProblemIndex + 1}/{problems.length}
+              </div>
+            </div>
           </div>
           <Button onClick={() => setShowSettings(true)} variant="ghost" size="icon">
             <Settings className="h-5 w-5" />
@@ -290,23 +336,37 @@ const MoneyApp = () => {
           <CardContent className="p-6 space-y-6">
             {/* Problem Story */}
             <div className="text-center">
-              <div className="inline-block bg-gradient-to-r from-green-100 to-yellow-100 rounded-lg p-4 mb-4">
-                <p className="text-lg font-medium text-primary">{currentProblem.story}</p>
+              <div className="flex flex-col items-center gap-3 mb-4">
+                {currentProblem.type === 'counting' && (
+                  <img src={piggyBank} alt="Piggy Bank" className="w-20 h-20" />
+                )}
+                {(currentProblem.type === 'shopping' || currentProblem.type === 'change') && (
+                  <img src={shopImage} alt="Shop" className="w-24 h-24" />
+                )}
+                <div className="inline-block bg-gradient-to-r from-green-100 to-yellow-100 rounded-lg p-4">
+                  <p className="text-lg font-medium text-primary">{currentProblem.story}</p>
+                </div>
               </div>
             </div>
             
             {/* Coins Display (for counting problems) */}
             {currentProblem.type === 'counting' && currentProblem.coins.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-4 p-4 bg-gray-50 rounded-lg">
+              <div className="flex flex-wrap justify-center gap-4 p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border-2 border-dashed border-gray-300">
                 {currentProblem.coins.map((coin, idx) => (
                   <div
                     key={idx}
-                    className={`flex items-center gap-2 ${getMoneyColor(coin.value, coin.unit)} rounded-lg p-3 shadow-md`}
+                    className="flex flex-col items-center gap-2 bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow"
                   >
-                    <span className="text-3xl">{getCoinEmoji(coin.value, coin.unit)}</span>
-                    <div className="text-sm font-semibold">
-                      <div>{coin.value} {coin.unit}</div>
-                      <div className="text-xs text-muted-foreground">x {coin.count}</div>
+                    <img 
+                      src={getMoneyImage(coin.value, coin.unit)} 
+                      alt={`${coin.value} ${coin.unit}`}
+                      className={`${coin.unit === 'บาท' && coin.value >= 20 ? 'w-24 h-16' : 'w-16 h-16'} object-contain`}
+                    />
+                    <div className="text-center">
+                      <div className="text-sm font-bold text-primary">{coin.value} {coin.unit}</div>
+                      <div className="text-xs text-muted-foreground bg-gray-100 px-2 py-1 rounded-full">
+                        จำนวน {coin.count} {coin.unit === 'บาท' && coin.value >= 20 ? 'ใบ' : 'เหรียญ'}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -336,20 +396,27 @@ const MoneyApp = () => {
             {/* Feedback */}
             {currentProblem.isCorrect !== null && (
               <div
-                className={`text-center p-4 rounded-lg ${
+                className={`text-center p-6 rounded-xl ${
                   currentProblem.isCorrect
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-red-100 text-red-800'
+                    ? 'bg-gradient-to-r from-green-100 to-green-50 border-2 border-green-300'
+                    : 'bg-gradient-to-r from-red-100 to-red-50 border-2 border-red-300'
                 }`}
               >
-                <p className="text-lg font-semibold">
-                  {currentProblem.isCorrect ? '✅ ถูกต้อง!' : '❌ ไม่ถูกต้อง'}
-                </p>
-                {!currentProblem.isCorrect && (
-                  <p className="text-sm mt-2">
-                    คำตอบที่ถูกต้องคือ {currentProblem.correctAnswer} บาท
+                <div className="flex flex-col items-center gap-3">
+                  <img 
+                    src={moneyMascot} 
+                    alt={currentProblem.isCorrect ? "Happy" : "Sad"}
+                    className={`w-16 h-16 ${currentProblem.isCorrect ? 'animate-bounce' : ''}`}
+                  />
+                  <p className="text-xl font-bold">
+                    {currentProblem.isCorrect ? '✅ ถูกต้อง!' : '❌ ลองใหม่อีกครั้งนะ'}
                   </p>
-                )}
+                  {!currentProblem.isCorrect && (
+                    <p className="text-sm mt-2 bg-white/70 px-4 py-2 rounded-lg">
+                      คำตอบที่ถูกต้องคือ <span className="font-bold text-lg">{currentProblem.correctAnswer} บาท</span>
+                    </p>
+                  )}
+                </div>
               </div>
             )}
             
