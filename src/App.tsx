@@ -28,6 +28,7 @@ import AdaptiveLearningPath from "./pages/AdaptiveLearningPath";
 import NumberBondsApp from "./pages/NumberBondsApp";
 import BarModelApp from "./pages/BarModelApp";
 import PlaceValueApp from "./pages/PlaceValueApp";
+import MentalMathApp from "./pages/MentalMathApp";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
@@ -228,6 +229,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <PlaceValueApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/mental-math" 
+            element={
+              <ProtectedRoute>
+                <MentalMathApp />
               </ProtectedRoute>
             } 
           />

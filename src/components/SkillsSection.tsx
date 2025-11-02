@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Minus, X, Divide, Sigma, Table, Clock, Ruler, Scale, Zap, Eye, Hash, Shapes, Percent, ArrowLeftRight, Calculator, Link2, BarChart3, Layers } from 'lucide-react';
+import { Plus, Minus, X, Divide, Sigma, Table, Clock, Ruler, Scale, Zap, Eye, Hash, Shapes, Percent, ArrowLeftRight, Calculator, Link2, BarChart3, Layers, Brain } from 'lucide-react';
 
 // Import mascot images
 import additionMascot from '../assets/mascot-addition.png';
@@ -36,6 +36,15 @@ const defaultSkills: Skill[] = [{
   textColor: 'text-white',
   sticker: '🔢',
   hrefPreview: '/place-value',
+  mascotImage: additionMascot
+}, {
+  icon: Brain,
+  title: 'คิดเลขเร็ว',
+  desc: 'เทคนิคแยกตัวเลขเพื่อคำนวณง่ายขึ้น ทำให้กลม 10/100 แบบ Mental Math',
+  backgroundGradient: 'bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600',
+  textColor: 'text-white',
+  sticker: '⚡',
+  hrefPreview: '/mental-math',
   mascotImage: additionMascot
 }, {
   icon: Link2,
