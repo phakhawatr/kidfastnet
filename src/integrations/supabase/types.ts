@@ -154,6 +154,53 @@ export type Database = {
           },
         ]
       }
+      ai_recommendations: {
+        Row: {
+          created_at: string
+          id: string
+          is_completed: boolean
+          priority: number
+          reasoning: string
+          recommendation_type: string
+          skill_name: string
+          suggested_difficulty: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_completed?: boolean
+          priority?: number
+          reasoning: string
+          recommendation_type: string
+          skill_name: string
+          suggested_difficulty: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_completed?: boolean
+          priority?: number
+          reasoning?: string
+          recommendation_type?: string
+          skill_name?: string
+          suggested_difficulty?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_user"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_usage_logs: {
         Row: {
           cost_estimate: number | null
@@ -182,6 +229,59 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "ai_usage_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_paths: {
+        Row: {
+          ai_reasoning: string | null
+          created_at: string
+          current_step: number
+          difficulty_progression: string
+          estimated_duration: number | null
+          id: string
+          path_name: string
+          skills_to_focus: string[]
+          status: string
+          total_steps: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_reasoning?: string | null
+          created_at?: string
+          current_step?: number
+          difficulty_progression: string
+          estimated_duration?: number | null
+          id?: string
+          path_name: string
+          skills_to_focus: string[]
+          status?: string
+          total_steps: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_reasoning?: string | null
+          created_at?: string
+          current_step?: number
+          difficulty_progression?: string
+          estimated_duration?: number | null
+          id?: string
+          path_name?: string
+          skills_to_focus?: string[]
+          status?: string
+          total_steps?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_user"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "user_registrations"
@@ -268,6 +368,56 @@ export type Database = {
           },
         ]
       }
+      practice_sessions: {
+        Row: {
+          accuracy: number
+          created_at: string
+          difficulty: string
+          hints_used: number
+          id: string
+          problems_attempted: number
+          problems_correct: number
+          session_date: string
+          skill_name: string
+          time_spent: number
+          user_id: string
+        }
+        Insert: {
+          accuracy: number
+          created_at?: string
+          difficulty: string
+          hints_used?: number
+          id?: string
+          problems_attempted: number
+          problems_correct: number
+          session_date?: string
+          skill_name: string
+          time_spent: number
+          user_id: string
+        }
+        Update: {
+          accuracy?: number
+          created_at?: string
+          difficulty?: string
+          hints_used?: number
+          id?: string
+          problems_attempted?: number
+          problems_correct?: number
+          session_date?: string
+          skill_name?: string
+          time_spent?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_user"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           age: number
@@ -342,6 +492,56 @@ export type Database = {
           user_identifier?: string | null
         }
         Relationships: []
+      }
+      skill_assessments: {
+        Row: {
+          accuracy_rate: number
+          average_time: number | null
+          correct_attempts: number
+          created_at: string
+          difficulty_level: string
+          id: string
+          last_practiced_at: string | null
+          skill_name: string
+          total_attempts: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accuracy_rate?: number
+          average_time?: number | null
+          correct_attempts?: number
+          created_at?: string
+          difficulty_level?: string
+          id?: string
+          last_practiced_at?: string | null
+          skill_name: string
+          total_attempts?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accuracy_rate?: number
+          average_time?: number | null
+          correct_attempts?: number
+          created_at?: string
+          difficulty_level?: string
+          id?: string
+          last_practiced_at?: string | null
+          skill_name?: string
+          total_attempts?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_user"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscription_plans: {
         Row: {
@@ -765,6 +965,15 @@ export type Database = {
         Returns: undefined
       }
       update_login_stats: { Args: { user_email: string }; Returns: boolean }
+      update_skill_assessment: {
+        Args: {
+          p_correct: boolean
+          p_skill_name: string
+          p_time_spent: number
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       update_user_session: {
         Args: { device_info?: string; session_id: string; user_email: string }
         Returns: boolean
