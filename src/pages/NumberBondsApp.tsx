@@ -35,6 +35,15 @@ const NumberBondsApp = () => {
   const currentProblem = getCurrentProblem();
   const bond = currentProblem?.bond;
 
+  // Safety check - don't render if no problems yet
+  if (!currentProblem) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
+        <div className="text-xl text-gray-600">กำลังโหลด...</div>
+      </div>
+    );
+  }
+
   const handleInputChange = (value: string) => {
     if (/^\d*$/.test(value)) {
       handleAnswer(value);
