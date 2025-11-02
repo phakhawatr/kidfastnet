@@ -168,7 +168,7 @@ const NumberBondsApp = () => {
               <div className="relative mb-12">
                 <div className={`w-32 h-32 rounded-full flex items-center justify-center text-4xl font-bold shadow-xl transition-all duration-300 ${
                   bond?.missingPart === 'whole'
-                    ? 'bg-gradient-to-br from-yellow-300 to-orange-300 animate-pulse'
+                    ? 'bg-gradient-to-br from-yellow-300 to-orange-300 animate-pulse-slow'
                     : 'bg-gradient-to-br from-blue-400 to-purple-400 text-white'
                 }`}>
                   {bond?.missingPart === 'whole' ? (
@@ -199,7 +199,7 @@ const NumberBondsApp = () => {
                 <div className="relative">
                   <div className={`w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold shadow-lg transition-all duration-300 ${
                     bond?.missingPart === 'part1'
-                      ? 'bg-gradient-to-br from-yellow-300 to-orange-300 animate-pulse'
+                      ? 'bg-gradient-to-br from-yellow-300 to-orange-300 animate-pulse-slow'
                       : 'bg-gradient-to-br from-green-400 to-teal-400 text-white'
                   }`}>
                     {bond?.missingPart === 'part1' ? (
@@ -228,7 +228,7 @@ const NumberBondsApp = () => {
                 <div className="relative">
                   <div className={`w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold shadow-lg transition-all duration-300 ${
                     bond?.missingPart === 'part2'
-                      ? 'bg-gradient-to-br from-yellow-300 to-orange-300 animate-pulse'
+                      ? 'bg-gradient-to-br from-yellow-300 to-orange-300 animate-pulse-slow'
                       : 'bg-gradient-to-br from-pink-400 to-rose-400 text-white'
                   }`}>
                     {bond?.missingPart === 'part2' ? (
