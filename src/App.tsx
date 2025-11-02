@@ -27,6 +27,7 @@ import AIMathTutor from "./pages/AIMathTutor";
 import AdaptiveLearningPath from "./pages/AdaptiveLearningPath";
 import NumberBondsApp from "./pages/NumberBondsApp";
 import BarModelApp from "./pages/BarModelApp";
+import PlaceValueApp from "./pages/PlaceValueApp";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
@@ -219,6 +220,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <BarModelApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/place-value" 
+            element={
+              <ProtectedRoute>
+                <PlaceValueApp />
               </ProtectedRoute>
             } 
           />
