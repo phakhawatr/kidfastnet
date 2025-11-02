@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Minus, X, Divide, Sigma, Table, Clock, Ruler, Scale, Zap, Eye, Hash, Shapes, Percent, ArrowLeftRight, Calculator, Link2 } from 'lucide-react';
+import { Plus, Minus, X, Divide, Sigma, Table, Clock, Ruler, Scale, Zap, Eye, Hash, Shapes, Percent, ArrowLeftRight, Calculator, Link2, BarChart3 } from 'lucide-react';
 
 // Import mascot images
 import additionMascot from '../assets/mascot-addition.png';
@@ -36,6 +36,15 @@ const defaultSkills: Skill[] = [{
   textColor: 'text-white',
   sticker: '🔗',
   hrefPreview: '/number-bonds',
+  mascotImage: additionMascot
+}, {
+  icon: BarChart3,
+  title: 'Bar Model Method',
+  desc: 'ใช้แท่งภาพช่วยแก้โจทย์คำถาม เทคนิคเด่นของ Singapore Math สำหรับการคิดวิเคราะห์',
+  backgroundGradient: 'bg-gradient-to-br from-purple-400 via-fuchsia-500 to-pink-600',
+  textColor: 'text-white',
+  sticker: '📊',
+  hrefPreview: '/bar-model',
   mascotImage: additionMascot
 }, {
   icon: Plus,

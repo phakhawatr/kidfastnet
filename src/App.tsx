@@ -25,6 +25,7 @@ import BackgroundRemoverPage from "./pages/BackgroundRemover";
 import ParentDashboard from "./pages/ParentDashboard";
 import AIMathTutor from "./pages/AIMathTutor";
 import NumberBondsApp from "./pages/NumberBondsApp";
+import BarModelApp from "./pages/BarModelApp";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
@@ -200,6 +201,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <NumberBondsApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/bar-model" 
+            element={
+              <ProtectedRoute>
+                <BarModelApp />
               </ProtectedRoute>
             } 
           />
