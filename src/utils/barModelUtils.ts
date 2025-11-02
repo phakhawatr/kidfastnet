@@ -197,10 +197,10 @@ export const generateComparisonProblem = (difficulty: Difficulty): BarModelProbl
   let question = '';
   
   if (findFirst) {
-    story = `${context.name2}มี${context.item} ${value2} ${context.unit} ซึ่ง${isMore ? 'น้อยกว่า' : 'มากกว่า'}${context.name1} ${difference} ${context.unit}`;
+    story = `${context.name2}มี${context.item} ${value2} ${context.unit} ซึ่ง${isMore ? 'มากกว่า' : 'น้อยกว่า'}${context.name1} ${difference} ${context.unit}`;
     question = `${context.name1}มี${context.item}กี่${context.unit}?`;
   } else {
-    story = `${context.name1}มี${context.item} ${value1} ${context.unit} ซึ่ง${isMore ? 'มากกว่า' : 'น้อยกว่า'}${context.name2} ${difference} ${context.unit}`;
+    story = `${context.name1}มี${context.item} ${value1} ${context.unit} ซึ่ง${isMore ? 'น้อยกว่า' : 'มากกว่า'}${context.name2} ${difference} ${context.unit}`;
     question = `${context.name2}มี${context.item}กี่${context.unit}?`;
   }
   
