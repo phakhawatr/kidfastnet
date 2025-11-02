@@ -195,24 +195,42 @@ export default function BarModelApp() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   ประเภทโจทย์
                 </label>
-                <div className="flex gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   <Button
                     variant={type === 'part-whole' ? 'default' : 'outline'}
                     onClick={() => changeSettings(undefined, 'part-whole', undefined)}
+                    size="sm"
                   >
-                    แบบส่วนรวม
+                    ส่วนรวม
                   </Button>
                   <Button
                     variant={type === 'comparison' ? 'default' : 'outline'}
                     onClick={() => changeSettings(undefined, 'comparison', undefined)}
+                    size="sm"
                   >
-                    แบบเปรียบเทียบ
+                    เปรียบเทียบ
+                  </Button>
+                  <Button
+                    variant={type === 'before-after' ? 'default' : 'outline'}
+                    onClick={() => changeSettings(undefined, 'before-after', undefined)}
+                    size="sm"
+                  >
+                    ก่อน-หลัง
+                  </Button>
+                  <Button
+                    variant={type === 'change' ? 'default' : 'outline'}
+                    onClick={() => changeSettings(undefined, 'change', undefined)}
+                    size="sm"
+                  >
+                    โจทย์คำถาม
                   </Button>
                   <Button
                     variant={type === 'mixed' ? 'default' : 'outline'}
                     onClick={() => changeSettings(undefined, 'mixed', undefined)}
+                    className="col-span-2"
+                    size="sm"
                   >
-                    ผสม
+                    ผสมทั้งหมด
                   </Button>
                 </div>
               </div>
@@ -287,7 +305,7 @@ export default function BarModelApp() {
           
           <div className="text-center">
             <h1 className="text-2xl font-bold text-purple-800">📊 Bar Model Method</h1>
-            <p className="text-sm text-gray-600">วิธีแท่งภาพ (Singapore Math)</p>
+            <p className="text-sm text-gray-600">วิธีแท่งภาพ (Singapore Math) - โจทย์หลากหลายรูปแบบ</p>
           </div>
 
           <Button

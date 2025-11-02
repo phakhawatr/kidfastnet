@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import {
   BarModelProblem,
   ProblemType,
@@ -95,7 +96,7 @@ export const useBarModelGame = () => {
     }
   };
   
-  const submitAllAnswers = () => {
+  const submitAllAnswers = async () => {
     const updatedProblems = problems.map(p => ({
       ...p,
       isCorrect: checkAnswer(p, p.userAnswer)
@@ -109,6 +110,77 @@ export const useBarModelGame = () => {
     if (correctCount === problems.length) {
       setCelebrate(true);
       setTimeout(() => setCelebrate(false), 5000);
+    }
+
+    // Save to Supabase
+    await savePracticeSession(correctCount, problems.length, elapsedTime, type);
+  };
+
+  const savePracticeSession = async (correctCount: number, totalCount: number, durationMs: number, problemType: ProblemType | 'mixed') => {
+    try {
+      const userId = localStorage.getItem('kidfast_user_id');
+      const lastEmail = localStorage.getItem('kidfast_last_email');
+      
+      if (!userId && !lastEmail) {
+        console.warn('[BarModelApp] No userId or email found');
+        return;
+      }
+
+      let finalUserId = userId;
+      
+      if (!finalUserId && lastEmail) {
+        const { data: registration } = await supabase
+          .from('user_registrations')
+          .select('id')
+          .eq('parent_email', lastEmail)
+          .single();
+        
+        if (registration) {
+          finalUserId = registration.id;
+          localStorage.setItem('kidfast_user_id', finalUserId);
+        }
+      }
+
+      if (!finalUserId) {
+        console.warn('[BarModelApp] Unable to determine userId');
+        return;
+      }
+
+      // Save practice session
+      const { error: sessionError } = await supabase
+        .from('practice_sessions')
+        .insert({
+          user_id: finalUserId,
+          skill_name: 'Bar Model',
+          difficulty: difficulty,
+          problems_attempted: totalCount,
+          problems_correct: correctCount,
+          accuracy: Math.round((correctCount / totalCount) * 100),
+          time_spent: Math.round(durationMs / 1000),
+          hints_used: 0,
+          session_date: new Date().toISOString()
+        });
+
+      if (sessionError) {
+        console.error('[BarModelApp] Error saving practice session:', sessionError);
+      }
+
+      // Update skill assessments
+      const avgTimePerProblem = Math.round(durationMs / totalCount);
+      
+      for (let i = 0; i < totalCount; i++) {
+        const isCorrect = problems[i].isCorrect === true;
+        
+        await supabase.rpc('update_skill_assessment', {
+          p_user_id: finalUserId,
+          p_skill_name: 'Bar Model',
+          p_correct: isCorrect,
+          p_time_spent: avgTimePerProblem
+        });
+      }
+
+    } catch (error) {
+      console.error('[BarModelApp] Error in savePracticeSession:', error);
     }
   };
   

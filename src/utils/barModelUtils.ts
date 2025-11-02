@@ -1,7 +1,7 @@
 // Bar Model Method Utility Functions
 // Singapore Math visual approach to problem solving
 
-export type ProblemType = 'part-whole' | 'comparison';
+export type ProblemType = 'part-whole' | 'comparison' | 'before-after' | 'change';
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
 export interface BarModelProblem {
@@ -237,6 +237,285 @@ export const generateComparisonProblem = (difficulty: Difficulty): BarModelProbl
 };
 
 /**
+ * Generate Before-After problems (Change over time)
+ */
+export const generateBeforeAfterProblem = (difficulty: Difficulty): BarModelProblem => {
+  const id = Date.now() + Math.random();
+  
+  let beforeRange: [number, number];
+  let changeRange: [number, number];
+  
+  if (difficulty === 'easy') {
+    beforeRange = [10, 20];
+    changeRange = [3, 8];
+  } else if (difficulty === 'medium') {
+    beforeRange = [20, 50];
+    changeRange = [5, 15];
+  } else {
+    beforeRange = [30, 80];
+    changeRange = [10, 25];
+  }
+  
+  const before = randInt(...beforeRange);
+  const change = randInt(...changeRange);
+  
+  // Randomly choose increase or decrease
+  const isIncrease = Math.random() < 0.5;
+  const after = isIncrease ? before + change : before - change;
+  
+  // Randomly decide what to find
+  const findWhat = randInt(0, 2); // 0=before, 1=change, 2=after
+  let correctAnswer: number;
+  let knownBefore: number | null = null;
+  let knownChange: number | null = null;
+  let knownAfter: number | null = null;
+  
+  if (findWhat === 0) {
+    correctAnswer = before;
+    knownChange = change;
+    knownAfter = after;
+  } else if (findWhat === 1) {
+    correctAnswer = change;
+    knownBefore = before;
+    knownAfter = after;
+  } else {
+    correctAnswer = after;
+    knownBefore = before;
+    knownChange = change;
+  }
+  
+  // Story contexts
+  const contexts = [
+    {
+      item: 'เงิน',
+      unit: 'บาท',
+      increaseAction: 'ได้รับเพิ่ม',
+      decreaseAction: 'ใช้ไป',
+      before: 'ตอนแรก',
+      after: 'ตอนนี้',
+    },
+    {
+      item: 'ลูกกวาด',
+      unit: 'ลูก',
+      increaseAction: 'ได้รับเพิ่ม',
+      decreaseAction: 'กินไป',
+      before: 'เมื่อเช้า',
+      after: 'เย็นนี้',
+    },
+    {
+      item: 'สติกเกอร์',
+      unit: 'ดวง',
+      increaseAction: 'ซื้อเพิ่ม',
+      decreaseAction: 'แจกเพื่อนไป',
+      before: 'เดิม',
+      after: 'หลังจากนั้น',
+    },
+    {
+      item: 'ดินสอ',
+      unit: 'แท่ง',
+      increaseAction: 'ซื้อเพิ่ม',
+      decreaseAction: 'หายไป',
+      before: 'ตอนเริ่มเทอม',
+      after: 'ตอนนี้',
+    },
+  ];
+  
+  const context = contexts[randInt(0, contexts.length - 1)];
+  const action = isIncrease ? context.increaseAction : context.decreaseAction;
+  
+  let story = '';
+  let question = '';
+  
+  if (findWhat === 0) {
+    // Find before
+    story = `น้องมี${context.item} ${action} ${change} ${context.unit} ${context.after}มี ${after} ${context.unit}`;
+    question = `${context.before}น้องมี${context.item}กี่${context.unit}?`;
+  } else if (findWhat === 1) {
+    // Find change
+    story = `น้อง${context.before}มี${context.item} ${before} ${context.unit} ${context.after}มี ${after} ${context.unit}`;
+    question = `น้อง${isIncrease ? 'ได้' : 'สูญเสีย'}${context.item}ไปกี่${context.unit}?`;
+  } else {
+    // Find after
+    story = `น้อง${context.before}มี${context.item} ${before} ${context.unit} แล้ว${action} ${change} ${context.unit}`;
+    question = `${context.after}น้องมี${context.item}กี่${context.unit}?`;
+  }
+  
+  const bars: Bar[] = [
+    {
+      id: 'before',
+      label: context.before,
+      value: knownBefore,
+      color: colors[0],
+    },
+    {
+      id: 'change',
+      label: isIncrease ? 'เพิ่ม' : 'ลด',
+      value: knownChange,
+      color: isIncrease ? colors[2] : colors[3],
+    },
+    {
+      id: 'after',
+      label: context.after,
+      value: knownAfter,
+      color: colors[1],
+    },
+  ];
+  
+  let hint = '';
+  if (findWhat === 0) {
+    hint = `${context.after} ${after} ${isIncrease ? 'ลบ' : 'บวก'} ${change} = ${context.before}`;
+  } else if (findWhat === 1) {
+    hint = `ลองเทียบ ${context.before} ${before} กับ ${context.after} ${after}`;
+  } else {
+    hint = `${context.before} ${before} ${isIncrease ? 'บวก' : 'ลบ'} ${change} = ${context.after}`;
+  }
+  
+  return {
+    id,
+    type: 'before-after',
+    story,
+    question,
+    hint,
+    bars,
+    correctAnswer,
+    userAnswer: '',
+    isCorrect: null,
+  };
+};
+
+/**
+ * Generate Word Problems with real-life contexts
+ */
+export const generateWordProblem = (difficulty: Difficulty): BarModelProblem => {
+  const id = Date.now() + Math.random();
+  
+  let range: [number, number];
+  
+  if (difficulty === 'easy') {
+    range = [10, 30];
+  } else if (difficulty === 'medium') {
+    range = [20, 60];
+  } else {
+    range = [40, 100];
+  }
+  
+  // Real-life scenarios
+  const scenarios = [
+    {
+      context: 'ซื้อของที่ร้านค้า',
+      generate: () => {
+        const price1 = randInt(...range);
+        const price2 = randInt(...range);
+        const total = price1 + price2;
+        const findWhat = randInt(0, 2);
+        
+        if (findWhat === 0) {
+          return {
+            story: `แม่ซื้อผลไม้ราคา ${price1} บาท และซื้อขนมราคา ${price2} บาท`,
+            question: 'ต้องจ่ายเงินทั้งหมดกี่บาท?',
+            answer: total,
+            bars: [
+              { id: 'fruit', label: 'ผลไม้', value: price1, color: colors[0] },
+              { id: 'snack', label: 'ขนม', value: price2, color: colors[1] },
+            ],
+            hint: `บวกราคาทั้งสอง: ${price1} + ${price2}`,
+          };
+        } else if (findWhat === 1) {
+          return {
+            story: `แม่ซื้อของทั้งหมด ${total} บาท ซื้อขนมราคา ${price2} บาท`,
+            question: 'ผลไม้ราคากี่บาท?',
+            answer: price1,
+            bars: [
+              { id: 'fruit', label: 'ผลไม้', value: null, color: colors[0] },
+              { id: 'snack', label: 'ขนม', value: price2, color: colors[1] },
+            ],
+            hint: `ลบราคารวม ${total} ด้วยราคาขนม ${price2}`,
+          };
+        } else {
+          return {
+            story: `แม่ซื้อของทั้งหมด ${total} บาท ซื้อผลไม้ราคา ${price1} บาท`,
+            question: 'ขนมราคากี่บาท?',
+            answer: price2,
+            bars: [
+              { id: 'fruit', label: 'ผลไม้', value: price1, color: colors[0] },
+              { id: 'snack', label: 'ขนม', value: null, color: colors[1] },
+            ],
+            hint: `ลบราคารวม ${total} ด้วยราคาผลไม้ ${price1}`,
+          };
+        }
+      },
+    },
+    {
+      context: 'แบ่งขนม',
+      generate: () => {
+        const total = randInt(...range);
+        const part1 = randInt(Math.floor(total * 0.3), Math.floor(total * 0.7));
+        const part2 = total - part1;
+        const findWhat = randInt(0, 2);
+        
+        if (findWhat === 0) {
+          return {
+            story: `มีคุกกี้ทั้งหมด ${total} ชิ้น แบ่งให้น้องชาย ${part1} ชิ้น`,
+            question: 'เหลือกี่ชิ้น?',
+            answer: part2,
+            bars: [
+              { id: 'brother', label: 'น้องชาย', value: part1, color: colors[0] },
+              { id: 'remaining', label: 'เหลือ', value: null, color: colors[1] },
+            ],
+            hint: `${total} - ${part1} = ?`,
+          };
+        } else {
+          return {
+            story: `แบ่งคุกกี้ให้น้องชาย ${part1} ชิ้น เหลืออีก ${part2} ชิ้น`,
+            question: 'ตอนแรกมีทั้งหมดกี่ชิ้น?',
+            answer: total,
+            bars: [
+              { id: 'brother', label: 'น้องชาย', value: part1, color: colors[0] },
+              { id: 'remaining', label: 'เหลือ', value: part2, color: colors[1] },
+            ],
+            hint: `บวกทั้งสองส่วน: ${part1} + ${part2}`,
+          };
+        }
+      },
+    },
+    {
+      context: 'การเดินทาง',
+      generate: () => {
+        const distance1 = randInt(...range);
+        const distance2 = randInt(...range);
+        const total = distance1 + distance2;
+        
+        return {
+          story: `น้องขี่จักรยานจากบ้านไปโรงเรียน ${distance1} กิโลเมตร จากโรงเรียนไปสวน ${distance2} กิโลเมตร`,
+          question: 'รวมระยะทางทั้งหมดกี่กิโลเมตร?',
+          answer: total,
+          bars: [
+            { id: 'home-school', label: 'บ้าน→โรงเรียน', value: distance1, color: colors[0] },
+            { id: 'school-park', label: 'โรงเรียน→สวน', value: distance2, color: colors[1] },
+          ],
+          hint: `บวกระยะทาง: ${distance1} + ${distance2}`,
+        };
+      },
+    },
+  ];
+  
+  const scenario = scenarios[randInt(0, scenarios.length - 1)];
+  const problem = scenario.generate();
+  
+  return {
+    id,
+    type: 'change',
+    story: problem.story,
+    question: problem.question,
+    hint: problem.hint,
+    bars: problem.bars as Bar[],
+    correctAnswer: problem.answer,
+    userAnswer: '',
+    isCorrect: null,
+  };
+};
+
+/**
  * Generate problems based on type and difficulty
  */
 export const generateBarModelProblems = (
@@ -247,13 +526,37 @@ export const generateBarModelProblems = (
   const problems: BarModelProblem[] = [];
   
   for (let i = 0; i < count; i++) {
-    const problemType = type === 'mixed' 
-      ? (Math.random() < 0.5 ? 'part-whole' : 'comparison')
-      : type;
+    let problemType: ProblemType;
     
-    const problem = problemType === 'part-whole'
-      ? generatePartWholeProblem(difficulty)
-      : generateComparisonProblem(difficulty);
+    if (type === 'mixed') {
+      // Mix all types
+      const rand = Math.random();
+      if (rand < 0.25) problemType = 'part-whole';
+      else if (rand < 0.5) problemType = 'comparison';
+      else if (rand < 0.75) problemType = 'before-after';
+      else problemType = 'change';
+    } else {
+      problemType = type;
+    }
+    
+    let problem: BarModelProblem;
+    
+    switch (problemType) {
+      case 'part-whole':
+        problem = generatePartWholeProblem(difficulty);
+        break;
+      case 'comparison':
+        problem = generateComparisonProblem(difficulty);
+        break;
+      case 'before-after':
+        problem = generateBeforeAfterProblem(difficulty);
+        break;
+      case 'change':
+        problem = generateWordProblem(difficulty);
+        break;
+      default:
+        problem = generatePartWholeProblem(difficulty);
+    }
     
     problems.push(problem);
   }
