@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Minus, X, Divide, Sigma, Table, Clock, Ruler, Scale, Zap, Eye, Hash, Shapes, Percent, ArrowLeftRight, Calculator, Link2, BarChart3, Layers, Brain, Grid3x3 } from 'lucide-react';
+import { Plus, Minus, X, Divide, Sigma, Table, Clock, Ruler, Scale, Zap, Eye, Hash, Shapes, Percent, ArrowLeftRight, Calculator, Link2, BarChart3, Layers, Brain, Grid3x3, Coins } from 'lucide-react';
 
 // Import mascot images
 import additionMascot from '../assets/mascot-addition.png';
@@ -202,6 +202,15 @@ const defaultSkills: Skill[] = [{
   textColor: 'text-white',
   sticker: '↔️',
   hrefPreview: '/length-comparison'
+}, {
+  icon: Coins,
+  title: 'เงินตรา',
+  desc: 'เรียนรู้การนับเงิน ทอนเงิน และแก้โจทย์เกี่ยวกับการซื้อขาย',
+  backgroundGradient: 'bg-gradient-to-br from-emerald-400 via-green-500 to-teal-500',
+  textColor: 'text-white',
+  sticker: '💰',
+  hrefPreview: '/money',
+  mascotImage: additionMascot
 }];
 const SkillCard: React.FC<{
   skill: Skill;
