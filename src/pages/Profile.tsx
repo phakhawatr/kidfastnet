@@ -1045,7 +1045,7 @@ const Profile = () => {
               <div className="text-sm text-[hsl(var(--text-muted))] mt-2">เทคโนโลยี</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-orange-500 mb-1">15</div>
+              <div className="text-2xl font-bold text-orange-500 mb-1">21+</div>
               <div className="text-sm text-[hsl(var(--text-muted))]">บทเรียน</div>
             </div>
             <div className="text-center">
