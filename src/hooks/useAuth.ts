@@ -279,14 +279,21 @@ export const useAuth = () => {
               localStorage.setItem('kidfast_session_id', sessionId);
               localStorage.setItem('kidfast_last_email', email);
               
+              // Trigger auth change event for ProtectedRoute
+              window.dispatchEvent(new Event('auth-change'));
+              
               ToastManager.show({
                 message: `ยินดีต้อนรับ ${result.nickname}!`,
                 type: 'success'
               });
               
+              // Check if there's a redirect path stored before login
+              const redirectPath = sessionStorage.getItem('redirect_after_login');
+              sessionStorage.removeItem('redirect_after_login');
+              
               setTimeout(() => {
                 setAuthRefresh(prev => prev + 1);
-                navigate('/profile');
+                navigate(redirectPath || '/landing');
               }, 500);
               
               return { success: true };

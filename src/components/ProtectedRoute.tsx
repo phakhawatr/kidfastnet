@@ -9,6 +9,7 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { isLoggedIn, isLoading } = useAuth();
   const [shouldCheckAuth, setShouldCheckAuth] = useState(false);
+  const [localAuthState, setLocalAuthState] = useState(false);
 
   // Check localStorage auth state immediately (synchronous)
   const getLocalAuthState = () => {
@@ -24,7 +25,33 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     return false;
   };
 
-  const hasLocalAuth = getLocalAuthState();
+  // Initialize and listen for localStorage changes
+  useEffect(() => {
+    // Set initial state
+    setLocalAuthState(getLocalAuthState());
+
+    // Listen for storage changes (from login in another tab or after login)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'kidfast_auth' || e.key === null) {
+        setLocalAuthState(getLocalAuthState());
+      }
+    };
+
+    // Listen for custom auth change events (from same tab)
+    const handleAuthChange = () => {
+      setLocalAuthState(getLocalAuthState());
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('auth-change', handleAuthChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('auth-change', handleAuthChange);
+    };
+  }, []);
+
+  const hasLocalAuth = localAuthState;
 
   // If we have localStorage auth, we're good to go immediately
   // Only wait for Supabase auth if we don't have localStorage auth
@@ -63,6 +90,8 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   // Check Supabase auth
   if (!isAuthenticated) {
     console.log('Not authenticated, redirecting to login');
+    // Store current path for redirect after login
+    sessionStorage.setItem('redirect_after_login', window.location.pathname);
     return <Navigate to="/login" replace />;
   }
 
