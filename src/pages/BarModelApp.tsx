@@ -10,6 +10,7 @@ import { formatTime } from '@/utils/barModelUtils';
 import Confetti from 'react-confetti';
 
 export default function BarModelApp() {
+  console.log('🎯 BarModelApp loaded');
   const navigate = useNavigate();
   const [showSettings, setShowSettings] = useState(false);
 

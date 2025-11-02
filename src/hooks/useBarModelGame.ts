@@ -10,6 +10,8 @@ import {
 } from '@/utils/barModelUtils';
 
 export const useBarModelGame = () => {
+  console.log('🎮 useBarModelGame initialized');
+  
   // Settings
   const [count, setCount] = useState(5);
   const [type, setType] = useState<ProblemType | 'mixed'>('part-whole');
@@ -27,6 +29,20 @@ export const useBarModelGame = () => {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   
+  // Define regenerateProblems BEFORE using it in useEffect
+  const regenerateProblems = () => {
+    console.log('🔄 Regenerating problems');
+    const newProblems = generateBarModelProblems(count, type, difficulty);
+    setProblems(newProblems);
+    setCurrentIndex(0);
+    setShowResults(false);
+    setShowHint(false);
+    setCelebrate(false);
+    setStartTime(null);
+    setElapsedTime(0);
+    setIsFinished(false);
+  };
+  
   // Initialize problems
   useEffect(() => {
     regenerateProblems();
@@ -41,18 +57,6 @@ export const useBarModelGame = () => {
       return () => clearInterval(interval);
     }
   }, [startTime, isFinished]);
-  
-  const regenerateProblems = () => {
-    const newProblems = generateBarModelProblems(count, type, difficulty);
-    setProblems(newProblems);
-    setCurrentIndex(0);
-    setShowResults(false);
-    setShowHint(false);
-    setCelebrate(false);
-    setStartTime(null);
-    setElapsedTime(0);
-    setIsFinished(false);
-  };
   
   const startTimer = () => {
     if (!startTime) {
