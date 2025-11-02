@@ -629,6 +629,31 @@ export default function AdditionApp() {
     const correctCount = next.filter((r) => r === "correct").length;
     const now = Date.now();
     if (startedAt) setElapsedMs(now - startedAt);
+    
+    // Save history immediately after checking answers
+    const duration = startedAt ? now - startedAt : elapsedMs;
+    const snapshot = problems.map((p, i) => {
+      const correct = operands === 3 ? p.a + p.b + p.c : p.a + p.b;
+      return {
+        a: p.a,
+        b: p.b,
+        c: p.c,
+        answer: (answers[i] || []).join(""),
+        correct
+      };
+    });
+    const entry = { 
+      ts: now, 
+      level, 
+      digits, 
+      count, 
+      durationMs: Math.max(0, duration), 
+      correct: correctCount, 
+      stars: calcStars(correctCount, count), 
+      snapshot 
+    };
+    setHistory((prev) => [entry, ...prev].slice(0, 10));
+    
     setSummary({
       correct: correctCount,
       total: problems.length,
@@ -636,7 +661,7 @@ export default function AdditionApp() {
       level,
       count,
     });
-    setLineSent(false); // Reset sent status when checking new answers
+    setLineSent(false);
     setShowSummary(true);
 
     if (next.every((r) => r === "correct")) {
@@ -1124,7 +1149,7 @@ export default function AdditionApp() {
     );
   };
 
-  const SummaryModal = ({ open, onClose, data, onShowAnswers, alreadyShowing, onSave }) => {
+  const SummaryModal = ({ open, onClose, data, onShowAnswers, alreadyShowing, onSave }: any) => {
     if (!open || !data) return null;
     const pct = Math.round((data.correct / Math.max(1, data.total)) * 100);
     let icon = "💪";
@@ -1219,7 +1244,7 @@ export default function AdditionApp() {
               ) : (
                 <button onClick={onShowAnswers} className="px-4 py-2 rounded-xl bg-amber-500 text-white hover:bg-amber-600">ดูเฉลยทั้งหมด</button>
               )}
-              <button onClick={() => { if (onSave) onSave(); if (onClose) onClose(); }} className="px-4 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200">ปิด</button>
+              <button onClick={onClose} className="px-4 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200">ปิด</button>
             </div>
           </div>
         </div>
@@ -1488,7 +1513,6 @@ export default function AdditionApp() {
         onClose={() => setShowSummary(false)}
         data={summary}
         onShowAnswers={() => showAll({ openSummary: false })}
-        onSave={saveStats}
         alreadyShowing={showAnswers}
       />
 
