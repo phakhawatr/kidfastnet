@@ -297,7 +297,7 @@ export const generateBeforeAfterProblem = (difficulty: Difficulty): BarModelProb
       item: 'เงิน',
       unit: 'บาท',
       increaseAction: 'ได้รับเพิ่ม',
-      decreaseAction: 'ใช้ไป',
+      decreaseAction: 'ใช้จ่ายไป',
       before: 'ตอนแรก',
       after: 'ตอนนี้',
     },
@@ -307,7 +307,7 @@ export const generateBeforeAfterProblem = (difficulty: Difficulty): BarModelProb
       increaseAction: 'ได้รับเพิ่ม',
       decreaseAction: 'กินไป',
       before: 'เมื่อเช้า',
-      after: 'เย็นนี้',
+      after: 'ตอนเย็น',
     },
     {
       item: 'สติกเกอร์',
@@ -334,15 +334,24 @@ export const generateBeforeAfterProblem = (difficulty: Difficulty): BarModelProb
   let question = '';
   
   if (findWhat === 0) {
-    // Find before
-    story = `น้องมี${context.item} ${action} ${change} ${context.unit} ${context.after}มี ${after} ${context.unit}`;
+    // Find before - หาค่าก่อน
+    if (isIncrease) {
+      story = `น้องมี${context.item} ${action} ${change} ${context.unit} ${context.after}มีทั้งหมด ${after} ${context.unit}`;
+    } else {
+      story = `น้องมี${context.item} ${action} ${change} ${context.unit} ${context.after}เหลืออยู่ ${after} ${context.unit}`;
+    }
     question = `${context.before}น้องมี${context.item}กี่${context.unit}?`;
   } else if (findWhat === 1) {
-    // Find change
-    story = `น้อง${context.before}มี${context.item} ${before} ${context.unit} ${context.after}มี ${after} ${context.unit}`;
-    question = `น้อง${isIncrease ? 'ได้' : 'สูญเสีย'}${context.item}ไปกี่${context.unit}?`;
+    // Find change - หาค่าเปลี่ยนแปลง
+    if (isIncrease) {
+      story = `น้อง${context.before}มี${context.item} ${before} ${context.unit} ได้รับเพิ่มอีก ${context.after}มี ${after} ${context.unit}`;
+      question = `น้องได้รับ${context.item}เพิ่มมากี่${context.unit}?`;
+    } else {
+      story = `น้อง${context.before}มี${context.item} ${before} ${context.unit} ${action}บางส่วน ${context.after}เหลือ ${after} ${context.unit}`;
+      question = `น้อง${action}${context.item}กี่${context.unit}?`;
+    }
   } else {
-    // Find after
+    // Find after - หาค่าหลัง
     story = `น้อง${context.before}มี${context.item} ${before} ${context.unit} แล้ว${action} ${change} ${context.unit}`;
     question = `${context.after}น้องมี${context.item}กี่${context.unit}?`;
   }
@@ -356,7 +365,7 @@ export const generateBeforeAfterProblem = (difficulty: Difficulty): BarModelProb
     },
     {
       id: 'change',
-      label: isIncrease ? 'เพิ่ม' : 'ลด',
+      label: isIncrease ? 'เพิ่มขึ้น' : 'ลดลง',
       value: knownChange,
       color: isIncrease ? colors[2] : colors[3],
     },
@@ -370,11 +379,17 @@ export const generateBeforeAfterProblem = (difficulty: Difficulty): BarModelProb
   
   let hint = '';
   if (findWhat === 0) {
-    hint = `${context.after} ${after} ${isIncrease ? 'ลบ' : 'บวก'} ${change} = ${context.before}`;
+    hint = isIncrease 
+      ? `ลองเอาค่าหลังลบค่าที่เพิ่ม: ${after} - ${change} = ?`
+      : `ลองเอาค่าหลังบวกค่าที่ลด: ${after} + ${change} = ?`;
   } else if (findWhat === 1) {
-    hint = `ลองเทียบ ${context.before} ${before} กับ ${context.after} ${after}`;
+    hint = isIncrease
+      ? `ลองเอาค่าหลังลบค่าก่อน: ${after} - ${before} = ?`
+      : `ลองเอาค่าก่อนลบค่าหลัง: ${before} - ${after} = ?`;
   } else {
-    hint = `${context.before} ${before} ${isIncrease ? 'บวก' : 'ลบ'} ${change} = ${context.after}`;
+    hint = isIncrease
+      ? `ลองเอาค่าก่อนบวกค่าที่เพิ่ม: ${before} + ${change} = ?`
+      : `ลองเอาค่าก่อนลบค่าที่ลด: ${before} - ${change} = ?`;
   }
   
   return {
