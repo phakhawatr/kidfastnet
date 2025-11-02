@@ -197,9 +197,16 @@ export const generateComparisonProblem = (difficulty: Difficulty): BarModelProbl
   let question = '';
   
   if (findFirst) {
-    story = `${context.name2}มี${context.item} ${value2} ${context.unit} ซึ่ง${isMore ? 'มากกว่า' : 'น้อยกว่า'}${context.name1} ${difference} ${context.unit}`;
+    // หา name1, ให้ค่า name2
+    // ถ้า isMore=true: value2 มากกว่า value1 → ให้ value1 (น้อยกว่า) และบอกว่า "น้อยกว่า"
+    // ถ้า isMore=false: value1 มากกว่า value2 → ให้ value2 (น้อยกว่า) และบอกว่า "มากกว่า"
+    const givenValue = isMore ? value1 : value2;
+    story = `${context.name2}มี${context.item} ${givenValue} ${context.unit} ซึ่ง${isMore ? 'น้อยกว่า' : 'มากกว่า'}${context.name1} ${difference} ${context.unit}`;
     question = `${context.name1}มี${context.item}กี่${context.unit}?`;
   } else {
+    // หา name2, ให้ค่า name1
+    // ถ้า isMore=true: value2 มากกว่า value1 → ให้ value1 (น้อยกว่า) และบอกว่า "น้อยกว่า"
+    // ถ้า isMore=false: value1 มากกว่า value2 → ให้ value1 (มากกว่า) และบอกว่า "มากกว่า"
     story = `${context.name1}มี${context.item} ${value1} ${context.unit} ซึ่ง${isMore ? 'น้อยกว่า' : 'มากกว่า'}${context.name2} ${difference} ${context.unit}`;
     question = `${context.name2}มี${context.item}กี่${context.unit}?`;
   }
@@ -214,7 +221,7 @@ export const generateComparisonProblem = (difficulty: Difficulty): BarModelProbl
     {
       id: 'bar2',
       label: context.name2,
-      value: findFirst ? value2 : null,
+      value: findFirst ? (isMore ? value1 : value2) : null,
       color: colors[1]
     }
   ];
