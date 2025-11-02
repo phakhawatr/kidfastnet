@@ -930,7 +930,43 @@ const Profile = () => {
           {/* Tabs hidden as requested */}
 
           <TabsContent value="overview">
-            {/* Grade Selection - Hidden as requested */}
+            {/* Grade Selection */}
+            <div className="flex gap-3 mb-6 overflow-x-auto pb-2">
+          {grades.map(grade => (
+            <button 
+              key={grade.id} 
+              onClick={() => setSelectedGrade(grade.id)} 
+              className={`relative flex flex-col items-center gap-2 px-4 py-3 rounded-2xl transition-all duration-300 whitespace-nowrap min-w-[120px] ${
+                selectedGrade === grade.id 
+                  ? 'bg-gradient-to-br from-purple-400 to-pink-400 text-white shadow-lg scale-105' 
+                  : 'bg-white/60 hover:bg-white/80 shadow-md hover:shadow-lg'
+              }`}
+            >
+              {/* Mascot Image */}
+              <div className={`w-12 h-12 rounded-full overflow-hidden bg-white/50 flex items-center justify-center transition-transform duration-300 ${
+                selectedGrade === grade.id ? 'animate-bounce' : 'hover:scale-110'
+              }`}>
+                <img 
+                  src={grade.mascot} 
+                  alt={grade.label}
+                  className="w-10 h-10 object-contain"
+                />
+              </div>
+              
+              {/* Label */}
+              <span className={`text-sm font-bold ${
+                selectedGrade === grade.id ? 'text-white' : 'text-[hsl(var(--text-primary))]'
+              }`}>
+                {grade.label}
+              </span>
+              
+              {/* Active Indicator */}
+              {selectedGrade === grade.id && (
+                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-white rounded-full" />
+              )}
+            </button>
+          ))}
+        </div>
 
         {/* Recommendation Card */}
         <div className="card-glass p-6 mb-6 border-l-4 border-orange-400">
