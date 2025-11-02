@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Minus, X, Divide, Sigma, Table, Clock, Ruler, Scale, Zap, Eye, Hash, Shapes, Percent, ArrowLeftRight, Calculator } from 'lucide-react';
+import { Plus, Minus, X, Divide, Sigma, Table, Clock, Ruler, Scale, Zap, Eye, Hash, Shapes, Percent, ArrowLeftRight, Calculator, Link2 } from 'lucide-react';
 
 // Import mascot images
 import additionMascot from '../assets/mascot-addition.png';
@@ -29,6 +29,15 @@ interface SkillsSectionProps {
   disableLinks?: boolean;
 }
 const defaultSkills: Skill[] = [{
+  icon: Link2,
+  title: 'Number Bonds',
+  desc: 'เรียนรู้ความสัมพันธ์ของตัวเลข เข้าใจโครงสร้างการบวกลบอย่างลึกซึ้ง (Singapore Math)',
+  backgroundGradient: 'bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600',
+  textColor: 'text-white',
+  sticker: '🔗',
+  hrefPreview: '/number-bonds',
+  mascotImage: additionMascot
+}, {
   icon: Plus,
   title: 'บวก',
   desc: 'ฝึกการบวกเลขพื้นฐาน เริ่มต้นจากเลขง่ายๆ ไปจนถึงเลขหลายหลัก',

@@ -24,6 +24,7 @@ import SumGridPuzzles from "./pages/SumGridPuzzles";
 import BackgroundRemoverPage from "./pages/BackgroundRemover";
 import ParentDashboard from "./pages/ParentDashboard";
 import AIMathTutor from "./pages/AIMathTutor";
+import NumberBondsApp from "./pages/NumberBondsApp";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
@@ -191,6 +192,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <AIMathTutor />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/number-bonds" 
+            element={
+              <ProtectedRoute>
+                <NumberBondsApp />
               </ProtectedRoute>
             } 
           />
