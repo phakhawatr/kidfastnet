@@ -1,11 +1,7 @@
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SkillsSection from '../components/SkillsSection';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '../components/ui/dialog';
-import { X } from 'lucide-react';
-import additionExampleImage from '../assets/addition-examples.png';
 import exampleAddition from '../assets/example-addition.jpg';
 import exampleSubtraction from '../assets/example-subtraction.jpg';
 import exampleMultiplication from '../assets/example-multiplication.jpg';
@@ -13,8 +9,6 @@ import exampleFractions from '../assets/example-fractions.jpg';
 import exampleWeighing from '../assets/example-weighing.jpg';
 import exampleMeasurement from '../assets/example-measurement.jpg';
 const Landing = () => {
-  const [showExamplePopup, setShowExamplePopup] = useState(false);
-  
   const benefits = [{
     icon: '🎮',
     title: 'เรียนผ่านเกม',
@@ -87,9 +81,7 @@ const Landing = () => {
 
         {/* Skills Section - Show all skills */}
         <SkillsSection
-          onPreview={() => setShowExamplePopup(true)}
-          buttonText="ดูตัวอย่างแบบฝึกหัด"
-          disableLinks={false}
+          disableLinks={true}
         />
 
         {/* Benefits Section */}
@@ -424,33 +416,6 @@ const Landing = () => {
     }}>🎯</div>
       
       <Footer />
-
-      {/* Example Popup Dialog */}
-      <Dialog open={showExamplePopup} onOpenChange={setShowExamplePopup}>
-        <DialogContent className="max-w-4xl w-full h-[80vh] p-0">
-          <DialogHeader className="p-6 pb-0">
-            <div className="flex items-center justify-between">
-              <DialogTitle className="text-xl font-bold">
-                ตัวอย่างแบบฝึกหัด
-              </DialogTitle>
-              <button 
-                onClick={() => setShowExamplePopup(false)}
-                className="flex items-center justify-center w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors duration-200"
-                aria-label="ปิด"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-          </DialogHeader>
-          <div className="flex-1 p-6 overflow-auto">
-            <img 
-              src={additionExampleImage} 
-              alt="ตัวอย่างแบบฝึกหัดการบวก" 
-              className="w-full h-full object-contain rounded-lg"
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>;
 };
 export default Landing;
