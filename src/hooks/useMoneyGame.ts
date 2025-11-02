@@ -114,48 +114,48 @@ export const useMoneyGame = () => {
       const memberId = authState.memberId;
       if (!memberId) return;
       
-      // Get user_id from profiles table
-      try {
-        const profileData = await supabase
-          .from('profiles')
-          .select('user_id')
-          .eq('member_id', memberId)
-          .single();
-        
-        if (!profileData.data?.user_id) return;
-        const userId = profileData.data.user_id as string;
+      // Get user_id from profiles table - cast to any to avoid TS type issues
+      const { data: profileData, error: profileError } = await (supabase as any)
+        .from('profiles')
+        .select('user_id')
+        .eq('member_id', memberId)
+        .limit(1);
       
-        const correctCount = finalProblems.filter(p => p.isCorrect === true).length;
-        const totalCount = finalProblems.length;
-        const durationMs = startTime ? (endTime - startTime) : 0;
+      if (profileError || !profileData || profileData.length === 0) {
+        console.warn('Could not find user profile:', profileError);
+        return;
+      }
+      
+      const userId = profileData[0].user_id;
+      
+      const correctCount = finalProblems.filter(p => p.isCorrect === true).length;
+      const totalCount = finalProblems.length;
+      const durationMs = startTime ? (endTime - startTime) : 0;
+      
+      // Save practice session
+      await supabase.from('practice_sessions').insert({
+        user_id: userId,
+        skill_name: 'เงินตรา',
+        difficulty: difficulty,
+        problems_attempted: totalCount,
+        problems_correct: correctCount,
+        accuracy: Math.round((correctCount / totalCount) * 100),
+        time_spent: Math.round(durationMs / 1000),
+        hints_used: 0
+      });
+      
+      // Update skill assessments
+      const avgTimePerProblem = Math.round(durationMs / totalCount);
+      
+      for (let i = 0; i < totalCount; i++) {
+        const isCorrect = finalProblems[i].isCorrect === true;
         
-        // Save practice session
-        await supabase.from('practice_sessions').insert({
-          user_id: userId,
-          skill_name: 'เงินตรา',
-          difficulty: difficulty,
-          problems_attempted: totalCount,
-          problems_correct: correctCount,
-          accuracy: Math.round((correctCount / totalCount) * 100),
-          time_spent: Math.round(durationMs / 1000),
-          hints_used: 0
+        await supabase.rpc('update_skill_assessment', {
+          p_user_id: userId,
+          p_skill_name: 'เงินตรา',
+          p_correct: isCorrect,
+          p_time_spent: avgTimePerProblem
         });
-        
-        // Update skill assessments
-        const avgTimePerProblem = Math.round(durationMs / totalCount);
-        
-        for (let i = 0; i < totalCount; i++) {
-          const isCorrect = finalProblems[i].isCorrect === true;
-          
-          await supabase.rpc('update_skill_assessment', {
-            p_user_id: userId,
-            p_skill_name: 'เงินตรา',
-            p_correct: isCorrect,
-            p_time_spent: avgTimePerProblem
-          });
-        }
-      } catch (dbError) {
-        console.error('Database error:', dbError);
       }
       
     } catch (error) {
