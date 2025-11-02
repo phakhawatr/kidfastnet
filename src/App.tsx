@@ -24,6 +24,7 @@ import SumGridPuzzles from "./pages/SumGridPuzzles";
 import BackgroundRemoverPage from "./pages/BackgroundRemover";
 import ParentDashboard from "./pages/ParentDashboard";
 import AIMathTutor from "./pages/AIMathTutor";
+import AdaptiveLearningPath from "./pages/AdaptiveLearningPath";
 import NumberBondsApp from "./pages/NumberBondsApp";
 import BarModelApp from "./pages/BarModelApp";
 import NotFound from "./pages/NotFound";
@@ -197,7 +198,15 @@ const App = () => {
             } 
           />
           <Route 
-            path="/number-bonds" 
+            path="/adaptive-learning" 
+            element={
+              <ProtectedRoute>
+                <AdaptiveLearningPath />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/number-bonds"
             element={
               <ProtectedRoute>
                 <NumberBondsApp />
