@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import logoAIBrain from '../assets/logo-ai-brain-v2.png';
+import logoAIBrain from '../assets/logo-ai-final.png';
 const Header = () => {
   const {
     isLoggedIn,
