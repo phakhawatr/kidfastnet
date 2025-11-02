@@ -140,9 +140,32 @@ export const BarVisualizer: React.FC<BarVisualizerProps> = ({
     );
   };
 
+  // Check if we need a general answer input (all bars have values, but need to find sum/total)
+  const allBarsHaveValues = bars.every(bar => {
+    if (bar.parts) {
+      return bar.parts.every(p => p.value !== null);
+    }
+    return bar.value !== null;
+  });
+
   return (
     <div className="space-y-4">
       {bars.map((bar, index) => renderBar(bar, index))}
+      
+      {/* General answer input for problems where all bars have values */}
+      {allBarsHaveValues && !showAnswers && onValueChange && (
+        <div className="mt-6 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border-2 border-purple-200">
+          <label className="block text-sm font-medium text-purple-800 mb-3">
+            💡 กรอกคำตอบ:
+          </label>
+          <Input
+            type="number"
+            placeholder="?"
+            className="w-40 text-center text-2xl font-bold border-purple-300 focus:border-purple-500"
+            onChange={(e) => onValueChange('answer', e.target.value)}
+          />
+        </div>
+      )}
     </div>
   );
 };
