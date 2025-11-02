@@ -44,7 +44,7 @@ export default function AdaptiveLearningPath() {
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
               <Button
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/landing')}
                 variant="outline"
                 size="icon"
                 className="rounded-full"
@@ -131,7 +131,7 @@ export default function AdaptiveLearningPath() {
                         ลองฝึกฝนทักษะต่างๆ แล้ว AI จะช่วยวิเคราะห์และสร้างแผนการเรียนที่เหมาะกับคุณ
                       </p>
                       <Button
-                        onClick={() => navigate('/')}
+                        onClick={() => navigate('/landing')}
                         className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
                       >
                         <Sparkles className="w-5 h-5 mr-2" />
