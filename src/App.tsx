@@ -27,6 +27,7 @@ import AIMathTutor from "./pages/AIMathTutor";
 import AdaptiveLearningPath from "./pages/AdaptiveLearningPath";
 import NumberBondsApp from "./pages/NumberBondsApp";
 import BarModelApp from "./pages/BarModelApp";
+import MoneyApp from "./pages/MoneyApp";
 import PlaceValueApp from "./pages/PlaceValueApp";
 import MentalMathApp from "./pages/MentalMathApp";
 import AreaModelApp from "./pages/AreaModelApp";
@@ -246,6 +247,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <AreaModelApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/money" 
+            element={
+              <ProtectedRoute>
+                <MoneyApp />
               </ProtectedRoute>
             } 
           />
