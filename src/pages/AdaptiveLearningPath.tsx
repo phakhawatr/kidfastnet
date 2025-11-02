@@ -27,8 +27,12 @@ export default function AdaptiveLearningPath() {
   } = useLearningPath();
 
   const activePath = learningPaths.find(p => p.status === 'active');
+  
+  // Get AI features status - with fallback for localStorage auth
   const aiEnabled = profile?.ai_features_enabled || false;
   const remainingQuota = profile ? (profile.ai_monthly_quota - profile.ai_usage_count) : 0;
+  
+  console.log('[AdaptiveLearningPath] AI Enabled:', aiEnabled, 'Profile:', profile, 'Remaining Quota:', remainingQuota);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-pink-900/20 flex flex-col">

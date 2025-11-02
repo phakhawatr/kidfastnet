@@ -55,24 +55,11 @@ export const useLearningPath = () => {
   useEffect(() => {
     const fetchUserId = async () => {
       try {
+        // 1. Try Supabase Auth first
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user?.email) {
-          const authState = localStorage.getItem('authState');
-          if (authState) {
-            const { user: localUser } = JSON.parse(authState);
-            if (localUser?.email) {
-              const { data: registration } = await supabase
-                .from('user_registrations')
-                .select('id')
-                .eq('parent_email', localUser.email)
-                .single();
-              
-              if (registration) {
-                setUserId(registration.id);
-              }
-            }
-          }
-        } else {
+        
+        if (user?.email) {
+          // Has Supabase Auth session
           const { data: registration } = await supabase
             .from('user_registrations')
             .select('id')
@@ -80,11 +67,50 @@ export const useLearningPath = () => {
             .single();
           
           if (registration) {
+            console.log('[useLearningPath] UserId from Supabase Auth:', registration.id);
             setUserId(registration.id);
+            return;
           }
         }
+        
+        // 2. Fallback: Check localStorage (kidfast_last_email)
+        const lastEmail = localStorage.getItem('kidfast_last_email');
+        if (lastEmail) {
+          const { data: registration } = await supabase
+            .from('user_registrations')
+            .select('id')
+            .eq('parent_email', lastEmail)
+            .single();
+          
+          if (registration) {
+            console.log('[useLearningPath] UserId from localStorage:', registration.id);
+            setUserId(registration.id);
+            return;
+          }
+        }
+        
+        // 3. Final fallback: Check authState in localStorage
+        const authState = localStorage.getItem('authState');
+        if (authState) {
+          const { user: localUser } = JSON.parse(authState);
+          if (localUser?.email) {
+            const { data: registration } = await supabase
+              .from('user_registrations')
+              .select('id')
+              .eq('parent_email', localUser.email)
+              .single();
+            
+            if (registration) {
+              console.log('[useLearningPath] UserId from authState:', registration.id);
+              setUserId(registration.id);
+              return;
+            }
+          }
+        }
+        
+        console.warn('[useLearningPath] No userId found');
       } catch (error) {
-        console.error('Error fetching user:', error);
+        console.error('[useLearningPath] Error fetching userId:', error);
       }
     };
 
