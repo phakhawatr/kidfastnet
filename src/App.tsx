@@ -29,6 +29,7 @@ import NumberBondsApp from "./pages/NumberBondsApp";
 import BarModelApp from "./pages/BarModelApp";
 import PlaceValueApp from "./pages/PlaceValueApp";
 import MentalMathApp from "./pages/MentalMathApp";
+import AreaModelApp from "./pages/AreaModelApp";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
@@ -237,6 +238,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <MentalMathApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/area-model" 
+            element={
+              <ProtectedRoute>
+                <AreaModelApp />
               </ProtectedRoute>
             } 
           />

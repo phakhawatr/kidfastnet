@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Minus, X, Divide, Sigma, Table, Clock, Ruler, Scale, Zap, Eye, Hash, Shapes, Percent, ArrowLeftRight, Calculator, Link2, BarChart3, Layers, Brain } from 'lucide-react';
+import { Plus, Minus, X, Divide, Sigma, Table, Clock, Ruler, Scale, Zap, Eye, Hash, Shapes, Percent, ArrowLeftRight, Calculator, Link2, BarChart3, Layers, Brain, Grid3x3 } from 'lucide-react';
 
 // Import mascot images
 import additionMascot from '../assets/mascot-addition.png';
@@ -46,6 +46,15 @@ const defaultSkills: Skill[] = [{
   sticker: '⚡',
   hrefPreview: '/mental-math',
   mascotImage: additionMascot
+}, {
+  icon: Grid3x3,
+  title: 'พื้นที่สี่เหลี่ยมคูณ',
+  desc: 'ใช้แนวคิดพื้นที่เพื่อเรียนรู้การคูณ Area Model แบบ Singapore Math',
+  backgroundGradient: 'bg-gradient-to-br from-orange-400 via-red-500 to-pink-600',
+  textColor: 'text-white',
+  sticker: '📐',
+  hrefPreview: '/area-model',
+  mascotImage: multiplicationMascot
 }, {
   icon: Link2,
   title: 'Number Bonds',
