@@ -9,7 +9,7 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 text-2xl font-bold text-white hover:scale-105 transition-transform duration-200">
-            🧮 <span className="text-amber-400">KidFast.net</span>
+            🧮 <span className="text-amber-400">KidFastAI.com</span>
           </Link>
           
           <div className="flex items-center gap-3">

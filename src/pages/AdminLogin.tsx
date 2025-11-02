@@ -38,7 +38,7 @@ const AdminLogin = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="form-input"
-              placeholder="admin@kidfast.net"
+              placeholder="admin@kidfastai.com"
               required
             />
           </div>

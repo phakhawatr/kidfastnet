@@ -250,8 +250,8 @@ const ParentDashboard = () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'มาเรียนคณิตศาสตร์กับ KidFast.net',
-          text: 'สมัครสมาชิกกับ KidFast.net ผ่านลิงก์นี้',
+          title: 'มาเรียนคณิตศาสตร์กับ KidFastAI.com',
+          text: 'สมัครสมาชิกกับ KidFastAI.com ผ่านลิงก์นี้',
           url: affiliateLink,
         });
       } catch (error) {
