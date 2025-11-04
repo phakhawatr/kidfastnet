@@ -522,16 +522,17 @@ const Profile = () => {
         localStorage.setItem('kidfast_auth', JSON.stringify(authState));
       }
       
-      setIsSavingProfile(false);
-      setIsEditingProfile(false);
-      
-      // Update state before reload
+      // Update state immediately (React will re-render)
       setNickname(trimmedNickname);
       setStudentClass(trimmedClass);
       setSchoolName(trimmedSchool);
       
-      // Reload page to reflect changes
-      window.location.reload();
+      // Show success message
+      alert('✅ บันทึกข้อมูลสำเร็จ');
+      
+      // Close edit mode
+      setIsSavingProfile(false);
+      setIsEditingProfile(false);
     } catch (e) {
       console.error('Error saving profile:', e);
       alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + (e instanceof Error ? e.message : 'กรุณาลองใหม่อีกครั้ง'));
