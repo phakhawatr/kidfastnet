@@ -493,29 +493,48 @@ const Profile = () => {
     try {
       setIsSavingProfile(true);
 
+      // Trim and validate nickname
+      const trimmedNickname = nickname.trim();
+      if (!trimmedNickname) {
+        alert('กรุณากรอกชื่อเล่น');
+        setIsSavingProfile(false);
+        return;
+      }
+
+      // Trim all fields
+      const trimmedClass = studentClass.trim();
+      const trimmedSchool = schoolName.trim();
+
       const profileData = {
-        nickname,
-        studentClass,
-        schoolName,
+        nickname: trimmedNickname,
+        studentClass: trimmedClass,
+        schoolName: trimmedSchool,
         profileImage
       };
+      
       localStorage.setItem('kidfast_profile', JSON.stringify(profileData));
       
-      // Update auth state with new nickname
+      // Update auth state with trimmed nickname
       const authStored = localStorage.getItem('kidfast_auth');
       if (authStored) {
         const authState = JSON.parse(authStored);
-        authState.username = nickname;
+        authState.username = trimmedNickname;
         localStorage.setItem('kidfast_auth', JSON.stringify(authState));
       }
       
       setIsSavingProfile(false);
       setIsEditingProfile(false);
+      
+      // Update state before reload
+      setNickname(trimmedNickname);
+      setStudentClass(trimmedClass);
+      setSchoolName(trimmedSchool);
+      
       // Reload page to reflect changes
       window.location.reload();
     } catch (e) {
       console.error('Error saving profile:', e);
-      alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+      alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + (e instanceof Error ? e.message : 'กรุณาลองใหม่อีกครั้ง'));
       setIsSavingProfile(false);
     }
   };
@@ -1131,6 +1150,11 @@ const Profile = () => {
                 placeholder="ใส่ชื่อเล่น เช่น น้องApple"
                 className="text-base"
               />
+              {nickname && nickname.trim().length === 0 && (
+                <p className="text-xs text-red-500 mt-1">
+                  ⚠️ ชื่อเล่นต้องไม่เว้นว่างเปล่า
+                </p>
+              )}
             </div>
 
             {/* Class Input */}
@@ -1251,7 +1275,7 @@ const Profile = () => {
               <Button
                 onClick={handleSaveProfile}
                 className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-base py-6"
-                disabled={!nickname.trim() || isSavingProfile}
+                disabled={nickname.trim().length === 0 || isSavingProfile}
               >
                 {isSavingProfile ? 'กำลังบันทึก...' : 'บันทึก'}
               </Button>
