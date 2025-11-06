@@ -1,0 +1,58 @@
+{
+  "featureGuard": {
+    "premiumTitle": "🎓 {featureName} Feature (Premium)",
+    "upgradeMessage": "Upgrade to Premium to use AI Learning Assistant",
+    "upgradeButton": "Upgrade Premium",
+    "quotaExhausted": "AI Quota Exhausted",
+    "quotaMessage": "You've used all your AI quota for this month. Quota will reset on the 1st of next month"
+  },
+  "learningPath": {
+    "step": "Step {current} / {total}",
+    "minutes": "~{duration} minutes",
+    "difficulty": "Difficulty Level:",
+    "start": "Start",
+    "nextStep": "Next Step",
+    "completed": "🎉 Completed!"
+  },
+  "mathTutor": {
+    "title": "🎓 AI Math Tutor",
+    "subtitle": "Ask me anything about math!",
+    "back": "Back",
+    "greeting": "Hello! I'm your AI Math Tutor",
+    "welcomeMessage": "I'll help you learn math in a fun way. Try asking me a question!",
+    "thinking": "Thinking...",
+    "quotaRemaining": "Remaining AI Quota: {quota} times",
+    "placeholder": "Type your question here...",
+    "suggestedQuestions": [
+      "🔢 Explain two-digit addition to me",
+      "➗ What is division? Give me an example",
+      "📐 What are fractions? How do I use them?",
+      "⏰ Teach me how to read a clock"
+    ],
+    "alerts": {
+      "demoMode": "AI features are not available in demo mode",
+      "loginRequired": "Please log in to use AI features",
+      "userNotFound": "User not found",
+      "checkError": "Error checking user data",
+      "quotaExhausted": "AI quota exhausted",
+      "aiError": "Error contacting AI"
+    }
+  },
+  "adaptivePath": {
+    "title": "🧠 AI Adaptive Learning Path",
+    "subtitle": "AI analyzes your strengths and weaknesses to create a personalized learning plan",
+    "aiQuota": "AI Quota",
+    "loading": "Loading data...",
+    "generateTitle": "🚀 Ready to create your personalized learning path?",
+    "generateDesc": "AI will analyze your practice data and create the most suitable learning plan",
+    "generateButton": "Generate Learning Path",
+    "generating": "Generating...",
+    "noData": "Start Learning",
+    "noDataMessage": "You don't have any practice data yet. Try practicing various skills and AI will help analyze and create a suitable learning plan for you",
+    "goToPractice": "Go to Skills Practice",
+    "history": "Learning Path History",
+    "active": "In Progress",
+    "completed": "Completed",
+    "steps": "steps"
+  }
+}

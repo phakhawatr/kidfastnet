@@ -11,8 +11,10 @@ import { ArrowLeft, Sparkles, Brain, TrendingUp, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { useTranslation } from 'react-i18next';
 
 export default function AdaptiveLearningPath() {
+  const { t } = useTranslation('ai');
   const navigate = useNavigate();
   const { profile } = useAuth();
   const {
@@ -54,17 +56,17 @@ export default function AdaptiveLearningPath() {
               
               <div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  🧠 เส้นทางการเรียนรู้แบบ AI
+                  {t('adaptivePath.title')}
                 </h1>
                 <p className="text-muted-foreground">
-                  AI วิเคราะห์จุดแข็ง-อ่อนและสร้างแผนการเรียนที่เหมาะกับคุณ
+                  {t('adaptivePath.subtitle')}
                 </p>
               </div>
             </div>
 
             {aiEnabled && (
               <div className="text-right">
-                <p className="text-sm text-muted-foreground">โควต้า AI</p>
+                <p className="text-sm text-muted-foreground">{t('adaptivePath.aiQuota')}</p>
                 <p className="text-2xl font-bold text-purple-600">
                   {remainingQuota}
                 </p>
@@ -75,13 +77,13 @@ export default function AdaptiveLearningPath() {
           <AIFeatureGuard
             isEnabled={aiEnabled}
             remainingQuota={remainingQuota}
-            featureName="Adaptive Learning Path"
+            featureName={t('adaptivePath.title')}
           >
             {isLoading ? (
               <Card className="p-12">
                 <div className="flex flex-col items-center justify-center gap-4">
                   <Loader2 className="w-12 h-12 animate-spin text-purple-600" />
-                  <p className="text-muted-foreground">กำลังโหลดข้อมูล...</p>
+                  <p className="text-muted-foreground">{t('adaptivePath.loading')}</p>
                 </div>
               </Card>
             ) : (
@@ -92,10 +94,10 @@ export default function AdaptiveLearningPath() {
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="text-xl font-bold mb-2">
-                          🚀 พร้อมสร้างเส้นทางการเรียนรู้ที่เหมาะกับคุณ?
+                          {t('adaptivePath.generateTitle')}
                         </h3>
                         <p className="text-white/90">
-                          AI จะวิเคราะห์ข้อมูลการฝึกฝนของคุณและสร้างแผนการเรียนที่เหมาะสมที่สุด
+                          {t('adaptivePath.generateDesc')}
                         </p>
                       </div>
                       <Button
@@ -107,12 +109,12 @@ export default function AdaptiveLearningPath() {
                         {isGenerating ? (
                           <>
                             <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                            กำลังสร้าง...
+                            {t('adaptivePath.generating')}
                           </>
                         ) : (
                           <>
                             <Brain className="w-5 h-5 mr-2" />
-                            สร้าง Learning Path
+                            {t('adaptivePath.generateButton')}
                           </>
                         )}
                       </Button>
@@ -125,17 +127,16 @@ export default function AdaptiveLearningPath() {
                   <Card className="p-12">
                     <div className="text-center space-y-4">
                       <div className="text-6xl">🎯</div>
-                      <h3 className="text-2xl font-bold">เริ่มต้นการเรียนรู้</h3>
+                      <h3 className="text-2xl font-bold">{t('adaptivePath.noData')}</h3>
                       <p className="text-muted-foreground max-w-md mx-auto">
-                        คุณยังไม่มีข้อมูลการฝึกฝน<br />
-                        ลองฝึกฝนทักษะต่างๆ แล้ว AI จะช่วยวิเคราะห์และสร้างแผนการเรียนที่เหมาะกับคุณ
+                        {t('adaptivePath.noDataMessage')}
                       </p>
                       <Button
                         onClick={() => navigate('/landing')}
                         className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
                       >
                         <Sparkles className="w-5 h-5 mr-2" />
-                        ไปเลือกทักษะฝึกฝน
+                        {t('adaptivePath.goToPractice')}
                       </Button>
                     </div>
                   </Card>
@@ -168,7 +169,7 @@ export default function AdaptiveLearningPath() {
                   <Card className="p-6">
                     <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                       <TrendingUp className="w-5 h-5 text-purple-600" />
-                      ประวัติ Learning Path
+                      {t('adaptivePath.history')}
                     </h3>
                     <div className="space-y-3">
                       {learningPaths.slice(1).map((path) => (
@@ -180,8 +181,8 @@ export default function AdaptiveLearningPath() {
                             <div>
                               <p className="font-medium">{path.path_name}</p>
                               <p className="text-sm text-muted-foreground">
-                                {path.current_step}/{path.total_steps} ขั้นตอน • 
-                                {path.status === 'active' ? ' กำลังดำเนินการ' : ' เสร็จสิ้น'}
+                                {path.current_step}/{path.total_steps} {t('adaptivePath.steps')} • 
+                                {path.status === 'active' ? ` ${t('adaptivePath.active')}` : ` ${t('adaptivePath.completed')}`}
                               </p>
                             </div>
                             <span className="text-xs text-muted-foreground">

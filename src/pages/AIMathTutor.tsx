@@ -10,6 +10,7 @@ import { AIFeatureGuard } from '@/components/AIFeatureGuard';
 import { AIChatMessage } from '@/components/AIChatMessage';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { useTranslation } from 'react-i18next';
 
 type Message = {
   role: 'user' | 'assistant';
@@ -17,6 +18,7 @@ type Message = {
 };
 
 const AIMathTutor = () => {
+  const { t } = useTranslation('ai');
   const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -52,7 +54,7 @@ const AIMathTutor = () => {
             // For demo mode, skip AI features
             if (auth.isDemo) {
               ToastManager.show({
-                message: 'ฟีเจอร์ AI ไม่รองรับโหมดทดลอง',
+                message: t('mathTutor.alerts.demoMode'),
                 type: 'info'
               });
               navigate('/profile');
@@ -66,7 +68,7 @@ const AIMathTutor = () => {
 
       if (!userEmail) {
         ToastManager.show({
-          message: 'กรุณาเข้าสู่ระบบก่อนใช้งาน AI',
+          message: t('mathTutor.alerts.loginRequired'),
           type: 'error'
         });
         navigate('/login');
@@ -80,7 +82,7 @@ const AIMathTutor = () => {
         .single();
 
       if (userError || !userData) {
-        throw new Error('ไม่พบข้อมูลผู้ใช้');
+        throw new Error(t('mathTutor.alerts.userNotFound'));
       }
 
       setUserId(userData.id);
@@ -89,7 +91,7 @@ const AIMathTutor = () => {
     } catch (error) {
       console.error('Error checking user:', error);
       ToastManager.show({
-        message: 'เกิดข้อผิดพลาดในการตรวจสอบข้อมูล',
+        message: t('mathTutor.alerts.checkError'),
         type: 'error'
       });
     }
@@ -123,7 +125,7 @@ const AIMathTutor = () => {
         if (response.status === 402) {
           const errorData = await response.json();
           ToastManager.show({
-            message: errorData.message || 'ใช้ AI ครบโควต้าแล้ว',
+            message: errorData.message || t('mathTutor.alerts.quotaExhausted'),
             type: 'error'
           });
           await checkUserAndQuota();
@@ -214,7 +216,7 @@ const AIMathTutor = () => {
     } catch (error) {
       console.error('Error calling AI:', error);
       ToastManager.show({
-        message: 'เกิดข้อผิดพลาดในการติดต่อ AI',
+        message: t('mathTutor.alerts.aiError'),
         type: 'error'
       });
       // Remove empty assistant message on error
@@ -223,13 +225,6 @@ const AIMathTutor = () => {
       setIsLoading(false);
     }
   };
-
-  const suggestedQuestions = [
-    '🔢 อธิบายการบวกเลขสองหลักให้ฟังหน่อย',
-    '➗ การหารคืออะไร? ยกตัวอย่างหน่อย',
-    '📐 เศษส่วนคืออะไร? ใช้ยังไง?',
-    '⏰ สอนดูนาฬิกาหน่อย',
-  ];
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-[hsl(var(--primary))] via-[hsl(var(--primary-variant))] to-[hsl(var(--accent))]">
@@ -243,7 +238,7 @@ const AIMathTutor = () => {
             className="mb-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            กลับ
+            {t('mathTutor.back')}
           </Button>
           
           <div className="flex items-center gap-3 mb-2">
@@ -252,10 +247,10 @@ const AIMathTutor = () => {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-white">
-                🎓 AI ครูคณิตศาสตร์
+                {t('mathTutor.title')}
               </h1>
               <p className="text-white/80">
-                ถามคำถามเกี่ยวกับคณิตศาสตร์ได้เลย!
+                {t('mathTutor.subtitle')}
               </p>
             </div>
           </div>
@@ -264,7 +259,7 @@ const AIMathTutor = () => {
         <AIFeatureGuard
           isEnabled={aiEnabled}
           remainingQuota={remainingQuota}
-          featureName="AI ครูคณิตศาสตร์"
+          featureName={t('mathTutor.title')}
         >
           <Card className="h-[600px] flex flex-col">
             {/* Messages Area */}
@@ -272,14 +267,12 @@ const AIMathTutor = () => {
               {messages.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center">
                   <div className="text-6xl mb-4">🤖</div>
-                  <h2 className="text-xl font-bold mb-2">สวัสดี! ฉันคือครูคิดเร็ว</h2>
+                  <h2 className="text-xl font-bold mb-2">{t('mathTutor.greeting')}</h2>
                   <p className="text-muted-foreground mb-6 max-w-md">
-                    ฉันจะช่วยเธอเรียนคณิตศาสตร์แบบสนุก ๆ 
-                    <br />
-                    ลองถามคำถามได้เลย!
+                    {t('mathTutor.welcomeMessage')}
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl">
-                    {suggestedQuestions.map((question, idx) => (
+                    {(t('mathTutor.suggestedQuestions', { returnObjects: true }) as string[]).map((question: string, idx: number) => (
                       <Button
                         key={idx}
                         variant="outline"
@@ -306,7 +299,7 @@ const AIMathTutor = () => {
                         <Loader2 className="w-5 h-5 text-white animate-spin" />
                       </div>
                       <div className="bg-card text-card-foreground border border-border rounded-2xl px-4 py-3">
-                        <p className="text-sm text-muted-foreground">กำลังคิด...</p>
+                        <p className="text-sm text-muted-foreground">{t('mathTutor.thinking')}</p>
                       </div>
                     </div>
                   )}
@@ -319,13 +312,13 @@ const AIMathTutor = () => {
             <div className="border-t p-4">
               <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
                 <Sparkles className="w-3 h-3" />
-                <span>เหลือโควต้า AI: {remainingQuota} ครั้ง</span>
+                <span>{t('mathTutor.quotaRemaining', { quota: remainingQuota })}</span>
               </div>
               <form onSubmit={handleSubmit} className="flex gap-2">
                 <Textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="พิมพ์คำถามของคุณที่นี่..."
+                  placeholder={t('mathTutor.placeholder')}
                   className="min-h-[60px] resize-none"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {

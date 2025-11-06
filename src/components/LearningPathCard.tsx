@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { LearningPath } from '@/hooks/useLearningPath';
 import { CheckCircle2, Clock, Target, TrendingUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface LearningPathCardProps {
   path: LearningPath;
@@ -10,6 +11,7 @@ interface LearningPathCardProps {
 }
 
 export const LearningPathCard = ({ path, onUpdateProgress }: LearningPathCardProps) => {
+  const { t } = useTranslation('ai');
   const progressPercentage = (path.current_step / path.total_steps) * 100;
   const isCompleted = path.current_step >= path.total_steps;
 
@@ -55,13 +57,13 @@ export const LearningPathCard = ({ path, onUpdateProgress }: LearningPathCardPro
             <div className="flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-purple-600" />
               <span className="text-sm font-medium">
-                ขั้นตอน {path.current_step} / {path.total_steps}
+                {t('learningPath.step', { current: path.current_step, total: path.total_steps })}
               </span>
             </div>
             
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Clock className="w-4 h-4" />
-              <span>~{path.estimated_duration} นาที</span>
+              <span>{t('learningPath.minutes', { duration: path.estimated_duration })}</span>
             </div>
           </div>
           
@@ -69,7 +71,7 @@ export const LearningPathCard = ({ path, onUpdateProgress }: LearningPathCardPro
         </div>
 
         <div className="flex items-center gap-2 text-sm">
-          <span className="font-medium">ระดับความยาก:</span>
+          <span className="font-medium">{t('learningPath.difficulty')}</span>
           <span className="px-3 py-1 bg-gradient-to-r from-green-500 via-yellow-500 to-red-500 text-white rounded-full text-xs font-bold">
             {path.difficulty_progression}
           </span>
@@ -80,14 +82,14 @@ export const LearningPathCard = ({ path, onUpdateProgress }: LearningPathCardPro
             onClick={handleNextStep}
             className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
           >
-            {path.current_step === 0 ? 'เริ่มต้น' : 'ขั้นตอนถัดไป'}
+            {path.current_step === 0 ? t('learningPath.start') : t('learningPath.nextStep')}
           </Button>
         )}
 
         {isCompleted && (
           <div className="text-center py-2">
             <p className="text-green-600 dark:text-green-400 font-bold">
-              🎉 เสร็จสมบูรณ์แล้ว!
+              {t('learningPath.completed')}
             </p>
           </div>
         )}
