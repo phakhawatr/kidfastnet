@@ -718,10 +718,10 @@ const Profile = () => {
               )}
               <div>
                 <h1 className="text-2xl font-bold text-[hsl(var(--text-primary))] mb-2">
-                  สวัสดี {isDemo ? 'นักเรียนทดลอง' : `น้อง${nickname || username}`}!
+                  {isDemo ? t('welcomeDemo') : t('welcome', { nickname: `น้อง${nickname || username}` })}
                   {!isDemo && memberId && (
                     <span className="text-lg font-normal text-[hsl(var(--text-secondary))] ml-2 bg-blue-50 px-3 py-1 rounded-full">
-                      รหัส: {memberId}
+                      {t('memberCode', { code: memberId })}
                     </span>
                   )}
                   🌟
@@ -730,7 +730,7 @@ const Profile = () => {
                   {studentClass && `${studentClass}`}
                   {schoolName && (studentClass ? ` • ${schoolName}` : schoolName)}
                   {(studentClass || schoolName) && ' • '}
-                  ยินดีต้อนรับกลับสู่การเรียนรู้ที่สนุก
+                  {t('welcomeBack')}
                 </p>
               </div>
             </div>
@@ -743,7 +743,7 @@ const Profile = () => {
                 className="flex items-center gap-2 hover:bg-blue-50 border-blue-300"
               >
                 <Edit className="w-4 h-4" />
-                <span>แก้ไขโปรไฟล์</span>
+                <span>{t('editProfile')}</span>
               </Button>
               
               {/* Subscription Badge */}
@@ -756,12 +756,12 @@ const Profile = () => {
                   {registrationData.subscription_tier === 'premium' ? (
                     <span className="flex items-center gap-2">
                       <span>👑</span>
-                      <span>Premium</span>
+                      <span>{t('premium')}</span>
                     </span>
                   ) : (
                     <span className="flex items-center gap-2">
                       <span>📦</span>
-                      <span>Basic</span>
+                      <span>{t('basic')}</span>
                     </span>
                   )}
                 </div>
@@ -773,7 +773,7 @@ const Profile = () => {
                   className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
                   <Users className="w-5 h-5" />
-                  <span>โปรแกรมแนะนำเพื่อน</span>
+                  <span>{t('referralProgram')}</span>
                 </Link>
               )}
             </div>
@@ -786,7 +786,7 @@ const Profile = () => {
             <Card className="bg-white/80 border-2 border-purple-200">
               <CardContent className="p-4 text-center">
                 <div className="text-3xl mb-2">📅</div>
-                <div className="text-sm text-[hsl(var(--text-secondary))] mb-1">สมัครเมื่อ</div>
+                <div className="text-sm text-[hsl(var(--text-secondary))] mb-1">{t('memberInfo.registeredOn')}</div>
                 <div className="text-xs font-semibold text-[hsl(var(--text-primary))]">
                   {formatThaiDate(registrationData.created_at)}
                 </div>
@@ -796,7 +796,7 @@ const Profile = () => {
             <Card className="bg-white/80 border-2 border-green-200">
               <CardContent className="p-4 text-center">
                 <div className="text-3xl mb-2">✅</div>
-                <div className="text-sm text-[hsl(var(--text-secondary))] mb-1">อนุมัติเมื่อ</div>
+                <div className="text-sm text-[hsl(var(--text-secondary))] mb-1">{t('memberInfo.approvedOn')}</div>
                 <div className="text-xs font-semibold text-[hsl(var(--text-primary))]">
                   {formatThaiDate(registrationData.approved_at)}
                 </div>
@@ -806,7 +806,7 @@ const Profile = () => {
             <Card className="bg-white/80 border-2 border-orange-200">
               <CardContent className="p-4 text-center">
                 <div className="text-3xl mb-2">⏰</div>
-                <div className="text-sm text-[hsl(var(--text-secondary))] mb-1">วันหมดอายุสมาชิก</div>
+                <div className="text-sm text-[hsl(var(--text-secondary))] mb-1">{t('memberInfo.expiresOn')}</div>
                 <div className="text-xs font-semibold text-[hsl(var(--text-primary))]">
                   {formattedExpiration}
                 </div>
@@ -816,7 +816,7 @@ const Profile = () => {
             <Card className="bg-white/80 border-2 border-blue-200">
               <CardContent className="p-4 text-center">
                 <div className="text-3xl mb-2">🔐</div>
-                <div className="text-sm text-[hsl(var(--text-secondary))] mb-1">Login ล่าสุด</div>
+                <div className="text-sm text-[hsl(var(--text-secondary))] mb-1">{t('memberInfo.lastLogin')}</div>
                 <div className="text-xs font-semibold text-[hsl(var(--text-primary))]">
                   {formatThaiDate(registrationData.last_login_at)}
                 </div>
@@ -833,10 +833,10 @@ const Profile = () => {
                 <Sparkles className="w-8 h-8 text-purple-500" />
                 <div>
                   <h2 className="text-2xl font-bold text-[hsl(var(--text-primary))]">
-                    🤖 AI Learning Assistant
+                    {t('aiFeatures.title')}
                   </h2>
                   <p className="text-sm text-[hsl(var(--text-secondary))]">
-                    ผู้ช่วยเรียนคณิตศาสตร์ด้วย AI ที่ฉลาด
+                    {t('aiFeatures.subtitle')}
                   </p>
                 </div>
               </div>
@@ -848,18 +848,18 @@ const Profile = () => {
                 <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 rounded-xl p-5 mb-4">
                   <div className="flex items-center justify-between mb-3">
                     <div>
-                      <p className="text-sm text-[hsl(var(--text-secondary))] mb-1">โควต้า AI เดือนนี้</p>
+                      <p className="text-sm text-[hsl(var(--text-secondary))] mb-1">{t('aiFeatures.quotaThisMonth')}</p>
                       <div className="flex items-baseline gap-2">
                         <span className="text-3xl font-bold text-purple-600">
                           {registrationData.ai_monthly_quota - registrationData.ai_usage_count}
                         </span>
                         <span className="text-lg text-[hsl(var(--text-secondary))]">
-                          / {registrationData.ai_monthly_quota} ครั้ง
+                          {t('aiFeatures.remaining', { quota: registrationData.ai_monthly_quota })}
                         </span>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs text-[hsl(var(--text-secondary))] mb-1">ใช้ไปแล้ว</p>
+                      <p className="text-xs text-[hsl(var(--text-secondary))] mb-1">{t('aiFeatures.used')}</p>
                       <div className="text-2xl font-bold text-orange-500">
                         {registrationData.ai_usage_count}
                       </div>
@@ -877,7 +877,7 @@ const Profile = () => {
                   </div>
                   
                   <p className="text-xs text-[hsl(var(--text-secondary))] mt-2">
-                    💡 โควต้าจะรีเซ็ตในวันที่ 1 ของเดือนหน้า
+                    {t('aiFeatures.resetInfo')}
                   </p>
                 </div>
 
@@ -891,15 +891,15 @@ const Profile = () => {
                       <div className="flex-1">
                         <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
                           <Sparkles className="w-6 h-6" />
-                          เริ่มใช้ AI Math Tutor
+                          {t('aiFeatures.startTutor')}
                         </h3>
                         <p className="text-sm text-white/90 mb-3">
-                          ถามคำถาม แก้โจทย์ และเรียนรู้กับ AI ที่เข้าใจคุณ
+                          {t('aiFeatures.tutorDescription')}
                         </p>
                         <ul className="text-xs space-y-1 text-white/80">
-                          <li>✓ ตอบคำถามทันที 24/7</li>
-                          <li>✓ อธิบายแบบเข้าใจง่าย</li>
-                          <li>✓ แนะนำวิธีทำโจทย์ทีละขั้นตอน</li>
+                          <li>{t('aiFeatures.benefit1')}</li>
+                          <li>{t('aiFeatures.benefit2')}</li>
+                          <li>{t('aiFeatures.benefit3')}</li>
                         </ul>
                       </div>
                       <div className="text-6xl ml-4">
@@ -913,15 +913,15 @@ const Profile = () => {
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div className="bg-white/50 rounded-lg p-3 text-center border border-purple-200">
                     <div className="text-2xl mb-1">💬</div>
-                    <p className="text-xs font-medium text-[hsl(var(--text-primary))]">ถามได้ทุกเรื่อง</p>
+                    <p className="text-xs font-medium text-[hsl(var(--text-primary))]">{t('aiFeatures.quickTip1')}</p>
                   </div>
                   <div className="bg-white/50 rounded-lg p-3 text-center border border-pink-200">
                     <div className="text-2xl mb-1">📝</div>
-                    <p className="text-xs font-medium text-[hsl(var(--text-primary))]">แก้โจทย์ให้</p>
+                    <p className="text-xs font-medium text-[hsl(var(--text-primary))]">{t('aiFeatures.quickTip2')}</p>
                   </div>
                   <div className="bg-white/50 rounded-lg p-3 text-center border border-purple-200">
                     <div className="text-2xl mb-1">🎯</div>
-                    <p className="text-xs font-medium text-[hsl(var(--text-primary))]">เรียนรู้ได้เร็ว</p>
+                    <p className="text-xs font-medium text-[hsl(var(--text-primary))]">{t('aiFeatures.quickTip3')}</p>
                   </div>
                 </div>
               </>
@@ -930,17 +930,17 @@ const Profile = () => {
               <div className="text-center py-8">
                 <div className="text-6xl mb-4">🔒</div>
                 <h3 className="text-xl font-bold text-[hsl(var(--text-primary))] mb-2">
-                  ฟีเจอร์ AI สำหรับสมาชิก Premium
+                  {t('aiFeatures.premiumOnly')}
                 </h3>
                 <p className="text-[hsl(var(--text-secondary))] mb-6 max-w-md mx-auto">
-                  อัพเกรดเป็น Premium เพื่อใช้งาน AI Math Tutor และรับความช่วยเหลือจาก AI ได้ทันที
+                  {t('aiFeatures.premiumDescription')}
                 </p>
                 <Link 
                   to="/profile?tab=subscription"
                   className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                 >
                   <Sparkles className="w-5 h-5" />
-                  อัพเกรด Premium ตอนนี้
+                  {t('aiFeatures.upgradePremium')}
                 </Link>
               </div>
             )}
@@ -995,7 +995,7 @@ const Profile = () => {
           <div className="flex items-center gap-3 mb-4">
             <span className="text-2xl">🎯</span>
             <h2 className="text-xl font-bold text-[hsl(var(--text-primary))]">
-              แนะนำสำหรับคุณ
+              {t('recommendations.title')}
             </h2>
           </div>
           
@@ -1008,7 +1008,7 @@ const Profile = () => {
                 {recommendation.description}
               </p>
               <Link to={recommendation.link} className="btn-primary text-sm inline-block">
-                เริ่มฝึกเลย!
+                {t('recommendations.startPractice')}
               </Link>
             </div>
           ))}
@@ -1017,7 +1017,7 @@ const Profile = () => {
         {/* Recent Learning Apps */}
         <div className="card-glass p-6 mb-6">
           <h2 className="text-xl font-bold text-[hsl(var(--text-primary))] mb-4">
-            📚 แอปที่เรียนล่าสุด
+            {t('recentApps.title')}
           </h2>
           <div className="flex gap-4 overflow-x-auto pb-2">
             {[
@@ -1054,7 +1054,7 @@ const Profile = () => {
         {/* Grade Progress */}
         <div className="card-glass p-6 mb-6">
           <h2 className="text-xl font-bold text-[hsl(var(--text-primary))] mb-4">
-            รายละเอียด Kidfast AI Application
+            {t('appDetails.title')}
           </h2>
           
           {/* Stats */}
@@ -1062,17 +1062,17 @@ const Profile = () => {
             <div className="text-center">
               <button className="bg-gradient-to-r from-cyan-400 via-emerald-400 to-purple-500 text-white px-6 py-3 rounded-full text-sm font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2 mx-auto">
                 <span className="text-lg">✨</span>
-                AI สร้างโจทย์ใหม่
+                {t('appDetails.aiGenerate')}
               </button>
-              <div className="text-sm text-[hsl(var(--text-muted))] mt-2">เทคโนโลยี</div>
+              <div className="text-sm text-[hsl(var(--text-muted))] mt-2">{t('appDetails.technology')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-orange-500 mb-1">21+</div>
-              <div className="text-sm text-[hsl(var(--text-muted))]">บทเรียน</div>
+              <div className="text-sm text-[hsl(var(--text-muted))]">{t('appDetails.lessons')}</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-500 mb-1">ไม่จำกัด</div>
-              <div className="text-sm text-[hsl(var(--text-muted))]">จำนวนแบบฝึกหัด</div>
+              <div className="text-2xl font-bold text-blue-500 mb-1">{t('appDetails.unlimited')}</div>
+              <div className="text-sm text-[hsl(var(--text-muted))]">{t('appDetails.exercises')}</div>
             </div>
           </div>
         </div>
@@ -1093,7 +1093,7 @@ const Profile = () => {
       <Dialog open={isEditingProfile} onOpenChange={setIsEditingProfile}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-center">แก้ไขโปรไฟล์</DialogTitle>
+            <DialogTitle className="text-2xl font-bold text-center">{t('editDialog.title')}</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-6 py-4">
@@ -1133,7 +1133,7 @@ const Profile = () => {
                   <Button variant="outline" size="sm" className="cursor-pointer" asChild>
                     <span className="flex items-center gap-2">
                       <Upload className="w-4 h-4" />
-                      {profileImage ? 'เปลี่ยนรูปภาพ' : 'อัปโหลดรูปภาพ'}
+                      {profileImage ? t('editDialog.changeImage') : t('editDialog.uploadImage')}
                     </span>
                   </Button>
                 </label>
@@ -1143,19 +1143,19 @@ const Profile = () => {
             {/* Nickname Input */}
             <div className="space-y-2">
               <Label htmlFor="nickname" className="text-base font-semibold">
-                ชื่อเล่น <span className="text-red-500">*</span>
+                {t('editDialog.nickname')} <span className="text-red-500">{t('editDialog.nicknameRequired')}</span>
               </Label>
               <Input
                 id="nickname"
                 type="text"
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
-                placeholder="ใส่ชื่อเล่น เช่น น้องApple"
+                placeholder={t('editDialog.nicknamePlaceholder')}
                 className="text-base"
               />
               {nickname && nickname.trim().length === 0 && (
                 <p className="text-xs text-red-500 mt-1">
-                  ⚠️ ชื่อเล่นต้องไม่เว้นว่างเปล่า
+                  {t('editDialog.nicknameError')}
                 </p>
               )}
             </div>
@@ -1163,14 +1163,14 @@ const Profile = () => {
             {/* Class Input */}
             <div className="space-y-2">
               <Label htmlFor="studentClass" className="text-base font-semibold">
-                ชั้นเรียน
+                {t('editDialog.class')}
               </Label>
               <Input
                 id="studentClass"
                 type="text"
                 value={studentClass}
                 onChange={(e) => setStudentClass(e.target.value)}
-                placeholder="เช่น ชั้น ป.3, ม.1"
+                placeholder={t('editDialog.classPlaceholder')}
                 className="text-base"
               />
             </div>
@@ -1178,14 +1178,14 @@ const Profile = () => {
             {/* School Name Input */}
             <div className="space-y-2">
               <Label htmlFor="schoolName" className="text-base font-semibold">
-                ชื่อโรงเรียน
+                {t('editDialog.school')}
               </Label>
               <Input
                 id="schoolName"
                 type="text"
                 value={schoolName}
                 onChange={(e) => setSchoolName(e.target.value)}
-                placeholder="เช่น โรงเรียนอนุบาลกรุงเทพ"
+                placeholder={t('editDialog.schoolPlaceholder')}
                 className="text-base"
               />
             </div>
@@ -1196,7 +1196,7 @@ const Profile = () => {
                 <div className="flex items-center gap-2">
                   <div className="text-lg">📱</div>
                   <Label className="text-base font-semibold">
-                    แจ้งผลการเรียนผ่าน LINE
+                    {t('editDialog.lineNotifications')}
                   </Label>
                 </div>
                 
@@ -1213,7 +1213,7 @@ const Profile = () => {
                         )}
                         <div className="flex-1">
                           <div className="text-green-600 font-semibold flex items-center gap-2">
-                            ✅ เชื่อมต่อแล้ว
+                            {t('editDialog.lineConnected')}
                           </div>
                           <div className="text-xs text-gray-600">{lineDisplayName}</div>
                         </div>
@@ -1223,7 +1223,7 @@ const Profile = () => {
                           onClick={handleDisconnectLine}
                           className="text-xs"
                         >
-                          ยกเลิก
+                          {t('editDialog.lineDisconnect')}
                         </Button>
                       </div>
                       <Button 
@@ -1231,22 +1231,22 @@ const Profile = () => {
                         className="w-full bg-[#00B900] hover:bg-[#00A000] text-white"
                         size="sm"
                       >
-                        📤 ทดสอบส่งข้อความ
+                        {t('editDialog.lineTestMessage')}
                       </Button>
                     </>
                   ) : (
                     <>
                       <div className="flex items-center gap-2 mb-3">
-                        <span className="text-orange-500 font-semibold">⚠️ ยังไม่ได้เชื่อมต่อ</span>
+                        <span className="text-orange-500 font-semibold">{t('editDialog.lineNotConnected')}</span>
                       </div>
                       
                       <div className="bg-white p-3 rounded-lg mb-3 text-sm">
-                        <p className="font-semibold mb-2">📍 ขั้นตอนการเชื่อมต่อ:</p>
+                        <p className="font-semibold mb-2">{t('editDialog.lineStepsTitle')}</p>
                         <ol className="list-decimal ml-4 space-y-1 text-xs">
-                          <li>Add Friend <a href="https://line.me/R/ti/p/@kidfast" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-bold underline">@kidfast</a></li>
-                          <li>กดปุ่ม "เชื่อมต่อบัญชี" ด้านล่าง</li>
-                          <li>ส่งรหัส 6 หลักในแชท LINE @kidfast</li>
-                          <li>รอระบบยืนยัน (ประมาณ 5 วินาที)</li>
+                          <li>{t('editDialog.lineStep1')} <a href="https://line.me/R/ti/p/@kidfast" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-bold underline">@kidfast</a></li>
+                          <li>{t('editDialog.lineStep2')}</li>
+                          <li>{t('editDialog.lineStep3')}</li>
+                          <li>{t('editDialog.lineStep4')}</li>
                         </ol>
                       </div>
                       
@@ -1258,7 +1258,7 @@ const Profile = () => {
                         <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="white">
                           <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
                         </svg>
-                        เชื่อมต่อบัญชี LINE
+                        {t('editDialog.lineConnect')}
                       </Button>
                     </>
                   )}
@@ -1273,14 +1273,14 @@ const Profile = () => {
                 variant="outline"
                 className="flex-1 text-base py-6"
               >
-                ยกเลิก
+                {t('editDialog.cancel')}
               </Button>
               <Button
                 onClick={handleSaveProfile}
                 className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-base py-6"
                 disabled={nickname.trim().length === 0 || isSavingProfile}
               >
-                {isSavingProfile ? 'กำลังบันทึก...' : 'บันทึก'}
+                {isSavingProfile ? t('editDialog.saving') : t('editDialog.save')}
               </Button>
             </div>
           </div>
@@ -1291,32 +1291,32 @@ const Profile = () => {
       <Dialog open={showLinkCodeDialog} onOpenChange={setShowLinkCodeDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>🔗 เชื่อมต่อบัญชี LINE</DialogTitle>
+            <DialogTitle>{t('linkDialog.title')}</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4">
             <div className="text-center">
-              <p className="text-sm mb-2">ส่งรหัสนี้ในแชท LINE @kidfast</p>
+              <p className="text-sm mb-2">{t('linkDialog.instruction')}</p>
               <div className="text-4xl font-bold text-green-600 bg-green-50 py-4 rounded-lg tracking-widest">
                 {linkCode}
               </div>
-              <p className="text-xs text-gray-500 mt-2">รหัสจะหมดอายุใน 5 นาที</p>
+              <p className="text-xs text-gray-500 mt-2">{t('linkDialog.codeExpiry')}</p>
             </div>
             
             <div className="bg-blue-50 p-3 rounded-lg text-sm">
-              <p className="font-semibold mb-1">📋 ขั้นตอน:</p>
+              <p className="font-semibold mb-1">{t('linkDialog.stepsTitle')}</p>
               <ol className="list-decimal ml-4 space-y-1 text-xs">
-                <li>คัดลอกรหัส 6 หลักด้านบน</li>
-                <li>เปิดแชท LINE @kidfast</li>
-                <li>ส่งรหัส</li>
-                <li>รอระบบยืนยัน</li>
+                <li>{t('linkDialog.step1')}</li>
+                <li>{t('linkDialog.step2')}</li>
+                <li>{t('linkDialog.step3')}</li>
+                <li>{t('linkDialog.step4')}</li>
               </ol>
             </div>
             
             {isLinking && (
               <div className="text-center text-sm text-gray-600">
                 <div className="animate-spin h-6 w-6 border-4 border-green-500 border-t-transparent rounded-full mx-auto mb-2"></div>
-                กำลังรอการเชื่อมต่อ...
+                {t('linkDialog.waiting')}
               </div>
             )}
           </div>
