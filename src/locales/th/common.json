@@ -1,0 +1,12 @@
+{
+  "appName": "KidFastAI.com",
+  "loading": "กำลังโหลด...",
+  "error": "เกิดข้อผิดพลาด",
+  "success": "สำเร็จ",
+  "save": "บันทึก",
+  "cancel": "ยกเลิก",
+  "close": "ปิด",
+  "back": "กลับ",
+  "next": "ถัดไป",
+  "submit": "ส่ง"
+}
