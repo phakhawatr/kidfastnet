@@ -8,12 +8,16 @@ import headerTh from '../locales/th/header.json';
 import landingTh from '../locales/th/landing.json';
 import footerTh from '../locales/th/footer.json';
 import skillsTh from '../locales/th/skills.json';
+import loginTh from '../locales/th/login.json';
+import signupTh from '../locales/th/signup.json';
 
 import commonEn from '../locales/en/common.json';
 import headerEn from '../locales/en/header.json';
 import landingEn from '../locales/en/landing.json';
 import footerEn from '../locales/en/footer.json';
 import skillsEn from '../locales/en/skills.json';
+import loginEn from '../locales/en/login.json';
+import signupEn from '../locales/en/signup.json';
 
 const resources = {
   th: {
@@ -22,6 +26,8 @@ const resources = {
     landing: landingTh,
     footer: footerTh,
     skills: skillsTh,
+    login: loginTh,
+    signup: signupTh,
   },
   en: {
     common: commonEn,
@@ -29,6 +35,8 @@ const resources = {
     landing: landingEn,
     footer: footerEn,
     skills: skillsEn,
+    login: loginEn,
+    signup: signupEn,
   }
 };
 

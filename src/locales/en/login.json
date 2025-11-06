@@ -1,0 +1,19 @@
+{
+  "title": "KidFast",
+  "welcome": "Welcome back! 🎉",
+  "emailLabel": "Parent Email",
+  "emailPlaceholder": "parent@email.com",
+  "passwordLabel": "Password",
+  "passwordPlaceholder": "Your password",
+  "rememberMe": "Remember me",
+  "loginButton": "🚀 Login!",
+  "forgotPassword": "Forgot password?",
+  "noAccount": "Don't have an account?",
+  "hintTitle": "💡 Hint:",
+  "hintText": "Use your approved email and password",
+  "hintSignup": "Sign up",
+  "hintSignupLink": "or",
+  "hintSignupLocation": "here",
+  "required": "*",
+  "tooManyAttempts": "Too many login attempts. Please wait {time} minutes"
+}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '../hooks/useAuth';
 import Header from '../components/Header';
@@ -33,6 +34,7 @@ interface SignupData {
 }
 
 const Signup = () => {
+  const { t } = useTranslation('signup');
   const [currentStep, setCurrentStep] = useState(1);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [formData, setFormData] = useState<SignupData>({
@@ -64,19 +66,19 @@ const Signup = () => {
       setAffiliateCode(refCode);
       updateFormData('referrerMemberId', refCode);
       ToastManager.show({
-        message: `สมัครผ่านรหัสแนะนำ: ${refCode}`,
+        message: t('referralCodeUsed', { code: refCode }),
         type: 'info'
       });
     }
-  }, [searchParams]);
+  }, [searchParams, t]);
 
-  const grades = [
-    { id: '1', label: 'ป.1', color: 'bg-[hsl(var(--grade-1))]' },
-    { id: '2', label: 'ป.2', color: 'bg-[hsl(var(--grade-2))]' },
-    { id: '3', label: 'ป.3', color: 'bg-[hsl(var(--grade-3))]' },
-    { id: '4', label: 'ป.4', color: 'bg-[hsl(var(--grade-4))]' },
-    { id: '5', label: 'ป.5', color: 'bg-[hsl(var(--grade-5))]' },
-    { id: '6', label: 'ป.6', color: 'bg-[hsl(var(--grade-6))]' }
+  const getGrades = () => [
+    { id: '1', label: t('grades.1'), color: 'bg-[hsl(var(--grade-1))]' },
+    { id: '2', label: t('grades.2'), color: 'bg-[hsl(var(--grade-2))]' },
+    { id: '3', label: t('grades.3'), color: 'bg-[hsl(var(--grade-3))]' },
+    { id: '4', label: t('grades.4'), color: 'bg-[hsl(var(--grade-4))]' },
+    { id: '5', label: t('grades.5'), color: 'bg-[hsl(var(--grade-5))]' },
+    { id: '6', label: t('grades.6'), color: 'bg-[hsl(var(--grade-6))]' }
   ];
 
   const avatars = [
@@ -90,11 +92,11 @@ const Signup = () => {
     { id: 'tiger', emoji: '🐯' }
   ];
 
-  const learningStyles = [
-    'เล่นเกมการเรียน',
-    'ฝึกด่วนเดี่ยว',
-    'จับเวลาผลึก',
-    'แข่งขันคะแนน'
+  const getLearningStyles = () => [
+    t('learningStyles.game'),
+    t('learningStyles.practice'),
+    t('learningStyles.timed'),
+    t('learningStyles.compete')
   ];
 
   const updateFormData = (field: keyof SignupData, value: string | boolean) => {
@@ -236,12 +238,12 @@ const Signup = () => {
     if (value.trim().length !== 5) {
       setReferrerValidationState({ 
         status: 'invalid', 
-        message: 'รหัสสมาชิกต้องมี 5 หลัก' 
+        message: t('referrerMustBe5')
       });
       return;
     }
     
-    setReferrerValidationState({ status: 'validating', message: 'กำลังตรวจสอบ...' });
+    setReferrerValidationState({ status: 'validating', message: t('referrerValidating') });
     
     // Debounce
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -251,12 +253,12 @@ const Signup = () => {
     if (result) {
       setReferrerValidationState({ 
         status: 'valid', 
-        message: `✓ พบผู้แนะนำ (รหัส: ${result})` 
+        message: t('referrerFound', { code: result })
       });
     } else {
       setReferrerValidationState({ 
         status: 'invalid', 
-        message: 'ไม่พบรหัสสมาชิกนี้ในระบบ' 
+        message: t('referrerInvalid')
       });
     }
   };
@@ -266,7 +268,7 @@ const Signup = () => {
       setCurrentStep(prev => prev + 1);
     } else {
       ToastManager.show({
-        message: 'กรุณากรอกข้อมูลให้ครบถ้วน',
+        message: t('fillAllFields'),
         type: 'error'
       });
     }
@@ -285,7 +287,7 @@ const Signup = () => {
         // Validate phone number format after sanitization
         if (!validatePhoneNumber(sanitizedPhone)) {
           ToastManager.show({
-            message: 'รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง กรุณากรอกในรูปแบบ 08X-XXX-XXXX',
+            message: t('invalidPhone'),
             type: 'error'
           });
           return;
@@ -302,7 +304,7 @@ const Signup = () => {
           } else {
             console.error('❌ Final validation failed for:', formData.referrerMemberId);
             ToastManager.show({
-              message: 'ไม่พบรหัสสมาชิกที่แนะนำ กรุณาตรวจสอบรหัสอีกครั้ง หรือเว้นว่างไว้หากไม่มีผู้แนะนำ',
+              message: t('invalidReferrer'),
               type: 'error'
             });
             return;
@@ -426,10 +428,10 @@ const Signup = () => {
           {/* Alert */}
           <div className="card-glass p-4 mb-8 border-l-4 border-green-500">
             <div className="flex items-center gap-3">
-              🛡️ <span className="font-medium text-green-700">ความปลอดภัยของเด็กเป็นสิ่งสำคัญ</span>
+              🛡️ <span className="font-medium text-green-700">{t('securityTitle')}</span>
             </div>
             <p className="text-sm text-green-600 mt-1 ml-8">
-              ข้อมูลของลูกน้อยจะได้รับการปกป้องอย่างดี เราไม่แชร์ข้อมูลส่วนตัวกับบุคคลภายนอก และผู้ปกครองสามารถควบคุมความเป็นส่วนตัวของลูกได้ตลอดเวลา
+              {t('securityText')}
             </p>
           </div>
 
@@ -437,7 +439,7 @@ const Signup = () => {
           <div className="card-glass p-6 mb-8 border-l-4 border-orange-500 bg-gradient-to-r from-orange-50 to-yellow-50">
             <div className="flex items-center gap-3 mb-2">
               <span className="text-2xl">⚠️</span>
-              <span className="font-bold text-xl text-orange-700">ก่อนสมัครกรุณาติดต่อ @kidfast เพื่อสร้างบัญชีผู้ใช้ใหม่</span>
+              <span className="font-bold text-xl text-orange-700">{t('contactWarningTitle')}</span>
             </div>
             <div className="flex justify-center mt-4">
               <a href="https://lin.ee/hFVAoTI" className="inline-block">
@@ -480,40 +482,39 @@ const Signup = () => {
               <div className="space-y-6">
                 <div>
                   <label className="flex items-center gap-2 text-lg font-medium mb-3">
-                    🎯 <span>ชื่อเล่นของหนู <span className="text-red-500">*</span></span>
+                    🎯 <span>{t('nicknameLabel')} <span className="text-red-500">{t('required')}</span></span>
                   </label>
                   <input
                     type="text"
-                    placeholder="xx"
+                    placeholder={t('nicknamePlaceholder')}
                     className="input-field"
                     value={formData.nickname}
                     onChange={(e) => updateFormData('nickname', e.target.value)}
                   />
-                  <p className="text-sm text-[hsl(var(--text-muted))] mt-1">ใช้ชื่อเล่นหรือชื่อจริง ไม่ต้องใส่นามสกุล</p>
                 </div>
 
                 <div>
                   <label className="flex items-center gap-2 text-lg font-medium mb-3">
-                    🍰 <span>อายุของหนู <span className="text-red-500">*</span></span>
+                    🍰 <span>{t('ageLabel')} <span className="text-red-500">{t('required')}</span></span>
                   </label>
                   <select
                     className="input-field"
                     value={formData.age}
                     onChange={(e) => updateFormData('age', e.target.value)}
                   >
-                    <option value="">6 ขวบ</option>
+                    <option value="">{t('agePlaceholder')}</option>
                     {Array.from({ length: 7 }, (_, i) => i + 6).map(age => (
-                      <option key={age} value={age}>{age} ขวบ</option>
+                      <option key={age} value={age}>{age}</option>
                     ))}
                   </select>
                 </div>
 
                 <div>
                   <label className="flex items-center gap-2 text-lg font-medium mb-3">
-                    🏫 <span>ชั้นเรียนของหนู <span className="text-red-500">*</span></span>
+                    🏫 <span>{t('gradeLabel')} <span className="text-red-500">{t('required')}</span></span>
                   </label>
                   <div className="grid grid-cols-3 gap-4">
-                    {grades.map((grade) => (
+                    {getGrades().map((grade) => (
                       <div
                         key={grade.id}
                         onClick={() => updateFormData('grade', grade.id)}
@@ -530,7 +531,7 @@ const Signup = () => {
 
                 <div className="flex justify-end">
                   <button onClick={handleNext} className="btn-primary">
-                    ถัดไป →
+                    {t('nextButton')} →
                   </button>
                 </div>
               </div>
@@ -541,7 +542,7 @@ const Signup = () => {
               <div className="space-y-6">
                 <div>
                   <label className="flex items-center gap-2 text-lg font-medium mb-3">
-                    😊 <span>เลือกตัวการ์ตูนที่หนูชอบ</span>
+                    😊 <span>{t('avatarLabel')}</span>
                   </label>
                   <div className="grid grid-cols-4 gap-4">
                     {avatars.map((avatar) => (
@@ -558,15 +559,15 @@ const Signup = () => {
 
                 <div>
                   <label className="flex items-center gap-2 text-lg font-medium mb-3">
-                    🎮 <span>หนูชอบเรียนแบบไหน?</span>
+                    🎮 <span>{t('learningStyleLabel')}</span>
                   </label>
                   <select
                     className="input-field"
                     value={formData.learningStyle}
                     onChange={(e) => updateFormData('learningStyle', e.target.value)}
                   >
-                    <option value="">เลือกสไตล์การเรียน</option>
-                    {learningStyles.map((style) => (
+                    <option value="">{t('learningStyleLabel')}</option>
+                    {getLearningStyles().map((style) => (
                       <option key={style} value={style}>{style}</option>
                     ))}
                   </select>
@@ -574,10 +575,10 @@ const Signup = () => {
 
                 <div className="flex justify-between">
                   <button onClick={handleBack} className="btn-secondary">
-                    ← ย้อนกลับ
+                    ← {t('backButton')}
                   </button>
                   <button onClick={handleNext} className="btn-primary">
-                    ถัดไป →
+                    {t('nextButton')} →
                   </button>
                 </div>
               </div>
@@ -587,31 +588,30 @@ const Signup = () => {
             {currentStep === 3 && (
               <div className="space-y-6">
                 <div className="flex items-center gap-2 text-lg font-medium mb-4">
-                  👨‍👩‍👧‍👦 <span>ข้อมูลผู้ปกครอง</span>
+                  👨‍👩‍👧‍👦 <span>{t('step3Title')}</span>
                 </div>
 
                 <div>
                   <label className="flex items-center gap-2 text-lg font-medium mb-3">
-                    📧 <span>อีเมลผู้ปกครอง <span className="text-red-500">*</span></span>
+                    📧 <span>{t('parentEmailLabel')} <span className="text-red-500">{t('required')}</span></span>
                   </label>
                   <input
                     type="email"
-                    placeholder="parent@email.com"
+                    placeholder={t('parentEmailPlaceholder')}
                     className="input-field"
                     value={formData.parentEmail}
                     onChange={(e) => updateFormData('parentEmail', e.target.value)}
                   />
-                  <p className="text-sm text-[hsl(var(--text-muted))] mt-1">สำหรับรับข้อมูลความก้าวหน้าของลูกและการแจ้งเตือน</p>
                 </div>
 
                 <div>
                   <label className="flex items-center gap-2 text-lg font-medium mb-3">
-                    📱 <span>เบอร์โทรผู้ปกครอง <span className="text-red-500">*</span></span>
+                    📱 <span>{t('parentPhoneLabel')} <span className="text-red-500">{t('required')}</span></span>
                   </label>
                   <div className="relative">
                     <input
                       type="tel"
-                      placeholder="08X-XXX-XXXX"
+                      placeholder={t('parentPhonePlaceholder')}
                       className={`input-field pr-10 ${
                         formData.parentPhone 
                           ? validatePhoneNumber(formData.parentPhone) 
@@ -634,36 +634,29 @@ const Signup = () => {
                       </div>
                     )}
                   </div>
-                  <p className="text-sm text-[hsl(var(--text-muted))] mt-1">
-                    {formData.parentPhone && !validatePhoneNumber(formData.parentPhone) 
-                      ? <span className="text-red-500">รูปแบบเบอร์โทรไม่ถูกต้อง (ตัวอย่าง: 081-234-5678)</span>
-                      : <span>ตัวอย่าง: <strong>081-234-5678</strong> หรือ <strong>089-765-4321</strong></span>
-                    }
-                  </p>
                 </div>
 
                 <div>
                   <label className="flex items-center gap-2 text-lg font-medium mb-3">
-                    🔒 <span>สร้างรหัสผ่าน <span className="text-red-500">*</span></span>
+                    🔒 <span>{t('passwordLabel')} <span className="text-red-500">{t('required')}</span></span>
                   </label>
                   <input
                     type="password"
-                    placeholder="รหัสผ่าน (อย่างน้อย 6 ตัว)"
+                    placeholder={t('passwordPlaceholder')}
                     className="input-field"
                     value={formData.password}
                     onChange={(e) => updateFormData('password', e.target.value)}
                   />
-                  <p className="text-sm text-[hsl(var(--text-muted))] mt-1">ควรเป็นรหัสที่เด็กจำง่ายแต่ปลอดภัย</p>
                 </div>
 
                 <div>
                   <label className="flex items-center gap-2 text-lg font-medium mb-3">
-                    🎁 <span>รหัสสมาชิกที่แนะนำ <span className="text-[hsl(var(--text-muted))]">(ถ้ามี)</span></span>
+                    🎁 <span>{t('referrerLabel')} <span className="text-[hsl(var(--text-muted))]">({t('referrerOptional')})</span></span>
                   </label>
                   <div className="relative">
                     <input
                       type="text"
-                      placeholder="กรอกรหัสสมาชิก 5 หลัก (เช่น 10003)"
+                      placeholder={t('referrerPlaceholder')}
                       className={`input-field pr-10 ${
                         referrerValidationState.status === 'valid' 
                           ? 'border-green-500 focus:border-green-500'
@@ -700,11 +693,7 @@ const Signup = () => {
                       }>
                         {referrerValidationState.message}
                       </span>
-                    ) : (
-                      <span className="text-[hsl(var(--text-muted))]">
-                        กรอกรหัสสมาชิกของผู้ที่แนะนำให้คุณสมัคร เพื่อให้ท่านได้รับสิทธิพิเศษ
-                      </span>
-                    )}
+                    ) : null}
                   </p>
                 </div>
 
@@ -717,7 +706,7 @@ const Signup = () => {
                       onChange={(e) => updateFormData('acceptTerms', e.target.checked)}
                     />
                     <span className="text-sm">
-                      ยินยอมรับ <span className="text-red-500 font-medium">นโยบายความเป็นส่วนตัว</span> และ <span className="text-red-500 font-medium">เงื่อนไขการใช้งาน</span> <span className="text-red-500">*</span>
+                      {t('acceptTerms')} <span className="text-red-500">{t('required')}</span>
                     </span>
                   </label>
 
@@ -728,16 +717,16 @@ const Signup = () => {
                       checked={formData.acceptNewsletter}
                       onChange={(e) => updateFormData('acceptNewsletter', e.target.checked)}
                     />
-                    <span className="text-sm">รับข่าวสารและกิจกรรมพิเศษทางอีเมล 📖</span>
+                    <span className="text-sm">{t('acceptNewsletter')} 📖</span>
                   </label>
                 </div>
 
                 <div className="flex justify-between">
                   <button onClick={handleBack} className="btn-secondary">
-                    ← ย้อน กลับ
+                    ← {t('backButton')}
                   </button>
                   <button onClick={handleSubmit} className="btn-primary text-lg px-8">
-                    🚀 สมัครสมาชิก! 🚀
+                    🚀 {t('signupButton')} 🚀
                   </button>
                 </div>
               </div>
@@ -754,16 +743,10 @@ const Signup = () => {
           <AlertDialogHeader>
             <AlertDialogTitle className="text-green-700 text-center text-2xl flex items-center justify-center gap-3">
               <span className="text-4xl">🎉</span>
-              สมัครสมาชิกสำเร็จ!
+              {t('successTitle')}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-green-600 text-center text-base mt-4">
-              <div className="space-y-3">
-                <p className="font-semibold text-lg">ส่งคำขอสมัครเรียบร้อยแล้ว!</p>
-                <div className="bg-white/60 rounded-lg p-4 text-left">
-                  <p className="mb-2">📧 กรุณารอการอนุมัติจากผู้ดูแล</p>
-                  <p>💬 ผู้ปกครองกรุณา เพิ่มเพื่อน @kidfast เพื่อแจ้งการสมัครสมาชิกใหม่</p>
-                </div>
-              </div>
+              {t('successDescription')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="justify-center mt-4">
@@ -774,7 +757,7 @@ const Signup = () => {
                 navigate('/login');
               }}
             >
-              ตกลง
+              {t('successButton')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

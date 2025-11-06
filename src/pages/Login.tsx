@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useAuth } from '../hooks/useAuth';
@@ -9,6 +10,7 @@ import { rateLimiter } from '../utils/rateLimiter';
 import { ToastManager } from '../components/Toast';
 
 const Login = () => {
+  const { t } = useTranslation('login');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -45,7 +47,7 @@ const Login = () => {
     const rateLimit = rateLimiter.checkRateLimit(formData.email);
     if (!rateLimit.allowed) {
       ToastManager.show({
-        message: `พยายามเข้าสู่ระบบมากเกินไป กรุณารออีก ${rateLimit.remainingTime} นาที`,
+        message: t('tooManyAttempts', { time: rateLimit.remainingTime }),
         type: 'error'
       });
       return;
@@ -91,8 +93,8 @@ const Login = () => {
           {/* Welcome Message */}
           <div className="text-center mb-8">
             <div className="text-6xl mb-4">🧮</div>
-            <h1 className="text-2xl font-bold text-white mb-2">KidFast</h1>
-            <p className="text-white/80">กลับมาแล้ว! ยินดีต้อนรับ 🎉</p>
+            <h1 className="text-2xl font-bold text-white mb-2">{t('title')}</h1>
+            <p className="text-white/80">{t('welcome')}</p>
           </div>
 
           <div className="card-glass p-8">
@@ -100,11 +102,11 @@ const Login = () => {
               {/* Email */}
               <div>
                 <label className="flex items-center gap-2 text-lg font-medium mb-3">
-                  📧 <span>อีเมลผู้ปกครอง <span className="text-red-500">*</span></span>
+                  📧 <span>{t('emailLabel')} <span className="text-red-500">{t('required')}</span></span>
                 </label>
                 <input
                   type="email"
-                  placeholder="parent@email.com"
+                  placeholder={t('emailPlaceholder')}
                   className="input-field"
                   value={formData.email}
                   onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
@@ -115,12 +117,12 @@ const Login = () => {
               {/* Password */}
               <div>
                 <label className="flex items-center gap-2 text-lg font-medium mb-3">
-                  🔒 <span>รหัสผ่าน</span>
+                  🔒 <span>{t('passwordLabel')}</span>
                 </label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="รหัสผ่านของหนู"
+                    placeholder={t('passwordPlaceholder')}
                     className="input-field pr-12"
                     value={formData.password}
                     onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
@@ -144,25 +146,25 @@ const Login = () => {
                   checked={formData.rememberMe}
                   onChange={(e) => setFormData(prev => ({ ...prev, rememberMe: e.target.checked }))}
                 />
-                <span className="text-sm">จำฉันไว้</span>
+                <span className="text-sm">{t('rememberMe')}</span>
               </label>
 
               {/* Login Button */}
               <button type="submit" className="w-full btn-primary text-lg">
-                🚀 เข้าสู่ระบบ!
+                {t('loginButton')}
               </button>
             </form>
 
             {/* Footer Links */}
             <div className="text-center mt-6 space-y-2">
               <div className="flex items-center gap-2 justify-center text-sm text-[hsl(var(--text-muted))]">
-                📚 <span className="text-yellow-600">ลืมรหัส?</span>
-                😊 <Link to="/signup" className="text-blue-600 hover:underline">ยังไม่มีบัญชี?</Link>
+                📚 <span className="text-yellow-600">{t('forgotPassword')}</span>
+                😊 <Link to="/signup" className="text-blue-600 hover:underline">{t('noAccount')}</Link>
               </div>
               <div className="text-xs text-center text-[hsl(var(--text-muted))] mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                <p className="text-yellow-700"><strong>💡 คำแนะนำ:</strong></p>
-                <p className="text-yellow-600">ใช้อีเมลและรหัสผ่านที่ได้รับการอนุมัติแล้ว</p>
-                <p className="text-yellow-600">หรือ <Link to="/signup" className="underline font-medium">สมัครสมาชิกใหม่</Link> ที่นี่</p>
+                <p className="text-yellow-700"><strong>{t('hintTitle')}</strong></p>
+                <p className="text-yellow-600">{t('hintText')}</p>
+                <p className="text-yellow-600">{t('hintSignupLink')} <Link to="/signup" className="underline font-medium">{t('hintSignup')}</Link> {t('hintSignupLocation')}</p>
               </div>
             </div>
           </div>
