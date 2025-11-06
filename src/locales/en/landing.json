@@ -1,0 +1,119 @@
+{
+  "hero": {
+    "brandName": "KidFast AI",
+    "title": "🌟 Learn Math in a Fun and Easy Way 🌟",
+    "subtitle": "Develop calculation skills for elementary students with fun games and activities<br />prepared for grades 1-6",
+    "aiGenerateButton": "AI Generate Problems",
+    "aiTagline": "🤖 With Advanced AI Technology that Creates Unlimited Problems ✨"
+  },
+  "benefits": {
+    "title": "🌟 Why Choose KidFast?",
+    "items": [
+      {
+        "icon": "🎮",
+        "title": "Learn Through Games",
+        "description": "Simple number games make learning math fun and engaging"
+      },
+      {
+        "icon": "⚡",
+        "title": "Fast & Accurate",
+        "description": "Practice calculation skills for faster and more accurate results"
+      },
+      {
+        "icon": "🏆",
+        "title": "Rewards & Points",
+        "description": "Point and badge collection system to boost learning motivation"
+      },
+      {
+        "icon": "🧑‍🏫",
+        "title": "Online Teacher",
+        "description": "AI teacher ready to create unlimited unique problems for kids to practice"
+      }
+    ]
+  },
+  "premiumFeatures": {
+    "badge": "👑 Premium Features",
+    "title": "✨ Special Features for Premium Members",
+    "subtitle": "Unlock AI features that make learning math more fun and effective!",
+    "features": [
+      {
+        "icon": "🤖",
+        "title": "AI Math Tutor",
+        "description": "AI teacher ready to answer questions, explain problems, and provide easy-to-understand guidance in Thai. Fun with every question!",
+        "cta": "Click to Start Conversation →"
+      },
+      {
+        "icon": "📊",
+        "title": "AI Strengths-Weaknesses Analysis",
+        "description": "Analyze learning results and provide personalized recommendations to develop missing skills",
+        "badge": "Coming Soon"
+      },
+      {
+        "icon": "🎯",
+        "title": "AI Adaptive Problem Generator",
+        "description": "Create problems that adjust difficulty based on ability level for continuous learning",
+        "badge": "Coming Soon"
+      }
+    ],
+    "upgradeButton": "Upgrade to Premium for These Features"
+  },
+  "aiExamples": {
+    "title": "✨ AI Practice Examples",
+    "subtitle": "Our AI creates unlimited new problems! Various formats, fun every time you practice 🎯",
+    "examples": [
+      {
+        "icon": "🧮",
+        "title": "Vertical Addition",
+        "description": "Practice vertical addition, understand place values. AI creates new problems every time!",
+        "alt": "Vertical addition"
+      },
+      {
+        "icon": "➖",
+        "title": "Vertical Subtraction",
+        "description": "Learn subtraction with borrowing. Easy to understand, practice until mastery with detailed solutions!",
+        "alt": "Vertical subtraction"
+      },
+      {
+        "icon": "✖️",
+        "title": "Vertical Multiplication",
+        "description": "Practice 2-3 digit multiplication with carrying. Learn step by step, enjoy various problems!",
+        "alt": "Vertical multiplication"
+      },
+      {
+        "icon": "🍕",
+        "title": "Fraction Matching",
+        "description": "Learn fractions from colorful images. Match pictures with numbers, fun and easy to understand!",
+        "alt": "Fraction matching"
+      },
+      {
+        "icon": "⚖️",
+        "title": "Weight Reading",
+        "description": "Practice reading scales from real images. Learn kg and g units, understand weight measurement!",
+        "alt": "Reading weight from scale"
+      },
+      {
+        "icon": "📏",
+        "title": "Length Measurement",
+        "description": "Practice reading rulers from real images. Understand centimeters and millimeters, fun and practical!",
+        "alt": "Measuring length with ruler"
+      }
+    ],
+    "cta": "🎯 Sign up today, practice first excel first, Olympic gold medal awaits!"
+  },
+  "promotion": {
+    "badge": "🔥 Special Promotion 🔥",
+    "title": "For the First 500 Students",
+    "originalPriceLabel": "From 6-month membership price",
+    "originalPrice": "799 Baht",
+    "discountLabel": "Special discount price only",
+    "specialPrice": "399 Baht",
+    "onlyText": "Only!",
+    "supportText": "💙 To Support Thai Children's Education 💙",
+    "ctaButton": "Sign Up Now!",
+    "urgencyText": "⏰ Only a few spots left! Register before quota runs out! ⏰"
+  },
+  "finalCta": {
+    "button": "✨ Sign Up Now! ✨",
+    "subtitle": "Start your fun learning journey today!"
+  }
+}
