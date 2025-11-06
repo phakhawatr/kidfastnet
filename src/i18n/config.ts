@@ -13,6 +13,7 @@ import signupTh from '../locales/th/signup.json';
 import profileTh from '../locales/th/profile.json';
 import parentdashboardTh from '../locales/th/parentdashboard.json';
 import aiTh from '../locales/th/ai.json';
+import exercisesTh from '../locales/th/exercises.json';
 
 import commonEn from '../locales/en/common.json';
 import headerEn from '../locales/en/header.json';
@@ -24,6 +25,7 @@ import signupEn from '../locales/en/signup.json';
 import profileEn from '../locales/en/profile.json';
 import parentdashboardEn from '../locales/en/parentdashboard.json';
 import aiEn from '../locales/en/ai.json';
+import exercisesEn from '../locales/en/exercises.json';
 
 const resources = {
   th: {
@@ -37,6 +39,7 @@ const resources = {
     profile: profileTh,
     parentdashboard: parentdashboardTh,
     ai: aiTh,
+    exercises: exercisesTh,
   },
   en: {
     common: commonEn,
@@ -49,6 +52,7 @@ const resources = {
     profile: profileEn,
     parentdashboard: parentdashboardEn,
     ai: aiEn,
+    exercises: exercisesEn,
   }
 };
 

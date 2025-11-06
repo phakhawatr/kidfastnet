@@ -1,0 +1,268 @@
+{
+  "common": {
+    "back": "Back",
+    "backToProfile": "Back to Profile",
+    "settings": "Settings",
+    "backToExercise": "Back to Exercise",
+    "reset": "Reset",
+    "resetAnswer": "Reset Answer",
+    "checkAnswers": "Check Answers",
+    "showAnswers": "Show Answers",
+    "hideAnswers": "Hide Answers",
+    "correct": "✅ Correct!",
+    "tryAgain": "❌ Try Again",
+    "answer": "Answer",
+    "question": "Question",
+    "problems": "Problems",
+    "difficulty": "Difficulty",
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard",
+    "digits": "Digits",
+    "start": "Start",
+    "finish": "Finish",
+    "submit": "Submit",
+    "next": "Next",
+    "previous": "Previous",
+    "loading": "Loading...",
+    "savingResults": "Saving results..."
+  },
+  "results": {
+    "excellent": "Excellent!",
+    "greatJob": "Great Job!",
+    "wellDone": "Well Done!",
+    "keepTrying": "Keep Trying!",
+    "youScored": "You scored {{correct}}/{{total}}",
+    "timeUsed": "Time used: {{time}}",
+    "playAgain": "Play Again",
+    "summary": "Results Summary",
+    "correctAnswer": "Correct Answer",
+    "yourAnswer": "Your Answer",
+    "accuracy": "Accuracy",
+    "stars": "Stars"
+  },
+  "praise": {
+    "perfect": "Perfect! Amazing work 👏",
+    "excellent": "Excellent! Almost perfect 💪",
+    "good": "Great! Keep improving ✨",
+    "okay": "Good start! Review a bit more 😊",
+    "tryMore": "Try again! You can do it! 🌟"
+  },
+  "settings": {
+    "settingsTitle": "Game Settings",
+    "problemCount": "Number of Problems",
+    "problemCountItems": "{{count}} problems",
+    "startNew": "Start New",
+    "regenerate": "Regenerate",
+    "showSettings": "Show Settings",
+    "hideSettings": "Hide Settings"
+  },
+  "pdf": {
+    "print": "Print PDF",
+    "preview": "PDF Preview",
+    "save": "Save PDF",
+    "close": "Close",
+    "uploadLogo": "Upload School Logo",
+    "removeLogo": "Remove Logo",
+    "studentName": "Student Name:",
+    "class": "Class:",
+    "school": "School:",
+    "date": "Date:",
+    "footer": "Created by {{appName}} | {{date}} | Page {{page}}/{{total}}"
+  },
+  "addition": {
+    "title": "Addition",
+    "subtitle": "Practice Addition",
+    "carryOption": "Carry",
+    "hasCarry": "With Carry",
+    "noCarry": "No Carry",
+    "anyCarry": "Any",
+    "operands": "Number of Operands",
+    "twoNumbers": "2 Numbers",
+    "threeNumbers": "3 Numbers"
+  },
+  "subtraction": {
+    "title": "Subtraction",
+    "subtitle": "Practice Subtraction",
+    "borrowOption": "Borrow",
+    "hasBorrow": "With Borrow",
+    "noBorrow": "No Borrow",
+    "anyBorrow": "Any",
+    "operands": "Number of Operands",
+    "twoNumbers": "2 Numbers",
+    "threeNumbers": "3 Numbers"
+  },
+  "multiplication": {
+    "title": "Multiplication",
+    "subtitle": "Practice Multiplication",
+    "table": "Times Table",
+    "tables": "Times Tables",
+    "selectTables": "Select Tables",
+    "allTables": "All Tables",
+    "tableX": "{{number}} Times Table"
+  },
+  "division": {
+    "title": "Division",
+    "subtitle": "Practice Division",
+    "withRemainder": "With Remainder",
+    "noRemainder": "No Remainder",
+    "anyRemainder": "Any"
+  },
+  "money": {
+    "title": "Money",
+    "subtitle": "Practice Counting Money and Change",
+    "problemType": "Problem Type",
+    "counting": "Counting",
+    "change": "Change",
+    "shopping": "Shopping",
+    "mixed": "Mixed",
+    "baht": "Baht",
+    "satang": "Satang",
+    "coins": "Coins",
+    "bills": "Bills",
+    "amount": "Amount",
+    "total": "Total",
+    "youHave": "You have",
+    "itemCosts": "Item costs",
+    "howMuchChange": "How much change?"
+  },
+  "time": {
+    "title": "Telling Time",
+    "subtitle": "Write the time shown on the clock",
+    "hour": "Hour",
+    "minute": "Minute",
+    "clock": "Clock",
+    "format": "Format HH:MM",
+    "whatTime": "What time is it?",
+    "writeTime": "Write the time"
+  },
+  "fractions": {
+    "title": "Fractions",
+    "subtitle": "Match Equivalent Fractions",
+    "match": "Match",
+    "equivalent": "Equivalent",
+    "matchEquivalent": "Match equivalent fractions",
+    "clickTwoCards": "Click 2 equivalent cards",
+    "matchesFound": "{{count}} matches found",
+    "allMatched": "All matched!"
+  },
+  "measurement": {
+    "title": "Measurement",
+    "subtitle": "Practice Length, Weight, and Volume",
+    "length": "Length",
+    "weight": "Weight",
+    "volume": "Volume",
+    "unit": "Unit"
+  },
+  "shapes": {
+    "title": "Shapes",
+    "subtitle": "Match Geometric Shapes",
+    "matchShapes": "Match the shapes",
+    "selectShape": "Select shape",
+    "circle": "Circle",
+    "square": "Square",
+    "triangle": "Triangle",
+    "rectangle": "Rectangle"
+  },
+  "placeValue": {
+    "title": "Place Value",
+    "subtitle": "Practice Place Value",
+    "ones": "Ones",
+    "tens": "Tens",
+    "hundreds": "Hundreds",
+    "thousands": "Thousands",
+    "breakApart": "Break Apart",
+    "whatIsValue": "What is the value of {{number}}?"
+  },
+  "barModel": {
+    "title": "Bar Model",
+    "subtitle": "Solve with Bar Models",
+    "totalBars": "Total Bars",
+    "partBars": "Part Bars",
+    "findTotal": "Find Total",
+    "findPart": "Find Part"
+  },
+  "areaModel": {
+    "title": "Area Model",
+    "subtitle": "Multiply with Area",
+    "multiply": "Multiply",
+    "breakdown": "Breakdown",
+    "total": "Total"
+  },
+  "numberBonds": {
+    "title": "Number Bonds",
+    "subtitle": "Practice Number Bonds",
+    "whole": "Whole",
+    "part": "Part",
+    "fillMissing": "Fill in the missing number"
+  },
+  "mentalMath": {
+    "title": "Mental Math",
+    "subtitle": "Practice Mental Calculation",
+    "operation": "Operation",
+    "addition": "Addition",
+    "subtraction": "Subtraction",
+    "mixed": "Mixed",
+    "timeLimit": "Time Limit"
+  },
+  "percentage": {
+    "title": "Percentage",
+    "subtitle": "Practice Percentages",
+    "percent": "Percent",
+    "of": "of",
+    "is": "is",
+    "calculate": "Calculate"
+  },
+  "weighing": {
+    "title": "Weighing",
+    "subtitle": "Compare Weights",
+    "heavier": "Heavier",
+    "lighter": "Lighter",
+    "equal": "Equal",
+    "compareWeights": "Compare weights"
+  },
+  "lengthComparison": {
+    "title": "Length Comparison",
+    "subtitle": "Measure and Compare",
+    "longer": "Longer",
+    "shorter": "Shorter",
+    "equal": "Equal",
+    "compareLengths": "Compare lengths"
+  },
+  "numberSeries": {
+    "title": "Number Series",
+    "subtitle": "Find the Missing Number",
+    "findMissing": "Find the missing number",
+    "pattern": "Pattern",
+    "sequence": "Sequence",
+    "hint": "Hint",
+    "showHint": "Show Hint",
+    "hideHint": "Hide Hint",
+    "reveal": "Reveal",
+    "preset": "Preset",
+    "random": "Random",
+    "sound": "Sound",
+    "questions": "Questions"
+  },
+  "quickMath": {
+    "title": "Quick Math",
+    "subtitle": "Calculate Quickly",
+    "timeLimit": "Time Limit",
+    "speed": "Speed",
+    "combo": "Combo"
+  },
+  "sumGrid": {
+    "title": "Sum Grid",
+    "subtitle": "Solve Sum Puzzles",
+    "row": "Row",
+    "column": "Column",
+    "sum": "Sum",
+    "fillGrid": "Fill the grid"
+  },
+  "multiplicationTable": {
+    "title": "Multiplication Table",
+    "subtitle": "Practice Times Tables",
+    "practice": "Practice",
+    "test": "Test"
+  }
+}
