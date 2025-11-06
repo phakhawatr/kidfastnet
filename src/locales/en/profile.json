@@ -1,0 +1,130 @@
+{
+  "welcome": "Hello {{nickname}}!",
+  "welcomeDemo": "Hello Demo Student!",
+  "memberCode": "Code: {{code}}",
+  "welcomeBack": "Welcome back to fun learning",
+  "editProfile": "Edit Profile",
+  "premium": "Premium",
+  "basic": "Basic",
+  "referralProgram": "Referral Program",
+  
+  "memberInfo": {
+    "registeredOn": "Registered On",
+    "approvedOn": "Approved On",
+    "expiresOn": "Membership Expires",
+    "lastLogin": "Last Login"
+  },
+  
+  "aiFeatures": {
+    "title": "🤖 AI Learning Assistant",
+    "subtitle": "Smart AI Math Learning Assistant",
+    "quotaThisMonth": "AI Quota This Month",
+    "remaining": "/ {{quota}} times",
+    "used": "Used",
+    "resetInfo": "💡 Quota resets on the 1st of next month",
+    "startTutor": "Start AI Math Tutor",
+    "tutorDescription": "Ask questions, solve problems, and learn with AI that understands you",
+    "benefit1": "✓ Instant answers 24/7",
+    "benefit2": "✓ Easy-to-understand explanations",
+    "benefit3": "✓ Step-by-step problem solving",
+    "quickTip1": "Ask anything",
+    "quickTip2": "Problem solving",
+    "quickTip3": "Learn faster",
+    "premiumOnly": "AI Features for Premium Members",
+    "premiumDescription": "Upgrade to Premium to use AI Math Tutor and get instant AI assistance",
+    "upgradePremium": "Upgrade to Premium Now"
+  },
+  
+  "grades": {
+    "addition": "Addition",
+    "subtraction": "Subtraction",
+    "multiplication": "Multiplication",
+    "division": "Division",
+    "time": "Telling Time",
+    "weighing": "Weighing"
+  },
+  
+  "recommendations": {
+    "title": "Recommended for You",
+    "startPractice": "Start Practice!"
+  },
+  
+  "recentApps": {
+    "title": "📚 Recently Used Apps",
+    "addition": "Addition",
+    "subtraction": "Subtraction",
+    "multiplication": "Multiplication",
+    "division": "Division",
+    "fractions": "Fractions",
+    "time": "Time",
+    "weight": "Weight",
+    "shapes": "Shapes",
+    "length": "Length",
+    "quickMath": "Quick Math"
+  },
+  
+  "appDetails": {
+    "title": "Kidfast AI Application Details",
+    "aiGenerate": "AI Generated Problems",
+    "technology": "Technology",
+    "lessons": "Lessons",
+    "exercises": "Exercises",
+    "unlimited": "Unlimited"
+  },
+  
+  "editDialog": {
+    "title": "Edit Profile",
+    "nickname": "Nickname",
+    "nicknameRequired": "* Required",
+    "nicknamePlaceholder": "Enter nickname e.g. Apple",
+    "nicknameError": "⚠️ Nickname cannot be empty",
+    "class": "Class",
+    "classPlaceholder": "e.g. Grade 3, Year 7",
+    "school": "School Name",
+    "schoolPlaceholder": "e.g. Bangkok Kindergarten School",
+    "changeImage": "Change Image",
+    "uploadImage": "Upload Image",
+    "lineNotifications": "Learning Results via LINE",
+    "lineConnected": "✅ Connected",
+    "lineNotConnected": "⚠️ Not Connected",
+    "lineDisconnect": "Disconnect",
+    "lineTestMessage": "📤 Test Message",
+    "lineStepsTitle": "📍 Connection Steps:",
+    "lineStep1": "Add Friend @kidfast",
+    "lineStep2": "Click \"Connect LINE Account\" button below",
+    "lineStep3": "Send 6-digit code in LINE @kidfast chat",
+    "lineStep4": "Wait for system confirmation (about 5 seconds)",
+    "lineConnect": "Connect LINE Account",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving..."
+  },
+  
+  "linkDialog": {
+    "title": "🔗 Connect LINE Account",
+    "instruction": "Send this code in LINE @kidfast chat",
+    "codeExpiry": "Code expires in 5 minutes",
+    "stepsTitle": "📋 Steps:",
+    "step1": "Copy the 6-digit code above",
+    "step2": "Open LINE @kidfast chat",
+    "step3": "Send the code",
+    "step4": "Wait for confirmation",
+    "waiting": "Waiting for connection..."
+  },
+  
+  "alerts": {
+    "nicknameRequired": "Please enter nickname",
+    "saveSuccess": "✅ Profile saved successfully",
+    "saveError": "Error saving profile: {{message}}",
+    "linkCodeError": "Failed to generate link code",
+    "linkSuccess": "✅ Connected successfully!",
+    "linkError": "Error connecting",
+    "disconnectConfirm": "Do you want to disconnect LINE?",
+    "disconnectSuccess": "Disconnected successfully",
+    "disconnectError": "Error disconnecting",
+    "testMessageSuccess": "✅ Test message sent successfully! Check LINE @kidfast",
+    "testMessageError": "Failed to send message: {{message}}",
+    "testMessageFailed": "Error sending test message",
+    "connectLineFirst": "Please connect LINE first"
+  }
+}

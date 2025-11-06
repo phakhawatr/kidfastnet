@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SkillsSection from '../components/SkillsSection';
@@ -207,6 +208,7 @@ const allRecommendations = {
 };
 
 const Profile = () => {
+  const { t } = useTranslation('profile');
   const {
     username,
     isDemo,
@@ -496,7 +498,7 @@ const Profile = () => {
       // Trim and validate nickname
       const trimmedNickname = nickname.trim();
       if (!trimmedNickname) {
-        alert('กรุณากรอกชื่อเล่น');
+        alert(t('alerts.nicknameRequired'));
         setIsSavingProfile(false);
         return;
       }
@@ -528,14 +530,14 @@ const Profile = () => {
       setSchoolName(trimmedSchool);
       
       // Show success message
-      alert('✅ บันทึกข้อมูลสำเร็จ');
+      alert(t('alerts.saveSuccess'));
       
       // Close edit mode
       setIsSavingProfile(false);
       setIsEditingProfile(false);
     } catch (e) {
       console.error('Error saving profile:', e);
-      alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + (e instanceof Error ? e.message : 'กรุณาลองใหม่อีกครั้ง'));
+      alert(t('alerts.saveError', { message: e instanceof Error ? e.message : 'กรุณาลองใหม่อีกครั้ง' }));
       setIsSavingProfile(false);
     }
   };
@@ -556,7 +558,7 @@ const Profile = () => {
       });
 
       if (error || !data.linkCode) {
-        alert('ไม่สามารถสร้างรหัสเชื่อมได้');
+        alert(t('alerts.linkCodeError'));
         return;
       }
 
@@ -590,7 +592,7 @@ const Profile = () => {
           setLinePictureUrl(userData.line_picture_url || '');
           setShowLinkCodeDialog(false);
           setIsLinking(false);
-          alert('✅ เชื่อมต่อสำเร็จ!');
+          alert(t('alerts.linkSuccess'));
           window.location.reload();
         }
       }, 3000);
@@ -599,12 +601,12 @@ const Profile = () => {
       return () => clearInterval(checkInterval);
     } catch (err) {
       console.error('Connect LINE error:', err);
-      alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+      alert(t('alerts.linkError'));
     }
   };
 
   const handleDisconnectLine = async () => {
-    const confirmed = confirm('คุณต้องการยกเลิกการเชื่อมต่อ LINE หรือไม่?');
+    const confirmed = confirm(t('alerts.disconnectConfirm'));
     if (!confirmed) return;
 
     try {
@@ -630,17 +632,17 @@ const Profile = () => {
         setLineUserId('');
         setLineDisplayName('');
         setLinePictureUrl('');
-        alert('ยกเลิกการเชื่อมต่อแล้ว');
+        alert(t('alerts.disconnectSuccess'));
       }
     } catch (err) {
       console.error('Disconnect LINE error:', err);
-      alert('เกิดข้อผิดพลาดในการยกเลิกการเชื่อมต่อ');
+      alert(t('alerts.disconnectError'));
     }
   };
 
   const handleTestLineMessage = async () => {
     if (!lineUserId) {
-      alert('กรุณาเชื่อมต่อ LINE ก่อน');
+      alert(t('alerts.connectLineFirst'));
       return;
     }
 
@@ -668,13 +670,13 @@ const Profile = () => {
       });
 
       if (error) {
-        alert('ส่งข้อความไม่สำเร็จ: ' + error.message);
+        alert(t('alerts.testMessageError', { message: error.message }));
       } else {
-        alert('✅ ส่งข้อความทดสอบสำเร็จ! ตรวจสอบ LINE @kidfast');
+        alert(t('alerts.testMessageSuccess'));
       }
     } catch (err) {
       console.error('Test message error:', err);
-      alert('เกิดข้อผิดพลาดในการทดสอบ');
+      alert(t('alerts.testMessageFailed'));
     }
   };
 

@@ -10,6 +10,8 @@ import footerTh from '../locales/th/footer.json';
 import skillsTh from '../locales/th/skills.json';
 import loginTh from '../locales/th/login.json';
 import signupTh from '../locales/th/signup.json';
+import profileTh from '../locales/th/profile.json';
+import parentdashboardTh from '../locales/th/parentdashboard.json';
 
 import commonEn from '../locales/en/common.json';
 import headerEn from '../locales/en/header.json';
@@ -18,6 +20,8 @@ import footerEn from '../locales/en/footer.json';
 import skillsEn from '../locales/en/skills.json';
 import loginEn from '../locales/en/login.json';
 import signupEn from '../locales/en/signup.json';
+import profileEn from '../locales/en/profile.json';
+import parentdashboardEn from '../locales/en/parentdashboard.json';
 
 const resources = {
   th: {
@@ -28,6 +32,8 @@ const resources = {
     skills: skillsTh,
     login: loginTh,
     signup: signupTh,
+    profile: profileTh,
+    parentdashboard: parentdashboardTh,
   },
   en: {
     common: commonEn,
@@ -37,6 +43,8 @@ const resources = {
     skills: skillsEn,
     login: loginEn,
     signup: signupEn,
+    profile: profileEn,
+    parentdashboard: parentdashboardEn,
   }
 };
 

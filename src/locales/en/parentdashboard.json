@@ -1,0 +1,76 @@
+{
+  "pageTitle": "🎁 Affiliate Referral System",
+  
+  "loading": {
+    "checkingUser": "Checking user...",
+    "loadingData": "Loading affiliate data..."
+  },
+  
+  "error": {
+    "title": "Error Occurred",
+    "backToProfile": "Back to Profile",
+    "retry": "Retry",
+    "noUser": "User not found. Please login again",
+    "noUserData": "Failed to load user data: {{message}}",
+    "noMember": "Member data not found. Please contact administrator",
+    "noMemberId": "Failed to load member ID",
+    "loadError": "Error loading data: {{message}}"
+  },
+  
+  "affiliateLink": {
+    "title": "Your Referral Link",
+    "description": "Share this link with friends. When they sign up and pay, you'll earn 50 points",
+    "affiliateCode": "Your Affiliate Code: {{code}}",
+    "copySuccess": "Link copied successfully!",
+    "shareTitle": "Learn Math with KidFastAI.com",
+    "shareText": "Sign up for KidFastAI.com through this link"
+  },
+  
+  "stats": {
+    "total": "Total",
+    "totalReferrals": "Referred Members",
+    "paid": "Paid",
+    "paidReceived": "Points Received",
+    "pending": "Pending",
+    "pendingFromAdmin": "From Admin",
+    "awaitingPayment": "Awaiting Payment",
+    "awaitingPaymentApproved": "Approved",
+    "totalPoints": "Total Accumulated Points",
+    "pointsDescription": "🎁 Earn <strong>50 points</strong> per paid referral",
+    "points": "points",
+    "members": "members"
+  },
+  
+  "table": {
+    "title": "Referred Members List",
+    "description": "List of members who signed up through your link",
+    "noReferrals": "No referrals yet",
+    "totalReferrals": "Total {{count}} members",
+    "headers": {
+      "nickname": "Nickname",
+      "email": "Parent Email",
+      "signupDate": "Signup Date",
+      "approvalStatus": "Approval Status",
+      "approvedDate": "Approved Date",
+      "paymentDate": "Payment Date",
+      "paymentStatus": "Payment Status",
+      "expiryDate": "1 Year Expiry",
+      "pointsEarned": "Points Earned"
+    }
+  },
+  
+  "status": {
+    "payment": {
+      "paid": "Paid",
+      "pending": "Pending",
+      "failed": "Failed"
+    },
+    "user": {
+      "approved": "Approved",
+      "pending": "Awaiting Admin Approval",
+      "rejected": "Rejected",
+      "suspended": "Suspended",
+      "unknown": "Unknown"
+    }
+  }
+}

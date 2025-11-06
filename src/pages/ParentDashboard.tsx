@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { Copy, Share2, QrCode, TrendingUp, Users, Award } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
 import {
   Table,
@@ -41,6 +42,7 @@ interface Referral {
 }
 
 const ParentDashboard = () => {
+  const { t } = useTranslation('parentdashboard');
   const { user, isLoading: authLoading, isLoggedIn } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState<AffiliateStats>({
@@ -128,7 +130,7 @@ const ParentDashboard = () => {
       
       if (!email) {
         console.error('No user email found in any source');
-        const errorMsg = 'ไม่พบข้อมูลผู้ใช้ กรุณาเข้าสู่ระบบใหม่';
+        const errorMsg = t('error.noUser');
         setError(errorMsg);
         toast.error(errorMsg);
         setTimeout(() => navigate('/login'), 2000);
@@ -148,7 +150,7 @@ const ParentDashboard = () => {
 
       if (userError) {
         console.error('Error fetching user:', userError);
-        const errorMsg = 'ไม่สามารถโหลดข้อมูลผู้ใช้ได้: ' + userError.message;
+        const errorMsg = t('error.noUserData', { message: userError.message });
         setError(errorMsg);
         toast.error(errorMsg);
         setIsLoading(false);
@@ -156,7 +158,7 @@ const ParentDashboard = () => {
       }
 
       if (!userData) {
-        const errorMsg = 'ไม่พบข้อมูลสมาชิก กรุณาติดต่อผู้ดูแลระบบ';
+        const errorMsg = t('error.noMember');
         setError(errorMsg);
         toast.error(errorMsg);
         setIsLoading(false);
@@ -175,7 +177,7 @@ const ParentDashboard = () => {
 
         if (memberError || !memberData?.member_id) {
           console.error('Error fetching member_id:', memberError);
-          const errorMsg = 'ไม่สามารถโหลดรหัสสมาชิกได้';
+          const errorMsg = t('error.noMemberId');
           setError(errorMsg);
           toast.error(errorMsg);
           setIsLoading(false);
@@ -233,7 +235,7 @@ const ParentDashboard = () => {
       }
     } catch (error) {
       console.error('Error loading affiliate data:', error);
-      const errorMsg = 'เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + (error as Error).message;
+      const errorMsg = t('error.loadError', { message: (error as Error).message });
       setError(errorMsg);
       toast.error(errorMsg);
     } finally {
@@ -243,15 +245,15 @@ const ParentDashboard = () => {
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(affiliateLink);
-    toast.success('คัดลอกลิงก์สำเร็จ!');
+    toast.success(t('affiliateLink.copySuccess'));
   };
 
   const shareLink = async () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'มาเรียนคณิตศาสตร์กับ KidFastAI.com',
-          text: 'สมัครสมาชิกกับ KidFastAI.com ผ่านลิงก์นี้',
+          title: t('affiliateLink.shareTitle'),
+          text: t('affiliateLink.shareText'),
           url: affiliateLink,
         });
       } catch (error) {
@@ -296,19 +298,19 @@ const ParentDashboard = () => {
       case 'paid':
         return (
           <Badge className="bg-[hsl(var(--status-success-bg))] text-[hsl(var(--status-success-fg))] hover:opacity-90 font-semibold border-2 border-[hsl(var(--status-success-bg))]">
-            ชำระแล้ว
+            {t('status.payment.paid')}
           </Badge>
         );
       case 'pending':
         return (
           <Badge className="bg-[hsl(var(--status-warning-bg))] text-[hsl(var(--status-warning-fg))] hover:opacity-90 font-semibold border-2 border-[hsl(var(--status-warning-bg))]">
-            รอชำระ
+            {t('status.payment.pending')}
           </Badge>
         );
       case 'failed':
         return (
           <Badge className="bg-[hsl(var(--status-error-bg))] text-[hsl(var(--status-error-fg))] hover:opacity-90 font-semibold border-2 border-[hsl(var(--status-error-bg))]">
-            ล้มเหลว
+            {t('status.payment.failed')}
           </Badge>
         );
       default:
@@ -321,29 +323,29 @@ const ParentDashboard = () => {
       case 'approved':
         return (
           <Badge className="bg-[hsl(var(--status-success-light))] text-[hsl(var(--status-success-bg))] border-2 border-[hsl(var(--status-success-border))] font-semibold">
-            อนุมัติแล้ว
+            {t('status.user.approved')}
           </Badge>
         );
       case 'pending':
         return (
           <Badge className="bg-[hsl(var(--status-info-light))] text-[hsl(var(--status-info-bg))] border-2 border-[hsl(var(--status-info-border))] font-semibold">
-            รออนุมัติจากแอดมิน
+            {t('status.user.pending')}
           </Badge>
         );
       case 'rejected':
         return (
           <Badge className="bg-[hsl(var(--status-error-light))] text-[hsl(var(--status-error-bg))] border-2 border-[hsl(var(--status-error-border))] font-semibold">
-            ปฏิเสธ
+            {t('status.user.rejected')}
           </Badge>
         );
       case 'suspended':
         return (
           <Badge variant="outline" className="bg-gray-100 text-gray-800 border-2 border-gray-400 dark:bg-gray-800 dark:text-gray-200 font-semibold">
-            ระงับการใช้งาน
+            {t('status.user.suspended')}
           </Badge>
         );
       default:
-        return <Badge variant="outline" className="font-semibold">{status || 'ไม่ทราบ'}</Badge>;
+        return <Badge variant="outline" className="font-semibold">{status || t('status.user.unknown')}</Badge>;
     }
   };
 
@@ -354,7 +356,7 @@ const ParentDashboard = () => {
         <div className="flex items-center justify-center h-[80vh]">
           <div className="card-glass p-8 text-center">
             <div className="text-4xl mb-4">🔄</div>
-            <p className="text-text-secondary">กำลังตรวจสอบผู้ใช้...</p>
+            <p className="text-text-secondary">{t('loading.checkingUser')}</p>
           </div>
         </div>
       </div>
@@ -369,7 +371,7 @@ const ParentDashboard = () => {
           <Card className="max-w-md mx-auto">
             <CardHeader>
               <div className="text-4xl mb-4 text-center">❌</div>
-              <CardTitle className="text-xl text-center text-red-600">เกิดข้อผิดพลาด</CardTitle>
+              <CardTitle className="text-xl text-center text-red-600">{t('error.title')}</CardTitle>
               <CardDescription className="text-center">{error}</CardDescription>
             </CardHeader>
             <CardContent>
@@ -378,7 +380,7 @@ const ParentDashboard = () => {
                   onClick={() => navigate('/profile')}
                   variant="outline"
                 >
-                  กลับหน้าโปรไฟล์
+                  {t('error.backToProfile')}
                 </Button>
                 <Button 
                   onClick={() => {
@@ -387,7 +389,7 @@ const ParentDashboard = () => {
                     loadAffiliateData();
                   }}
                 >
-                  ลองใหม่
+                  {t('error.retry')}
                 </Button>
               </div>
             </CardContent>
@@ -404,7 +406,7 @@ const ParentDashboard = () => {
         <div className="flex items-center justify-center h-[80vh]">
           <div className="card-glass p-8 text-center">
             <div className="text-4xl mb-4">🔄</div>
-            <p className="text-text-secondary">กำลังโหลดข้อมูล affiliate...</p>
+            <p className="text-text-secondary">{t('loading.loadingData')}</p>
           </div>
         </div>
       </div>
@@ -417,7 +419,7 @@ const ParentDashboard = () => {
       
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold text-white mb-8 text-center">
-          🎁 ระบบแนะนำเพื่อน Affiliate
+          {t('pageTitle')}
         </h1>
 
         {/* Affiliate Link Section */}
@@ -425,10 +427,10 @@ const ParentDashboard = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Share2 className="w-5 h-5" />
-              ลิงก์แนะนำเพื่อนของคุณ
+              {t('affiliateLink.title')}
             </CardTitle>
             <CardDescription>
-              แชร์ลิงก์นี้กับเพื่อนๆ เมื่อเพื่อนสมัครและชำระเงิน คุณจะได้รับ 50 คะแนน
+              {t('affiliateLink.description')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -448,7 +450,7 @@ const ParentDashboard = () => {
             </div>
             {stats && (
               <div className="mt-4 text-sm text-muted-foreground">
-                รหัส Affiliate ของคุณ: <span className="font-mono font-bold">{stats.affiliate_code}</span>
+                {t('affiliateLink.affiliateCode', { code: stats.affiliate_code })}
               </div>
             )}
           </CardContent>
@@ -456,74 +458,74 @@ const ParentDashboard = () => {
 
         {/* Statistics Cards - WCAG 2.1 Compliant */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Card 1: ทั้งหมด */}
+          {/* Card 1: Total */}
           <Card className="border-2 hover:shadow-lg transition-shadow">
             <CardHeader className="pb-4">
               <CardTitle className="text-base font-semibold flex items-center gap-2">
                 <Users className="w-5 h-5 text-primary" aria-hidden="true" />
-                <span>ทั้งหมด</span>
+                <span>{t('stats.total')}</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <div className="text-4xl font-bold text-foreground" aria-label={`จำนวนสมาชิกทั้งหมด ${stats?.total_referrals || 0} คน`}>
+              <div className="text-4xl font-bold text-foreground" aria-label={`${t('stats.totalReferrals')} ${stats?.total_referrals || 0} ${t('stats.members')}`}>
                 {stats?.total_referrals || 0}
               </div>
               <p className="text-base font-medium text-[hsl(var(--text-secondary))]">
-                สมาชิกที่แนะนำ
+                {t('stats.totalReferrals')}
               </p>
             </CardContent>
           </Card>
 
-          {/* Card 2: ชำระแล้ว */}
+          {/* Card 2: Paid */}
           <Card className="border-2 border-[hsl(var(--status-success-border))] bg-[hsl(var(--status-success-light))] hover:shadow-lg transition-shadow">
             <CardHeader className="pb-4">
               <CardTitle className="text-base font-semibold flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-[hsl(var(--status-success-bg))]" aria-hidden="true" />
-                <span className="text-[hsl(var(--status-success-bg))]">ชำระแล้ว</span>
+                <span className="text-[hsl(var(--status-success-bg))]">{t('stats.paid')}</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <div className="text-4xl font-bold text-[hsl(var(--status-success-bg))]" aria-label={`จำนวนสมาชิกที่ชำระแล้ว ${stats?.paid_referrals || 0} คน`}>
+              <div className="text-4xl font-bold text-[hsl(var(--status-success-bg))]" aria-label={`${t('stats.paid')} ${stats?.paid_referrals || 0} ${t('stats.members')}`}>
                 {stats?.paid_referrals || 0}
               </div>
               <p className="text-base font-medium text-[hsl(var(--text-secondary))]">
-                ได้รับคะแนนแล้ว
+                {t('stats.paidReceived')}
               </p>
             </CardContent>
           </Card>
 
-          {/* Card 3: รออนุมัติ */}
+          {/* Card 3: Pending Approval */}
           <Card className="border-2 border-[hsl(var(--status-info-border))] bg-[hsl(var(--status-info-light))] hover:shadow-lg transition-shadow">
             <CardHeader className="pb-4">
               <CardTitle className="text-base font-semibold flex items-center gap-2">
                 <QrCode className="w-5 h-5 text-[hsl(var(--status-info-bg))]" aria-hidden="true" />
-                <span className="text-[hsl(var(--status-info-bg))]">รออนุมัติ</span>
+                <span className="text-[hsl(var(--status-info-bg))]">{t('stats.pending')}</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <div className="text-4xl font-bold text-[hsl(var(--status-info-bg))]" aria-label={`จำนวนสมาชิกรออนุมัติ ${stats?.awaiting_approval_referrals || 0} คน`}>
+              <div className="text-4xl font-bold text-[hsl(var(--status-info-bg))]" aria-label={`${t('stats.pending')} ${stats?.awaiting_approval_referrals || 0} ${t('stats.members')}`}>
                 {stats?.awaiting_approval_referrals || 0}
               </div>
               <p className="text-base font-medium text-[hsl(var(--text-secondary))]">
-                จากแอดมิน
+                {t('stats.pendingFromAdmin')}
               </p>
             </CardContent>
           </Card>
 
-          {/* Card 4: รอชำระเงิน */}
+          {/* Card 4: Awaiting Payment */}
           <Card className="border-2 border-[hsl(var(--status-warning-border))] bg-[hsl(var(--status-warning-light))] hover:shadow-lg transition-shadow">
             <CardHeader className="pb-4">
               <CardTitle className="text-base font-semibold flex items-center gap-2">
                 <Award className="w-5 h-5 text-[hsl(var(--status-warning-bg))]" aria-hidden="true" />
-                <span className="text-[hsl(var(--status-warning-bg))]">รอชำระเงิน</span>
+                <span className="text-[hsl(var(--status-warning-bg))]">{t('stats.awaitingPayment')}</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <div className="text-4xl font-bold text-[hsl(var(--status-warning-bg))]" aria-label={`จำนวนสมาชิกรอชำระเงิน ${stats?.pending_referrals || 0} คน`}>
+              <div className="text-4xl font-bold text-[hsl(var(--status-warning-bg))]" aria-label={`${t('stats.awaitingPayment')} ${stats?.pending_referrals || 0} ${t('stats.members')}`}>
                 {stats?.pending_referrals || 0}
               </div>
               <p className="text-base font-medium text-[hsl(var(--text-secondary))]">
-                อนุมัติแล้ว
+                {t('stats.awaitingPaymentApproved')}
               </p>
             </CardContent>
           </Card>
@@ -534,18 +536,16 @@ const ParentDashboard = () => {
           <CardHeader className="space-y-3">
             <CardTitle className="flex items-center gap-3 text-xl font-bold text-amber-800 dark:text-amber-300">
               <Award className="w-6 h-6" aria-hidden="true" />
-              <span>คะแนนสะสมทั้งหมด</span>
+              <span>{t('stats.totalPoints')}</span>
             </CardTitle>
-            <CardDescription className="text-base font-medium text-[hsl(var(--text-secondary))]">
-              🎁 ได้รับ <strong className="text-amber-800 dark:text-amber-300">50 คะแนน</strong>ต่อเพื่อนที่ชำระเงินแล้ว
-            </CardDescription>
+            <CardDescription className="text-base font-medium text-[hsl(var(--text-secondary))]" dangerouslySetInnerHTML={{ __html: t('stats.pointsDescription') }} />
           </CardHeader>
           <CardContent className="pt-2">
             <div 
               className="text-5xl font-bold text-amber-700 dark:text-amber-400" 
-              aria-label={`คะแนนสะสมทั้งหมด ${stats?.total_points || 0} คะแนน`}
+              aria-label={`${t('stats.totalPoints')} ${stats?.total_points || 0} ${t('stats.points')}`}
             >
-              {stats?.total_points || 0} <span className="text-3xl">คะแนน</span>
+              {stats?.total_points || 0} <span className="text-3xl">{t('stats.points')}</span>
             </div>
           </CardContent>
         </Card>
@@ -553,28 +553,28 @@ const ParentDashboard = () => {
         {/* Referrals Table - WCAG 2.1 Enhanced */}
         <Card className="border-2">
           <CardHeader className="space-y-2">
-            <CardTitle className="text-xl font-bold">รายชื่อสมาชิกที่แนะนำ</CardTitle>
+            <CardTitle className="text-xl font-bold">{t('table.title')}</CardTitle>
             <CardDescription className="text-base font-medium">
-              รายชื่อสมาชิกที่สมัครผ่านลิงก์ของคุณ
+              {t('table.description')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <Table>
                 <TableCaption className="text-base font-medium">
-                  {referrals.length === 0 ? 'ยังไม่มีสมาชิกที่แนะนำ' : `มีสมาชิกทั้งหมด ${referrals.length} คน`}
+                  {referrals.length === 0 ? t('table.noReferrals') : t('table.totalReferrals', { count: referrals.length })}
                 </TableCaption>
                 <TableHeader>
                   <TableRow className="bg-muted/50 hover:bg-muted/50">
-                    <TableHead className="font-bold text-base text-foreground">ชื่อเล่น</TableHead>
-                    <TableHead className="font-bold text-base text-foreground">อีเมล์ผู้ปกครอง</TableHead>
-                    <TableHead className="font-bold text-base text-foreground">วันที่สมัคร</TableHead>
-                    <TableHead className="font-bold text-base text-foreground">สถานะอนุมัติ</TableHead>
-                    <TableHead className="font-bold text-base text-foreground">วันอนุมัติ</TableHead>
-                    <TableHead className="font-bold text-base text-foreground">วันที่ชำระเงิน</TableHead>
-                    <TableHead className="font-bold text-base text-foreground">สถานะชำระ</TableHead>
-                    <TableHead className="font-bold text-base text-foreground">วันครบกำหนด 1 ปี</TableHead>
-                    <TableHead className="text-right font-bold text-base text-foreground">คะแนนที่ได้</TableHead>
+                    <TableHead className="font-bold text-base text-foreground">{t('table.headers.nickname')}</TableHead>
+                    <TableHead className="font-bold text-base text-foreground">{t('table.headers.email')}</TableHead>
+                    <TableHead className="font-bold text-base text-foreground">{t('table.headers.signupDate')}</TableHead>
+                    <TableHead className="font-bold text-base text-foreground">{t('table.headers.approvalStatus')}</TableHead>
+                    <TableHead className="font-bold text-base text-foreground">{t('table.headers.approvedDate')}</TableHead>
+                    <TableHead className="font-bold text-base text-foreground">{t('table.headers.paymentDate')}</TableHead>
+                    <TableHead className="font-bold text-base text-foreground">{t('table.headers.paymentStatus')}</TableHead>
+                    <TableHead className="font-bold text-base text-foreground">{t('table.headers.expiryDate')}</TableHead>
+                    <TableHead className="text-right font-bold text-base text-foreground">{t('table.headers.pointsEarned')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
