@@ -1,0 +1,91 @@
+{
+  "sectionTitle": "🎯 Enhance Your Child's Knowledge and Skills",
+  "sectionSubtitle": "— Choose a skill to practice —",
+  "defaultButtonText": "Start Practice",
+  "skills": {
+    "placeValue": {
+      "title": "Place Value",
+      "desc": "Learn the value of digits in each place, a crucial foundation of Singapore Math"
+    },
+    "mentalMath": {
+      "title": "Mental Math",
+      "desc": "Techniques to break down numbers for easier calculation, making 10s and 100s with Mental Math"
+    },
+    "areaModel": {
+      "title": "Area Model Multiplication",
+      "desc": "Use area concepts to learn multiplication with the Singapore Math Area Model"
+    },
+    "numberBonds": {
+      "title": "Number Bonds",
+      "desc": "Understand relationships between numbers, deeply grasp addition and subtraction structure (Singapore Math)"
+    },
+    "barModel": {
+      "title": "Bar Model Method",
+      "desc": "Various problem types: part-whole, comparison, before-after, and real-life scenarios (Singapore Math)"
+    },
+    "addition": {
+      "title": "Addition",
+      "desc": "Practice basic addition, starting from simple numbers to multi-digit numbers"
+    },
+    "subtraction": {
+      "title": "Subtraction",
+      "desc": "Learn subtraction, develop reverse calculation thinking skills"
+    },
+    "multiplication": {
+      "title": "Multiplication",
+      "desc": "Enjoy multiplication, learn times tables through games and activities"
+    },
+    "division": {
+      "title": "Division",
+      "desc": "Understand division, share and distribute numbers in a fun way"
+    },
+    "numberSeries": {
+      "title": "Number Series",
+      "desc": "Discover number relationships, learn patterns and sequences"
+    },
+    "multiplicationTable": {
+      "title": "Multiplication Table",
+      "desc": "Memorize times tables with colorful charts, learn systematically"
+    },
+    "time": {
+      "title": "Time",
+      "desc": "Learn to read time, understand clocks and time management"
+    },
+    "lengthComparison": {
+      "title": "Length Comparison",
+      "desc": "Measure and compare sizes, learn various units of measurement"
+    },
+    "weighing": {
+      "title": "Weighing",
+      "desc": "Learn to weigh objects, compare mass and weight"
+    },
+    "quickMath": {
+      "title": "Ruler Measurement",
+      "desc": "Practice measuring length with a ruler, learn unit conversions"
+    },
+    "sumGrid": {
+      "title": "3x3 Sum Grid",
+      "desc": "Practice addition in grids with missing spaces, learn sequential and step-by-step calculation"
+    },
+    "shapes": {
+      "title": "Shapes",
+      "desc": "Memorize geometric shapes, learn properties of different shapes"
+    },
+    "fractions": {
+      "title": "Fractions",
+      "desc": "Understand fractions, learn division and comparison"
+    },
+    "percentage": {
+      "title": "Percentage",
+      "desc": "Learn percentage calculations, understand decimal conversions"
+    },
+    "lengthComparisonAlt": {
+      "title": "Length Comparison",
+      "desc": "Compare object lengths, learn to sort and order"
+    },
+    "money": {
+      "title": "Money",
+      "desc": "Learn to count money, give change, and solve buying and selling problems"
+    }
+  }
+}

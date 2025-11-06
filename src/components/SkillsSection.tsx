@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Plus, Minus, X, Divide, Sigma, Table, Clock, Ruler, Scale, Zap, Eye, Hash, Shapes, Percent, ArrowLeftRight, Calculator, Link2, BarChart3, Layers, Brain, Grid3x3, Coins } from 'lucide-react';
 
 // Import mascot images
@@ -12,6 +13,7 @@ import fractionsMascot from '../assets/mascot-fractions.png';
 import shapesMascot from '../assets/mascot-shapes.png';
 import measurementMascot from '../assets/mascot-measurement.png';
 import weighingMascot from '../assets/mascot-weighing.png';
+
 type Skill = {
   icon: React.ComponentType<any>;
   title: string;
@@ -21,196 +23,221 @@ type Skill = {
   sticker?: string;
   hrefPreview?: string;
   mascotImage?: string;
+  translationKey?: string;
 };
+
 interface SkillsSectionProps {
   skills?: Skill[];
   onPreview?: (skill: Skill) => void;
   buttonText?: string;
   disableLinks?: boolean;
 }
-const defaultSkills: Skill[] = [{
+
+const getDefaultSkills = (t: any): Skill[] => [{
   icon: Layers,
-  title: 'ค่าประจำหลัก',
-  desc: 'เรียนรู้ค่าของตัวเลขในแต่ละหลัก พื้นฐานสำคัญของ Singapore Math',
+  title: t('skills.placeValue.title'),
+  desc: t('skills.placeValue.desc'),
   backgroundGradient: 'bg-gradient-to-br from-indigo-400 via-purple-500 to-pink-600',
   textColor: 'text-white',
   sticker: '🔢',
   hrefPreview: '/place-value',
-  mascotImage: additionMascot
+  mascotImage: additionMascot,
+  translationKey: 'placeValue'
 }, {
   icon: Brain,
-  title: 'คิดเลขเร็ว',
-  desc: 'เทคนิคแยกตัวเลขเพื่อคำนวณง่ายขึ้น ทำให้กลม 10/100 แบบ Mental Math',
+  title: t('skills.mentalMath.title'),
+  desc: t('skills.mentalMath.desc'),
   backgroundGradient: 'bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600',
   textColor: 'text-white',
   sticker: '⚡',
   hrefPreview: '/mental-math',
-  mascotImage: additionMascot
+  mascotImage: additionMascot,
+  translationKey: 'mentalMath'
 }, {
   icon: Grid3x3,
-  title: 'พื้นที่สี่เหลี่ยมคูณ',
-  desc: 'ใช้แนวคิดพื้นที่เพื่อเรียนรู้การคูณ Area Model แบบ Singapore Math',
+  title: t('skills.areaModel.title'),
+  desc: t('skills.areaModel.desc'),
   backgroundGradient: 'bg-gradient-to-br from-orange-400 via-red-500 to-pink-600',
   textColor: 'text-white',
   sticker: '📐',
   hrefPreview: '/area-model',
-  mascotImage: multiplicationMascot
+  mascotImage: multiplicationMascot,
+  translationKey: 'areaModel'
 }, {
   icon: Link2,
-  title: 'Number Bonds',
-  desc: 'เรียนรู้ความสัมพันธ์ของตัวเลข เข้าใจโครงสร้างการบวกลบอย่างลึกซึ้ง (Singapore Math)',
+  title: t('skills.numberBonds.title'),
+  desc: t('skills.numberBonds.desc'),
   backgroundGradient: 'bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600',
   textColor: 'text-white',
   sticker: '🔗',
   hrefPreview: '/number-bonds',
-  mascotImage: additionMascot
+  mascotImage: additionMascot,
+  translationKey: 'numberBonds'
 }, {
   icon: BarChart3,
-  title: 'Bar Model Method',
-  desc: 'โจทย์ปัญหาหลากหลายรูปแบบ: ส่วนรวม เปรียบเทียบ ก่อน-หลัง และชีวิตประจำวัน (Singapore Math)',
+  title: t('skills.barModel.title'),
+  desc: t('skills.barModel.desc'),
   backgroundGradient: 'bg-gradient-to-br from-purple-400 via-fuchsia-500 to-pink-600',
   textColor: 'text-white',
   sticker: '📊',
   hrefPreview: '/bar-model',
-  mascotImage: additionMascot
+  mascotImage: additionMascot,
+  translationKey: 'barModel'
 }, {
   icon: Plus,
-  title: 'บวก',
-  desc: 'ฝึกการบวกเลขพื้นฐาน เริ่มต้นจากเลขง่ายๆ ไปจนถึงเลขหลายหลัก',
+  title: t('skills.addition.title'),
+  desc: t('skills.addition.desc'),
   backgroundGradient: 'bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600',
   textColor: 'text-white',
   sticker: '🧮',
   hrefPreview: '/addition',
-  mascotImage: additionMascot
+  mascotImage: additionMascot,
+  translationKey: 'addition'
 }, {
   icon: Minus,
-  title: 'ลบ',
-  desc: 'เรียนรู้การลบเลข พัฒนาทักษะการคิดคำนวณแบบย้อนกลับ',
+  title: t('skills.subtraction.title'),
+  desc: t('skills.subtraction.desc'),
   backgroundGradient: 'bg-gradient-to-br from-purple-400 via-purple-500 to-indigo-600',
   textColor: 'text-white',
   sticker: '🧠',
   hrefPreview: '/subtraction',
-  mascotImage: subtractionMascot
+  mascotImage: subtractionMascot,
+  translationKey: 'subtraction'
 }, {
   icon: X,
-  title: 'คูณ',
-  desc: 'สนุกกับการคูณ เรียนรู้แม่สูตรคูณผ่านเกมและกิจกรรม',
+  title: t('skills.multiplication.title'),
+  desc: t('skills.multiplication.desc'),
   backgroundGradient: 'bg-gradient-to-br from-orange-400 via-orange-500 to-red-500',
   textColor: 'text-white',
   sticker: '🐯',
   hrefPreview: '/multiply',
-  mascotImage: multiplicationMascot
+  mascotImage: multiplicationMascot,
+  translationKey: 'multiplication'
 }, {
   icon: Divide,
-  title: 'หาร',
-  desc: 'ทำความเข้าใจการหาร แบ่งปันและกระจายตัวเลขอย่างสนุก',
+  title: t('skills.division.title'),
+  desc: t('skills.division.desc'),
   backgroundGradient: 'bg-gradient-to-br from-green-400 via-green-500 to-emerald-600',
   textColor: 'text-white',
   sticker: '🦊',
   hrefPreview: '/division',
-  mascotImage: divisionMascot
+  mascotImage: divisionMascot,
+  translationKey: 'division'
 }, {
   icon: Sigma,
-  title: 'เลขอนุกรม',
-  desc: 'ค้นหาความสัมพันธ์ของตัวเลข เรียนรู้รูปแบบและลำดับ',
+  title: t('skills.numberSeries.title'),
+  desc: t('skills.numberSeries.desc'),
   backgroundGradient: 'bg-gradient-to-br from-violet-400 via-purple-500 to-indigo-600',
   textColor: 'text-white',
   sticker: '🧩',
-  hrefPreview: '/NumberSeries'
+  hrefPreview: '/NumberSeries',
+  translationKey: 'numberSeries'
 }, {
   icon: Table,
-  title: 'ตารางสูตรคูณ',
-  desc: 'จดจำสูตรคูณด้วยตารางสีสันสวยงาม เรียนรู้แบบเป็นระบบ',
+  title: t('skills.multiplicationTable.title'),
+  desc: t('skills.multiplicationTable.desc'),
   backgroundGradient: 'bg-gradient-to-br from-sky-400 via-cyan-500 to-teal-600',
   textColor: 'text-white',
   sticker: '🐼',
-  hrefPreview: '/multiplication-table'
+  hrefPreview: '/multiplication-table',
+  translationKey: 'multiplicationTable'
 }, {
   icon: Clock,
-  title: 'เวลา',
-  desc: 'เรียนรู้การอ่านเวลา เข้าใจนาฬิกาและการจัดการเวลา',
+  title: t('skills.time.title'),
+  desc: t('skills.time.desc'),
   backgroundGradient: 'bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500',
   textColor: 'text-white',
   sticker: '⏰',
   hrefPreview: '/time',
-  mascotImage: timeMascot
+  mascotImage: timeMascot,
+  translationKey: 'time'
 }, {
   icon: Ruler,
-  title: 'เทียบความยาว',
-  desc: 'วัดและเปรียบเทียบขนาด เรียนรู้หน่วยการวัดต่างๆ',
+  title: t('skills.lengthComparison.title'),
+  desc: t('skills.lengthComparison.desc'),
   backgroundGradient: 'bg-gradient-to-br from-pink-400 via-pink-500 to-fuchsia-600',
   textColor: 'text-white',
   sticker: '📏',
   hrefPreview: '/measurement',
-  mascotImage: measurementMascot
+  mascotImage: measurementMascot,
+  translationKey: 'lengthComparison'
 }, {
   icon: Scale,
-  title: 'ชั่งน้ำหนัก',
-  desc: 'เรียนรู้การชั่งน้ำหนัก เปรียบเทียบมวลและความหนัก',
+  title: t('skills.weighing.title'),
+  desc: t('skills.weighing.desc'),
   backgroundGradient: 'bg-gradient-to-br from-rose-400 via-pink-500 to-purple-600',
   textColor: 'text-white',
   sticker: '⚖️',
   hrefPreview: '/weighing',
-  mascotImage: weighingMascot
+  mascotImage: weighingMascot,
+  translationKey: 'weighing'
 }, {
   icon: Zap,
-  title: 'วัดด้วยไม้บันทัด',
-  desc: 'ฝึกการวัดความยาวด้วยไม้บรรทัด เรียนรู้การแปลงหน่วย',
+  title: t('skills.quickMath.title'),
+  desc: t('skills.quickMath.desc'),
   backgroundGradient: 'bg-gradient-to-br from-slate-400 via-gray-500 to-zinc-600',
   textColor: 'text-white',
   sticker: '📏',
-  hrefPreview: '/quick-math'
+  hrefPreview: '/quick-math',
+  translationKey: 'quickMath'
 }, {
   icon: Hash,
-  title: 'ตารางบวก 3x3',
-  desc: 'ฝึกทักษะการบวกในตารางที่มีช่องว่าง เรียนรู้การคิดคำนวณในลำดับและขั้นตอน',
+  title: t('skills.sumGrid.title'),
+  desc: t('skills.sumGrid.desc'),
   backgroundGradient: 'bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600',
   textColor: 'text-white',
   sticker: '🔢',
-  hrefPreview: '/SumGridPuzzles'
+  hrefPreview: '/SumGridPuzzles',
+  translationKey: 'sumGrid'
 }, {
   icon: Shapes,
-  title: 'รูปทรง',
-  desc: 'จดจำรูปทรงเรขาคณิต เรียนรู้คุณสมบัติของรูปต่างๆ',
+  title: t('skills.shapes.title'),
+  desc: t('skills.shapes.desc'),
   backgroundGradient: 'bg-gradient-to-br from-teal-400 via-green-500 to-emerald-600',
   textColor: 'text-white',
   sticker: '🔷',
   hrefPreview: '/shape-matching',
-  mascotImage: shapesMascot
+  mascotImage: shapesMascot,
+  translationKey: 'shapes'
 }, {
   icon: Calculator,
-  title: 'เศษส่วน',
-  desc: 'ทำความเข้าใจเศษส่วน เรียนรู้การแบ่งส่วนและเปรียบเทียบ',
+  title: t('skills.fractions.title'),
+  desc: t('skills.fractions.desc'),
   backgroundGradient: 'bg-gradient-to-br from-purple-400 via-violet-500 to-purple-600',
   textColor: 'text-white',
   sticker: '🍰',
   hrefPreview: '/fraction-matching',
-  mascotImage: fractionsMascot
+  mascotImage: fractionsMascot,
+  translationKey: 'fractions'
 }, {
   icon: Percent,
-  title: 'ร้อยละ',
-  desc: 'เรียนรู้การคำนวณร้อยละ เข้าใจการแปลงเป็นทศนิยม',
+  title: t('skills.percentage.title'),
+  desc: t('skills.percentage.desc'),
   backgroundGradient: 'bg-gradient-to-br from-red-400 via-rose-500 to-pink-600',
   textColor: 'text-white',
   sticker: '💯',
-  hrefPreview: '/percentage'
+  hrefPreview: '/percentage',
+  translationKey: 'percentage'
 }, {
   icon: ArrowLeftRight,
-  title: 'เทียบความยาว',
-  desc: 'เปรียบเทียบความยาวของวัตถุ เรียนรู้การเรียงลำดับ',
+  title: t('skills.lengthComparisonAlt.title'),
+  desc: t('skills.lengthComparisonAlt.desc'),
   backgroundGradient: 'bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-500',
   textColor: 'text-white',
   sticker: '↔️',
-  hrefPreview: '/length-comparison'
+  hrefPreview: '/length-comparison',
+  translationKey: 'lengthComparisonAlt'
 }, {
   icon: Coins,
-  title: 'เงินตรา',
-  desc: 'เรียนรู้การนับเงิน ทอนเงิน และแก้โจทย์เกี่ยวกับการซื้อขาย',
+  title: t('skills.money.title'),
+  desc: t('skills.money.desc'),
   backgroundGradient: 'bg-gradient-to-br from-emerald-400 via-green-500 to-teal-500',
   textColor: 'text-white',
   sticker: '💰',
-  hrefPreview: '/money'
+  hrefPreview: '/money',
+  translationKey: 'money'
 }];
+
 const SkillCard: React.FC<{
   skill: Skill;
   onPreview?: (skill: Skill) => void;
@@ -270,23 +297,30 @@ const SkillCard: React.FC<{
     </div>
   );
 };
+
 const SkillsSection: React.FC<SkillsSectionProps> = ({
-  skills = defaultSkills,
+  skills,
   onPreview,
-  buttonText = 'เริ่มทำแบบฝึกหัด',
+  buttonText,
   disableLinks = false
 }) => {
+  const { t } = useTranslation('skills');
+  const defaultSkills = getDefaultSkills(t);
+  const displaySkills = skills || defaultSkills;
+  const displayButtonText = buttonText || t('defaultButtonText');
+
   return <section className="mb-12">
       <div className="text-center mb-8">
-        <h2 className="text-2xl text-white mb-4 font-semibold md:text-4xl">🎯 เพิ่มพูนความรู้และทักษะของน้องๆ</h2>
-        <p className="text-white/80 text-lg max-w-2xl mx-auto">— เลือกทักษะที่อยากฝึกฝน — </p>
+        <h2 className="text-2xl text-white mb-4 font-semibold md:text-4xl">{t('sectionTitle')}</h2>
+        <p className="text-white/80 text-lg max-w-2xl mx-auto">{t('sectionSubtitle')}</p>
       </div>
 
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-          {skills.map((skill, index) => <SkillCard key={index} skill={skill} onPreview={onPreview} buttonText={buttonText} disableLinks={disableLinks} />)}
+          {displaySkills.map((skill, index) => <SkillCard key={index} skill={skill} onPreview={onPreview} buttonText={displayButtonText} disableLinks={disableLinks} />)}
         </div>
       </div>
     </section>;
 };
+
 export default SkillsSection;
