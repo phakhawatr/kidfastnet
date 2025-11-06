@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useTranslation } from 'react-i18next';
 
 interface ShapeMatchingPair {
   id: number;
@@ -84,6 +85,7 @@ const ShapeCard: React.FC<{
 };
 
 const ShapeMatchingApp: React.FC = () => {
+  const { t } = useTranslation('exercises');
   const [currentSet, setCurrentSet] = useState(0);
   const [questions, setQuestions] = useState<ShapeMatchingPair[]>([]);
   const [shuffledAnswers, setShuffledAnswers] = useState<ShapeMatchingPair[]>([]);

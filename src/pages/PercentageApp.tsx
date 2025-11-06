@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { useTranslation } from 'react-i18next';
 
 // Types for percentage problems
 interface PercentageProblem {
@@ -165,6 +166,7 @@ const generateProblems = (): PercentageProblem[] => {
 };
 
 const PercentageApp: React.FC = () => {
+  const { t } = useTranslation('exercises');
   const [problems, setProblems] = useState<PercentageProblem[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [timeElapsed, setTimeElapsed] = useState(0);

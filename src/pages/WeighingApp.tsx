@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { useTranslation } from 'react-i18next';
 
 interface WeighingTask {
   unit: 'kg' | 'g';
@@ -175,6 +176,7 @@ const PRESET_TASKS: WeighingTask[] = [
 const ICONS = ['🎃', '🥣', '📦', '🍞', '🍬', '🍯', '🥛', '🍎', '🎂', '🧀', '🍗', '🥕', '🍪', '🍌', '🍊', '🍇', '🍓', '🍍'];
 
 const WeighingApp: React.FC = () => {
+  const { t } = useTranslation('exercises');
   const [tasks, setTasks] = useState<WeighingTask[]>(PRESET_TASKS);
   const [correctCount, setCorrectCount] = useState(0);
   const [showResults, setShowResults] = useState(false);

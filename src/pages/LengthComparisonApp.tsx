@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import giraffeMascot from '@/assets/giraffe-mascot.png';
 import elephantMascot from '@/assets/elephant-mascot.png';
 import mouseMascot from '@/assets/mouse-mascot.png';
+import { useTranslation } from 'react-i18next';
 
 interface MatchingPair {
   id: number;
@@ -51,6 +52,7 @@ const questionSets: MatchingPair[][] = [
 ];
 
 const LengthComparisonApp: React.FC = () => {
+  const { t } = useTranslation('exercises');
   const [currentSet, setCurrentSet] = useState(0);
   const [questions, setQuestions] = useState<MatchingPair[]>([]);
   const [shuffledAnswers, setShuffledAnswers] = useState<MatchingPair[]>([]);

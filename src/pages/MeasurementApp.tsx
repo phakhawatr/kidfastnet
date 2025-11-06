@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useRef, useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 
 // ================= Utilities =================
 function randInt(min, max) {
@@ -236,6 +237,7 @@ function MeasurementCard({
 
 // ================= Main App =================
 export default function MeasurementApp() {
+  const { t } = useTranslation('exercises');
   const [level, setLevel] = useState("easy");
   const [count, setCount] = useState(6);
   const [problems, setProblems] = useState(() => generateMeasurementProblems(6, "easy"));

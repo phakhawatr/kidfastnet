@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { useTranslation } from 'react-i18next';
 
 // ---------- Utilities ----------
 function randInt(min, max) {
@@ -198,6 +199,7 @@ function Card({ idx, time, answer, setAnswer, result, showAnswer, onReset }) {
 
 // ---------- Main App ----------
 export default function TimeApp() {
+  const { t } = useTranslation('exercises');
   const [questionCount, setQuestionCount] = useState(10);
   const [times, setTimes] = useState(() => generateRandomTimes(10));
   const [answers, setAnswers] = useState(() => times.map(() => ({ h: "", m: "" })));

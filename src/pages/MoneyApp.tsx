@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { ArrowLeft, ArrowRight, Check, RotateCcw, Settings, Lightbulb, Trophy, Clock } from 'lucide-react';
 import Confetti from 'react-confetti';
 import { getCoinEmoji, getMoneyColor } from '../utils/moneyUtils';
+import { useTranslation } from 'react-i18next';
 
 // Import mascots and images
 import moneyMascot from '../assets/mascot-money.png';
@@ -47,6 +48,7 @@ const getMoneyImage = (value: number, unit: string) => {
 };
 
 const MoneyApp = () => {
+  const { t } = useTranslation('exercises');
   const navigate = useNavigate();
   const [showSettings, setShowSettings] = useState(false);
   

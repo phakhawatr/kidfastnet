@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useTranslation } from 'react-i18next';
 
 interface FractionPair {
   id: number;
@@ -165,6 +166,7 @@ const questionSets: FractionPair[][] = [
 ];
 
 const FractionMatchingApp: React.FC = () => {
+  const { t } = useTranslation('exercises');
   const [currentSet, setCurrentSet] = useState(0);
   const [questions, setQuestions] = useState<FractionPair[]>([]);
   const [shuffledAnswers, setShuffledAnswers] = useState<FractionPair[]>([]);
