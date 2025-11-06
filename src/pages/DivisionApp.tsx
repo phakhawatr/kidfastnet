@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Printer, Upload, X } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { useTranslation } from 'react-i18next';
 import { useBackgroundMusic } from '../hooks/useBackgroundMusic';
 import { BackgroundMusic } from '../components/BackgroundMusic';
 import { supabase } from '@/integrations/supabase/client';
@@ -31,26 +32,27 @@ type Level = 'easy' | 'medium' | 'hard';
 
 // Main component
 const DivisionApp: React.FC = () => {
+  const { t } = useTranslation('exercises');
+  const navigate = useNavigate();
+  
   // Background music with 3 track options - beautiful instrumental music
   const backgroundMusic = useBackgroundMusic([
     { 
       id: 'happy', 
-      name: 'เพลงสนุกสนาน', 
+      name: t('common.musicHappy', { defaultValue: 'เพลงสนุกสนาน' }), 
       url: 'https://cdn.pixabay.com/download/audio/2021/02/16/audio_24e50c19e6.mp3'
     },
     { 
       id: 'calm', 
-      name: 'เพลงผ่อนคลาย', 
+      name: t('common.musicCalm', { defaultValue: 'เพลงผ่อนคลาย' }), 
       url: 'https://cdn.pixabay.com/download/audio/2022/08/02/audio_d1718ab41b.mp3'
     },
     { 
       id: 'focus', 
-      name: 'เพลงเน้นสมาธิ', 
+      name: t('common.musicFocus', { defaultValue: 'เพลงเน้นสมาธิ' }), 
       url: 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_c48f87a7d7.mp3'
     }
   ]);
-  
-  const navigate = useNavigate();
   
   // State management
   const [count, setCount] = useState<number>(10);

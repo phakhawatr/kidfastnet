@@ -3,6 +3,7 @@ import { ArrowLeft, Printer, Upload, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { useTranslation } from 'react-i18next';
 import { useBackgroundMusic } from "../hooks/useBackgroundMusic";
 import { BackgroundMusic } from "../components/BackgroundMusic";
 import { supabase } from "@/integrations/supabase/client";
@@ -163,12 +164,12 @@ function calcStars(correct, total) {
   if (pct >= 80) return 1;
   return 0;
 }
-function praiseText(pct) {
-  if (pct === 100) return "สุดยอด! ทำได้ครบถ้วน เก่งมาก 👏";
-  if (pct >= 90) return "เยี่ยมมาก! ใกล้ 100% แล้ว อีกนิดเดียว 💪";
-  if (pct >= 80) return "ดีมาก! พัฒนาขึ้นเรื่อย ๆ สู้ๆ ✨";
-  if (pct >= 60) return "เริ่มดีแล้ว ลองทบทวนอีกนิดจะยิ่งดีขึ้น 😊";
-  return "ไม่เป็นไร ลองใหม่อีกครั้งนะ เราทำได้! 🌟";
+function praiseText(pct, t) {
+  if (pct === 100) return t('praise.perfect');
+  if (pct >= 90) return t('praise.excellent');
+  if (pct >= 80) return t('praise.good');
+  if (pct >= 60) return t('praise.okay');
+  return t('praise.tryMore');
 }
 
 // convert per-digit answer array to number - now accepts flexible digits
@@ -336,21 +337,23 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
 
 // ================= Main App =================
 export default function AdditionApp() {
+  const { t } = useTranslation('exercises');
+  
   // Background music with 3 track options - beautiful instrumental music
   const backgroundMusic = useBackgroundMusic([
     { 
       id: 'happy', 
-      name: 'เพลงสนุกสนาน', 
+      name: t('common.musicHappy', { defaultValue: 'เพลงสนุกสนาน' }), 
       url: 'https://cdn.pixabay.com/download/audio/2021/02/16/audio_24e50c19e6.mp3'
     },
     { 
       id: 'calm', 
-      name: 'เพลงผ่อนคลาย', 
+      name: t('common.musicCalm', { defaultValue: 'เพลงผ่อนคลาย' }), 
       url: 'https://cdn.pixabay.com/download/audio/2022/08/02/audio_d1718ab41b.mp3'
     },
     { 
       id: 'focus', 
-      name: 'เพลงเน้นสมาธิ', 
+      name: t('common.musicFocus', { defaultValue: 'เพลงเน้นสมาธิ' }), 
       url: 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_c48f87a7d7.mp3'
     }
   ]);
@@ -1160,7 +1163,7 @@ export default function AdditionApp() {
     else if (pct >= 40) { icon = "👍"; title = "ใช้ได้!"; color = "text-amber-600"; }
 
     const stars = calcStars(data.correct, data.total);
-    const msg = praiseText(pct);
+    const msg = praiseText(pct, t);
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center">

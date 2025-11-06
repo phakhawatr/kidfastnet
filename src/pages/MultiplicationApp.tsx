@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { ArrowLeft, RotateCcw, CheckCircle2, Timer, PlayCircle, RefreshCw, Printer, Upload, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useToast } from '@/hooks/use-toast';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -24,26 +25,27 @@ interface Answer {
 }
 
 const MultiplicationApp = () => {
+  const { t } = useTranslation('exercises');
+  const { toast } = useToast();
+  
   // Background music with 3 track options - beautiful instrumental music
   const backgroundMusic = useBackgroundMusic([
     { 
       id: 'happy', 
-      name: 'เพลงสนุกสนาน', 
+      name: t('common.musicHappy', { defaultValue: 'เพลงสนุกสนาน' }), 
       url: 'https://cdn.pixabay.com/download/audio/2021/02/16/audio_24e50c19e6.mp3'
     },
     { 
       id: 'calm', 
-      name: 'เพลงผ่อนคลาย', 
+      name: t('common.musicCalm', { defaultValue: 'เพลงผ่อนคลาย' }), 
       url: 'https://cdn.pixabay.com/download/audio/2022/08/02/audio_d1718ab41b.mp3'
     },
     { 
       id: 'focus', 
-      name: 'เพลงเน้นสมาธิ', 
+      name: t('common.musicFocus', { defaultValue: 'เพลงเน้นสมาธิ' }), 
       url: 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_c48f87a7d7.mp3'
     }
   ]);
-  
-  const { toast } = useToast();
   const [problemCount, setProblemCount] = useState(15);
   const [difficulty, setDifficulty] = useState('ง่าย');
   const [dimensions, setDimensions] = useState<[number, number]>([1, 1]);

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, RotateCcw, CheckCircle, X, Trophy, Target, Clock } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '../hooks/use-toast';
 
 const MultiplicationTable = () => {
+  const { t } = useTranslation('exercises');
   const navigate = useNavigate();
   const [selectedTable, setSelectedTable] = useState<number>(2);
   const [currentQuestion, setCurrentQuestion] = useState<number>(1);
