@@ -196,6 +196,7 @@ function createAnswersArray(problems, operands) {
 
 // ================= One Problem Card =================
 function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset, onFirstType, digits, operands }) {
+  const { t } = useTranslation('exercises');
   const inputRef = useRef(null);
   const inputRefs = useRef([]);
   
@@ -217,7 +218,7 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
 
   return (
     <div className={`rounded-3xl border-2 ${border} ${bg} shadow-md p-5 flex flex-col gap-3`}>
-      <div className="text-base text-zinc-600">⭐ ข้อ {idx + 1}</div>
+      <div className="text-base text-zinc-600">⭐ {t('common.question')} {idx + 1}</div>
 
       {/* Column format like worksheet image + per-digit answer */}
       <div className="flex justify-center mt-1 select-none">
@@ -321,14 +322,14 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
       </div>
 
       <div className="h-6 text-sm text-center">
-        {status === "correct" && <span className="text-green-600">✅ ถูกต้อง!</span>}
-        {status === "wrong" && <span className="text-red-500">❌ ลองใหม่อีกครั้ง</span>}
-        {status === "showing" && <span className="text-sky-700">ตอบ: {correct}</span>}
+        {status === "correct" && <span className="text-green-600">✅ {t('common.correct')}</span>}
+        {status === "wrong" && <span className="text-red-500">❌ {t('common.tryAgain')}</span>}
+        {status === "showing" && <span className="text-sky-700">{t('common.answer')}: {correct}</span>}
       </div>
 
       <div className="flex justify-end">
         <button onClick={() => onReset(idx)} className="text-sm px-4 py-2 rounded-full bg-white border hover:bg-zinc-50">
-          ล้างคำตอบ
+          {t('common.resetAnswer')}
         </button>
       </div>
     </div>
@@ -685,8 +686,8 @@ export default function AdditionApp() {
       if (!authStored) {
         const { toast } = await import('@/hooks/use-toast');
         toast({
-          title: "⚠️ ยังไม่ได้เชื่อมต่อ LINE",
-          description: "กรุณาไปที่หน้าโปรไฟล์เพื่อเชื่อมต่อบัญชี LINE",
+          title: t('errors.lineNotConnected'),
+          description: t('errors.connectLineFirst'),
           variant: "destructive",
         });
         setIsSendingLine(false);
@@ -700,8 +701,8 @@ export default function AdditionApp() {
       if (!userId) {
         const { toast } = await import('@/hooks/use-toast');
         toast({
-          title: "⚠️ ไม่พบข้อมูลผู้ใช้",
-          description: "กรุณาเข้าสู่ระบบใหม่อีกครั้ง",
+          title: t('errors.userNotFound'),
+          description: t('errors.pleaseLogin'),
           variant: "destructive",
         });
         setIsSendingLine(false);
@@ -733,9 +734,9 @@ export default function AdditionApp() {
       });
 
       const levelMap: Record<string, string> = {
-        easy: 'ง่าย',
-        medium: 'ปานกลาง',
-        hard: 'ยาก'
+        easy: t('common.easy'),
+        medium: t('common.medium'),
+        hard: t('common.hard')
       };
 
       const percentage = Math.round((correctCount / problems.length) * 100);
@@ -761,16 +762,16 @@ export default function AdditionApp() {
         if (data?.error === 'quota_exceeded') {
           const { toast } = await import('@/hooks/use-toast');
           toast({
-            title: "❌ ส่งครบ 20 ครั้งแล้ว",
-            description: data.message || 'คุณส่งข้อความครบ 20 ครั้งแล้ววันนี้',
+            title: t('errors.quotaExceeded'),
+            description: data.message || t('errors.quotaExceededDesc'),
             variant: "destructive",
           });
           setLineQuota({ remaining: 0, total: 20 });
         } else {
           const { toast } = await import('@/hooks/use-toast');
           toast({
-            title: "❌ ส่งไม่สำเร็จ",
-            description: "ไม่สามารถส่งข้อความได้ กรุณาลองใหม่อีกครั้ง",
+            title: t('errors.sendFailed'),
+            description: t('errors.sendFailedDesc'),
             variant: "destructive",
           });
         }
@@ -788,8 +789,8 @@ export default function AdditionApp() {
 
       const { toast } = await import('@/hooks/use-toast');
       toast({
-        title: "✅ ส่งสำเร็จ",
-        description: "ส่งผลการทำแบบฝึกหัดไปยัง LINE แล้ว",
+        title: t('common.sendSuccess'),
+        description: t('common.sentToLine'),
       });
       
       setLineSent(true);
@@ -798,8 +799,8 @@ export default function AdditionApp() {
       console.log('LINE notification error:', err);
       const { toast } = await import('@/hooks/use-toast');
       toast({
-        title: "❌ ส่งไม่สำเร็จ",
-        description: "ไม่สามารถส่งข้อความได้ กรุณาลองใหม่อีกครั้ง",
+        title: t('errors.sendFailed'),
+        description: t('errors.sendFailedDesc'),
         variant: "destructive",
       });
     } finally {
@@ -850,13 +851,13 @@ export default function AdditionApp() {
     
     // Validate file type
     if (!file.type.match(/^image\/(jpeg|jpg|png|webp)$/)) {
-      alert('กรุณาเลือกไฟล์รูปภาพ (JPG, PNG, WEBP)');
+      alert(t('pdf.invalidFileType'));
       return;
     }
     
     // Validate file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
-      alert('ขนาดไฟล์ต้องไม่เกิน 2MB');
+      alert(t('pdf.fileTooLarge'));
       return;
     }
     
@@ -897,7 +898,7 @@ export default function AdditionApp() {
     return `
       <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 6px; background: #f0f9ff; font-family: 'Noto Sans Thai', sans-serif;">
         <div style="font-size: 7pt; margin-bottom: 4px; color: #666; display: flex; align-items: center;">
-          <span style="color: #0ea5e9; margin-right: 2px; font-size: 9pt;">★</span> ข้อ ${idx + 1}
+          <span style="color: #0ea5e9; margin-right: 2px; font-size: 9pt;">★</span> ${t('common.question')} ${idx + 1}
         </div>
         
         <div style="display: flex; flex-direction: column; align-items: center; gap: 1.5px; padding-top: 3px;">
@@ -957,7 +958,7 @@ export default function AdditionApp() {
       <div style="width: 210mm; min-height: 297mm; background: white; padding: 8mm 20mm; page-break-after: always; font-family: 'Noto Sans Thai', sans-serif;">
         <!-- Header -->
         <div style="margin-bottom: 8mm; position: relative;">
-          ${totalPages > 1 ? `<div style="position: absolute; top: 0; right: 0; font-size: 10pt; color: #666;">หน้า ${pageNum}/${totalPages}</div>` : ''}
+          ${totalPages > 1 ? `<div style="position: absolute; top: 0; right: 0; font-size: 10pt; color: #666;">${t('pdf.page')} ${pageNum}/${totalPages}</div>` : ''}
           
           <div style="display: flex; align-items: flex-start; gap: 8mm; margin-bottom: 6mm;">
             ${schoolLogo ? `
@@ -971,19 +972,19 @@ export default function AdditionApp() {
             <div style="flex: 1;">
               <!-- Title centered -->
               <div style="font-size: 20pt; font-weight: bold; margin-bottom: 6mm; text-align: center; border-top: 2px solid #333; border-bottom: 2px solid #333; padding: 4mm 0;">
-                ใบงานการบวก
+                ${t('addition.worksheetTitle')}
               </div>
               
               <!-- School and student info -->
               <div style="display: flex; justify-content: space-between; font-size: 11pt; margin-bottom: 3mm;">
-                <div>ชื่อ-สกุล: _______________________</div>
+                <div>${t('pdf.studentName')}: _______________________</div>
                 <div style="display: flex; gap: 15mm;">
-                  <span>ชั้น: __________</span>
-                  <span>เลขที่: __________</span>
+                  <span>${t('pdf.class')}: __________</span>
+                  <span>${t('pdf.number')}: __________</span>
                 </div>
               </div>
               <div style="font-size: 11pt;">
-                โรงเรียน: _______________________
+                ${t('pdf.school')}: _______________________
               </div>
             </div>
           </div>
@@ -1022,7 +1023,7 @@ export default function AdditionApp() {
       
     } catch (error) {
       console.error('Error generating PDF preview:', error);
-      alert('เกิดข้อผิดพลาดในการสร้าง PDF');
+      alert(t('pdf.generationError'));
     }
   }
 
@@ -1057,7 +1058,7 @@ export default function AdditionApp() {
         pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
       }
       
-      pdf.save(`ใบงานการบวก-${new Date().toISOString().split('T')[0]}.pdf`);
+      pdf.save(`${t('addition.worksheetTitle')}-${new Date().toISOString().split('T')[0]}.pdf`);
       
       // Cleanup
       document.body.removeChild(printContainer);
@@ -1065,7 +1066,7 @@ export default function AdditionApp() {
       
     } catch (error) {
       console.error('Error saving PDF:', error);
-      alert('เกิดข้อผิดพลาดในการบันทึก PDF');
+      alert(t('pdf.saveError'));
     }
   }
 
@@ -1087,14 +1088,14 @@ export default function AdditionApp() {
           <div className="rounded-2xl bg-white shadow-xl border flex flex-col overflow-hidden h-[85vh]" style={{ height: '85svh' }}>
             {/* Header (sticky) */}
             <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-white z-10">
-              <div className="font-bold text-lg">ผลการทำที่ผ่านมา • {fmtDate(item.ts)}</div>
-              <button onClick={onClose} className="px-3 py-1 rounded-lg bg-zinc-100 hover:bg-zinc-200">ปิด</button>
+              <div className="font-bold text-lg">{t('results.pastResults')} • {fmtDate(item.ts)}</div>
+              <button onClick={onClose} className="px-3 py-1 rounded-lg bg-zinc-100 hover:bg-zinc-200">{t('common.close')}</button>
             </div>
 
             {/* Scrollable content */}
             <div className="p-4 overflow-y-auto flex-1 overscroll-contain" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
               {!hasSnap ? (
-                <div className="text-sm text-zinc-500">รายการนี้ไม่มีข้อมูลโจทย์ที่บันทึกไว้</div>
+                <div className="text-sm text-zinc-500">{t('results.noDataSaved')}</div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {item.snapshot.map((s, idx) => {
@@ -1102,13 +1103,13 @@ export default function AdditionApp() {
                     return (
                       <div key={idx} className="rounded-2xl border bg-white p-3">
                         <div className="flex items-center justify-between">
-                          <div className="text-sm text-zinc-500">ข้อ {idx + 1}</div>
+                          <div className="text-sm text-zinc-500">{t('common.question')} {idx + 1}</div>
                           <div className={ok ? "text-emerald-600 text-xl" : "text-rose-600 text-xl"}>{ok ? "✅" : "❌"}</div>
                         </div>
                         <div className="text-2xl font-bold my-1">
                           {s.c !== undefined ? `${s.a} + ${s.b} + ${s.c}` : `${s.a} + ${s.b}`} = <span className="text-sky-700">{s.correct}</span>
                         </div>
-                        <div className="text-sm">ตอบของฉัน: <span className={ok ? 'text-emerald-600 font-semibold' : 'text-rose-600 font-semibold'}>{s.answer || '—'}</span></div>
+                        <div className="text-sm">{t('results.yourAnswer')}: <span className={ok ? 'text-emerald-600 font-semibold' : 'text-rose-600 font-semibold'}>{s.answer || '—'}</span></div>
                       </div>
                     );
                   })}
@@ -1130,16 +1131,16 @@ export default function AdditionApp() {
         <div className="relative z-10 mx-auto my-4 w-[96%] max-w-6xl">
           <div className="rounded-2xl bg-white shadow-xl border flex flex-col overflow-hidden" style={{ height: '90vh' }}>
             <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-white z-10">
-              <div className="font-bold text-lg">ดูตัวอย่างก่อนพิมพ์</div>
+              <div className="font-bold text-lg">{t('pdf.preview')}</div>
               <div className="flex gap-2">
                 <button 
                   onClick={onSave}
                   className="px-4 py-2 rounded-lg bg-sky-600 text-white hover:bg-sky-700 flex items-center gap-2"
                 >
                   <Printer className="w-4 h-4" />
-                  บันทึก PDF
+                  {t('pdf.save')}
                 </button>
-                <button onClick={onClose} className="px-4 py-2 rounded-lg bg-zinc-100 hover:bg-zinc-200">ปิด</button>
+                <button onClick={onClose} className="px-4 py-2 rounded-lg bg-zinc-100 hover:bg-zinc-200">{t('common.close')}</button>
               </div>
             </div>
             <div 
@@ -1156,11 +1157,11 @@ export default function AdditionApp() {
     if (!open || !data) return null;
     const pct = Math.round((data.correct / Math.max(1, data.total)) * 100);
     let icon = "💪";
-    let title = "สู้ต่ออีกนิด!";
+    let title = t('results.keepTrying');
     let color = "text-rose-600";
-    if (pct >= 90) { icon = "🏆"; title = "ยอดเยี่ยม!"; color = "text-emerald-600"; }
-    else if (pct >= 70) { icon = "🎯"; title = "ดีมาก!"; color = "text-sky-600"; }
-    else if (pct >= 40) { icon = "👍"; title = "ใช้ได้!"; color = "text-amber-600"; }
+    if (pct >= 90) { icon = "🏆"; title = t('results.excellent'); color = "text-emerald-600"; }
+    else if (pct >= 70) { icon = "🎯"; title = t('results.greatJob'); color = "text-sky-600"; }
+    else if (pct >= 40) { icon = "👍"; title = t('results.notBad'); color = "text-amber-600"; }
 
     const stars = calcStars(data.correct, data.total);
     const msg = praiseText(pct, t);
@@ -1173,7 +1174,7 @@ export default function AdditionApp() {
             <div className="text-4xl">{icon}</div>
             <div>
               <div className={`text-xl font-bold ${color}`}>{title}</div>
-              <div className="text-zinc-500 text-sm">ผลคะแนนและเวลาในรอบนี้</div>
+              <div className="text-zinc-500 text-sm">{t('results.summary')}</div>
             </div>
           </div>
 
@@ -1186,14 +1187,14 @@ export default function AdditionApp() {
 
           <div className="mt-4 grid grid-cols-2 gap-3 text-center">
             <div className="rounded-xl border p-3">
-              <div className="text-xs text-zinc-500">คะแนน</div>
+              <div className="text-xs text-zinc-500">{t('results.score')}</div>
               <div className="text-2xl font-semibold">{data.correct}/{data.total}</div>
               <div className="text-xs text-zinc-400">{pct}%</div>
             </div>
             <div className="rounded-xl border p-3">
-              <div className="text-xs text-zinc-500">เวลา</div>
+              <div className="text-xs text-zinc-500">{t('results.timeUsed')}</div>
               <div className="text-2xl font-semibold">{formatMS(data.elapsedMs)}</div>
-              <div className="text-xs text-zinc-400">ระดับ: {data.level === 'easy' ? 'ง่าย' : data.level === 'medium' ? 'ปานกลาง' : 'ยาก'}</div>
+              <div className="text-xs text-zinc-400">{t('common.difficulty')}: {t(`common.${data.level}`)}</div>
             </div>
           </div>
 
@@ -1215,22 +1216,22 @@ export default function AdditionApp() {
               {isSendingLine ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
-                  <span>กำลังส่ง...</span>
+                  <span>{t('common.sending')}</span>
                 </>
               ) : lineSent ? (
                 <>
-                  <span>✅ ส่งแล้ว</span>
+                  <span>✅ {t('common.sent')}</span>
                   {lineQuota && (
                     <span className="text-xs opacity-75">
-                      (เหลือ {lineQuota.remaining}/{lineQuota.total})
+                      ({t('common.remaining')} {lineQuota.remaining}/{lineQuota.total})
                     </span>
                   )}
                 </>
               ) : (lineQuota && lineQuota.remaining <= 0) ? (
-                <span>🚫 ส่งครบ 20 ครั้งแล้ววันนี้</span>
+                <span>🚫 {t('common.quotaExceeded')}</span>
               ) : (
                 <>
-                  <span>📤 ส่งผลให้ผู้ปกครองทาง LINE</span>
+                  <span>📤 {t('common.sendToLine')}</span>
                   {lineQuota && (
                     <span className="text-xs opacity-75">
                       ({lineQuota.remaining}/{lineQuota.total})
@@ -1243,11 +1244,11 @@ export default function AdditionApp() {
             {/* Existing buttons */}
             <div className="flex gap-2 justify-end">
               {alreadyShowing ? (
-                <div className="px-4 py-2 rounded-xl bg-amber-100 text-amber-800 font-medium">👀 แสดงเฉลยแล้ว</div>
+                <div className="px-4 py-2 rounded-xl bg-amber-100 text-amber-800 font-medium">👀 {t('common.answersShown')}</div>
               ) : (
-                <button onClick={onShowAnswers} className="px-4 py-2 rounded-xl bg-amber-500 text-white hover:bg-amber-600">ดูเฉลยทั้งหมด</button>
+                <button onClick={onShowAnswers} className="px-4 py-2 rounded-xl bg-amber-500 text-white hover:bg-amber-600">{t('common.showAllAnswers')}</button>
               )}
-              <button onClick={onClose} className="px-4 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200">ปิด</button>
+              <button onClick={onClose} className="px-4 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200">{t('common.close')}</button>
             </div>
           </div>
         </div>
@@ -1264,11 +1265,11 @@ export default function AdditionApp() {
             className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-zinc-300 bg-white hover:bg-zinc-50 hover:border-zinc-400 transition-all text-zinc-700 font-medium"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span>กลับหน้าหลัก</span>
+            <span>{t('common.backToProfile')}</span>
           </Link>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-black flex items-center gap-2">🧮 การบวกที่ผลบวกไม่เกิน 1,000</h1>
-        <p className="text-zinc-600 mt-1 text-base">ตอบผลลัพธ์ของโจทย์บวก 2-3 จำนวน โดยผลบวกไม่เกิน 1,000</p>
+        <h1 className="text-3xl sm:text-4xl font-black flex items-center gap-2">🧮 {t('addition.title')}</h1>
+        <p className="text-zinc-600 mt-1 text-base">{t('addition.subtitle')}</p>
       </header>
 
       <main className="max-w-6xl mx-auto p-6 pt-3">
@@ -1276,11 +1277,11 @@ export default function AdditionApp() {
         <div className="mb-6 bg-white/80 backdrop-blur rounded-2xl p-4 border-2 border-sky-100 shadow-sm">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-3">
-              <h3 className="text-sm font-semibold text-zinc-700">โลโก้โรงเรียน (สำหรับใบงาน PDF)</h3>
+              <h3 className="text-sm font-semibold text-zinc-700">{t('pdf.uploadLogo')}</h3>
               {schoolLogo && (
                 <img 
                   src={schoolLogo} 
-                  alt="โลโก้โรงเรียน" 
+                  alt={t('pdf.schoolLogo')} 
                   className="w-12 h-12 object-contain border border-zinc-200 rounded-lg bg-white p-1"
                 />
               )}
@@ -1299,7 +1300,7 @@ export default function AdditionApp() {
                 className="px-4 py-2 rounded-lg bg-sky-600 text-white hover:bg-sky-700 cursor-pointer flex items-center gap-2 text-sm font-medium"
               >
                 <Upload className="w-4 h-4" />
-                {schoolLogo ? 'เปลี่ยนโลโก้' : 'อัพโหลดโลโก้'}
+                {schoolLogo ? t('pdf.changeLogo') : t('pdf.uploadLogo')}
               </label>
               {schoolLogo && (
                 <button
@@ -1307,7 +1308,7 @@ export default function AdditionApp() {
                   className="px-4 py-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 flex items-center gap-2 text-sm font-medium"
                 >
                   <X className="w-4 h-4" />
-                  ลบโลโก้
+                  {t('pdf.removeLogo')}
                 </button>
               )}
               <button
@@ -1316,16 +1317,16 @@ export default function AdditionApp() {
                 className="px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm font-medium shadow-md"
               >
                 <Printer className="w-4 h-4" />
-                พิมพ์ PDF ({problems.length} ข้อ)
+                {t('pdf.print')} ({problems.length} {t('common.problems')})
               </button>
             </div>
           </div>
-          <p className="text-xs text-zinc-500 mt-2">รองรับไฟล์ JPG, PNG, WEBP (สูงสุด 2MB)</p>
+          <p className="text-xs text-zinc-500 mt-2">{t('pdf.supportedFormats')}</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 mb-4">
           <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 shadow-sm">
-            <span className="text-sm text-zinc-600">จำนวนข้อ:</span>
+            <span className="text-sm text-zinc-600">{t('settings.problemCount')}:</span>
             {[10, 15, 30, 40].map((n) => (
               <button
                 key={n}
@@ -1340,11 +1341,11 @@ export default function AdditionApp() {
           </div>
 
           <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 shadow-sm">
-            <span className="text-sm text-zinc-600">ระดับ:</span>
+            <span className="text-sm text-zinc-600">{t('common.difficulty')}:</span>
             {[
-              { key: "easy", label: "ง่าย" },
-              { key: "medium", label: "ปานกลาง" },
-              { key: "hard", label: "ยาก" },
+              { key: "easy", label: t('common.easy') },
+              { key: "medium", label: t('common.medium') },
+              { key: "hard", label: t('common.hard') },
             ].map((lv) => (
               <button
                 key={lv.key}
@@ -1359,7 +1360,7 @@ export default function AdditionApp() {
           </div>
 
           <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 shadow-sm">
-            <span className="text-sm text-zinc-600">จำนวนหลัก:</span>
+            <span className="text-sm text-zinc-600">{t('common.digits')}:</span>
             {[1, 2, 3].map((d) => (
               <button
                 key={d}
@@ -1368,20 +1369,20 @@ export default function AdditionApp() {
                   digits === d ? "bg-indigo-600 text-white border-indigo-600" : "bg-zinc-50 hover:bg-zinc-100"
                 }`}
               >
-                {d} หลัก
+                {d} {t('common.digit')}
               </button>
             ))}
           </div>
 
           <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 shadow-sm">
-            <span className="text-sm text-zinc-600">การทด:</span>
+            <span className="text-sm text-zinc-600">{t('addition.carryOption')}:</span>
             <button
               onClick={() => applyCarryOption("has")}
               className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${
                 carryOption === "has" ? "bg-red-500 text-white border-red-500" : "bg-zinc-50 hover:bg-zinc-100 border-zinc-200"
               }`}
             >
-              มี
+              {t('addition.hasCarry')}
             </button>
             <button
               onClick={() => applyCarryOption("none")}
@@ -1389,19 +1390,19 @@ export default function AdditionApp() {
                 carryOption === "none" ? "bg-red-500 text-white border-red-500" : "bg-zinc-50 hover:bg-zinc-100 border-zinc-200"
               }`}
             >
-              ไม่มี
+              {t('addition.noCarry')}
             </button>
           </div>
 
           <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 shadow-sm">
-            <span className="text-sm text-zinc-600">จำนวนชุดตัวเลข:</span>
+            <span className="text-sm text-zinc-600">{t('addition.operands')}:</span>
             <button
               onClick={() => applyOperands(2)}
               className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${
                 operands === 2 ? "bg-emerald-500 text-white border-emerald-500" : "bg-zinc-50 hover:bg-zinc-100 border-zinc-200"
               }`}
             >
-              2 จำนวน
+              {t('addition.twoNumbers')}
             </button>
             <button
               onClick={() => applyOperands(3)}
@@ -1409,7 +1410,7 @@ export default function AdditionApp() {
                 operands === 3 ? "bg-emerald-500 text-white border-emerald-500" : "bg-zinc-50 hover:bg-zinc-100 border-zinc-200"
               }`}
             >
-              3 จำนวน
+              {t('addition.threeNumbers')}
             </button>
           </div>
 
@@ -1421,19 +1422,19 @@ export default function AdditionApp() {
             }}
           >
             <span className="text-2xl">✨</span>
-            <span>AI สร้างโจทย์ใหม่</span>
+            <span>{t('common.aiGenerate')}</span>
           </button>
           <button onClick={checkAnswers} className="px-5 py-3 rounded-2xl text-lg bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg">
-            ✅ ตรวจคำตอบ (Check)
+            ✅ {t('common.checkAnswers')}
           </button>
           <button onClick={() => showAll({ openSummary: true })} className="px-5 py-3 rounded-2xl text-lg bg-amber-500 text-white hover:bg-amber-600 shadow-lg">
-            👀 เฉลยทั้งหมด (Show Answers)
+            👀 {t('common.showAnswers')}
           </button>
 
           {/* Live timer always visible */}
           <div className="ml-auto text-base bg-sky-50 border-2 border-sky-200 rounded-full px-4 py-2 font-semibold">
-            ⏱️ เวลา: <span className="font-semibold">{formatMS(elapsedMs)}</span>
-            {startedAt && !finishedAt && <span className="text-zinc-400"> (นับอยู่)</span>}
+            ⏱️ {t('results.timeUsed')}: <span className="font-semibold">{formatMS(elapsedMs)}</span>
+            {startedAt && !finishedAt && <span className="text-zinc-400"> ({t('common.counting')})</span>}
           </div>
         </div>
 
@@ -1458,15 +1459,15 @@ export default function AdditionApp() {
         {/* Bottom action bar */}
         <div className="mt-6 flex justify-center">
           <button onClick={checkAnswers} className="px-8 py-4 rounded-3xl text-xl bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg">
-            ✅ ตรวจคำตอบ
+            ✅ {t('common.checkAnswers')}
           </button>
         </div>
 
         {/* History panel */}
         <section className="mt-10 max-w-5xl">
           <div className="flex items-center gap-3 mb-2">
-            <h2 className="text-base font-semibold">สถิติรอบที่ผ่านมา</h2>
-            <button onClick={clearHistory} className="ml-auto text-xs px-3 py-1 rounded-full bg-zinc-100 hover:bg-zinc-200">ล้างสถิติ</button>
+            <h2 className="text-base font-semibold">{t('results.pastStats')}</h2>
+            <button onClick={clearHistory} className="ml-auto text-xs px-3 py-1 rounded-full bg-zinc-100 hover:bg-zinc-200">{t('results.clearStats')}</button>
           </div>
           {history.length === 0 ? (
             <div className="text-sm text-zinc-500">ยังไม่มีสถิติ ลองทำโจทย์แล้วกด “ตรวจคำตอบ” แล้วกดปุ่ม “ปิด” เพื่อบันทึก</div>
@@ -1475,20 +1476,20 @@ export default function AdditionApp() {
               <table className="w-full text-sm">
                 <thead className="text-left text-zinc-500">
                   <tr>
-                    <th className="py-2 pr-3">วันที่/เวลา</th>
-                    <th className="py-2 pr-3">ระดับ</th>
-                    <th className="py-2 pr-3">จำนวนข้อ</th>
-                    <th className="py-2 pr-3">เวลา</th>
-                    <th className="py-2 pr-3">คะแนน</th>
-                    <th className="py-2 pr-3">ระดับ</th>
-                    <th className="py-2 pr-3">ดูผล</th>
+                    <th className="py-2 pr-3">{t('results.dateTime')}</th>
+                    <th className="py-2 pr-3">{t('common.difficulty')}</th>
+                    <th className="py-2 pr-3">{t('settings.problemCount')}</th>
+                    <th className="py-2 pr-3">{t('results.timeUsed')}</th>
+                    <th className="py-2 pr-3">{t('results.score')}</th>
+                    <th className="py-2 pr-3">{t('results.rating')}</th>
+                    <th className="py-2 pr-3">{t('results.viewResults')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {history.map((h, i) => (
                     <tr key={i} className="border-t">
                       <td className="py-2 pr-3 whitespace-nowrap">{fmtDate(h.ts)}</td>
-                      <td className="py-2 pr-3">{h.level === 'easy' ? 'ง่าย' : h.level === 'medium' ? 'ปานกลาง' : 'ยาก'}</td>
+                      <td className="py-2 pr-3">{t(`common.${h.level}`)}</td>
                       <td className="py-2 pr-3">{h.count}</td>
                       <td className="py-2 pr-3">{formatMS(h.durationMs)}</td>
                       <td className="py-2 pr-3">{h.correct}/{h.count}</td>
@@ -1497,7 +1498,7 @@ export default function AdditionApp() {
                           <span key={i} className={i < (h.stars || 0) ? 'text-amber-400' : 'text-zinc-300'}>★</span>
                         ))}
                       </td>
-                      <td className="py-2 pr-3"><button onClick={() => openHistory(i)} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100 hover:shadow-sm transition">👁️ <span className="font-medium">ดูผล</span></button></td>
+                      <td className="py-2 pr-3"><button onClick={() => openHistory(i)} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100 hover:shadow-sm transition">👁️ <span className="font-medium">{t('results.view')}</span></button></td>
                     </tr>
                   ))}
                 </tbody>
