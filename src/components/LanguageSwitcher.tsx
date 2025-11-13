@@ -8,6 +8,9 @@ const LanguageSwitcher = () => {
   const toggleLanguage = () => {
     const newLang = currentLang === 'th' ? 'en' : 'th';
     i18n.changeLanguage(newLang);
+    // Save to localStorage (i18next does this automatically via LanguageDetector)
+    localStorage.setItem('i18nextLng', newLang);
+    console.log(`Language changed to ${newLang} and saved to localStorage`);
   };
 
   return (
