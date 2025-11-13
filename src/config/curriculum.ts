@@ -115,10 +115,23 @@ export const curriculumConfig: Record<string, Record<string, SkillConfig[]>> = {
       { skill: 'fractions', difficulty: 'easy', count: 6, description: 'เต็ม/ครึ่งหน่วย อ่าน-เขียนเศษส่วน เท่ากับ 1 เปรียบเทียบ' }
     ],
     semester2: [
-      { skill: 'multiplication', difficulty: 'hard', count: 10, tables: [6, 7, 8, 9, 10, 11, 12] },
-      { skill: 'division', difficulty: 'medium', count: 10, range: [1, 100] },
-      { skill: 'fractions', difficulty: 'easy', count: 10 },
-      { skill: 'measurement', difficulty: 'medium', count: 10 }
+      // 1. การหาร (25-30%)
+      { skill: 'division', difficulty: 'medium', count: 12, range: [10, 9999], description: 'หารสั้น/หารยาว ตัวตั้ง 2-4 หลัก หารด้วย 1 หลัก ลงตัว-ไม่ลงตัว คูณ-หารสัมพันธ์' },
+      
+      // 2. การวัดความยาว (15-20%)
+      { skill: 'measurement', difficulty: 'medium', count: 8, description: 'มม.-ซม.-ม.-กม. ความสัมพันธ์หน่วย เลือกเครื่องมือ บวก-ลบ-คูณ-หาร' },
+      
+      // 3. การวัดน้ำหนัก (10-15%)
+      { skill: 'weighing', difficulty: 'medium', count: 6, description: 'กรัม-ขีด-กก.-ตัน อ่านเครื่องชั่ง ความสัมพันธ์หน่วย บวก-ลบ-คูณ-หาร' },
+      
+      // 4. การวัดปริมาตร/ความจุ (10-15%)
+      { skill: 'volume', difficulty: 'medium', count: 6, description: 'มล.-ลิตร เครื่องตวง ความสัมพันธ์หน่วย คำนวณ' },
+      
+      // 5. เงินและบันทึกรายรับ-รายจ่าย (10-15%)
+      { skill: 'money', difficulty: 'medium', count: 6, description: 'นับ/แลกเปลี่ยน คิดเงินทอน บันทึกรายรับ-รายจ่าย' },
+      
+      // 6. บวก-ลบ-คูณ-หารระคน (15-20%)
+      { skill: 'mixedOperations', difficulty: 'medium', count: 8, description: 'เขียนประโยคสัญลักษณ์ มีวงเล็บ ตรวจสอบความสมเหตุสมผล' }
     ]
   },
   grade4: {
