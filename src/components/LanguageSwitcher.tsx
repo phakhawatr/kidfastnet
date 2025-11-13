@@ -17,6 +17,7 @@ const LanguageSwitcher = () => {
       title={currentLang === 'th' ? t('switchToEnglish') : t('switchToThai')}
     >
       <Languages className="w-4 h-4" />
+      <span className="text-base">{currentLang === 'th' ? '🇬🇧' : '🇹🇭'}</span>
       <span className="font-semibold">{currentLang === 'th' ? 'EN' : 'TH'}</span>
     </button>
   );
