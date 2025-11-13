@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
 import LanguageSwitcher from './LanguageSwitcher';
 import logoAIBrain from '../assets/logo-ai-final.png';
-import { FileQuestion } from 'lucide-react';
+import { FileQuestion, Rocket } from 'lucide-react';
 
 const Header = () => {
   const { isLoggedIn, logout } = useAuth();
@@ -26,8 +26,12 @@ const Header = () => {
             
             {isLoggedIn ? (
               <>
-                <Link to="/profile" className="btn-secondary text-sm">
-                  {t('profile')}
+                <Link 
+                  to="/profile" 
+                  className="px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium transition-all duration-300 hover:scale-105 text-sm flex items-center gap-2 shadow-md hover:shadow-lg"
+                >
+                  <Rocket className="w-4 h-4" />
+                  เริ่มฝึกเลย
                 </Link>
                 <Link 
                   to="/quiz" 
