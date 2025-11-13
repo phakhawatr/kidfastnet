@@ -2890,6 +2890,8 @@ const generateDecimalsQuestions = (config: SkillConfig): AssessmentQuestion[] =>
     }
     
     questions.push({
+      id: `decimals_${Date.now()}_${i}_${Math.random()}`,
+      skill: 'decimals',
       question,
       correctAnswer,
       choices,
@@ -2989,6 +2991,8 @@ const generateAnglesQuestions = (config: SkillConfig): AssessmentQuestion[] => {
     }
     
     questions.push({
+      id: `angles_${Date.now()}_${i}_${Math.random()}`,
+      skill: 'angles',
       question,
       correctAnswer,
       choices,
@@ -3093,6 +3097,8 @@ const generateRectanglesQuestions = (config: SkillConfig): AssessmentQuestion[] 
     }
     
     questions.push({
+      id: `rectangles_${Date.now()}_${i}_${Math.random()}`,
+      skill: 'rectangles',
       question,
       correctAnswer,
       choices,
@@ -3183,6 +3189,8 @@ const generateDataPresentationQuestions = (config: SkillConfig): AssessmentQuest
     }
     
     questions.push({
+      id: `dataPresentaton_${Date.now()}_${i}_${Math.random()}`,
+      skill: 'dataPresentaton',
       question,
       correctAnswer,
       choices,
