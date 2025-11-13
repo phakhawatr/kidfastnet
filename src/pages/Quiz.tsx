@@ -748,6 +748,25 @@ const Quiz = () => {
                                 );
                               })}
                             </div>
+                            
+                            {/* แสดงคำอธิบายเฉลย โดยเฉพาะข้อที่ตอบผิด */}
+                            {q.explanation && (
+                              <div className={`mt-3 p-3 rounded-lg border-2 ${
+                                isCorrect 
+                                  ? 'bg-blue-50 border-blue-200' 
+                                  : 'bg-yellow-50 border-yellow-300'
+                              }`}>
+                                <div className="flex items-start gap-2">
+                                  <span className="text-lg">💡</span>
+                                  <div className="flex-1">
+                                    <p className="font-semibold text-gray-800 mb-1">
+                                      {isCorrect ? 'คำอธิบาย:' : 'เฉลย:'}
+                                    </p>
+                                    <p className="text-sm text-gray-700">{q.explanation}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </CardContent>

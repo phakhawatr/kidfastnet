@@ -77,6 +77,7 @@ const generateCountingQuestions = (config: SkillConfig): AssessmentQuestion[] =>
     let question = '';
     let correctAnswer: number | string = 0;
     let choices: (number | string)[] = [];
+    let explanation = '';
     
     switch (type) {
       case 'count_by_1': {
@@ -86,6 +87,7 @@ const generateCountingQuestions = (config: SkillConfig): AssessmentQuestion[] =>
         question = `เติมจำนวนที่หายไป: ${sequence.join(', ')}`;
         correctAnswer = start + missing;
         choices = generateChoices(correctAnswer);
+        explanation = `เราเริ่มนับจาก ${start} และนับเพิ่มทีละ 1 ดังนั้นลำดับที่ถูกต้องคือ ${start}, ${start+1}, ${start+2}, ${start+3}, ${start+4} คำตอบคือ ${correctAnswer}`;
         break;
       }
       case 'count_by_10': {
@@ -95,6 +97,7 @@ const generateCountingQuestions = (config: SkillConfig): AssessmentQuestion[] =>
         question = `บนตารางร้อย ถ้าเริ่มที่ ${start} แล้วนับทีละ 10 จะได้: ${sequence.join(', ')}`;
         correctAnswer = start + (missing * 10);
         choices = generateChoices(correctAnswer);
+        explanation = `เมื่อนับทีละ 10 จากตารางร้อย เริ่มจาก ${start} จะได้ ${start}, ${start+10}, ${start+20}, ${start+30}, ${start+40} คำตอบคือ ${correctAnswer}`;
         break;
       }
       case 'thai_numeral': {
@@ -104,6 +107,7 @@ const generateCountingQuestions = (config: SkillConfig): AssessmentQuestion[] =>
         question = `เลขไทย "${thaiNum}" เขียนเป็นเลขอารบิกว่าอะไร?`;
         correctAnswer = num;
         choices = generateChoices(correctAnswer);
+        explanation = `เลขไทย ${thaiNum} มีค่าเท่ากับเลขอารบิก ${num}`;
         break;
       }
       case 'hundred_chart': {
@@ -113,6 +117,7 @@ const generateCountingQuestions = (config: SkillConfig): AssessmentQuestion[] =>
         question = `เติมจำนวนที่หายไปบนตารางร้อย (นับทีละ 10): ${sequence.join(', ')}`;
         correctAnswer = start + (missing * 10);
         choices = generateChoices(correctAnswer);
+        explanation = `บนตารางร้อย เมื่อนับทีละ 10 จาก ${start} จะได้ ${start}, ${start+10}, ${start+20}, ${start+30} คำตอบคือ ${correctAnswer}`;
         break;
       }
       case 'count_backward': {
@@ -122,6 +127,7 @@ const generateCountingQuestions = (config: SkillConfig): AssessmentQuestion[] =>
         question = `เติมจำนวนที่หายไป (นับถอยหลัง): ${sequence.join(', ')}`;
         correctAnswer = start - missing;
         choices = generateChoices(correctAnswer);
+        explanation = `เมื่อนับถอยหลังจาก ${start} ลดทีละ 1 จะได้ ${start}, ${start-1}, ${start-2}, ${start-3}, ${start-4} คำตอบคือ ${correctAnswer}`;
         break;
       }
     }
@@ -132,7 +138,8 @@ const generateCountingQuestions = (config: SkillConfig): AssessmentQuestion[] =>
       question,
       correctAnswer,
       choices,
-      difficulty: config.difficulty
+      difficulty: config.difficulty,
+      explanation
     });
   }
   
@@ -155,6 +162,7 @@ const generateComparingQuestions = (config: SkillConfig): AssessmentQuestion[] =
     let question = '';
     let correctAnswer: string | number = '';
     let choices: (string | number)[] = [];
+    let explanation = '';
     
     switch (type) {
       case 'fill_symbol': {
@@ -162,6 +170,11 @@ const generateComparingQuestions = (config: SkillConfig): AssessmentQuestion[] =
         question = `${num1} __ ${num2} (เติมเครื่องหมาย)`;
         correctAnswer = correctSymbol;
         choices = shuffleArray(['>', '<', '=', '≠']);
+        explanation = num1 > num2 
+          ? `${num1} มากกว่า ${num2} ดังนั้นใช้เครื่องหมาย >` 
+          : num1 < num2 
+          ? `${num1} น้อยกว่า ${num2} ดังนั้นใช้เครื่องหมาย <`
+          : `${num1} เท่ากับ ${num2} ดังนั้นใช้เครื่องหมาย =`;
         break;
       }
       case 'compare_max': {
@@ -176,6 +189,7 @@ const generateComparingQuestions = (config: SkillConfig): AssessmentQuestion[] =
         correctAnswer = Math.max(...numsArray);
         question = `ข้อใดมีค่ามากที่สุด? ${numsArray.join(', ')}`;
         choices = shuffleArray(numsArray);
+        explanation = `เมื่อเปรียบเทียบ ${numsArray.join(', ')} จะพบว่า ${correctAnswer} มีค่ามากที่สุด`;
         break;
       }
       case 'compare_min': {
@@ -190,6 +204,7 @@ const generateComparingQuestions = (config: SkillConfig): AssessmentQuestion[] =
         correctAnswer = Math.min(...numsArray);
         question = `ข้อใดมีค่าน้อยที่สุด? ${numsArray.join(', ')}`;
         choices = shuffleArray(numsArray);
+        explanation = `เมื่อเปรียบเทียบ ${numsArray.join(', ')} จะพบว่า ${correctAnswer} มีค่าน้อยที่สุด`;
         break;
       }
       case 'true_false': {
@@ -203,6 +218,13 @@ const generateComparingQuestions = (config: SkillConfig): AssessmentQuestion[] =
         question = `${num1} ${symbol} ${num2} ถูกหรือผิด?`;
         correctAnswer = isCorrect ? 'ถูก' : 'ผิด';
         choices = ['ถูก', 'ผิด'];
+        
+        if (isCorrect) {
+          explanation = `ถูกต้อง เพราะ ${num1} ${symbol} ${num2} เป็นความจริง`;
+        } else {
+          const correctSym = num1 > num2 ? '>' : num1 < num2 ? '<' : '=';
+          explanation = `ผิด เพราะ ${num1} ${symbol} ${num2} ไม่ถูกต้อง ควรใช้ ${correctSym} แทน`;
+        }
         break;
       }
     }
@@ -213,7 +235,8 @@ const generateComparingQuestions = (config: SkillConfig): AssessmentQuestion[] =
       question,
       correctAnswer,
       choices,
-      difficulty: config.difficulty
+      difficulty: config.difficulty,
+      explanation
     });
   }
   
@@ -659,6 +682,7 @@ const generateAdditionQuestions = (config: SkillConfig): AssessmentQuestion[] =>
     let question = '';
     let correctAnswer: number | string = 0;
     let choices: (number | string)[] = [];
+    let explanation = '';
     
     switch (type) {
       case 'two_digit_plus_one_digit': {
@@ -670,6 +694,7 @@ const generateAdditionQuestions = (config: SkillConfig): AssessmentQuestion[] =>
         correctAnswer = a + b;
         question = `${a} + ${b} = ?`;
         choices = generateChoices(correctAnswer);
+        explanation = `วิธีคิด: ${a} + ${b} = ${correctAnswer}`;
         break;
       }
       case 'two_digit_plus_two_digit': {
@@ -678,6 +703,7 @@ const generateAdditionQuestions = (config: SkillConfig): AssessmentQuestion[] =>
         correctAnswer = a + b;
         question = `${a} + ${b} = ?`;
         choices = generateChoices(correctAnswer);
+        explanation = `วิธีคิด: เมื่อนำ ${a} บวกกับ ${b} จะได้ ${correctAnswer}`;
         break;
       }
       case 'find_unknown': {
@@ -687,6 +713,7 @@ const generateAdditionQuestions = (config: SkillConfig): AssessmentQuestion[] =>
         correctAnswer = a;
         question = `__ + ${b} = ${sum}`;
         choices = generateChoices(correctAnswer);
+        explanation = `วิธีคิด: ${sum} - ${b} = ${correctAnswer} ดังนั้น ${correctAnswer} + ${b} = ${sum}`;
         break;
       }
       case 'relationship': {
@@ -696,6 +723,7 @@ const generateAdditionQuestions = (config: SkillConfig): AssessmentQuestion[] =>
         correctAnswer = a;
         question = `ถ้า ${a} + ${b} = ${sum} แล้ว ${sum} - ${b} = ?`;
         choices = generateChoices(correctAnswer);
+        explanation = `จากความสัมพันธ์ของบวกลบ: เมื่อ ${a} + ${b} = ${sum} จะได้ว่า ${sum} - ${b} = ${correctAnswer}`;
         break;
       }
       case 'word_problem': {
@@ -704,6 +732,7 @@ const generateAdditionQuestions = (config: SkillConfig): AssessmentQuestion[] =>
         correctAnswer = a + b;
         question = `น้องมีลูกอม ${a} เม็ด พี่ให้อีก ${b} เม็ด รวมกี่เม็ด?`;
         choices = generateChoices(correctAnswer);
+        explanation = `วิธีคิด: ${a} + ${b} = ${correctAnswer} เม็ด`;
         break;
       }
     }
@@ -714,7 +743,8 @@ const generateAdditionQuestions = (config: SkillConfig): AssessmentQuestion[] =>
       question,
       correctAnswer,
       choices,
-      difficulty: config.difficulty
+      difficulty: config.difficulty,
+      explanation
     });
   }
   
@@ -732,6 +762,7 @@ const generateSubtractionQuestions = (config: SkillConfig): AssessmentQuestion[]
     let question = '';
     let correctAnswer: number | string = 0;
     let choices: (number | string)[] = [];
+    let explanation = '';
     
     switch (type) {
       case 'two_digit_minus_one_digit': {
@@ -740,6 +771,7 @@ const generateSubtractionQuestions = (config: SkillConfig): AssessmentQuestion[]
         correctAnswer = a - b;
         question = `${a} - ${b} = ?`;
         choices = generateChoices(correctAnswer);
+        explanation = `วิธีคิด: ${a} - ${b} = ${correctAnswer}`;
         break;
       }
       case 'two_digit_minus_two_digit': {
@@ -748,6 +780,7 @@ const generateSubtractionQuestions = (config: SkillConfig): AssessmentQuestion[]
         correctAnswer = a - b;
         question = `${a} - ${b} = ?`;
         choices = generateChoices(correctAnswer);
+        explanation = `วิธีคิด: เมื่อนำ ${a} ลบด้วย ${b} จะได้ ${correctAnswer}`;
         break;
       }
       case 'find_unknown': {
@@ -782,6 +815,7 @@ const generateSubtractionQuestions = (config: SkillConfig): AssessmentQuestion[]
         correctAnswer = b;
         question = `${a} - __ = ${result}`;
         choices = generateChoices(correctAnswer);
+        explanation = `วิธีคิด: ${a} - ${correctAnswer} = ${result} ดังนั้นคำตอบคือ ${correctAnswer}`;
         break;
       }
       case 'relationship': {
@@ -791,6 +825,7 @@ const generateSubtractionQuestions = (config: SkillConfig): AssessmentQuestion[]
         correctAnswer = b;
         question = `ถ้า ${a} + ${b} = ${sum} แล้ว ${sum} - ${a} = ?`;
         choices = generateChoices(correctAnswer);
+        explanation = `จากความสัมพันธ์ของบวกลบ: เมื่อ ${a} + ${b} = ${sum} จะได้ว่า ${sum} - ${a} = ${correctAnswer}`;
         break;
       }
       case 'word_problem': {
@@ -799,6 +834,7 @@ const generateSubtractionQuestions = (config: SkillConfig): AssessmentQuestion[]
         correctAnswer = a - b;
         question = `มีของเล่น ${a} ชิ้น เล่นหายไป ${b} ชิ้น เหลือกี่ชิ้น?`;
         choices = generateChoices(correctAnswer);
+        explanation = `วิธีคิด: ${a} - ${b} = ${correctAnswer} ชิ้น`;
         break;
       }
     }
@@ -809,7 +845,8 @@ const generateSubtractionQuestions = (config: SkillConfig): AssessmentQuestion[]
       question,
       correctAnswer,
       choices,
-      difficulty: config.difficulty
+      difficulty: config.difficulty,
+      explanation
     });
   }
   
