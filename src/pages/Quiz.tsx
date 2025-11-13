@@ -29,6 +29,7 @@ const Quiz = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showAnswers, setShowAnswers] = useState(false);
   const [isSendingLine, setIsSendingLine] = useState(false);
+  const [lineSent, setLineSent] = useState(false);
 
   const {
     questions,
@@ -119,6 +120,7 @@ const Quiz = () => {
     setSelectedSemester(1);
     setShowAnswers(false);
     setShowTopicOutline(false);
+    setLineSent(false);
   };
 
   // Get topic outline for selected grade and semester
@@ -217,6 +219,7 @@ const Quiz = () => {
         throw new Error('Failed to send LINE message');
       }
 
+      setLineSent(true);
       toast({
         title: "ส่งผลการสอบสำเร็จ",
         description: "ส่งผลการสอบไปยัง LINE ผู้ปกครองเรียบร้อยแล้ว",
@@ -767,12 +770,12 @@ const Quiz = () => {
                 </Button>
                 <Button 
                   onClick={handleSendLine}
-                  disabled={isSendingLine}
-                  className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700"
+                  disabled={isSendingLine || lineSent}
+                  className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   size="lg"
                 >
                   <Send className="w-4 h-4" />
-                  {isSendingLine ? 'กำลังส่ง...' : 'ส่ง LINE ผู้ปกครอง'}
+                  {lineSent ? 'ส่ง LINE แล้ว' : isSendingLine ? 'กำลังส่ง...' : 'ส่ง LINE ผู้ปกครอง'}
                 </Button>
               </div>
               
