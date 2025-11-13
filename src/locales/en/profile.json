@@ -46,7 +46,117 @@
   
   "recommendations": {
     "title": "Recommended for You",
-    "startPractice": "Start Practice!"
+    "startPractice": "Start Practice!",
+    "items": {
+      "1": {
+        "addition": {
+          "title": "Addition Practice",
+          "description": "Let's practice addition and get better! Starting from simple numbers to 2-digit addition"
+        },
+        "lengthComparison": {
+          "title": "Length Comparison",
+          "description": "Practice comparing lengths of different objects. Learn in a fun and easy way!"
+        },
+        "numberSeries": {
+          "title": "Number Sequence",
+          "description": "Practice observing and finding numbers in sequence. Develop analytical thinking skills!"
+        },
+        "shapeMatching": {
+          "title": "Shape Matching",
+          "description": "Learn different geometric shapes. Develop spatial visualization skills!"
+        }
+      },
+      "2": {
+        "subtraction": {
+          "title": "2-Digit Subtraction",
+          "description": "Let's practice 2-digit subtraction! From simple numbers to challenging problems"
+        },
+        "addition": {
+          "title": "Review Addition",
+          "description": "Review addition to improve accuracy. A strong foundation is very important!"
+        },
+        "shapeMatching": {
+          "title": "Shape Matching",
+          "description": "Learn different geometric shapes. Develop spatial visualization skills!"
+        },
+        "lengthComparison": {
+          "title": "Length Comparison",
+          "description": "Practice comparing lengths of different objects. Learn in a fun and easy way!"
+        }
+      },
+      "3": {
+        "multiplication": {
+          "title": "Multiplication",
+          "description": "Practice multiplication tables to be accurate and fast! Important foundation for advanced math"
+        },
+        "multiplicationTable": {
+          "title": "Multiplication Table",
+          "description": "Learn complete multiplication tables. Practice until you memorize accurately and quickly!"
+        },
+        "measurement": {
+          "title": "Measurement",
+          "description": "Practice measuring length and unit conversion. Skills used in daily life!"
+        },
+        "addition": {
+          "title": "Addition Practice",
+          "description": "Review addition to strengthen basic skills. Prepare for advanced mathematics!"
+        }
+      },
+      "4": {
+        "division": {
+          "title": "Division",
+          "description": "Let's learn division to understand and calculate quickly! Important skill for problem solving"
+        },
+        "fractions": {
+          "title": "Fractions",
+          "description": "Practice matching and comparing fractions. Understand important mathematical concepts!"
+        },
+        "money": {
+          "title": "Money",
+          "description": "Learn to count money, give change, and calculate prices. Skills used in daily life!"
+        },
+        "multiplication": {
+          "title": "Review Multiplication",
+          "description": "Review multiplication to prepare for division. A strong foundation helps a lot!"
+        }
+      },
+      "5": {
+        "time": {
+          "title": "Telling Time",
+          "description": "Practice reading clocks and telling time accurately. Skills used every day in real life!"
+        },
+        "fractionsAdvanced": {
+          "title": "Advanced Fractions",
+          "description": "Practice fractions at a more complex level. To develop deeper understanding!"
+        },
+        "percentage": {
+          "title": "Percentage",
+          "description": "Learn to calculate percentages. Used for shopping, discounts, and much more!"
+        },
+        "division": {
+          "title": "Division",
+          "description": "Review division to improve accuracy. Important foundation for advanced mathematics!"
+        }
+      },
+      "6": {
+        "weighing": {
+          "title": "Weighing",
+          "description": "Practice weighing and comparing mass. Important skill in science and daily life!"
+        },
+        "quickMath": {
+          "title": "Quick Math",
+          "description": "Challenge your calculation speed! Practice addition, subtraction, multiplication, division quickly and accurately"
+        },
+        "sumGridPuzzles": {
+          "title": "Sum Grid Puzzles",
+          "description": "Solve challenging number grid puzzles. Practice analytical thinking skills in a fun way!"
+        },
+        "percentage": {
+          "title": "Percentage",
+          "description": "Learn to calculate percentages. Used for shopping, discounts, and much more!"
+        }
+      }
+    }
   },
   
   "recentApps": {

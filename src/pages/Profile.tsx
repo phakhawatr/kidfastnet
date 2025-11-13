@@ -23,187 +23,43 @@ import mascotDivision from '../assets/mascot-division.png';
 import mascotTime from '../assets/mascot-time.png';
 import mascotWeighing from '../assets/mascot-weighing.png';
 
-// Define all available recommendations for each grade
-const allRecommendations = {
+// Define recommendation structure (translations in profile.json)
+const recommendationStructure = {
   '1': [
-    {
-      icon: '➕',
-      title: 'การบวกเลข',
-      description: 'มาฝึกบวกเลขให้เก่งขึ้น! เริ่มจากเลขง่ายๆ ไปจนถึงการบวก 2 หลัก',
-      link: '/addition',
-      color: 'bg-[hsl(var(--grade-1))]'
-    },
-    {
-      icon: '📏',
-      title: 'เทียบความยาว',
-      description: 'ฝึกเปรียบเทียบความยาวของวัตถุต่างๆ เรียนรู้แบบสนุกและเข้าใจง่าย!',
-      link: '/length-comparison',
-      color: 'bg-[hsl(var(--grade-2))]'
-    },
-    {
-      icon: '🔢',
-      title: 'ทายตัวเลขในลำดับ',
-      description: 'ฝึกสังเกตและหาตัวเลขในลำดับ พัฒนาทักษะการคิดวิเคราะห์!',
-      link: '/NumberSeries',
-      color: 'bg-[hsl(var(--grade-3))]'
-    },
-    {
-      icon: '🔷',
-      title: 'จับคู่รูปทรง',
-      description: 'เรียนรู้รูปทรงเรขาคณิตต่างๆ พัฒนาทักษะการมองเห็นเชิงพื้นที่!',
-      link: '/shape-matching',
-      color: 'bg-[hsl(var(--grade-3))]'
-    }
+    { key: 'addition', icon: '➕', link: '/addition', color: 'bg-[hsl(var(--grade-1))]' },
+    { key: 'lengthComparison', icon: '📏', link: '/length-comparison', color: 'bg-[hsl(var(--grade-2))]' },
+    { key: 'numberSeries', icon: '🔢', link: '/NumberSeries', color: 'bg-[hsl(var(--grade-3))]' },
+    { key: 'shapeMatching', icon: '🔷', link: '/shape-matching', color: 'bg-[hsl(var(--grade-3))]' }
   ],
   '2': [
-    {
-      icon: '➖',
-      title: 'การลบเลข 2 หลัก',
-      description: 'มาฝึกลบเลข 2 หลักให้เก่งขึ้น! เริ่มจากเลขง่ายๆ ไปจนถึงโจทย์ที่ท้าทาย',
-      link: '/subtraction',
-      color: 'bg-[hsl(var(--grade-2))]'
-    },
-    {
-      icon: '➕',
-      title: 'ทบทวนการบวก',
-      description: 'ทบทวนการบวกเลขเพื่อเสริมความแม่นยำ พื้นฐานที่แข็งแรงสำคัญมาก!',
-      link: '/addition',
-      color: 'bg-[hsl(var(--grade-1))]'
-    },
-    {
-      icon: '🔷',
-      title: 'จับคู่รูปทรง',
-      description: 'เรียนรู้รูปทรงเรขาคณิตต่างๆ พัฒนาทักษะการมองเห็นเชิงพื้นที่!',
-      link: '/shape-matching',
-      color: 'bg-[hsl(var(--grade-3))]'
-    },
-    {
-      icon: '📏',
-      title: 'เทียบความยาว',
-      description: 'ฝึกเปรียบเทียบความยาวของวัตถุต่างๆ เรียนรู้แบบสนุกและเข้าใจง่าย!',
-      link: '/length-comparison',
-      color: 'bg-[hsl(var(--grade-2))]'
-    }
+    { key: 'subtraction', icon: '➖', link: '/subtraction', color: 'bg-[hsl(var(--grade-2))]' },
+    { key: 'addition', icon: '➕', link: '/addition', color: 'bg-[hsl(var(--grade-1))]' },
+    { key: 'shapeMatching', icon: '🔷', link: '/shape-matching', color: 'bg-[hsl(var(--grade-3))]' },
+    { key: 'lengthComparison', icon: '📏', link: '/length-comparison', color: 'bg-[hsl(var(--grade-2))]' }
   ],
   '3': [
-    {
-      icon: '✖️',
-      title: 'การคูณ',
-      description: 'ฝึกสูตรคูณให้แม่นและเร็วขึ้น! พื้นฐานสำคัญสำหรับคณิตศาสตร์ขั้นสูง',
-      link: '/multiply',
-      color: 'bg-[hsl(var(--grade-3))]'
-    },
-    {
-      icon: '📊',
-      title: 'ตารางคูณ',
-      description: 'เรียนรู้ตารางคูณแบบครบถ้วน ฝึกจนจำได้แม่นและรวดเร็ว!',
-      link: '/multiplication-table',
-      color: 'bg-[hsl(var(--grade-4))]'
-    },
-    {
-      icon: '📐',
-      title: 'การวัด',
-      description: 'ฝึกการวัดความยาวและการแปลงหน่วย ทักษะที่ใช้ในชีวิตประจำวัน!',
-      link: '/measurement',
-      color: 'bg-[hsl(var(--grade-2))]'
-    },
-    {
-      icon: '➕',
-      title: 'การบวกเลข',
-      description: 'ทบทวนการบวกเพื่อเสริมทักษะพื้นฐาน เตรียมพร้อมสำหรับคณิตศาสตร์ขั้นสูง!',
-      link: '/addition',
-      color: 'bg-[hsl(var(--grade-1))]'
-    }
+    { key: 'multiplication', icon: '✖️', link: '/multiply', color: 'bg-[hsl(var(--grade-3))]' },
+    { key: 'multiplicationTable', icon: '📊', link: '/multiplication-table', color: 'bg-[hsl(var(--grade-4))]' },
+    { key: 'measurement', icon: '📐', link: '/measurement', color: 'bg-[hsl(var(--grade-2))]' },
+    { key: 'addition', icon: '➕', link: '/addition', color: 'bg-[hsl(var(--grade-1))]' }
   ],
   '4': [
-    {
-      icon: '➗',
-      title: 'การหาร',
-      description: 'มาเรียนรู้การหารให้เข้าใจและคำนวณได้รวดเร็ว! ทักษะสำคัญสำหรับการแก้โจทย์',
-      link: '/division',
-      color: 'bg-[hsl(var(--grade-4))]'
-    },
-    {
-      icon: '🍕',
-      title: 'เศษส่วน',
-      description: 'ฝึกจับคู่และเปรียบเทียบเศษส่วน เข้าใจแนวคิดที่สำคัญของคณิตศาสตร์!',
-      link: '/fraction-matching',
-      color: 'bg-[hsl(var(--grade-5))]'
-    },
-    {
-      icon: '💰',
-      title: 'เงินตรา',
-      description: 'เรียนรู้การนับเงิน ทอนเงิน และคำนวณราคาสินค้า ทักษะที่ใช้ในชีวิตประจำวัน!',
-      link: '/money',
-      color: 'bg-[hsl(var(--grade-5))]'
-    },
-    {
-      icon: '✖️',
-      title: 'ทบทวนการคูณ',
-      description: 'ทบทวนการคูณเพื่อเตรียมพร้อมสำหรับการหาร พื้นฐานที่แข็งแรงช่วยได้มาก!',
-      link: '/multiply',
-      color: 'bg-[hsl(var(--grade-3))]'
-    }
+    { key: 'division', icon: '➗', link: '/division', color: 'bg-[hsl(var(--grade-4))]' },
+    { key: 'fractions', icon: '🍕', link: '/fraction-matching', color: 'bg-[hsl(var(--grade-5))]' },
+    { key: 'money', icon: '💰', link: '/money', color: 'bg-[hsl(var(--grade-5))]' },
+    { key: 'multiplication', icon: '✖️', link: '/multiply', color: 'bg-[hsl(var(--grade-3))]' }
   ],
   '5': [
-    {
-      icon: '🕐',
-      title: 'บอกเวลา',
-      description: 'ฝึกอ่านนาฬิกาและบอกเวลาให้แม่นยำ ทักษะที่ใช้ทุกวันในชีวิตจริง!',
-      link: '/time',
-      color: 'bg-[hsl(var(--grade-5))]'
-    },
-    {
-      icon: '🍕',
-      title: 'เศษส่วนขั้นสูง',
-      description: 'ฝึกเศษส่วนในระดับที่ซับซ้อนขึ้น เพื่อพัฒนาความเข้าใจอย่างลึกซึ้ง!',
-      link: '/fraction-matching',
-      color: 'bg-[hsl(var(--grade-4))]'
-    },
-    {
-      icon: '📊',
-      title: 'เปอร์เซ็นต์',
-      description: 'เรียนรู้การคำนวณเปอร์เซ็นต์ ใช้ได้ในการซื้อของ การลดราคา และอีกมากมาย!',
-      link: '/percentage',
-      color: 'bg-[hsl(var(--grade-6))]'
-    },
-    {
-      icon: '➗',
-      title: 'การหาร',
-      description: 'ทบทวนการหารเพื่อเสริมความแม่นยำ พื้นฐานสำคัญสำหรับคณิตศาสตร์ขั้นสูง!',
-      link: '/division',
-      color: 'bg-[hsl(var(--grade-4))]'
-    }
+    { key: 'time', icon: '🕐', link: '/time', color: 'bg-[hsl(var(--grade-5))]' },
+    { key: 'fractionsAdvanced', icon: '🍕', link: '/fraction-matching', color: 'bg-[hsl(var(--grade-4))]' },
+    { key: 'percentage', icon: '📊', link: '/percentage', color: 'bg-[hsl(var(--grade-6))]' },
+    { key: 'division', icon: '➗', link: '/division', color: 'bg-[hsl(var(--grade-4))]' }
   ],
   '6': [
-    {
-      icon: '⚖️',
-      title: 'บอกน้ำหนัก',
-      description: 'ฝึกการชั่งน้ำหนักและเปรียบเทียบมวล ทักษะสำคัญในวิทยาศาสตร์และชีวิตประจำวัน!',
-      link: '/weighing',
-      color: 'bg-[hsl(var(--grade-6))]'
-    },
-    {
-      icon: '⚡',
-      title: 'คณิตเร็ว',
-      description: 'ท้าทายความเร็วในการคำนวณ! ฝึกทั้ง บวก ลบ คูณ หาร ให้รวดเร็วและแม่นยำ',
-      link: '/quick-math',
-      color: 'bg-[hsl(var(--grade-5))]'
-    },
-    {
-      icon: '🧩',
-      title: 'ปริศนาตารางเลข',
-      description: 'แก้ปริศนาตารางเลขที่ท้าทายสมอง ฝึกทักษะการคิดวิเคราะห์แบบสนุก!',
-      link: '/SumGridPuzzles',
-      color: 'bg-[hsl(var(--grade-4))]'
-    },
-    {
-      icon: '📊',
-      title: 'เปอร์เซ็นต์',
-      description: 'เรียนรู้การคำนวณเปอร์เซ็นต์ ใช้ได้ในการซื้อของ การลดราคา และอีกมากมาย!',
-      link: '/percentage',
-      color: 'bg-[hsl(var(--grade-6))]'
-    }
+    { key: 'weighing', icon: '⚖️', link: '/weighing', color: 'bg-[hsl(var(--grade-6))]' },
+    { key: 'quickMath', icon: '⚡', link: '/quick-math', color: 'bg-[hsl(var(--grade-5))]' },
+    { key: 'sumGridPuzzles', icon: '🧩', link: '/SumGridPuzzles', color: 'bg-[hsl(var(--grade-4))]' },
+    { key: 'percentage', icon: '📊', link: '/percentage', color: 'bg-[hsl(var(--grade-6))]' }
   ]
 };
 
@@ -376,41 +232,45 @@ const Profile = () => {
     : '-';
   const grades = [{
     id: '1',
-    label: 'การบวก',
+    label: t('grades.addition'),
     icon: '➕',
     mascot: mascotAddition
   }, {
     id: '2',
-    label: 'การลบ',
+    label: t('grades.subtraction'),
     icon: '➖',
     mascot: mascotSubtraction
   }, {
     id: '3',
-    label: 'การคูณ',
+    label: t('grades.multiplication'),
     icon: '✖️',
     mascot: mascotMultiplication
   }, {
     id: '4',
-    label: 'การหาร',
+    label: t('grades.division'),
     icon: '➗',
     mascot: mascotDivision
   }, {
     id: '5',
-    label: 'บอกเวลา',
+    label: t('grades.time'),
     icon: '🕐',
     mascot: mascotTime
   }, {
     id: '6',
-    label: 'บอกน้ำหนัก',
+    label: t('grades.weighing'),
     icon: '⚖️',
     mascot: mascotWeighing
   }];
 
-  // Function to shuffle array and pick 3 random items
+  // Function to shuffle array and pick 3 random items with translations
   const getRandomRecommendations = (grade: string) => {
-    const recommendations = allRecommendations[grade as keyof typeof allRecommendations] || [];
-    const shuffled = [...recommendations].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 3);
+    const structure = recommendationStructure[grade as keyof typeof recommendationStructure] || [];
+    const shuffled = [...structure].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 3).map(item => ({
+      ...item,
+      title: t(`recommendations.items.${grade}.${item.key}.title`),
+      description: t(`recommendations.items.${grade}.${item.key}.description`)
+    }));
   };
 
   // Randomize recommendations when selectedGrade changes
@@ -1021,16 +881,16 @@ const Profile = () => {
           </h2>
           <div className="flex gap-4 overflow-x-auto pb-2">
             {[
-              { name: 'การบวก', icon: '➕', color: 'bg-gradient-to-br from-pink-200 to-pink-300', link: '/addition' },
-              { name: 'การลบ', icon: '➖', color: 'bg-gradient-to-br from-blue-200 to-blue-300', link: '/subtraction' },
-              { name: 'การคูณ', icon: '✖️', color: 'bg-gradient-to-br from-purple-200 to-purple-300', link: '/multiply' },
-              { name: 'การหาร', icon: '➗', color: 'bg-gradient-to-br from-green-200 to-green-300', link: '/division' },
-              { name: 'เศษส่วน', icon: '🍕', color: 'bg-gradient-to-br from-orange-200 to-orange-300', link: '/fraction-matching' },
-              { name: 'บอกเวลา', icon: '🕐', color: 'bg-gradient-to-br from-cyan-200 to-cyan-300', link: '/time' },
-              { name: 'น้ำหนัก', icon: '⚖️', color: 'bg-gradient-to-br from-yellow-200 to-yellow-300', link: '/weighing' },
-              { name: 'รูปทรง', icon: '🔷', color: 'bg-gradient-to-br from-indigo-200 to-indigo-300', link: '/shape-matching' },
-              { name: 'ความยาว', icon: '📏', color: 'bg-gradient-to-br from-teal-200 to-teal-300', link: '/length-comparison' },
-              { name: 'คณิตเร็ว', icon: '⚡', color: 'bg-gradient-to-br from-red-200 to-red-300', link: '/quick-math' }
+              { nameKey: 'recentApps.addition', icon: '➕', color: 'bg-gradient-to-br from-pink-200 to-pink-300', link: '/addition' },
+              { nameKey: 'recentApps.subtraction', icon: '➖', color: 'bg-gradient-to-br from-blue-200 to-blue-300', link: '/subtraction' },
+              { nameKey: 'recentApps.multiplication', icon: '✖️', color: 'bg-gradient-to-br from-purple-200 to-purple-300', link: '/multiply' },
+              { nameKey: 'recentApps.division', icon: '➗', color: 'bg-gradient-to-br from-green-200 to-green-300', link: '/division' },
+              { nameKey: 'recentApps.fractions', icon: '🍕', color: 'bg-gradient-to-br from-orange-200 to-orange-300', link: '/fraction-matching' },
+              { nameKey: 'recentApps.time', icon: '🕐', color: 'bg-gradient-to-br from-cyan-200 to-cyan-300', link: '/time' },
+              { nameKey: 'recentApps.weight', icon: '⚖️', color: 'bg-gradient-to-br from-yellow-200 to-yellow-300', link: '/weighing' },
+              { nameKey: 'recentApps.shapes', icon: '🔷', color: 'bg-gradient-to-br from-indigo-200 to-indigo-300', link: '/shape-matching' },
+              { nameKey: 'recentApps.length', icon: '📏', color: 'bg-gradient-to-br from-teal-200 to-teal-300', link: '/length-comparison' },
+              { nameKey: 'recentApps.quickMath', icon: '⚡', color: 'bg-gradient-to-br from-red-200 to-red-300', link: '/quick-math' }
             ].map((app, index) => (
               <Link 
                 key={index} 
@@ -1039,12 +899,12 @@ const Profile = () => {
               >
                 <div 
                   className={`${app.color} rounded-full w-20 h-20 flex items-center justify-center text-3xl border-3 border-white shadow-lg hover:scale-110 transition-transform duration-300 cursor-pointer mb-2`}
-                  title={app.name}
+                  title={t(app.nameKey)}
                 >
                   {app.icon}
                 </div>
                 <div className="text-xs font-medium text-[hsl(var(--text-primary))] max-w-[80px] truncate">
-                  {app.name}
+                  {t(app.nameKey)}
                 </div>
               </Link>
             ))}
