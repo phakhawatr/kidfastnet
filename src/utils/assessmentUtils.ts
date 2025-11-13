@@ -10,6 +10,7 @@ export interface AssessmentQuestion {
   choices: (number | string)[];
   difficulty: 'easy' | 'medium' | 'hard';
   explanation?: string;
+  clockDisplay?: { hour: number; minute: number };
 }
 
 const randInt = (min: number, max: number): number => {
@@ -1240,7 +1241,7 @@ const generateTimeQuestions = (config: SkillConfig): AssessmentQuestion[] => {
         const hour = randInt(1, 12);
         const minute = randInt(0, 11) * 5; // ช่วง 5 นาที
         const timeStr = minute === 0 ? `${hour} นาฬิกา` : `${hour} นาฬิกา ${minute} นาที`;
-        question = `นาฬิกาแสดงเวลา ${timeStr} ข้อใดถูกต้อง?`;
+        question = `นาฬิกาชี้เวลาอะไร?`;
         correctAnswer = timeStr;
         
         // สร้างตัวเลือกที่ใกล้เคียง
@@ -1251,7 +1252,18 @@ const generateTimeQuestions = (config: SkillConfig): AssessmentQuestion[] => {
         ];
         choices = shuffleArray([timeStr, ...wrongChoices]);
         explanation = `นาฬิกาชี้ ${timeStr}`;
-        break;
+        
+        questions.push({
+          id: `time_${Date.now()}_${i}_${Math.random()}`,
+          skill: 'time',
+          question,
+          correctAnswer,
+          choices,
+          difficulty: config.difficulty,
+          explanation,
+          clockDisplay: { hour, minute }
+        });
+        continue;
       }
       case 'time_duration': {
         const hours = randInt(1, 3);
@@ -1273,10 +1285,24 @@ const generateTimeQuestions = (config: SkillConfig): AssessmentQuestion[] => {
           ]);
           explanation = `${minutes} นาที ยังไม่ถึง 1 ชั่วโมง`;
         } else {
-          question = `จากเวลา 9:00 น. ถึง ${9 + hours}:${minutes.toString().padStart(2, '0')} น. ใช้เวลากี่ชั่วโมง?`;
+          const startHour = randInt(8, 11);
+          const endHour = startHour + hours;
+          question = `จากเวลา ${startHour}:00 น. ถึง ${endHour}:${minutes.toString().padStart(2, '0')} น. ใช้เวลากี่ชั่วโมง?`;
           correctAnswer = hours;
           choices = generateChoices(hours);
-          explanation = `จาก 9:00 น. ถึง ${9 + hours}:${minutes.toString().padStart(2, '0')} น. ใช้เวลา ${hours} ชั่วโมง`;
+          explanation = `จาก ${startHour}:00 น. ถึง ${endHour}:${minutes.toString().padStart(2, '0')} น. ใช้เวลา ${hours} ชั่วโมง`;
+          
+          questions.push({
+            id: `time_${Date.now()}_${i}_${Math.random()}`,
+            skill: 'time',
+            question,
+            correctAnswer,
+            choices,
+            difficulty: config.difficulty,
+            explanation,
+            clockDisplay: { hour: startHour, minute: 0 }
+          });
+          continue;
         }
         break;
       }
@@ -1299,12 +1325,24 @@ const generateTimeQuestions = (config: SkillConfig): AssessmentQuestion[] => {
         const startHour = randInt(8, 11);
         const duration = randInt(1, 3);
         const endHour = startHour + duration;
+        const startMinute = randInt(0, 1) * 30; // 0 or 30
         
-        question = `เริ่มทำการบ้านเวลา ${startHour}:00 น. เสร็จเวลา ${endHour}:00 น. ใช้เวลากี่ชั่วโมง?`;
+        question = `เริ่มทำการบ้านเวลา ${startHour}:${startMinute.toString().padStart(2, '0')} น. เสร็จเวลา ${endHour}:${startMinute.toString().padStart(2, '0')} น. ใช้เวลากี่ชั่วโมง?`;
         correctAnswer = duration;
         choices = generateChoices(duration);
-        explanation = `จาก ${startHour}:00 น. ถึง ${endHour}:00 น. ใช้เวลา ${duration} ชั่วโมง`;
-        break;
+        explanation = `จาก ${startHour}:${startMinute.toString().padStart(2, '0')} น. ถึง ${endHour}:${startMinute.toString().padStart(2, '0')} น. ใช้เวลา ${duration} ชั่วโมง`;
+        
+        questions.push({
+          id: `time_${Date.now()}_${i}_${Math.random()}`,
+          skill: 'time',
+          question,
+          correctAnswer,
+          choices,
+          difficulty: config.difficulty,
+          explanation,
+          clockDisplay: { hour: startHour, minute: startMinute }
+        });
+        continue;
       }
     }
     
