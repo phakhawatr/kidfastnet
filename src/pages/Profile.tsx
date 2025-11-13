@@ -273,10 +273,10 @@ const Profile = () => {
     }));
   };
 
-  // Randomize recommendations when selectedGrade changes
+  // Randomize recommendations when selectedGrade or language changes
   useEffect(() => {
     setRandomRecommendations(getRandomRecommendations(selectedGrade));
-  }, [selectedGrade]);
+  }, [selectedGrade, t]);
 
   // Get grade label for display
   const getGradeLabel = (gradeId: string) => {
