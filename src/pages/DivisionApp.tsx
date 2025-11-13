@@ -259,17 +259,17 @@ const DivisionApp: React.FC = () => {
     try {
       const authStored = localStorage.getItem('kidfast_auth');
       if (!authStored) {
-        alert('⚠️ ยังไม่ได้เชื่อมต่อบัญชี LINE\nกรุณาไปที่หน้าโปรไฟล์เพื่อเชื่อมต่อบัญชี LINE');
+        alert(`${t('errors.lineNotConnected')}\n${t('errors.connectLineFromProfile')}`);
         setIsSendingLine(false);
         return;
       }
 
       const authState = JSON.parse(authStored);
       const userId = authState.registrationId;
-      const userNickname = localStorage.getItem('user_nickname') || authState.username || 'นักเรียน';
+      const userNickname = localStorage.getItem('user_nickname') || authState.username || t('common.student', { defaultValue: 'นักเรียน' });
 
       if (!userId) {
-        alert('⚠️ ไม่พบข้อมูลผู้ใช้\nกรุณาเข้าสู่ระบบใหม่อีกครั้ง');
+        alert(`${t('errors.userNotFound')}\n${t('errors.pleaseLogin')}`);
         setIsSendingLine(false);
         return;
       }
@@ -280,7 +280,7 @@ const DivisionApp: React.FC = () => {
       const timeSpent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
       const problemsData = problems.map((problem, i) => {
-        const userAnswer = answers[i][0] || 'ไม่ได้ตอบ';
+        const userAnswer = answers[i][0] || t('multiplication.noAnswer');
         const correctAnswer = problem.quotient.toString();
         const isCorrect = parseFloat(userAnswer) === problem.quotient;
         
@@ -294,9 +294,9 @@ const DivisionApp: React.FC = () => {
       });
 
       const levelMap: Record<string, string> = {
-        easy: 'ง่าย',
-        medium: 'ปานกลาง',
-        hard: 'ยาก'
+        easy: t('common.easy'),
+        medium: t('common.medium'),
+        hard: t('common.hard')
       };
 
       const percentage = Math.round((correctCount / problems.length) * 100);
@@ -319,10 +319,10 @@ const DivisionApp: React.FC = () => {
         console.error('LINE Error:', error);
         
         if (data?.error === 'quota_exceeded') {
-          alert(data.message || 'คุณส่งข้อความครบ 20 ครั้งแล้ววันนี้');
+          alert(data.message || t('errors.quotaExceededDesc', { defaultValue: 'คุณส่งข้อความครบ 20 ครั้งแล้ววันนี้' }));
           setLineQuota({ remaining: 0, total: 20 });
         } else {
-          alert('❌ ไม่สามารถส่งข้อความได้ กรุณาลองใหม่อีกครั้ง');
+          alert(`${t('errors.sendFailed')} ${t('errors.sendFailedDesc')}`);
         }
         setIsSendingLine(false);
         return;
@@ -335,12 +335,12 @@ const DivisionApp: React.FC = () => {
         });
       }
 
-      alert('✅ ส่งผลการทำแบบฝึกหัดไปยัง LINE แล้ว');
+      alert(t('common.sentToLine'));
       setLineSent(true);
       console.log('LINE notification sent successfully');
     } catch (err) {
       console.log('LINE notification error:', err);
-      alert('❌ ไม่สามารถส่งข้อความได้ กรุณาลองใหม่อีกครั้ง');
+      alert(`${t('errors.sendFailed')} ${t('errors.sendFailedDesc')}`);
     } finally {
       setIsSendingLine(false);
     }
@@ -361,6 +361,12 @@ const DivisionApp: React.FC = () => {
       day: 'numeric',
     });
 
+    const levelMap: Record<string, string> = {
+      easy: t('common.easy'),
+      medium: t('common.medium'),
+      hard: t('common.hard')
+    };
+
     const problemsPerPage = 20;
     const totalPages = Math.ceil(problems.length / problemsPerPage);
     
@@ -375,7 +381,7 @@ const DivisionApp: React.FC = () => {
         const globalIdx = startIdx + idx;
         return `
           <div style="border: 2px solid #666; padding: 12px; background: white; border-radius: 8px; text-align: center;">
-            <div style="font-weight: bold; margin-bottom: 8px; font-size: 16px;">ข้อ ${globalIdx + 1}</div>
+            <div style="font-weight: bold; margin-bottom: 8px; font-size: 16px;">${t('common.question')} ${globalIdx + 1}</div>
             <div style="font-size: 22px; font-weight: bold; margin: 10px 0; color: #0066cc;">
               ${problem.dividend?.toLocaleString() || '0'} ÷ ${problem.divisor?.toLocaleString() || '0'} =
             </div>
@@ -393,28 +399,28 @@ const DivisionApp: React.FC = () => {
           <div style="text-align: center; margin-bottom: 25px; border-bottom: 3px solid #0066cc; padding-bottom: 20px;">
             ${schoolLogo ? `<img src="${schoolLogo}" alt="Logo" style="max-width: 80px; max-height: 80px; margin-bottom: 10px;" />` : ''}
             <h1 style="margin: 10px 0; font-size: 28px; color: #0066cc; font-weight: bold;">
-              ✏️ แบบฝึกหัดการหาร
+              ${t('division.worksheetTitle')}
             </h1>
             <div style="font-size: 16px; color: #666; margin-top: 8px;">
-              ${problems.length} ข้อ • ระดับ: ${level === 'easy' ? 'ง่าย' : level === 'medium' ? 'ปานกลาง' : 'ยาก'} • ผลลัพธ์: ${allowDecimals ? 'ทศนิยม' : 'จำนวนเต็ม'}
+              ${problems.length} ${t('division.problems')} • ${t('division.level')}: ${levelMap[level] || level} • ${t('division.resultType')}: ${allowDecimals ? t('division.decimal') : t('division.integer')}
             </div>
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; font-size: 16px;">
             <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-weight: bold;">ชื่อ-สกุล:</span>
+              <span style="font-weight: bold;">${t('pdf.studentName')}</span>
               <div style="flex: 1; border-bottom: 2px dotted #999; height: 30px;"></div>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-weight: bold;">ชั้น:</span>
+              <span style="font-weight: bold;">${t('pdf.class')}</span>
               <div style="flex: 1; border-bottom: 2px dotted #999; height: 30px;"></div>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-weight: bold;">โรงเรียน:</span>
+              <span style="font-weight: bold;">${t('pdf.school')}</span>
               <div style="flex: 1; border-bottom: 2px dotted #999; height: 30px;"></div>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-weight: bold;">วันที่:</span>
+              <span style="font-weight: bold;">${t('pdf.date')}</span>
               <div style="flex: 1; border-bottom: 2px dotted #999; height: 30px;"></div>
             </div>
           </div>
@@ -424,7 +430,7 @@ const DivisionApp: React.FC = () => {
           </div>
 
           <div style="position: absolute; bottom: 20px; left: 30px; right: 30px; text-align: center; font-size: 12px; color: #666; border-top: 1px solid #ddd; padding-top: 10px;">
-            สร้างโดยแอปฝึกการหาร | ${timestamp} | หน้า ${page + 1}/${totalPages}
+            ${t('pdf.footer', { appName: t('division.appName'), date: timestamp, page: page + 1, total: totalPages })}
           </div>
         </div>
       `;
@@ -526,23 +532,23 @@ const DivisionApp: React.FC = () => {
             className="flex items-center gap-2 px-4 py-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            กลับหน้าหลัก
+            {t('common.backToProfile', { defaultValue: 'กลับหน้าหลัก' })}
           </Button>
         </div>
 
         {/* Header */}
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-foreground mb-2">เทคนิคการหารระดับโปร</h1>
+            <h1 className="text-3xl font-bold text-foreground mb-2">{t('division.title')}</h1>
             <div className="flex items-center justify-between">
               <Button variant="outline" size="sm" onClick={printPDF} className="text-sm flex items-center gap-2" disabled={problems.length === 0}>
                 <Printer className="w-4 h-4" />
-                พิมพ์ PDF
+                {t('pdf.print')}
               </Button>
             <div className="text-lg font-mono bg-card rounded-lg px-4 py-2 shadow-sm">
-              เวลา: {formatTime(elapsedMs)}
+              {t('results.timeUsed')}: {formatTime(elapsedMs)}
             </div>
             <Button variant="outline" size="sm" onClick={() => setShowStats(true)} className="text-sm">
-              ดูผล
+              {t('results.viewResults')}
             </Button>
           </div>
         </div>
@@ -552,7 +558,7 @@ const DivisionApp: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
             {/* Question count */}
             <div>
-              <label className="block text-sm font-medium mb-2">จำนวนข้อ:</label>
+              <label className="block text-sm font-medium mb-2">{t('settings.problemCount')}:</label>
               <div className="flex gap-2">
                 {[10, 15, 20, 30].map(num => <Button key={num} variant={count === num ? "default" : "outline"} size="sm" onClick={() => setCount(num)} className={`flex-1 ${count === num ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-100 hover:bg-gray-200'}`}>
                     {num}
@@ -562,17 +568,17 @@ const DivisionApp: React.FC = () => {
 
             {/* Difficulty level */}
             <div>
-              <label className="block text-sm font-medium mb-2">ระดับ:</label>
+              <label className="block text-sm font-medium mb-2">{t('common.difficulty')}:</label>
               <div className="flex gap-2">
                 {[{
                 key: 'easy',
-                label: 'ง่าย'
+                label: t('common.easy')
               }, {
                 key: 'medium',
-                label: 'ปานกลาง'
+                label: t('common.medium')
               }, {
                 key: 'hard',
-                label: 'ยาก'
+                label: t('common.hard')
               }].map(lvl => <Button key={lvl.key} variant={level === lvl.key ? "secondary" : "outline"} size="sm" onClick={() => setLevel(lvl.key as Level)} className={`flex-1 ${level === lvl.key ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-100 hover:bg-gray-200'}`}>
                     {lvl.label}
                   </Button>)}
@@ -581,7 +587,7 @@ const DivisionApp: React.FC = () => {
 
             {/* Decimal Option */}
             <div>
-              <label className="block text-sm font-medium mb-2">ผลลัพธ์เป็นทศนิยม:</label>
+              <label className="block text-sm font-medium mb-2">{t('division.resultType')}:</label>
               <div className="flex gap-2">
                 <Button
                   variant={!allowDecimals ? "default" : "outline"}
@@ -589,7 +595,7 @@ const DivisionApp: React.FC = () => {
                   onClick={() => setAllowDecimals(false)}
                   className={`flex-1 ${!allowDecimals ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-100 hover:bg-gray-200'}`}
                 >
-                  ไม่มี
+                  {t('division.integer')}
                 </Button>
                 <Button
                   variant={allowDecimals ? "default" : "outline"}
@@ -597,7 +603,7 @@ const DivisionApp: React.FC = () => {
                   onClick={() => setAllowDecimals(true)}
                   className={`flex-1 ${allowDecimals ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-100 hover:bg-gray-200'}`}
                 >
-                  มี
+                  {t('division.decimal')}
                 </Button>
               </div>
             </div>
@@ -606,7 +612,7 @@ const DivisionApp: React.FC = () => {
           <div className="mt-4">
             {/* Actions */}
             <div>
-              <label className="block text-sm font-medium mb-2">การดำเนินการ:</label>
+              <label className="block text-sm font-medium mb-2">{t('common.actions', { defaultValue: 'การดำเนินการ' })}:</label>
               <div className="space-y-2">
                 <button 
                   onClick={generateNewSet} 
@@ -616,14 +622,14 @@ const DivisionApp: React.FC = () => {
                   }}
                 >
                   <span className="text-2xl">✨</span>
-                  <span>AI สร้างโจทย์ใหม่</span>
+                  <span>{t('common.aiGenerate')}</span>
                 </button>
                 <div className="grid grid-cols-2 gap-2">
                   <Button onClick={checkAnswers} variant="secondary" size="sm" disabled={!startedAt} className="bg-green-600 hover:bg-green-700 text-white">
-                    ตรวจ
+                    {t('common.checkAnswers')}
                   </Button>
                   <Button onClick={showAllAnswers} variant="secondary" size="sm" className="bg-yellow-600 hover:bg-yellow-700 text-white">
-                    เฉลย
+                    {t('common.showAnswers')}
                   </Button>
                 </div>
               </div>
@@ -633,7 +639,7 @@ const DivisionApp: React.FC = () => {
           {/* Logo Upload */}
           <div className="bg-card rounded-lg p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-sm font-medium">โลโก้โรงเรียน:</span>
+              <span className="text-sm font-medium">{t('pdf.schoolLogo', { defaultValue: 'โลโก้โรงเรียน' })}:</span>
               <input
                 ref={logoInputRef}
                 type="file"
@@ -646,14 +652,14 @@ const DivisionApp: React.FC = () => {
                 <Button variant="outline" size="sm" className="cursor-pointer" asChild>
                   <span>
                     <Upload className="w-4 h-4 mr-2" />
-                    อัพโหลด
+                    {t('pdf.uploadLogo')}
                   </span>
                 </Button>
               </label>
               {schoolLogo && (
                 <Button variant="outline" size="sm" onClick={handleRemoveLogo}>
                   <X className="w-4 h-4 mr-1" />
-                  ลบ
+                  {t('pdf.removeLogo')}
                 </Button>
               )}
             </div>
@@ -713,14 +719,14 @@ const DivisionApp: React.FC = () => {
         {/* Bottom check button */}
         <div className="text-center">
           <Button onClick={checkAnswers} size="lg" disabled={!startedAt} className="px-8 py-4 text-lg bg-green-600 hover:bg-green-700 text-white">
-            ตรวจคำตอบ
+            {t('common.checkAnswers')}
           </Button>
         </div>
 
         {/* Timer display bottom */}
         <div className="text-center mt-4">
           <div className="text-lg font-mono bg-card rounded-lg px-4 py-2 shadow-sm inline-block">
-            เวลา: {formatTime(elapsedMs)}
+            {t('results.timeUsed')}: {formatTime(elapsedMs)}
           </div>
         </div>
       </div>
@@ -730,7 +736,7 @@ const DivisionApp: React.FC = () => {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="text-center text-xl">
-              {celebrate ? '🎉 ยอดเยี่ยม! 🎉' : 'ผลการตรวจ'}
+              {celebrate ? `🎉 ${t('results.excellent')}! 🎉` : t('results.summary')}
             </DialogTitle>
           </DialogHeader>
           <div className="text-center space-y-4">
@@ -738,13 +744,13 @@ const DivisionApp: React.FC = () => {
               {correctCount}/{problems.length}
             </div>
             <div className="text-lg">
-              คะแนน: {Math.round(correctCount / problems.length * 100)}%
+              {t('results.score')}: {Math.round(correctCount / problems.length * 100)}%
             </div>
             <div className="text-lg">
-              เวลา: {formatTime(elapsedMs)}
+              {t('results.timeUsed')}: {formatTime(elapsedMs)}
             </div>
             {celebrate && <div className="text-lg text-green-600 font-medium">
-                ทำได้ถูกต้องทุกข้อ! 🌟
+                {t('results.allCorrect')} 🌟
               </div>}
             
             {/* LINE Send Button */}
@@ -764,22 +770,22 @@ const DivisionApp: React.FC = () => {
               {isSendingLine ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
-                  <span>กำลังส่ง...</span>
+                  <span>{t('common.sending')}</span>
                 </>
               ) : lineSent ? (
                 <>
-                  <span>✅ ส่งแล้ว</span>
+                  <span>{t('common.sent')}</span>
                   {lineQuota && (
                     <span className="text-xs opacity-75">
-                      (เหลือ {lineQuota.remaining}/{lineQuota.total})
+                      ({t('common.remaining')} {lineQuota.remaining}/{lineQuota.total})
                     </span>
                   )}
                 </>
               ) : (lineQuota && lineQuota.remaining <= 0) ? (
-                <span>🚫 ส่งครบ 20 ครั้งแล้ววันนี้</span>
+                <span>{t('common.quotaExceeded')}</span>
               ) : (
                 <>
-                  <span>📤 ส่งผลให้ผู้ปกครองทาง LINE</span>
+                  <span>{t('common.sendToLine')}</span>
                   {lineQuota && (
                     <span className="text-xs opacity-75">
                       ({lineQuota.remaining}/{lineQuota.total})
@@ -790,7 +796,7 @@ const DivisionApp: React.FC = () => {
             </button>
             
             <Button onClick={() => setShowResults(false)} className="w-full">
-              ปิด
+              {t('common.close')}
             </Button>
           </div>
         </DialogContent>
@@ -800,10 +806,10 @@ const DivisionApp: React.FC = () => {
       <Dialog open={showStats} onOpenChange={setShowStats}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>สถิติการทำแบบฝึกหัด (10 ครั้งล่าสุด)</DialogTitle>
+            <DialogTitle>{t('results.pastStats')} (10 {t('common.recent', { defaultValue: 'ครั้งล่าสุด' })})</DialogTitle>
           </DialogHeader>
           <div className="max-h-96 overflow-y-auto">
-            {stats.length === 0 ? <p className="text-center text-muted-foreground py-8">ยังไม่มีสถิติ</p> : <div className="space-y-2">
+            {stats.length === 0 ? <p className="text-center text-muted-foreground py-8">{t('results.noStats')}</p> : <div className="space-y-2">
                 {stats.map((stat, index) => <div key={index} className="bg-muted rounded-lg p-3 text-sm">
                     <div className="flex justify-between items-center">
                       <div>
@@ -815,7 +821,7 @@ const DivisionApp: React.FC = () => {
                        <div className="text-right">
                         <div>{formatTime(stat.timeMs)}</div>
                          <div className="text-xs text-muted-foreground">
-                           {stat.count}ข้อ {stat.level} {stat.allowDecimals ? '(ทศนิยม)' : ''}
+                           {stat.count}{t('division.problems')} {stat.level} {stat.allowDecimals ? `(${t('division.decimal')})` : ''}
                          </div>
                        </div>
                     </div>
@@ -823,7 +829,7 @@ const DivisionApp: React.FC = () => {
               </div>}
           </div>
           <Button onClick={() => setShowStats(false)} className="w-full">
-            ปิด
+            {t('common.close')}
           </Button>
         </DialogContent>
       </Dialog>

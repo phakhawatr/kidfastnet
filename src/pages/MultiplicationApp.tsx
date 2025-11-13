@@ -99,10 +99,10 @@ const MultiplicationApp = () => {
 
   // Generate random number based on difficulty
   const generateNumber = (digits: number): string => {
-    const ranges = {
-      'ง่าย': [0, 6],
-      'ปานกลาง': [0, 8],
-      'ยาก': [1, 9]
+    const ranges: Record<string, number[]> = {
+      [t('common.easy')]: [0, 6],
+      [t('common.medium')]: [0, 8],
+      [t('common.hard')]: [1, 9]
     };
     
     const [min, max] = ranges[difficulty as keyof typeof ranges];
@@ -285,15 +285,15 @@ const MultiplicationApp = () => {
       setIsCompleted(true);
       setShowCelebration(true);
       toast({
-        title: "🎉 ยอดเยี่ยม!",
-        description: "คุณทำได้ครบทุกข้อแล้ว!",
+        title: `🎉 ${t('results.excellent')}`,
+        description: t('results.allCorrect'),
       });
       
       setTimeout(() => setShowCelebration(false), 3000);
     } else {
       toast({
-        title: "ลองอีกครั้ง",
-        description: "ยังมีคำตอบที่ไม่ถูกต้องอยู่",
+        title: t('common.tryAgain'),
+        description: t('results.someIncorrect'),
         variant: "destructive",
       });
     }
@@ -308,8 +308,8 @@ const MultiplicationApp = () => {
       const authStored = localStorage.getItem('kidfast_auth');
       if (!authStored) {
         toast({
-          title: "⚠️ ยังไม่ได้เชื่อมต่อ LINE",
-          description: "กรุณาไปที่หน้าโปรไฟล์เพื่อเชื่อมต่อบัญชี LINE",
+          title: t('errors.lineNotConnected'),
+          description: t('errors.connectLineFromProfile'),
           variant: "destructive",
         });
         setIsSendingLine(false);
@@ -318,12 +318,12 @@ const MultiplicationApp = () => {
 
       const authState = JSON.parse(authStored);
       const userId = authState.registrationId;
-      const userNickname = localStorage.getItem('user_nickname') || authState.username || 'นักเรียน';
+      const userNickname = localStorage.getItem('user_nickname') || authState.username || t('common.student', { defaultValue: 'นักเรียน' });
 
       if (!userId) {
         toast({
-          title: "⚠️ ไม่พบข้อมูลผู้ใช้",
-          description: "กรุณาเข้าสู่ระบบใหม่อีกครั้ง",
+          title: t('errors.userNotFound'),
+          description: t('errors.pleaseLogin'),
           variant: "destructive",
         });
         setIsSendingLine(false);
@@ -344,16 +344,16 @@ const MultiplicationApp = () => {
         return {
           questionNumber: idx + 1,
           question,
-          userAnswer: userFinalAnswer || 'ไม่ได้ตอบ',
+          userAnswer: userFinalAnswer || t('multiplication.noAnswer'),
           correctAnswer: problem.finalAnswer,
           isCorrect
         };
       });
 
       const levelMap: Record<string, string> = {
-        'ง่าย': 'ง่าย',
-        'ปานกลาง': 'ปานกลาง',
-        'ยาก': 'ยาก'
+        [t('common.easy')]: t('common.easy'),
+        [t('common.medium')]: t('common.medium'),
+        [t('common.hard')]: t('common.hard')
       };
 
       const percentage = Math.round((correctCount / problems.length) * 100);
@@ -377,15 +377,15 @@ const MultiplicationApp = () => {
         
         if (data?.error === 'quota_exceeded') {
           toast({
-            title: "❌ ส่งครบ 20 ครั้งแล้ว",
-            description: data.message || 'คุณส่งข้อความครบ 20 ครั้งแล้ววันนี้',
+            title: t('errors.quotaExceeded'),
+            description: data.message || t('errors.quotaExceededDesc', { defaultValue: 'คุณส่งข้อความครบ 20 ครั้งแล้ววันนี้' }),
             variant: "destructive",
           });
           setLineQuota({ remaining: 0, total: 20 });
         } else {
           toast({
-            title: "❌ ส่งไม่สำเร็จ",
-            description: "ไม่สามารถส่งข้อความได้ กรุณาลองใหม่อีกครั้ง",
+            title: t('errors.sendFailed'),
+            description: t('errors.sendFailedDesc'),
             variant: "destructive",
           });
         }
@@ -401,8 +401,8 @@ const MultiplicationApp = () => {
       }
 
       toast({
-        title: "✅ ส่งสำเร็จ",
-        description: "ส่งผลการทำแบบฝึกหัดไปยัง LINE แล้ว",
+        title: t('common.sendSuccess', { defaultValue: '✅ ส่งสำเร็จ' }),
+        description: t('common.sentToLine'),
       });
       
       setLineSent(true);
@@ -410,8 +410,8 @@ const MultiplicationApp = () => {
     } catch (err) {
       console.log('LINE notification error:', err);
       toast({
-        title: "❌ ส่งไม่สำเร็จ",
-        description: "ไม่สามารถส่งข้อความได้ กรุณาลองใหม่อีกครั้ง",
+        title: t('errors.sendFailed'),
+        description: t('errors.sendFailedDesc'),
         variant: "destructive",
       });
     } finally {
@@ -460,8 +460,8 @@ const MultiplicationApp = () => {
     setIsCompleted(true);
     
     toast({
-      title: "📝 เฉลยคำตอบ",
-      description: "แสดงคำตอบที่ถูกต้องทั้งหมดแล้ว",
+      title: t('common.showAnswersTitle', { defaultValue: '📝 เฉลยคำตอบ' }),
+      description: t('common.showAnswersDesc', { defaultValue: 'แสดงคำตอบที่ถูกต้องทั้งหมดแล้ว' }),
     });
   };
 
@@ -494,7 +494,7 @@ const MultiplicationApp = () => {
       // Simple format for 1x1
       return `
         <div style="border: 2px solid #666; padding: 8px; background: white; border-radius: 6px; page-break-inside: avoid;">
-          <div style="font-weight: bold; margin-bottom: 0px; font-size: 14px;">ข้อ ${index + 1}</div>
+          <div style="font-weight: bold; margin-bottom: 0px; font-size: 14px;">${t('common.question')} ${index + 1}</div>
           <div style="text-align: center; font-size: 20px; font-weight: bold; margin: -1px 0;">
             ${problem.multiplicand} × ${problem.multiplier} =
           </div>
@@ -514,7 +514,7 @@ const MultiplicationApp = () => {
       
       return `
         <div style="border: 2px solid #666; padding: 8px; background: white; border-radius: 6px; page-break-inside: avoid;">
-          <div style="font-weight: bold; margin-bottom: 0px; font-size: 14px;">ข้อ ${index + 1}</div>
+          <div style="font-weight: bold; margin-bottom: 0px; font-size: 14px;">${t('common.question')} ${index + 1}</div>
           <div style="font-family: monospace; font-size: 14px; margin-top: -6px;">
             <!-- Multiplicand -->
             <div style="display: flex; justify-content: flex-end; gap: 3px; padding: 0px 0;">
@@ -561,10 +561,10 @@ const MultiplicationApp = () => {
         <!-- Header -->
         <div style="text-align: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #333;">
           ${schoolLogo ? `<img src="${schoolLogo}" style="height: 50px; margin-bottom: 8px;" />` : ''}
-          <h1 style="margin: 8px 0; font-size: 20px;">แบบฝึกหัดการคูณ</h1>
+          <h1 style="margin: 8px 0; font-size: 20px;">${t('multiplication.worksheetTitle')}</h1>
           <div style="display: flex; justify-content: space-around; margin-top: 8px; font-size: 12px;">
-            <div>ชื่อ-สกุล: ________________________</div>
-            <div>โรงเรียน: ________________________</div>
+            <div>${t('pdf.studentName')} ________________________</div>
+            <div>${t('pdf.school')} ________________________</div>
           </div>
         </div>
         
@@ -630,14 +630,14 @@ const MultiplicationApp = () => {
       setShowPdfPreview(false);
       
       toast({
-        title: "✅ บันทึกสำเร็จ",
-        description: "ดาวน์โหลดไฟล์ PDF เรียบร้อยแล้ว",
+        title: t('common.saveSuccess', { defaultValue: '✅ บันทึกสำเร็จ' }),
+        description: t('pdf.downloaded', { defaultValue: 'ดาวน์โหลดไฟล์ PDF เรียบร้อยแล้ว' }),
       });
     } catch (error) {
       console.error('Error generating PDF:', error);
       toast({
-        title: "❌ เกิดข้อผิดพลาด",
-        description: "ไม่สามารถสร้าง PDF ได้",
+        title: t('common.error', { defaultValue: '❌ เกิดข้อผิดพลาด' }),
+        description: t('pdf.generationError', { defaultValue: 'ไม่สามารถสร้าง PDF ได้' }),
         variant: "destructive",
       });
     }
@@ -652,11 +652,11 @@ const MultiplicationApp = () => {
         <div className="flex items-center gap-4 mb-6">
           <Link to="/profile" className="btn-secondary">
             <ArrowLeft className="w-4 h-4" />
-            กลับ
+            {t('common.back')}
           </Link>
           <div>
-            <h1 className="text-3xl font-bold text-primary mb-2">การคูณแนวตั้ง</h1>
-            <p className="text-muted-foreground">ฝึกการคูณแบบยาวตามหลักคณิตศาสตร์</p>
+            <h1 className="text-3xl font-bold text-primary mb-2">{t('multiplication.title')}</h1>
+            <p className="text-muted-foreground">{t('multiplication.subtitle')}</p>
           </div>
           
           {/* Timer */}
@@ -670,7 +670,7 @@ const MultiplicationApp = () => {
 
         {/* Logo Upload Section */}
         <div className="card-glass p-4 mb-6">
-          <label className="block text-sm font-medium mb-3">อัพโหลดโลโก้โรงเรียน</label>
+          <label className="block text-sm font-medium mb-3">{t('pdf.uploadLogo')}</label>
           {schoolLogo ? (
             <div className="relative inline-block">
               <img 
@@ -691,7 +691,7 @@ const MultiplicationApp = () => {
               className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
             >
               <Upload className="w-4 h-4" />
-              เลือกรูปภาพ
+              {t('common.selectImage', { defaultValue: 'เลือกรูปภาพ' })}
             </button>
           )}
           <input
@@ -708,7 +708,7 @@ const MultiplicationApp = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Problem Count */}
             <div>
-              <label className="block text-sm font-medium mb-2">จำนวนข้อ</label>
+              <label className="block text-sm font-medium mb-2">{t('settings.problemCount')}</label>
               <div className="flex flex-wrap gap-1">
                 {[10, 15, 30, 40].map(count => (
                   <button
@@ -724,9 +724,9 @@ const MultiplicationApp = () => {
             
             {/* Difficulty */}
             <div>
-              <label className="block text-sm font-medium mb-2">ระดับ</label>
+              <label className="block text-sm font-medium mb-2">{t('common.difficulty')}</label>
               <div className="flex flex-wrap gap-1">
-                {['ง่าย', 'ปานกลาง', 'ยาก'].map(level => (
+                {[t('common.easy'), t('common.medium'), t('common.hard')].map(level => (
                   <button
                     key={level}
                     onClick={() => setDifficulty(level)}
@@ -740,7 +740,7 @@ const MultiplicationApp = () => {
             
             {/* Dimensions */}
             <div>
-              <label className="block text-sm font-medium mb-2">มิติจำนวน</label>
+              <label className="block text-sm font-medium mb-2">{t('common.dimensions', { defaultValue: 'มิติจำนวน' })}</label>
               <div className="flex flex-wrap gap-1">
                 {[[1,1], [2,1], [3,1], [2,2], [3,2], [3,3]].map(([d1, d2]) => (
                   <button
@@ -767,8 +767,8 @@ const MultiplicationApp = () => {
               }}
             >
               <span className="text-2xl">✨</span>
-              <span className="hidden sm:inline">AI สร้างโจทย์ใหม่</span>
-              <span className="sm:hidden">AI สร้าง</span>
+              <span className="hidden sm:inline">{t('common.aiGenerate')}</span>
+              <span className="sm:hidden">{t('common.aiGenerateShort', { defaultValue: 'AI สร้าง' })}</span>
             </button>
             <button 
               onClick={checkAnswers} 
@@ -778,7 +778,7 @@ const MultiplicationApp = () => {
               }}
             >
               <CheckCircle2 className="w-5 h-5" />
-              <span>ตรวจคำตอบ</span>
+              <span>{t('common.checkAnswers')}</span>
             </button>
             <button 
               onClick={showAnswers} 
@@ -788,7 +788,7 @@ const MultiplicationApp = () => {
               }}
             >
               <PlayCircle className="w-5 h-5" />
-              <span>เฉลยคำตอบ</span>
+              <span>{t('common.showAnswers')}</span>
             </button>
             <button 
               onClick={printToPDF} 
@@ -798,7 +798,7 @@ const MultiplicationApp = () => {
               }}
             >
               <Printer className="w-5 h-5" />
-              <span>พิมพ์ PDF</span>
+              <span>{t('pdf.print')}</span>
             </button>
           </div>
         </div>

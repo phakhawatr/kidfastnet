@@ -63,7 +63,13 @@
     "dateTime": "Date/Time",
     "viewResults": "View Results",
     "view": "View",
-    "noDataSaved": "This entry has no saved problem data"
+    "noDataSaved": "This entry has no saved problem data",
+    "allCorrect": "You got all correct!",
+    "someIncorrect": "Some answers are still incorrect",
+    "bestStreak": "Best Streak",
+    "streak": "Streak",
+    "correct": "Correct",
+    "totalQuestions": "Total Questions"
   },
   "praise": {
     "perfect": "Perfect! Amazing work 👏",
@@ -123,14 +129,31 @@
     "tables": "Times Tables",
     "selectTables": "Select Tables",
     "allTables": "All Tables",
-    "tableX": "{{number}} Times Table"
+    "tableX": "{{number}} Times Table",
+    "tableTitle": "🔢 Multiplication Table",
+    "tableSubtitle": "Master multiplication tables!",
+    "selectTable": "Select Table",
+    "speedTest": "🎮 Speed Test",
+    "partialProducts": "Partial Products",
+    "visualDisplay": "Visual Display",
+    "groupsTimesItems": "groups × items = items",
+    "worksheetTitle": "✏️ Multiplication Worksheet",
+    "noAnswer": "No answer"
   },
   "division": {
     "title": "Division",
     "subtitle": "Practice Division",
     "withRemainder": "With Remainder",
     "noRemainder": "No Remainder",
-    "anyRemainder": "Any"
+    "anyRemainder": "Any",
+    "worksheetTitle": "✏️ Division Worksheet",
+    "appName": "Division Practice App",
+    "resultType": "Result Type",
+    "integer": "Integer",
+    "decimal": "Decimal",
+    "problems": "problems",
+    "difficulty": "Difficulty",
+    "level": "Level"
   },
   "errors": {
     "lineNotConnected": "⚠️ LINE Not Connected",
