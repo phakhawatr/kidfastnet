@@ -13,7 +13,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { FileQuestion, Clock, Award, ChevronLeft, ChevronRight, BookOpen, Send, Eye, CheckCircle, XCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import { getGradeOptions, getSemesterOptions } from '@/config/curriculum';
+import { getGradeOptions, getSemesterOptions, curriculumConfig } from '@/config/curriculum';
 import { evaluateAssessment } from '@/utils/assessmentUtils';
 
 const Quiz = () => {
@@ -24,6 +24,7 @@ const Quiz = () => {
   const [screen, setScreen] = useState<'select' | 'assessment' | 'results'>('select');
   const [selectedGrade, setSelectedGrade] = useState<number>(1);
   const [selectedSemester, setSelectedSemester] = useState<number>(1);
+  const [showTopicOutline, setShowTopicOutline] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showAnswers, setShowAnswers] = useState(false);
@@ -117,6 +118,14 @@ const Quiz = () => {
     setSelectedGrade(1);
     setSelectedSemester(1);
     setShowAnswers(false);
+    setShowTopicOutline(false);
+  };
+
+  // Get topic outline for selected grade and semester
+  const getTopicOutline = () => {
+    const gradeKey = `grade${selectedGrade}`;
+    const semesterKey = `semester${selectedSemester}`;
+    return curriculumConfig[gradeKey]?.[semesterKey] || [];
   };
 
   const handleSendLine = async () => {
@@ -275,24 +284,77 @@ const Quiz = () => {
                 </RadioGroup>
               </div>
 
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                <h3 className="font-semibold mb-2 text-blue-900">📋 ข้อมูลการสอบ</h3>
-                <ul className="space-y-1 text-sm text-blue-800">
-                  <li>• จำนวนข้อสอบ: 30 ข้อ</li>
-                  <li>• รูปแบบ: เลือกตัวเลือก 4 ข้อ</li>
-                  <li>• ไม่จำกัดเวลา</li>
-                  <li>• สามารถกลับมาแก้คำตอบได้ก่อนส่ง</li>
-                </ul>
-              </div>
+              {!showTopicOutline ? (
+                <>
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <h3 className="font-semibold mb-2 text-blue-900">📋 ข้อมูลการสอบ</h3>
+                    <ul className="space-y-1 text-sm text-blue-800">
+                      <li>• จำนวนข้อสอบ: 30 ข้อ</li>
+                      <li>• รูปแบบ: เลือกตัวเลือก 4 ข้อ</li>
+                      <li>• ไม่จำกัดเวลา</li>
+                      <li>• สามารถกลับมาแก้คำตอบได้ก่อนส่ง</li>
+                    </ul>
+                  </div>
 
-              <Button 
-                onClick={handleStartAssessment} 
-                className="w-full py-6 text-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                size="lg"
-              >
-                <FileQuestion className="w-5 h-5 mr-2" />
-                เริ่มทำข้อสอบ
-              </Button>
+                  <Button 
+                    onClick={() => setShowTopicOutline(true)} 
+                    className="w-full py-6 text-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                    size="lg"
+                  >
+                    <BookOpen className="w-5 h-5 mr-2" />
+                    ดูหัวข้อการสอบ
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-lg border-2 border-purple-200">
+                    <h3 className="font-semibold mb-4 text-purple-900 flex items-center gap-2 text-lg">
+                      <BookOpen className="w-5 h-5" />
+                      แผนผังหัวข้อการสอบ
+                    </h3>
+                    <div className="space-y-2">
+                      {getTopicOutline().map((topic, idx) => (
+                        <div 
+                          key={idx} 
+                          className="bg-white p-3 rounded-lg border border-purple-200 flex justify-between items-center hover:shadow-sm transition-shadow"
+                        >
+                          <span className="font-medium text-gray-800">
+                            {idx + 1}. {t(`quiz.skills.${topic.skill}`) || topic.skill}
+                          </span>
+                          <span className="text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-medium">
+                            {topic.count} ข้อ
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-purple-200">
+                      <p className="text-sm text-purple-800 font-medium">
+                        รวมทั้งหมด: {getTopicOutline().reduce((sum, topic) => sum + topic.count, 0)} ข้อ
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button 
+                      onClick={() => setShowTopicOutline(false)} 
+                      variant="outline"
+                      className="flex-1 py-6 text-lg"
+                      size="lg"
+                    >
+                      <ChevronLeft className="w-5 h-5 mr-2" />
+                      กลับ
+                    </Button>
+                    <Button 
+                      onClick={handleStartAssessment} 
+                      className="flex-1 py-6 text-lg bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                      size="lg"
+                    >
+                      <FileQuestion className="w-5 h-5 mr-2" />
+                      เริ่มทำข้อสอบ
+                    </Button>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>
