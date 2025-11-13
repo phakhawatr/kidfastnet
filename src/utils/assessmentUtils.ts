@@ -11,6 +11,8 @@ export interface AssessmentQuestion {
   difficulty: 'easy' | 'medium' | 'hard';
   explanation?: string;
   clockDisplay?: { hour: number; minute: number };
+  imagePrompt?: string;
+  visualElements?: { type: string; content: string };
 }
 
 const randInt = (min: number, max: number): number => {
@@ -2526,11 +2528,14 @@ const generateWeighingQuestions = (config: SkillConfig): AssessmentQuestion[] =>
 const generateFractionsQuestions = (config: SkillConfig): AssessmentQuestion[] => {
   const questions: AssessmentQuestion[] = [];
   
-  // Determine if this is Grade 4 level based on description
+  // Determine level based on description
   const isGrade4 = config.description?.includes('แท้-เศษเกิน-จำนวนคละ');
+  const isGrade5 = config.description?.includes('เศษส่วนเท่ากัน');
   
   for (let i = 0; i < config.count; i++) {
-    const questionTypes = isGrade4 
+    const questionTypes = isGrade5
+      ? ['equivalent_fractions_advanced', 'simplify_fraction', 'expand_fraction', 'compare_unlike_denominators', 'order_fractions', 'add_same_denominator', 'subtract_same_denominator', 'add_unlike_denominators', 'subtract_unlike_denominators', 'mixed_number_operations', 'word_problem_fractions']
+      : isGrade4 
       ? ['proper_improper_mixed', 'equivalent_fractions', 'simplest_form', 'compare_unlike', 'order_fractions', 'add_fractions', 'subtract_fractions', 'mixed_operations']
       : ['whole_half_unit', 'read_write_fraction', 'fraction_equals_one', 'one_unit_of_fraction', 'compare_same_denominator'];
     const type = questionTypes[i % questionTypes.length];
@@ -2539,8 +2544,110 @@ const generateFractionsQuestions = (config: SkillConfig): AssessmentQuestion[] =
     let correctAnswer: number | string = 0;
     let choices: (number | string)[] = [];
     let explanation = '';
+    let imagePrompt = '';
     
-    switch (type) {
+    // Grade 5 specific question types
+    if (isGrade5) {
+      switch (type) {
+        case 'equivalent_fractions_advanced': {
+          const pairs = [[2,4,1,2], [3,6,1,2], [4,8,1,2], [2,6,1,3], [3,9,1,3], [4,12,1,3]];
+          const [num1, den1, num2, den2] = pairs[randInt(0, pairs.length - 1)];
+          
+          question = `เศษส่วน ${num1}/${den1} เท่ากับเศษส่วนใด?`;
+          correctAnswer = `${num2}/${den2}`;
+          choices = shuffleArray([`${num2}/${den2}`, `${num2+1}/${den2}`, `${num2}/${den2+1}`, `${den2}/${num2}`]);
+          explanation = `${num1}/${den1} = ${num2}/${den2} (เศษส่วนเท่ากัน)`;
+          imagePrompt = `🍕 ${num1}/${den1} = ${num2}/${den2}`;
+          break;
+        }
+        case 'simplify_fraction': {
+          const fractions = [[4,8,1,2], [6,9,2,3], [8,12,2,3], [10,15,2,3], [6,12,1,2]];
+          const [num, den, numSimple, denSimple] = fractions[randInt(0, fractions.length - 1)];
+          
+          question = `ย่อเศษส่วน ${num}/${den} ให้อยู่ในรูปอย่างต่ำ`;
+          correctAnswer = `${numSimple}/${denSimple}`;
+          choices = shuffleArray([`${numSimple}/${denSimple}`, `${num}/${den}`, `${num-1}/${den-1}`, `${numSimple+1}/${denSimple+1}`]);
+          explanation = `${num}/${den} = ${numSimple}/${denSimple} (หารทั้งตัวเศษและตัวส่วนด้วย ${num/numSimple})`;
+          imagePrompt = `📉 ย่อ: ${num}/${den} → ${numSimple}/${denSimple}`;
+          break;
+        }
+        case 'expand_fraction': {
+          const base = [[1,2], [1,3], [2,3], [1,4], [3,4]];
+          const [num, den] = base[randInt(0, base.length - 1)];
+          const multiplier = randInt(2, 4);
+          
+          question = `ขยายเศษส่วน ${num}/${den} ให้มีตัวส่วนเป็น ${den * multiplier}`;
+          correctAnswer = `${num * multiplier}/${den * multiplier}`;
+          choices = shuffleArray([
+            `${num * multiplier}/${den * multiplier}`,
+            `${num}/${den * multiplier}`,
+            `${num * multiplier}/${den}`,
+            `${num + multiplier}/${den + multiplier}`
+          ]);
+          explanation = `${num}/${den} = ${num * multiplier}/${den * multiplier} (คูณทั้งตัวเศษและตัวส่วนด้วย ${multiplier})`;
+          imagePrompt = `📈 ขยาย: ${num}/${den} → ${num * multiplier}/${den * multiplier}`;
+          break;
+        }
+        case 'add_same_denominator': {
+          const den = [4, 5, 6, 8][randInt(0, 3)];
+          const num1 = randInt(1, den - 2);
+          const num2 = randInt(1, den - num1 - 1);
+          const sum = num1 + num2;
+          
+          question = `${num1}/${den} + ${num2}/${den} = ?`;
+          correctAnswer = `${sum}/${den}`;
+          choices = shuffleArray([`${sum}/${den}`, `${sum}/${den*2}`, `${num1+num2}/${den+den}`, `${sum-1}/${den}`]);
+          explanation = `${num1}/${den} + ${num2}/${den} = ${sum}/${den}`;
+          imagePrompt = `➕ ${num1}/${den} + ${num2}/${den} = ${sum}/${den}`;
+          break;
+        }
+        case 'subtract_same_denominator': {
+          const den = [4, 5, 6, 8][randInt(0, 3)];
+          const num1 = randInt(3, den - 1);
+          const num2 = randInt(1, num1 - 1);
+          const diff = num1 - num2;
+          
+          question = `${num1}/${den} - ${num2}/${den} = ?`;
+          correctAnswer = `${diff}/${den}`;
+          choices = shuffleArray([`${diff}/${den}`, `${diff}/${den*2}`, `${num1-num2}/${den+den}`, `${diff+1}/${den}`]);
+          explanation = `${num1}/${den} - ${num2}/${den} = ${diff}/${den}`;
+          imagePrompt = `➖ ${num1}/${den} - ${num2}/${den} = ${diff}/${den}`;
+          break;
+        }
+        case 'compare_unlike_denominators': {
+          const comparisons = [
+            [1, 2, 1, 3, '>'],
+            [1, 3, 1, 4, '>'],
+            [2, 5, 1, 3, '<'],
+            [3, 4, 2, 3, '>']
+          ];
+          const [num1, den1, num2, den2, symbol] = comparisons[randInt(0, comparisons.length - 1)];
+          
+          question = `เปรียบเทียบ ${num1}/${den1} กับ ${num2}/${den2} ใช้เครื่องหมายใด?`;
+          correctAnswer = symbol;
+          choices = shuffleArray(['<', '>', '=', '≠']);
+          explanation = `${num1}/${den1} ${symbol} ${num2}/${den2}`;
+          imagePrompt = `⚖️ ${num1}/${den1} ${symbol} ${num2}/${den2}`;
+          break;
+        }
+        case 'word_problem_fractions': {
+          const den = [4, 8][randInt(0, 1)];
+          const eaten = randInt(2, den/2);
+          const remaining = den - eaten;
+          
+          question = `พิซซ่ามี ${den} ชิ้น กินไป ${eaten} ชิ้น เหลือกี่ส่วน ${den}?`;
+          correctAnswer = `${remaining}/${den}`;
+          choices = shuffleArray([`${remaining}/${den}`, `${eaten}/${den}`, `${remaining}/${eaten}`, `${den}/${remaining}`]);
+          explanation = `${den} - ${eaten} = ${remaining} ชิ้น หรือ ${remaining}/${den}`;
+          imagePrompt = `🍕 มี ${den} ชิ้น กิน ${eaten} ชิ้น เหลือ ${remaining}/${den}`;
+          break;
+        }
+      }
+    }
+    
+    // Original Grade 3-4 logic
+    if (!isGrade5) {
+      switch (type) {
       case 'whole_half_unit': {
         // ปริมาณเต็มหน่วย/ครึ่งหน่วย
         const items = ['แอปเปิ้ล', 'ส้ม', 'กล้วย', 'แตงโม', 'ขนมปัง'];
@@ -3202,6 +3309,391 @@ const generateDataPresentationQuestions = (config: SkillConfig): AssessmentQuest
   return questions;
 };
 
+// Generate Estimation Questions for Grade 5
+const generateEstimationQuestions = (config: SkillConfig): AssessmentQuestion[] => {
+  const questions: AssessmentQuestion[] = [];
+  const questionTypes = ['rounding', 'estimate_sum', 'estimate_difference', 'estimate_product', 'reasonableness_check'];
+  
+  for (let i = 0; i < config.count; i++) {
+    const type = questionTypes[i % questionTypes.length];
+    let question = '';
+    let correctAnswer: number | string = 0;
+    let choices: (number | string)[] = [];
+    let explanation = '';
+    let imagePrompt = '';
+    
+    switch (type) {
+      case 'rounding': {
+        const num = randInt(100, 999);
+        const roundTo = i % 2 === 0 ? 10 : 100;
+        const rounded = Math.round(num / roundTo) * roundTo;
+        
+        question = `ปัดเศษจำนวน ${num} ให้เป็นหลัก${roundTo === 10 ? 'สิบ' : 'ร้อย'}`;
+        correctAnswer = rounded;
+        choices = generateChoices(rounded);
+        explanation = `${num} ปัดเศษเป็นหลัก${roundTo === 10 ? 'สิบ' : 'ร้อย'} ได้ ${rounded}`;
+        imagePrompt = `📊 เลขที่ปัดเศษ: ${num} → ${rounded}`;
+        break;
+      }
+      case 'estimate_sum': {
+        const a = randInt(150, 850);
+        const b = randInt(150, 850);
+        const roundedA = Math.round(a / 100) * 100;
+        const roundedB = Math.round(b / 100) * 100;
+        const estimated = roundedA + roundedB;
+        
+        question = `ประมาณผลบวกของ ${a} + ${b} โดยการปัดเศษเป็นหลักร้อย`;
+        correctAnswer = estimated;
+        choices = generateChoices(estimated);
+        explanation = `${a} ≈ ${roundedA}, ${b} ≈ ${roundedB}\n${roundedA} + ${roundedB} = ${estimated}`;
+        imagePrompt = `🧮 ${a} + ${b} ≈ ${roundedA} + ${roundedB} = ${estimated}`;
+        break;
+      }
+      case 'estimate_difference': {
+        const a = randInt(500, 900);
+        const b = randInt(100, 400);
+        const roundedA = Math.round(a / 100) * 100;
+        const roundedB = Math.round(b / 100) * 100;
+        const estimated = roundedA - roundedB;
+        
+        question = `ประมาณผลต่างของ ${a} - ${b} โดยการปัดเศษเป็นหลักร้อย`;
+        correctAnswer = estimated;
+        choices = generateChoices(estimated);
+        explanation = `${a} ≈ ${roundedA}, ${b} ≈ ${roundedB}\n${roundedA} - ${roundedB} = ${estimated}`;
+        imagePrompt = `🧮 ${a} - ${b} ≈ ${roundedA} - ${roundedB} = ${estimated}`;
+        break;
+      }
+      case 'estimate_product': {
+        const a = randInt(15, 95);
+        const b = randInt(3, 9);
+        const roundedA = Math.round(a / 10) * 10;
+        const estimated = roundedA * b;
+        
+        question = `ประมาณผลคูณของ ${a} × ${b} โดยการปัดเศษตัวถูกคูณเป็นหลักสิบ`;
+        correctAnswer = estimated;
+        choices = generateChoices(estimated);
+        explanation = `${a} ≈ ${roundedA}\n${roundedA} × ${b} = ${estimated}`;
+        imagePrompt = `✖️ ${a} × ${b} ≈ ${roundedA} × ${b} = ${estimated}`;
+        break;
+      }
+      case 'reasonableness_check': {
+        const a = randInt(180, 420);
+        const b = randInt(150, 380);
+        const actual = a + b;
+        const wrong1 = actual + randInt(200, 400);
+        const wrong2 = actual - randInt(100, 200);
+        const wrong3 = Math.abs(a - b);
+        
+        question = `ตรวจสอบความสมเหตุสมผล: ${a} + ${b} = ? คำตอบใดที่เป็นไปได้มากที่สุด?`;
+        correctAnswer = actual;
+        choices = shuffleArray([actual, wrong1, wrong2, wrong3]);
+        explanation = `${a} + ${b} = ${actual} เพราะเป็นคำตอบที่สมเหตุสมผลที่สุด`;
+        imagePrompt = `✅ ตรวจสอบ: ${a} + ${b} = ${actual}`;
+        break;
+      }
+    }
+    
+    questions.push({
+      id: `estimation_${Date.now()}_${i}_${Math.random()}`,
+      skill: 'estimation',
+      question,
+      correctAnswer,
+      choices,
+      difficulty: config.difficulty,
+      explanation,
+      visualElements: imagePrompt ? { type: 'text', content: imagePrompt } : undefined
+    });
+  }
+  
+  return questions;
+};
+
+// Generate Mixed Problems Questions for Grade 5 (Fractions + Decimals)
+const generateMixedProblemsQuestions = (config: SkillConfig): AssessmentQuestion[] => {
+  const questions: AssessmentQuestion[] = [];
+  const questionTypes = ['fraction_to_decimal', 'decimal_to_fraction', 'compare_fraction_decimal', 'word_problem_mixed'];
+  
+  for (let i = 0; i < config.count; i++) {
+    const type = questionTypes[i % questionTypes.length];
+    let question = '';
+    let correctAnswer: number | string = 0;
+    let choices: (number | string)[] = [];
+    let explanation = '';
+    let imagePrompt = '';
+    
+    switch (type) {
+      case 'fraction_to_decimal': {
+        const fractions = [[1,2,0.5], [1,4,0.25], [3,4,0.75], [1,5,0.2], [2,5,0.4]];
+        const [num, den, dec] = fractions[randInt(0, fractions.length - 1)];
+        
+        question = `เศษส่วน ${num}/${den} เขียนเป็นทศนิยมได้เท่าไร?`;
+        correctAnswer = dec;
+        choices = generateChoices(dec);
+        explanation = `${num}/${den} = ${dec}`;
+        imagePrompt = `🔄 ${num}/${den} = ${dec}`;
+        break;
+      }
+      case 'decimal_to_fraction': {
+        const decimals = [[0.5,'1/2'], [0.25,'1/4'], [0.75,'3/4'], [0.2,'1/5'], [0.4,'2/5']];
+        const [dec, frac] = decimals[randInt(0, decimals.length - 1)];
+        
+        question = `ทศนิยม ${dec} เขียนเป็นเศษส่วนอย่างต่ำได้ว่าอย่างไร?`;
+        correctAnswer = frac;
+        choices = shuffleArray([frac, '1/3', '2/3', '3/5']);
+        explanation = `${dec} = ${frac}`;
+        imagePrompt = `🔄 ${dec} = ${frac}`;
+        break;
+      }
+      case 'compare_fraction_decimal': {
+        const comparisons = [
+          ['1/2', 0.6, '<'],
+          ['3/4', 0.7, '>'],
+          ['1/5', 0.3, '<'],
+          ['2/5', 0.3, '>']
+        ];
+        const [frac, dec, symbol] = comparisons[randInt(0, comparisons.length - 1)];
+        
+        question = `เปรียบเทียบ ${frac} กับ ${dec} ใช้เครื่องหมายใด?`;
+        correctAnswer = symbol;
+        choices = shuffleArray(['<', '>', '=', '≠']);
+        explanation = `${frac} ${symbol} ${dec}`;
+        imagePrompt = `⚖️ ${frac} ${symbol} ${dec}`;
+        break;
+      }
+      case 'word_problem_mixed': {
+        const fraction = 1/2;
+        const decimal = 0.3;
+        const total = fraction + decimal;
+        
+        question = `น้ำมีอยู่ 1/2 ลิตร เติมเพิ่มอีก 0.3 ลิตร จะมีน้ำทั้งหมดกี่ลิตร?`;
+        correctAnswer = 0.8;
+        choices = generateChoices(0.8);
+        explanation = `1/2 = 0.5 ลิตร\n0.5 + 0.3 = 0.8 ลิตร`;
+        imagePrompt = `💧 1/2 + 0.3 = 0.8 ลิตร`;
+        break;
+      }
+    }
+    
+    questions.push({
+      id: `mixedProblems_${Date.now()}_${i}_${Math.random()}`,
+      skill: 'mixedProblems',
+      question,
+      correctAnswer,
+      choices,
+      difficulty: config.difficulty,
+      explanation,
+      visualElements: imagePrompt ? { type: 'text', content: imagePrompt } : undefined
+    });
+  }
+  
+  return questions;
+};
+
+// Generate Quadrilaterals Questions for Grade 5
+const generateQuadrilateralsQuestions = (config: SkillConfig): AssessmentQuestion[] => {
+  const questions: AssessmentQuestion[] = [];
+  const questionTypes = ['classify_quadrilaterals', 'properties', 'perimeter_square', 'perimeter_rectangle', 'area_square', 'area_rectangle', 'triangle_area'];
+  
+  for (let i = 0; i < config.count; i++) {
+    const type = questionTypes[i % questionTypes.length];
+    let question = '';
+    let correctAnswer: number | string = 0;
+    let choices: (number | string)[] = [];
+    let explanation = '';
+    let imagePrompt = '';
+    
+    switch (type) {
+      case 'classify_quadrilaterals': {
+        const shapes = [
+          ['สี่เหลี่ยมจัตุรัส', '4 ด้านเท่ากัน 4 มุมฉาก'],
+          ['สี่เหลี่ยมผืนผ้า', 'ด้านตรงข้ามเท่ากัน 4 มุมฉาก'],
+          ['สี่เหลี่ยมด้านขนาน', 'ด้านตรงข้ามขนานกัน'],
+          ['สี่เหลี่ยมคางหมู', 'มีด้านขนาน 1 คู่']
+        ];
+        const [shape, property] = shapes[randInt(0, shapes.length - 1)];
+        
+        question = `รูป${shape}มีสมบัติว่าอย่างไร?`;
+        correctAnswer = property;
+        choices = shuffleArray([property, '3 ด้านเท่ากัน', 'ไม่มีด้านขนาน', 'มี 2 มุมแหลม']);
+        explanation = `${shape}มีสมบัติ: ${property}`;
+        imagePrompt = `📐 ${shape}: ${property}`;
+        break;
+      }
+      case 'properties': {
+        question = `รูปสี่เหลี่ยมจัตุรัสมีด้านกี่ด้าน และมุมฉากกี่มุม?`;
+        correctAnswer = '4 ด้าน, 4 มุมฉาก';
+        choices = shuffleArray(['4 ด้าน, 4 มุมฉาก', '4 ด้าน, 2 มุมฉาก', '3 ด้าน, 3 มุมฉาก', '5 ด้าน, 5 มุมฉาก']);
+        explanation = `สี่เหลี่ยมจัตุรัสมี 4 ด้านเท่ากันและ 4 มุมฉาก`;
+        imagePrompt = `⬜ สี่เหลี่ยมจัตุรัส: 4 ด้าน 4 มุมฉาก`;
+        break;
+      }
+      case 'perimeter_square': {
+        const side = randInt(5, 15);
+        const perimeter = side * 4;
+        
+        question = `สี่เหลี่ยมจัตุรัสมีด้านยาว ${side} ซม. ความยาวรอบรูปเท่าไร?`;
+        correctAnswer = perimeter;
+        choices = generateChoices(perimeter);
+        explanation = `รอบรูป = ${side} × 4 = ${perimeter} ซม.`;
+        imagePrompt = `⬜ ด้าน ${side} ซม. → รอบรูป ${perimeter} ซม.`;
+        break;
+      }
+      case 'perimeter_rectangle': {
+        const length = randInt(8, 15);
+        const width = randInt(4, 7);
+        const perimeter = (length + width) * 2;
+        
+        question = `สี่เหลี่ยมผืนผ้ามีความยาว ${length} ซม. ความกว้าง ${width} ซม. ความยาวรอบรูปเท่าไร?`;
+        correctAnswer = perimeter;
+        choices = generateChoices(perimeter);
+        explanation = `รอบรูป = (${length} + ${width}) × 2 = ${perimeter} ซม.`;
+        imagePrompt = `▭ ${length}×${width} ซม. → รอบรูป ${perimeter} ซม.`;
+        break;
+      }
+      case 'area_square': {
+        const side = randInt(5, 12);
+        const area = side * side;
+        
+        question = `สี่เหลี่ยมจัตุรัสมีด้านยาว ${side} ซม. พื้นที่เท่าไร?`;
+        correctAnswer = area;
+        choices = generateChoices(area);
+        explanation = `พื้นที่ = ${side} × ${side} = ${area} ตร.ซม.`;
+        imagePrompt = `⬜ ${side}×${side} = ${area} ตร.ซม.`;
+        break;
+      }
+      case 'area_rectangle': {
+        const length = randInt(8, 15);
+        const width = randInt(4, 9);
+        const area = length * width;
+        
+        question = `สี่เหลี่ยมผืนผ้ามีความยาว ${length} ซม. ความกว้าง ${width} ซม. พื้นที่เท่าไร?`;
+        correctAnswer = area;
+        choices = generateChoices(area);
+        explanation = `พื้นที่ = ${length} × ${width} = ${area} ตร.ซม.`;
+        imagePrompt = `▭ ${length}×${width} = ${area} ตร.ซม.`;
+        break;
+      }
+      case 'triangle_area': {
+        const base = randInt(6, 12);
+        const height = randInt(4, 10);
+        const area = (base * height) / 2;
+        
+        question = `สามเหลี่ยมมีฐาน ${base} ซม. สูง ${height} ซม. พื้นที่เท่าไร?`;
+        correctAnswer = area;
+        choices = generateChoices(area);
+        explanation = `พื้นที่ = (${base} × ${height}) ÷ 2 = ${area} ตร.ซม.`;
+        imagePrompt = `🔺 ฐาน ${base} สูง ${height} → ${area} ตร.ซม.`;
+        break;
+      }
+    }
+    
+    questions.push({
+      id: `quadrilaterals_${Date.now()}_${i}_${Math.random()}`,
+      skill: 'quadrilaterals',
+      question,
+      correctAnswer,
+      choices,
+      difficulty: config.difficulty,
+      explanation,
+      visualElements: imagePrompt ? { type: 'text', content: imagePrompt } : undefined
+    });
+  }
+  
+  return questions;
+};
+
+// Generate Graph Reading Questions for Grade 5
+const generateGraphReadingQuestions = (config: SkillConfig): AssessmentQuestion[] => {
+  const questions: AssessmentQuestion[] = [];
+  const questionTypes = ['read_bar_chart', 'compare_bar_chart', 'read_line_graph', 'interpret_trend', 'create_chart_data'];
+  
+  for (let i = 0; i < config.count; i++) {
+    const type = questionTypes[i % questionTypes.length];
+    let question = '';
+    let correctAnswer: number | string = 0;
+    let choices: (number | string)[] = [];
+    let explanation = '';
+    let imagePrompt = '';
+    
+    switch (type) {
+      case 'read_bar_chart': {
+        const fruits = ['แอปเปิ้ล', 'ส้ม', 'กล้วย', 'มะม่วง'];
+        const fruit = fruits[randInt(0, fruits.length - 1)];
+        const value = randInt(15, 50);
+        
+        question = `จากแผนภูมิแท่งแสดงจำนวนผลไม้ที่ขายได้ ${fruit} ขายได้ ${value} ผล ส้มขายได้น้อยกว่าแอปเปิ้ล 10 ผล ถ้าแอปเปิ้ลขายได้ ${value} ผล ส้มขายได้กี่ผล?`;
+        correctAnswer = value - 10;
+        choices = generateChoices(value - 10);
+        explanation = `${value} - 10 = ${value - 10} ผล`;
+        imagePrompt = `📊 แผนภูมิแท่ง: ${fruit} ${value} ผล`;
+        break;
+      }
+      case 'compare_bar_chart': {
+        const itemA = 'หนังสือ';
+        const itemB = 'สมุด';
+        const valueA = randInt(40, 80);
+        const valueB = randInt(20, 35);
+        const diff = valueA - valueB;
+        
+        question = `จากแผนภูมิ ${itemA}มี ${valueA} เล่ม ${itemB}มี ${valueB} เล่ม ${itemA}มีมากกว่า${itemB}กี่เล่ม?`;
+        correctAnswer = diff;
+        choices = generateChoices(diff);
+        explanation = `${valueA} - ${valueB} = ${diff} เล่ม`;
+        imagePrompt = `📊 ${itemA} ${valueA} vs ${itemB} ${valueB}`;
+        break;
+      }
+      case 'read_line_graph': {
+        const month1 = 'มกราคม';
+        const month2 = 'กุมภาพันธ์';
+        const temp1 = randInt(25, 30);
+        const temp2 = randInt(28, 35);
+        
+        question = `กราฟเส้นแสดงอุณหภูมิรายเดือน ${month1} อุณหภูมิ ${temp1}°C ${month2} อุณหภูมิ ${temp2}°C อุณหภูมิเพิ่มขึ้นกี่องศา?`;
+        correctAnswer = temp2 - temp1;
+        choices = generateChoices(temp2 - temp1);
+        explanation = `${temp2} - ${temp1} = ${temp2 - temp1}°C`;
+        imagePrompt = `📈 อุณหภูมิ: ${month1} ${temp1}°C → ${month2} ${temp2}°C`;
+        break;
+      }
+      case 'interpret_trend': {
+        const values = [20, 25, 30, 35, 40];
+        const trend = 'เพิ่มขึ้น';
+        
+        question = `กราฟเส้นแสดงยอดขายรายเดือน: 20, 25, 30, 35, 40 แนวโน้มยอดขายเป็นอย่างไร?`;
+        correctAnswer = trend;
+        choices = shuffleArray(['เพิ่มขึ้น', 'ลดลง', 'คงที่', 'ไม่แน่นอน']);
+        explanation = `ยอดขายเพิ่มขึ้นทุกเดือน (20→25→30→35→40)`;
+        imagePrompt = `📈 แนวโน้ม: เพิ่มขึ้นต่อเนื่อง`;
+        break;
+      }
+      case 'create_chart_data': {
+        const students = [12, 15, 10, 18];
+        const total = students.reduce((a, b) => a + b, 0);
+        
+        question = `มีนักเรียนชอบสีต่างๆ ดังนี้ แดง 12 คน น้ำเงิน 15 คน เขียว 10 คน เหลือง 18 คน มีนักเรียนทั้งหมดกี่คน?`;
+        correctAnswer = total;
+        choices = generateChoices(total);
+        explanation = `12 + 15 + 10 + 18 = ${total} คน`;
+        imagePrompt = `📊 ข้อมูล: 12+15+10+18 = ${total} คน`;
+        break;
+      }
+    }
+    
+    questions.push({
+      id: `graphReading_${Date.now()}_${i}_${Math.random()}`,
+      skill: 'graphReading',
+      question,
+      correctAnswer,
+      choices,
+      difficulty: config.difficulty,
+      explanation,
+      visualElements: imagePrompt ? { type: 'text', content: imagePrompt } : undefined
+    });
+  }
+  
+  return questions;
+};
+
 export const generateAssessmentQuestions = (
   grade: number,
   semester: number
@@ -3287,6 +3779,18 @@ export const generateAssessmentQuestions = (
         break;
       case 'dataPresentaton':
         questions = generateDataPresentationQuestions(skillConfig);
+        break;
+      case 'estimation':
+        questions = generateEstimationQuestions(skillConfig);
+        break;
+      case 'mixedProblems':
+        questions = generateMixedProblemsQuestions(skillConfig);
+        break;
+      case 'quadrilaterals':
+        questions = generateQuadrilateralsQuestions(skillConfig);
+        break;
+      case 'graphReading':
+        questions = generateGraphReadingQuestions(skillConfig);
         break;
       default:
         console.warn(`Skill ${skillConfig.skill} not implemented yet, using placeholder`);
