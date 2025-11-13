@@ -499,7 +499,10 @@ const Quiz = () => {
                 </div>
                 {questions.map((q, idx) => {
                   const userAnswer = answers.get(idx);
-                  const isCorrect = userAnswer === q.correctAnswer;
+                  const isCorrect = userAnswer !== undefined && (
+                    q.choices[userAnswer] === q.correctAnswer || 
+                    String(q.choices[userAnswer]) === String(q.correctAnswer)
+                  );
                   
                   return (
                     <Card key={idx} className={`border-2 ${isCorrect ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
@@ -517,7 +520,8 @@ const Quiz = () => {
                             <div className="space-y-2 text-sm">
                               {q.choices.map((choice, choiceIdx) => {
                                 const isUserChoice = userAnswer === choiceIdx;
-                                const isCorrectChoice = q.correctAnswer === choiceIdx;
+                                const isCorrectChoice = choice === q.correctAnswer || 
+                                                      String(choice) === String(q.correctAnswer);
                                 
                                 return (
                                   <div
