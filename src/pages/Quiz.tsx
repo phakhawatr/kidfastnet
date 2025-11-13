@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { FileQuestion, Clock, Award, ChevronLeft, ChevronRight } from 'lucide-react';
+import { FileQuestion, Clock, Award, ChevronLeft, ChevronRight, BookOpen, Send, Eye, CheckCircle, XCircle } from 'lucide-react';
 import { getGradeOptions, getSemesterOptions } from '@/config/curriculum';
 import { evaluateAssessment } from '@/utils/assessmentUtils';
 
@@ -25,6 +25,8 @@ const Quiz = () => {
   const [selectedSemester, setSelectedSemester] = useState<number>(1);
   const [hasStarted, setHasStarted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showAnswers, setShowAnswers] = useState(false);
+  const [isSendingLine, setIsSendingLine] = useState(false);
 
   const {
     questions,
@@ -113,6 +115,59 @@ const Quiz = () => {
     setHasStarted(false);
     setSelectedGrade(1);
     setSelectedSemester(1);
+    setShowAnswers(false);
+  };
+
+  const handleSendLine = async () => {
+    const userId = user?.id || registrationId;
+    if (!userId) {
+      toast({
+        title: "ไม่สามารถส่งข้อความได้",
+        description: "ไม่พบข้อมูลผู้ใช้",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSendingLine(true);
+    try {
+      const correctAnswers = calculateCorrectAnswers();
+      const score = questions.length > 0 ? (correctAnswers / questions.length) * 100 : 0;
+      
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-line-message`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          userId,
+          exerciseType: `แบบทดสอบชั้น ป.${selectedGrade} เทอม ${selectedSemester}`,
+          score: score.toFixed(1),
+          correctAnswers,
+          totalQuestions: questions.length,
+          timeTaken: `${Math.floor(timeTaken / 60)} นาที ${timeTaken % 60} วินาที`,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send LINE message');
+      }
+
+      toast({
+        title: "ส่งผลการสอบสำเร็จ",
+        description: "ส่งผลการสอบไปยัง LINE ผู้ปกครองเรียบร้อยแล้ว",
+      });
+    } catch (error) {
+      console.error('Error sending LINE message:', error);
+      toast({
+        title: "ไม่สามารถส่งข้อความได้",
+        description: "กรุณาตรวจสอบการเชื่อมต่อ LINE Notify",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSendingLine(false);
+    }
   };
 
   const currentQuestion = questions[currentIndex];
@@ -291,7 +346,7 @@ const Quiz = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <Header />
       <div className="container mx-auto px-4 py-12">
-        <Card className="max-w-2xl mx-auto shadow-lg">
+        <Card className="max-w-4xl mx-auto shadow-lg">
           <CardHeader>
             <CardTitle className="text-3xl text-center flex items-center justify-center gap-3 text-purple-600">
               <Award className="w-8 h-8 text-yellow-500" />
@@ -331,13 +386,92 @@ const Quiz = () => {
               </div>
             </div>
 
-            <div className="flex gap-4">
-              <Button onClick={handleRestart} variant="outline" className="flex-1" size="lg">
-                ทำใหม่อีกครั้ง
-              </Button>
-              <Button onClick={() => navigate('/profile')} className="flex-1" size="lg">
-                กลับหน้าหลัก
-              </Button>
+            {/* Answer Review Section */}
+            {showAnswers && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-lg font-semibold text-purple-600 border-t pt-4">
+                  <BookOpen className="w-5 h-5" />
+                  <span>เฉลยข้อสอบ</span>
+                </div>
+                {questions.map((q, idx) => {
+                  const userAnswer = answers.get(idx);
+                  const isCorrect = userAnswer === q.correctAnswer;
+                  
+                  return (
+                    <Card key={idx} className={`border-2 ${isCorrect ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+                      <CardContent className="pt-6">
+                        <div className="flex items-start gap-3 mb-3">
+                          {isCorrect ? (
+                            <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
+                          ) : (
+                            <XCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
+                          )}
+                          <div className="flex-1">
+                            <p className="font-semibold text-gray-800 mb-2">
+                              ข้อ {idx + 1}: {q.question}
+                            </p>
+                            <div className="space-y-2 text-sm">
+                              {q.choices.map((choice, choiceIdx) => {
+                                const isUserChoice = userAnswer === choiceIdx;
+                                const isCorrectChoice = q.correctAnswer === choiceIdx;
+                                
+                                return (
+                                  <div
+                                    key={choiceIdx}
+                                    className={`p-2 rounded ${
+                                      isCorrectChoice
+                                        ? 'bg-green-100 border border-green-300 font-semibold'
+                                        : isUserChoice
+                                        ? 'bg-red-100 border border-red-300'
+                                        : 'bg-white border border-gray-200'
+                                    }`}
+                                  >
+                                    <span className="font-medium">{choiceIdx + 1}.</span> {choice}
+                                    {isCorrectChoice && <span className="ml-2 text-green-600">✓ คำตอบที่ถูกต้อง</span>}
+                                    {isUserChoice && !isCorrectChoice && <span className="ml-2 text-red-600">✗ คำตอบของคุณ</span>}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+
+            <div className="flex flex-col gap-3">
+              <div className="grid grid-cols-2 gap-3">
+                <Button 
+                  onClick={() => setShowAnswers(!showAnswers)} 
+                  variant="outline" 
+                  className="flex items-center justify-center gap-2"
+                  size="lg"
+                >
+                  <Eye className="w-4 h-4" />
+                  {showAnswers ? 'ซ่อนเฉลย' : 'ดูเฉลย'}
+                </Button>
+                <Button 
+                  onClick={handleSendLine}
+                  disabled={isSendingLine}
+                  className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700"
+                  size="lg"
+                >
+                  <Send className="w-4 h-4" />
+                  {isSendingLine ? 'กำลังส่ง...' : 'ส่ง LINE ผู้ปกครอง'}
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <Button onClick={handleRestart} variant="outline" size="lg">
+                  ทำใหม่อีกครั้ง
+                </Button>
+                <Button onClick={() => navigate('/profile')} size="lg">
+                  กลับหน้าหลัก
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
