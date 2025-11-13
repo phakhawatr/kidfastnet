@@ -34,23 +34,23 @@ export const curriculumConfig: Record<string, Record<string, SkillConfig[]>> = {
     ],
     semester2: [
       // 1. จำนวนนับและค่าประจำหลัก (21-100) - 15 ข้อ
-      { skill: 'counting', difficulty: 'easy', count: 5, range: [21, 100] },
-      { skill: 'comparing', difficulty: 'easy', count: 4, range: [21, 100] },
-      { skill: 'ordering', difficulty: 'easy', count: 3, range: [21, 100] },
-      { skill: 'placeValue', difficulty: 'easy', count: 3, range: [21, 100] },
+      { skill: 'counting', difficulty: 'easy', count: 5, range: [21, 100], description: 'นับ อ่าน-เขียนเลขไทย/อารบิก 21-100 ใช้ตารางร้อยและแบบรูป' },
+      { skill: 'comparing', difficulty: 'easy', count: 4, range: [21, 100], description: 'เปรียบเทียบจำนวน 21-100 ด้วยสัญลักษณ์ =, ≠, >, <' },
+      { skill: 'ordering', difficulty: 'easy', count: 3, range: [21, 100], description: 'เรียงลำดับจำนวน 21-100 จากน้อยไปมาก มากไปน้อย' },
+      { skill: 'placeValue', difficulty: 'easy', count: 3, range: [21, 100], description: 'เข้าใจหลักสิบและหลักหน่วยของจำนวน 21-100' },
       
       // 2. การบวก-ลบ (ขยายถึง 100) - 12 ข้อ
-      { skill: 'addition', difficulty: 'easy', count: 6, range: [21, 100] },
-      { skill: 'subtraction', difficulty: 'easy', count: 6, range: [21, 100] },
+      { skill: 'addition', difficulty: 'easy', count: 6, range: [21, 100], description: 'บวกสองหลัก+หนึ่งหลัก สองหลัก+สองหลัก ผลไม่เกิน 100 ตั้งคอลัมน์' },
+      { skill: 'subtraction', difficulty: 'easy', count: 6, range: [21, 100], description: 'ลบสองหลัก ตั้งคอลัมน์ หาค่าที่ไม่ทราบ และโจทย์สถานการณ์' },
       
       // 3. แบบรูป (ต่อยอด) - 5 ข้อ
-      { skill: 'patterns', difficulty: 'easy', count: 5 },
+      { skill: 'patterns', difficulty: 'easy', count: 5, description: 'แบบรูปบนตารางร้อย และแบบรูปซ้ำของรูปเรขาคณิต เติมสมาชิกที่หายไป' },
       
       // 4. เรขาคณิต (ต่อยอด) - 4 ข้อ
-      { skill: 'shapes', difficulty: 'easy', count: 4 },
+      { skill: 'shapes', difficulty: 'easy', count: 4, description: 'จำแนกรูป 2 มิติ/3 มิติ เชื่อมโยงสิ่งรอบตัว วาด/สร้างแบบรูปซ้ำ' },
       
       // 5. การวัดความยาว (ต่อยอด) - 4 ข้อ
-      { skill: 'measurement', difficulty: 'easy', count: 4 }
+      { skill: 'measurement', difficulty: 'easy', count: 4, description: 'วัดความยาว (ซม./ม.) คาดคะเน เปรียบเทียบ และแก้โจทย์บวก-ลบ' }
     ]
   },
   grade2: {
