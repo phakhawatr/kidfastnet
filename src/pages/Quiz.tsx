@@ -38,7 +38,12 @@ const Quiz = () => {
     submitAssessment,
     calculateCorrectAnswers,
     timeTaken
-  } = useAssessment(user?.id || '', hasStarted ? selectedGrade : 0, hasStarted ? selectedSemester : 0);
+  } = useAssessment(user?.id || registrationId || '', hasStarted ? selectedGrade : 0, hasStarted ? selectedSemester : 0);
+
+  // Debug logs for userId
+  console.log('🔍 Quiz - User ID:', user?.id);
+  console.log('🔍 Quiz - Registration ID:', registrationId);
+  console.log('🔍 Quiz - Final userId for assessment:', user?.id || registrationId || '');
 
   const handleStartAssessment = () => {
     const userId = user?.id || registrationId;
@@ -56,6 +61,10 @@ const Quiz = () => {
 
   const handleSubmit = async () => {
     const userId = user?.id || registrationId;
+    
+    console.log('🚀 Quiz - handleSubmit called');
+    console.log('🔍 Quiz - User ID for submission:', userId);
+    
     if (!userId) {
       toast({
         title: "ไม่สามารถส่งคำตอบได้",
@@ -65,6 +74,19 @@ const Quiz = () => {
       return;
     }
 
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(userId)) {
+      console.error('❌ Invalid userId format:', userId);
+      toast({
+        title: "ข้อผิดพลาดระบบ",
+        description: "รูปแบบ User ID ไม่ถูกต้อง กรุณาติดต่อผู้ดูแลระบบ",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    console.log('✅ UUID validation passed');
     setIsSubmitting(true);
     try {
       await submitAssessment();

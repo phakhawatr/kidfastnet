@@ -57,7 +57,12 @@ export const useAssessment = (userId: string, grade: number, semester: number) =
   };
 
   const submitAssessment = async () => {
+    console.log('📝 useAssessment - submitAssessment called');
+    console.log('🔍 useAssessment - userId:', userId);
+    console.log('🔍 useAssessment - Is userId empty?', !userId);
+    
     if (!userId) {
+      console.error('❌ User ID is required to submit assessment');
       throw new Error('User ID is required to submit assessment');
     }
 
@@ -65,8 +70,18 @@ export const useAssessment = (userId: string, grade: number, semester: number) =
     const correct = calculateCorrectAnswers();
     const score = questions.length > 0 ? (correct / questions.length) * 100 : 0;
 
+    console.log('📊 Assessment data:', {
+      user_id: userId,
+      grade,
+      semester,
+      total_questions: questions.length,
+      correct_answers: correct,
+      score: parseFloat(score.toFixed(2)),
+      time_taken: timeTaken
+    });
+
     try {
-      const { error } = await supabase.from('level_assessments').insert([{
+      const insertData = {
         user_id: userId,
         grade,
         semester,
@@ -84,12 +99,22 @@ export const useAssessment = (userId: string, grade: number, semester: number) =
           answers: Array.from(answers.entries())
         },
         completed_at: new Date().toISOString()
-      }]);
+      };
+      
+      console.log('💾 Attempting to insert into Supabase:', insertData);
+      
+      const { error } = await supabase.from('level_assessments').insert([insertData]);
 
       if (error) {
-        console.error('Supabase error:', error);
+        console.error('❌ Supabase insert error:', error);
+        console.error('❌ Error code:', error.code);
+        console.error('❌ Error message:', error.message);
+        console.error('❌ Error details:', error.details);
+        console.error('❌ Error hint:', error.hint);
         throw new Error(`Failed to save assessment: ${error.message}`);
       }
+      
+      console.log('✅ Assessment saved successfully!');
       setIsSubmitted(true);
     } catch (error) {
       console.error('Error submitting assessment:', error);
