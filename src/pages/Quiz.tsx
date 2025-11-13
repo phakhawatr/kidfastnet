@@ -3,19 +3,22 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { useAssessment } from '@/hooks/useAssessment';
+import { useAchievements } from '@/hooks/useAchievements';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ShapeDisplay from '@/components/ShapeDisplay';
 import QuizHistory from '@/components/QuizHistory';
 import CertificateCard from '@/components/CertificateCard';
+import AchievementBadge from '@/components/AchievementBadge';
+import AchievementNotification from '@/components/AchievementNotification';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ClipboardPen, Clock, Award, ChevronLeft, ChevronRight, BookOpen, Send, Eye, CheckCircle, XCircle, TrendingUp, TrendingDown, Minus, Hash, Scale, ArrowUpDown, Grid3x3, Plus, Sparkles, Shapes, Ruler, BarChart2, LucideIcon, BarChart3, Download, Share2, Facebook, MessageCircle, Twitter } from 'lucide-react';
+import { ClipboardPen, Clock, Award, ChevronLeft, ChevronRight, BookOpen, Send, Eye, CheckCircle, XCircle, TrendingUp, TrendingDown, Minus, Hash, Scale, ArrowUpDown, Grid3x3, Plus, Sparkles, Shapes, Ruler, BarChart2, LucideIcon, BarChart3, Download, Share2, Facebook, MessageCircle, Twitter, Trophy } from 'lucide-react';
 import { getGradeOptions, getSemesterOptions, curriculumConfig } from '@/config/curriculum';
 import { evaluateAssessment } from '@/utils/assessmentUtils';
 import { downloadCertificate, shareCertificate } from '@/utils/certificateUtils';
@@ -35,7 +38,10 @@ const Quiz = () => {
   const [isSendingLine, setIsSendingLine] = useState(false);
   const [lineSent, setLineSent] = useState(false);
   const [showCertificate, setShowCertificate] = useState(false);
+  const [newAchievements, setNewAchievements] = useState<any[]>([]);
   const certificateRef = useRef<HTMLDivElement>(null);
+  
+  const { achievements: allAchievements, userAchievements } = useAchievements(user?.id || registrationId || null);
 
   const {
     questions,
@@ -100,7 +106,24 @@ const Quiz = () => {
     console.log('✅ UUID validation passed');
     setIsSubmitting(true);
     try {
-      await submitAssessment();
+      const result = await submitAssessment();
+      
+      // Check for new achievements
+      if (result?.newAchievements && result.newAchievements.length > 0) {
+        const achievementDetails = result.newAchievements.map((na: any) => {
+          const achievement = allAchievements.find(a => a.code === na.new_achievement_code);
+          return achievement ? {
+            code: achievement.code,
+            name: achievement.name_th,
+            description: achievement.description_th,
+            color: achievement.color,
+            icon: achievement.icon
+          } : null;
+        }).filter(Boolean);
+        
+        setNewAchievements(achievementDetails);
+      }
+      
       toast({
         title: "ส่งคำตอบสำเร็จ",
         description: "บันทึกผลการสอบเรียบร้อยแล้ว",
@@ -128,6 +151,7 @@ const Quiz = () => {
     setShowTopicOutline(false);
     setLineSent(false);
     setShowCertificate(false);
+    setNewAchievements([]);
   };
 
   const handleDownloadCertificate = async () => {
@@ -653,6 +677,15 @@ const Quiz = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <Header />
+      
+      {/* Achievement Notification */}
+      {newAchievements.length > 0 && screen === 'results' && (
+        <AchievementNotification
+          achievements={newAchievements}
+          onClose={() => setNewAchievements([])}
+        />
+      )}
+      
       <div className="container mx-auto px-4 py-12">
         <Card className="max-w-4xl mx-auto shadow-lg">
           <CardHeader>
@@ -694,6 +727,33 @@ const Quiz = () => {
               </div>
             </div>
 
+            {/* Achievement Badges Section */}
+            {userAchievements.length > 0 && (
+              <div className="border-2 border-yellow-200 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Trophy className="w-6 h-6 text-yellow-600" />
+                  <h3 className="text-xl font-bold text-yellow-900">ตราสัญลักษณ์ความสำเร็จ</h3>
+                  <span className="ml-auto bg-yellow-200 text-yellow-800 px-3 py-1 rounded-full text-sm font-semibold">
+                    {userAchievements.length} / {allAchievements.length}
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-4 justify-center">
+                  {userAchievements.map((ua) => (
+                    <AchievementBadge
+                      key={ua.id}
+                      code={ua.achievement?.icon || 'award'}
+                      name={ua.achievement?.name_th || ''}
+                      description={ua.achievement?.description_th}
+                      color={ua.achievement?.color || 'blue'}
+                      size="md"
+                      showName={true}
+                      earnedAt={ua.earned_at}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Certificate Section */}
             <div className="border-t-2 border-purple-200 pt-6">
               <div className="flex items-center justify-between mb-4">
@@ -729,6 +789,11 @@ const Quiz = () => {
                           day: 'numeric'
                         })}
                         evaluation={evaluation}
+                        badges={userAchievements.slice(0, 3).map(ua => ({
+                          icon: ua.achievement?.icon || 'award',
+                          color: ua.achievement?.color || 'blue',
+                          name: ua.achievement?.name_th || ''
+                        }))}
                       />
                     </div>
                   </div>

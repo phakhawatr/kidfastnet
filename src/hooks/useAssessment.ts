@@ -120,7 +120,25 @@ export const useAssessment = (userId: string, grade: number, semester: number) =
       }
       
       console.log('✅ Assessment saved successfully!');
+      
+      // Check and award achievements
+      console.log('🏆 Checking for new achievements...');
+      const { data: newAchievements, error: achievementError } = await supabase
+        .rpc('check_and_award_achievements', {
+          p_user_id: userId,
+          p_score: score,
+          p_time_taken: timeTaken
+        });
+
+      if (achievementError) {
+        console.error('⚠️ Error checking achievements:', achievementError);
+      } else if (newAchievements && newAchievements.length > 0) {
+        console.log('🎉 New achievements earned:', newAchievements);
+      }
+      
       setIsSubmitted(true);
+      
+      return { newAchievements: newAchievements || [] };
     } catch (error) {
       console.error('Error submitting assessment:', error);
       throw error;

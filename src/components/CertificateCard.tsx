@@ -14,10 +14,15 @@ interface CertificateCardProps {
     message: string;
     stars: number;
   };
+  badges?: Array<{
+    icon: string;
+    color: string;
+    name: string;
+  }>;
 }
 
 const CertificateCard = forwardRef<HTMLDivElement, CertificateCardProps>(
-  ({ nickname, score, grade, semester, correctAnswers, totalQuestions, date, evaluation }, ref) => {
+  ({ nickname, score, grade, semester, correctAnswers, totalQuestions, date, evaluation, badges = [] }, ref) => {
     const getScoreColor = (score: number) => {
       if (score >= 80) return 'from-green-400 to-emerald-500';
       if (score >= 60) return 'from-yellow-400 to-orange-500';
@@ -104,6 +109,52 @@ const CertificateCard = forwardRef<HTMLDivElement, CertificateCardProps>(
           <p className="text-xl font-bold text-purple-900 mb-2">{evaluation.level}</p>
           <p className="text-md text-gray-700 max-w-xl mx-auto">{evaluation.message}</p>
         </div>
+
+        {/* Achievement Badges */}
+        {badges && badges.length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <Trophy className="w-5 h-5 text-yellow-600" />
+              <p className="text-sm font-semibold text-gray-700">ตราสัญลักษณ์ความสำเร็จ</p>
+            </div>
+            <div className="flex justify-center gap-3">
+              {badges.map((badge, idx) => {
+                const iconMap: Record<string, any> = {
+                  trophy: Trophy,
+                  zap: Star,
+                  flame: Star,
+                  star: Star,
+                  'book-open': Award,
+                  award: Award,
+                };
+                const Icon = iconMap[badge.icon] || Award;
+                const colorMap: Record<string, string> = {
+                  gold: 'bg-gradient-to-br from-yellow-400 to-yellow-600',
+                  yellow: 'bg-gradient-to-br from-yellow-300 to-yellow-500',
+                  orange: 'bg-gradient-to-br from-orange-400 to-orange-600',
+                  purple: 'bg-gradient-to-br from-purple-400 to-purple-600',
+                  blue: 'bg-gradient-to-br from-blue-400 to-blue-600',
+                  green: 'bg-gradient-to-br from-green-400 to-green-600',
+                };
+                const bgClass = colorMap[badge.color] || colorMap.blue;
+
+                return (
+                  <div key={idx} className="text-center">
+                    <div
+                      className={`w-14 h-14 ${bgClass} rounded-full flex items-center justify-center shadow-lg border-4 border-white mx-auto mb-1`}
+                      title={badge.name}
+                    >
+                      <Icon className="text-white" size={24} strokeWidth={2.5} />
+                    </div>
+                    <p className="text-xs font-semibold text-gray-700 max-w-20 mx-auto leading-tight">
+                      {badge.name}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Footer */}
         <div className="mt-8 pt-6 border-t-2 border-purple-200">

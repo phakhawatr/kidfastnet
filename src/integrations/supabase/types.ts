@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          code: string
+          color: string
+          created_at: string
+          criteria: Json
+          description_en: string
+          description_th: string
+          icon: string
+          id: string
+          name_en: string
+          name_th: string
+        }
+        Insert: {
+          code: string
+          color: string
+          created_at?: string
+          criteria: Json
+          description_en: string
+          description_th: string
+          icon: string
+          id?: string
+          name_en: string
+          name_th: string
+        }
+        Update: {
+          code?: string
+          color?: string
+          created_at?: string
+          criteria?: Json
+          description_en?: string
+          description_th?: string
+          icon?: string
+          id?: string
+          name_en?: string
+          name_th?: string
+        }
+        Relationships: []
+      }
       admins: {
         Row: {
           created_at: string
@@ -618,6 +657,38 @@ export type Database = {
         }
         Relationships: []
       }
+      user_achievements: {
+        Row: {
+          achievement_code: string
+          earned_at: string
+          id: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          achievement_code: string
+          earned_at?: string
+          id?: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          achievement_code?: string
+          earned_at?: string
+          id?: string
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_achievement_code_fkey"
+            columns: ["achievement_code"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
       user_points: {
         Row: {
           id: string
@@ -836,6 +907,13 @@ export type Database = {
           member_id: string
           nickname: string
           user_id: string
+        }[]
+      }
+      check_and_award_achievements: {
+        Args: { p_score: number; p_time_taken: number; p_user_id: string }
+        Returns: {
+          new_achievement_code: string
+          new_achievement_name: string
         }[]
       }
       check_and_reset_ai_quota: {

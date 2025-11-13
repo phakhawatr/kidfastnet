@@ -4,7 +4,9 @@ import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SkillsSection from '../components/SkillsSection';
+import AchievementBadge from '../components/AchievementBadge';
 import { useAuth } from '../hooks/useAuth';
+import { useAchievements } from '../hooks/useAchievements';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -12,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Users, Sparkles, Edit, Upload, X } from 'lucide-react';
+import { Users, Sparkles, Edit, Upload, X, Trophy } from 'lucide-react';
 import { SubscriptionTab } from '../components/SubscriptionTab';
 
 // Import mascot images
@@ -68,8 +70,11 @@ const Profile = () => {
   const {
     username,
     isDemo,
-    logout
+    logout,
+    registrationId
   } = useAuth();
+  
+  const { userAchievements, getAchievementProgress } = useAchievements(registrationId || null);
   
   // Get active tab from URL
   const [searchParams, setSearchParams] = useSearchParams();
@@ -681,6 +686,50 @@ const Profile = () => {
                 </div>
               </CardContent>
             </Card>
+          </div>
+        )}
+
+        {/* Achievement Badges Section */}
+        {!isDemo && userAchievements.length > 0 && (
+          <div className="card-glass p-6 mb-6 border-l-4 border-yellow-500">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <Trophy className="w-8 h-8 text-yellow-600" />
+                <div>
+                  <h2 className="text-2xl font-bold text-[hsl(var(--text-primary))]">
+                    ตราสัญลักษณ์ความสำเร็จ
+                  </h2>
+                  <p className="text-sm text-[hsl(var(--text-secondary))]">
+                    ปลดล็อคแล้ว {getAchievementProgress().earned} จาก {getAchievementProgress().total} เหรียญ ({getAchievementProgress().percentage}%)
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-6">
+              <div className="flex flex-wrap gap-6 justify-center">
+                {userAchievements.map((ua) => (
+                  <AchievementBadge
+                    key={ua.id}
+                    code={ua.achievement?.icon || 'award'}
+                    name={ua.achievement?.name_th || ''}
+                    description={ua.achievement?.description_th}
+                    color={ua.achievement?.color || 'blue'}
+                    size="lg"
+                    showName={true}
+                    earnedAt={ua.earned_at}
+                  />
+                ))}
+              </div>
+              
+              {getAchievementProgress().percentage < 100 && (
+                <div className="mt-6 pt-4 border-t border-yellow-200">
+                  <p className="text-center text-sm text-gray-600">
+                    💡 ทำแบบทดสอบต่อไปเพื่อปลดล็อคเหรียญความสำเร็จเพิ่มเติม!
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
