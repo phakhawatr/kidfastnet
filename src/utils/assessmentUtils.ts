@@ -416,11 +416,11 @@ const generatePatternsQuestions = (config: SkillConfig): AssessmentQuestion[] =>
 const generateShapesQuestions = (config: SkillConfig): AssessmentQuestion[] => {
   const questions: AssessmentQuestion[] = [];
   
-  const shapes2D = [
-    { name: 'สามเหลี่ยม', emoji: '🔺', sides: 3 },
-    { name: 'สี่เหลี่ยม', emoji: '⬜', sides: 4 },
-    { name: 'วงกลม', emoji: '⭕', sides: 0 },
-    { name: 'วงรี', emoji: '⬭', sides: 0 }
+  // Updated shapes with color variants for better visibility
+  const coloredShapes = [
+    'triangle-red', 'triangle-blue', 'triangle-green', 
+    'square-red', 'square-blue', 'square-green',
+    'circle-red', 'circle-blue', 'circle-green'
   ];
   
   const shapes3D = [
@@ -454,31 +454,41 @@ const generateShapesQuestions = (config: SkillConfig): AssessmentQuestion[] => {
         break;
       }
       case 'count_shapes': {
-        const shapeToCount = ['🔺', '⬜', '⭕'][i % 3];
+        // Use colored shapes for counting
+        const colors = ['red', 'blue', 'green', 'orange', 'yellow', 'sky'];
+        const baseShapes = ['triangle', 'square', 'circle'];
+        const shapeToCount = `${baseShapes[i % 3]}-${colors[i % colors.length]}`;
         const count = randInt(3, 6);
-        const otherShapes = ['🔺', '⬜', '⭕', '🔴'];
+        
+        // Create other shapes (different types and colors)
+        const otherShapes = coloredShapes.filter(s => s !== shapeToCount);
         const sequence = Array.from({ length: count + 2 }, (_, idx) => 
-          idx < count ? shapeToCount : otherShapes[randInt(0, 3)]
+          idx < count ? shapeToCount : otherShapes[randInt(0, otherShapes.length - 1)]
         );
         shuffleArray(sequence);
-        question = `ในรูปนี้มี ${shapeToCount} กี่รูป? ${sequence.join('')}`;
+        question = `ในรูปนี้มี [${shapeToCount}] กี่รูป? [shapes:${sequence.join(',')}]`;
         correctAnswer = count;
         choices = generateChoices(count);
         break;
       }
       case 'pattern_creation': {
+        // Create patterns with colored shapes
+        const colors = ['red', 'blue', 'green', 'orange', 'yellow', 'sky'];
         const patterns = [
-          { seq: ['🔺', '⬜'], correct: '🔺' },
-          { seq: ['⭕', '🔺'], correct: '⭕' }
+          { seq: ['triangle-red', 'square-blue'], correct: 'triangle-red' },
+          { seq: ['circle-green', 'triangle-orange'], correct: 'circle-green' },
+          { seq: ['square-red', 'circle-blue', 'triangle-green'], correct: 'square-red' }
         ];
         const pattern = patterns[i % patterns.length];
         const display = [...pattern.seq, ...pattern.seq];
-        question = `ถ้าใช้ ${display.join('')} มาต่อกัน รูปถัดไปคือ?`;
+        question = `ถ้าใช้ [shapes:${display.join(',')}] มาต่อกัน รูปถัดไปคือ?`;
         correctAnswer = pattern.correct;
-        choices = shuffleArray(['🔺', '⬜', '⭕', '🔴']).slice(0, 4);
-        if (!choices.includes(correctAnswer)) {
-          choices[0] = correctAnswer;
-        }
+        
+        // Create choices with different shapes
+        choices = shuffleArray([
+          pattern.correct,
+          ...coloredShapes.filter(s => s !== pattern.correct).slice(0, 3)
+        ]);
         break;
       }
       case 'identify_3d': {

@@ -6,6 +6,7 @@ import { useAssessment } from '@/hooks/useAssessment';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import ShapeDisplay from '@/components/ShapeDisplay';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -174,6 +175,64 @@ const Quiz = () => {
   const currentQuestion = questions[currentIndex];
   const progress = questions.length > 0 ? ((currentIndex + 1) / questions.length) * 100 : 0;
 
+  // Helper function to render question with shapes
+  const renderQuestionText = (questionText: string) => {
+    // Check for shape markers [shapes:shape1,shape2,...]
+    const shapeMatch = questionText.match(/\[shapes:(.*?)\]/);
+    if (shapeMatch) {
+      const shapesStr = shapeMatch[1];
+      const shapes = shapesStr.split(',');
+      const textBefore = questionText.substring(0, shapeMatch.index);
+      const textAfter = questionText.substring(shapeMatch.index! + shapeMatch[0].length);
+      
+      return (
+        <div className="space-y-3">
+          <div className="text-xl font-semibold whitespace-pre-line">{textBefore}</div>
+          <div className="flex flex-wrap gap-2 p-4 bg-purple-50 rounded-lg justify-center">
+            {shapes.map((shape, idx) => (
+              <ShapeDisplay key={idx} shape={shape.trim()} size={56} />
+            ))}
+          </div>
+          <div className="text-xl font-semibold whitespace-pre-line">{textAfter}</div>
+        </div>
+      );
+    }
+    
+    // Check for single shape marker [shape-color]
+    const singleShapeMatch = questionText.match(/\[(triangle|square|circle)-(red|blue|green|orange|yellow|sky)\]/);
+    if (singleShapeMatch) {
+      const shape = singleShapeMatch[1] + '-' + singleShapeMatch[2];
+      const textBefore = questionText.substring(0, singleShapeMatch.index);
+      const textAfter = questionText.substring(singleShapeMatch.index! + singleShapeMatch[0].length);
+      
+      return (
+        <div className="text-xl font-semibold whitespace-pre-line">
+          {textBefore}
+          <span className="inline-flex mx-2 align-middle">
+            <ShapeDisplay shape={shape} size={48} />
+          </span>
+          {textAfter}
+        </div>
+      );
+    }
+    
+    return <h3 className="text-xl font-semibold whitespace-pre-line">{questionText}</h3>;
+  };
+
+  // Helper function to render choice with shapes
+  const renderChoice = (choice: string | number) => {
+    const choiceStr = String(choice);
+    // Check if choice is a shape identifier
+    if (choiceStr.match(/^(triangle|square|circle)-(red|blue|green|orange|yellow|sky)$/)) {
+      return (
+        <div className="flex justify-center py-2">
+          <ShapeDisplay shape={choiceStr} size={64} />
+        </div>
+      );
+    }
+    return <span className="text-lg">{choice}</span>;
+  };
+
   // Selection Screen
   if (screen === 'select') {
     return (
@@ -276,7 +335,7 @@ const Quiz = () => {
               {currentQuestion && (
                 <>
                   <div className="bg-white p-6 rounded-lg border-2 border-purple-200">
-                    <h3 className="text-xl font-semibold whitespace-pre-line">{currentQuestion.question}</h3>
+                    {renderQuestionText(currentQuestion.question)}
                   </div>
 
                   <RadioGroup 
@@ -296,8 +355,8 @@ const Quiz = () => {
                             }`}
                           >
                             <RadioGroupItem value={String(idx)} id={`choice-${idx}`} />
-                            <Label htmlFor={`choice-${idx}`} className="flex-1 cursor-pointer text-lg">
-                              {choice}
+                            <Label htmlFor={`choice-${idx}`} className="flex-1 cursor-pointer">
+                              {renderChoice(choice)}
                             </Label>
                           </div>
                         );
@@ -514,10 +573,11 @@ const Quiz = () => {
                           ) : (
                             <XCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
                           )}
-                          <div className="flex-1">
-                            <p className="font-semibold text-gray-800 mb-2">
-                              ข้อ {idx + 1}: {q.question}
-                            </p>
+                           <div className="flex-1">
+                            <div className="font-semibold text-gray-800 mb-2">
+                              <span>ข้อ {idx + 1}: </span>
+                              {renderQuestionText(q.question)}
+                            </div>
                             <div className="space-y-2 text-sm">
                               {q.choices.map((choice, choiceIdx) => {
                                 const isUserChoice = userAnswer === choiceIdx;
@@ -536,9 +596,10 @@ const Quiz = () => {
                                     }`}
                                   >
                                     <div className="flex items-center justify-between">
-                                      <span>
-                                        <span className="font-medium">{choiceIdx + 1}.</span> {choice}
-                                      </span>
+                                      <div className="flex items-center gap-2">
+                                        <span className="font-medium">{choiceIdx + 1}.</span>
+                                        {renderChoice(choice)}
+                                      </div>
                                       {isCorrectChoice && (
                                         <span className="text-green-700 font-semibold flex items-center gap-1">
                                           <CheckCircle className="w-4 h-4" />
