@@ -339,6 +339,14 @@ const generatePlaceValueQuestions = (config: SkillConfig): AssessmentQuestion[] 
 const generatePatternsQuestions = (config: SkillConfig): AssessmentQuestion[] => {
   const questions: AssessmentQuestion[] = [];
   
+  // Use colored shapes for patterns
+  const coloredShapes = [
+    'triangle-red', 'triangle-blue', 'triangle-green',
+    'square-red', 'square-blue', 'square-green',
+    'circle-red', 'circle-blue', 'circle-green',
+    'triangle-orange', 'square-yellow', 'circle-sky'
+  ];
+  
   for (let i = 0; i < config.count; i++) {
     const questionTypes = ['hundred_chart_add_10', 'hundred_chart_subtract_10', 'geometric_pattern', 'shape_pattern'];
     const type = questionTypes[i % questionTypes.length];
@@ -367,35 +375,42 @@ const generatePatternsQuestions = (config: SkillConfig): AssessmentQuestion[] =>
         break;
       }
       case 'geometric_pattern': {
+        // Use vivid colored shapes
         const patterns = [
-          { seq: ['🔺', '⬜', '⭕'], correct: '🔺' },
-          { seq: ['⬜', '🔺', '⬜'], correct: '🔺' },
-          { seq: ['⭕', '🔺', '⬜'], correct: '⭕' },
-          { seq: ['🔺', '🔺', '⬜'], correct: '🔺' }
+          { seq: ['triangle-red', 'square-blue', 'circle-green'], correct: 'triangle-red' },
+          { seq: ['square-orange', 'triangle-blue', 'square-orange'], correct: 'triangle-blue' },
+          { seq: ['circle-red', 'triangle-yellow', 'square-sky'], correct: 'circle-red' },
+          { seq: ['triangle-green', 'triangle-green', 'square-red'], correct: 'triangle-green' }
         ];
         const pattern = patterns[i % patterns.length];
         const fullSeq = [...pattern.seq, ...pattern.seq, '__'];
-        question = `รูปใดมาต่อในแบบรูปซ้ำ? ${fullSeq.join(' ')}`;
+        question = `รูปใดมาต่อในแบบรูปซ้ำ? [shapes:${fullSeq.slice(0, -1).join(',')}]`;
         correctAnswer = pattern.correct;
-        choices = shuffleArray(['🔺', '⬜', '⭕', '🔴']).slice(0, 4);
-        if (!choices.includes(correctAnswer)) {
-          choices[0] = correctAnswer;
-        }
+        
+        // Create 4 different shape choices
+        choices = shuffleArray([
+          pattern.correct,
+          ...coloredShapes.filter(s => s !== pattern.correct).slice(0, 3)
+        ]);
         break;
       }
       case 'shape_pattern': {
+        // Use vivid colored shapes
         const patterns = [
-          { seq: ['△', '□'], correct: '△' },
-          { seq: ['○', '△', '○'], correct: '△' }
+          { seq: ['triangle-red', 'square-blue'], correct: 'triangle-red' },
+          { seq: ['circle-green', 'triangle-orange', 'circle-green'], correct: 'triangle-orange' },
+          { seq: ['square-yellow', 'circle-red'], correct: 'square-yellow' }
         ];
         const pattern = patterns[i % patterns.length];
         const fullSeq = [...pattern.seq, ...pattern.seq, '__'];
-        question = `สร้างแบบรูปซ้ำต่อไป: ${fullSeq.join(' ')}`;
+        question = `สร้างแบบรูปซ้ำต่อไป: [shapes:${fullSeq.slice(0, -1).join(',')}]`;
         correctAnswer = pattern.correct;
-        choices = shuffleArray(['△', '□', '○', '◇']).slice(0, 4);
-        if (!choices.includes(correctAnswer)) {
-          choices[0] = correctAnswer;
-        }
+        
+        // Create 4 different shape choices
+        choices = shuffleArray([
+          pattern.correct,
+          ...coloredShapes.filter(s => s !== pattern.correct).slice(0, 3)
+        ]);
         break;
       }
     }
@@ -472,14 +487,15 @@ const generateShapesQuestions = (config: SkillConfig): AssessmentQuestion[] => {
         break;
       }
       case 'pattern_creation': {
-        // Create patterns with colored shapes
-        const colors = ['red', 'blue', 'green', 'orange', 'yellow', 'sky'];
-        const patterns = [
+        // Create patterns with vivid colored shapes - ensuring variety
+        const patternOptions = [
           { seq: ['triangle-red', 'square-blue'], correct: 'triangle-red' },
           { seq: ['circle-green', 'triangle-orange'], correct: 'circle-green' },
-          { seq: ['square-red', 'circle-blue', 'triangle-green'], correct: 'square-red' }
+          { seq: ['square-yellow', 'circle-sky'], correct: 'square-yellow' },
+          { seq: ['triangle-blue', 'square-red', 'circle-green'], correct: 'triangle-blue' },
+          { seq: ['circle-orange', 'square-yellow', 'triangle-sky'], correct: 'circle-orange' }
         ];
-        const pattern = patterns[i % patterns.length];
+        const pattern = patternOptions[i % patternOptions.length];
         const display = [...pattern.seq, ...pattern.seq];
         question = `ถ้าใช้ [shapes:${display.join(',')}] มาต่อกัน รูปถัดไปคือ?`;
         correctAnswer = pattern.correct;
