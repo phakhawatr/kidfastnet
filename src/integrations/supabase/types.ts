@@ -289,6 +289,48 @@ export type Database = {
           },
         ]
       }
+      level_assessments: {
+        Row: {
+          assessment_data: Json | null
+          completed_at: string | null
+          correct_answers: number | null
+          created_at: string | null
+          grade: number
+          id: string
+          score: number | null
+          semester: number
+          time_taken: number | null
+          total_questions: number | null
+          user_id: string
+        }
+        Insert: {
+          assessment_data?: Json | null
+          completed_at?: string | null
+          correct_answers?: number | null
+          created_at?: string | null
+          grade: number
+          id?: string
+          score?: number | null
+          semester: number
+          time_taken?: number | null
+          total_questions?: number | null
+          user_id: string
+        }
+        Update: {
+          assessment_data?: Json | null
+          completed_at?: string | null
+          correct_answers?: number | null
+          created_at?: string | null
+          grade?: number
+          id?: string
+          score?: number | null
+          semester?: number
+          time_taken?: number | null
+          total_questions?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       line_link_codes: {
         Row: {
           created_at: string | null

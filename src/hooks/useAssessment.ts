@@ -1,0 +1,109 @@
+import { useState, useEffect } from 'react';
+import { AssessmentQuestion, generateAssessmentQuestions } from '@/utils/assessmentUtils';
+import { supabase } from '@/integrations/supabase/client';
+
+export const useAssessment = (userId: string, grade: number, semester: number) => {
+  const [questions, setQuestions] = useState<AssessmentQuestion[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [answers, setAnswers] = useState<Map<number, any>>(new Map());
+  const [startTime, setStartTime] = useState<number>(Date.now());
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (grade && semester) {
+      setIsLoading(true);
+      const qs = generateAssessmentQuestions(grade, semester);
+      setQuestions(qs);
+      setStartTime(Date.now());
+      setCurrentIndex(0);
+      setAnswers(new Map());
+      setIsSubmitted(false);
+      setIsLoading(false);
+    }
+  }, [grade, semester]);
+
+  const setAnswer = (questionIndex: number, answer: any) => {
+    setAnswers(prev => new Map(prev).set(questionIndex, answer));
+  };
+
+  const goToQuestion = (index: number) => {
+    if (index >= 0 && index < questions.length) {
+      setCurrentIndex(index);
+    }
+  };
+
+  const nextQuestion = () => {
+    if (currentIndex < questions.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    }
+  };
+
+  const previousQuestion = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
+  };
+
+  const calculateCorrectAnswers = (): number => {
+    let correct = 0;
+    questions.forEach((q, i) => {
+      const userAnswer = answers.get(i);
+      if (String(userAnswer) === String(q.correctAnswer)) {
+        correct++;
+      }
+    });
+    return correct;
+  };
+
+  const submitAssessment = async () => {
+    const timeTaken = Math.floor((Date.now() - startTime) / 1000);
+    const correct = calculateCorrectAnswers();
+    const score = questions.length > 0 ? (correct / questions.length) * 100 : 0;
+
+    try {
+      const { error } = await supabase.from('level_assessments').insert([{
+        user_id: userId,
+        grade,
+        semester,
+        total_questions: questions.length,
+        correct_answers: correct,
+        score: parseFloat(score.toFixed(2)),
+        time_taken: timeTaken,
+        assessment_data: {
+          questions: questions.map(q => ({
+            id: q.id,
+            question: q.question,
+            correctAnswer: q.correctAnswer,
+            skill: q.skill
+          })),
+          answers: Array.from(answers.entries())
+        },
+        completed_at: new Date().toISOString()
+      }]);
+
+      if (error) throw error;
+      setIsSubmitted(true);
+    } catch (error) {
+      console.error('Error submitting assessment:', error);
+      throw error;
+    }
+  };
+
+  const currentTimeTaken = Math.floor((Date.now() - startTime) / 1000);
+
+  return {
+    questions,
+    currentIndex,
+    answers,
+    isLoading,
+    isSubmitted,
+    setAnswer,
+    goToQuestion,
+    nextQuestion,
+    previousQuestion,
+    submitAssessment,
+    calculateCorrectAnswers,
+    timeTaken: currentTimeTaken
+  };
+};

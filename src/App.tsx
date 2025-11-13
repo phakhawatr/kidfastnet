@@ -5,6 +5,7 @@ import Landing from "./pages/Landing";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
+import Quiz from "./pages/Quiz";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import SubtractionApp from "./pages/SubtractionApp";
@@ -57,6 +58,14 @@ const App = () => {
             } 
           />
           <Route 
+            path="/quiz" 
+            element={
+              <ProtectedRoute>
+                <Quiz />
+              </ProtectedRoute>
+            } 
+          />
+          <Route
             path="/parent" 
             element={
               <ProtectedRoute>

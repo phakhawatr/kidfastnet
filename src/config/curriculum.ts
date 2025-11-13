@@ -1,0 +1,108 @@
+export interface SkillConfig {
+  skill: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  count: number;
+  range?: [number, number];
+  tables?: number[];
+}
+
+export const curriculumConfig: Record<string, Record<string, SkillConfig[]>> = {
+  grade1: {
+    semester1: [
+      { skill: 'addition', difficulty: 'easy', count: 10, range: [1, 20] },
+      { skill: 'subtraction', difficulty: 'easy', count: 8, range: [1, 10] },
+      { skill: 'numberBonds', difficulty: 'easy', count: 6, range: [1, 10] },
+      { skill: 'shapes', difficulty: 'easy', count: 6 }
+    ],
+    semester2: [
+      { skill: 'addition', difficulty: 'easy', count: 8, range: [10, 50] },
+      { skill: 'subtraction', difficulty: 'easy', count: 8, range: [10, 30] },
+      { skill: 'money', difficulty: 'easy', count: 7 },
+      { skill: 'measurement', difficulty: 'easy', count: 7 }
+    ]
+  },
+  grade2: {
+    semester1: [
+      { skill: 'addition', difficulty: 'medium', count: 8, range: [20, 100] },
+      { skill: 'subtraction', difficulty: 'medium', count: 8, range: [20, 100] },
+      { skill: 'multiplication', difficulty: 'easy', count: 7, tables: [2, 3, 5] },
+      { skill: 'placeValue', difficulty: 'easy', count: 7 }
+    ],
+    semester2: [
+      { skill: 'multiplication', difficulty: 'medium', count: 10, tables: [2, 3, 4, 5] },
+      { skill: 'division', difficulty: 'easy', count: 8, range: [1, 50] },
+      { skill: 'money', difficulty: 'medium', count: 6 },
+      { skill: 'time', difficulty: 'easy', count: 6 }
+    ]
+  },
+  grade3: {
+    semester1: [
+      { skill: 'addition', difficulty: 'medium', count: 7, range: [100, 999] },
+      { skill: 'subtraction', difficulty: 'medium', count: 7, range: [100, 999] },
+      { skill: 'multiplication', difficulty: 'medium', count: 8, tables: [2, 3, 4, 5, 6, 7, 8, 9] },
+      { skill: 'division', difficulty: 'medium', count: 8, range: [1, 100] }
+    ],
+    semester2: [
+      { skill: 'multiplication', difficulty: 'hard', count: 8, tables: [6, 7, 8, 9, 10, 11, 12] },
+      { skill: 'division', difficulty: 'medium', count: 8, range: [1, 100] },
+      { skill: 'fractions', difficulty: 'easy', count: 7 },
+      { skill: 'measurement', difficulty: 'medium', count: 7 }
+    ]
+  },
+  grade4: {
+    semester1: [
+      { skill: 'multiplication', difficulty: 'hard', count: 8, range: [10, 999] },
+      { skill: 'division', difficulty: 'hard', count: 8, range: [10, 999] },
+      { skill: 'fractions', difficulty: 'medium', count: 7 },
+      { skill: 'decimals', difficulty: 'easy', count: 7 }
+    ],
+    semester2: [
+      { skill: 'fractions', difficulty: 'hard', count: 8 },
+      { skill: 'decimals', difficulty: 'medium', count: 8 },
+      { skill: 'percentage', difficulty: 'easy', count: 7 },
+      { skill: 'geometry', difficulty: 'medium', count: 7 }
+    ]
+  },
+  grade5: {
+    semester1: [
+      { skill: 'fractions', difficulty: 'hard', count: 8 },
+      { skill: 'decimals', difficulty: 'hard', count: 8 },
+      { skill: 'percentage', difficulty: 'medium', count: 7 },
+      { skill: 'ratios', difficulty: 'easy', count: 7 }
+    ],
+    semester2: [
+      { skill: 'percentage', difficulty: 'hard', count: 8 },
+      { skill: 'ratios', difficulty: 'medium', count: 8 },
+      { skill: 'algebra', difficulty: 'easy', count: 7 },
+      { skill: 'geometry', difficulty: 'medium', count: 7 }
+    ]
+  },
+  grade6: {
+    semester1: [
+      { skill: 'algebra', difficulty: 'medium', count: 8 },
+      { skill: 'ratios', difficulty: 'hard', count: 8 },
+      { skill: 'percentage', difficulty: 'hard', count: 7 },
+      { skill: 'geometry', difficulty: 'hard', count: 7 }
+    ],
+    semester2: [
+      { skill: 'algebra', difficulty: 'hard', count: 8 },
+      { skill: 'statistics', difficulty: 'medium', count: 8 },
+      { skill: 'probability', difficulty: 'easy', count: 7 },
+      { skill: 'geometry', difficulty: 'hard', count: 7 }
+    ]
+  }
+};
+
+export const getGradeOptions = () => [
+  { value: 1, label: 'ประถมศึกษาปีที่ 1' },
+  { value: 2, label: 'ประถมศึกษาปีที่ 2' },
+  { value: 3, label: 'ประถมศึกษาปีที่ 3' },
+  { value: 4, label: 'ประถมศึกษาปีที่ 4' },
+  { value: 5, label: 'ประถมศึกษาปีที่ 5' },
+  { value: 6, label: 'ประถมศึกษาปีที่ 6' }
+];
+
+export const getSemesterOptions = () => [
+  { value: 1, label: 'เทอม 1' },
+  { value: 2, label: 'เทอม 2' }
+];

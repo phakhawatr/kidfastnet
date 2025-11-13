@@ -1,0 +1,19 @@
+{
+  "title": "การสอบวัดระดับ",
+  "selectGrade": "เลือกชั้น",
+  "selectSemester": "เลือกเทอม",
+  "startAssessment": "เริ่มทำข้อสอบ",
+  "semester1": "เทอม 1",
+  "semester2": "เทอม 2",
+  "totalQuestions": "จำนวนข้อสอบ",
+  "timeUsed": "เวลาที่ใช้",
+  "score": "คะแนน",
+  "correctAnswers": "คำตอบถูก",
+  "wrongAnswers": "คำตอบผิด",
+  "submitAnswer": "ส่งคำตอบ",
+  "previousQuestion": "ข้อก่อนหน้า",
+  "nextQuestion": "ข้อถัดไป",
+  "viewResults": "ดูผลคะแนน",
+  "tryAgain": "ทำใหม่อีกครั้ง",
+  "backToHome": "กลับหน้าหลัก"
+}

@@ -1,0 +1,19 @@
+{
+  "title": "Level Assessment",
+  "selectGrade": "Select Grade",
+  "selectSemester": "Select Semester",
+  "startAssessment": "Start Assessment",
+  "semester1": "Semester 1",
+  "semester2": "Semester 2",
+  "totalQuestions": "Total Questions",
+  "timeUsed": "Time Used",
+  "score": "Score",
+  "correctAnswers": "Correct Answers",
+  "wrongAnswers": "Wrong Answers",
+  "submitAnswer": "Submit Answer",
+  "previousQuestion": "Previous",
+  "nextQuestion": "Next",
+  "viewResults": "View Results",
+  "tryAgain": "Try Again",
+  "backToHome": "Back to Home"
+}
