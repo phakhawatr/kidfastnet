@@ -373,7 +373,7 @@ const Quiz = () => {
   // Selection Screen
   if (screen === 'select') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-900 to-slate-900">
         <Header />
         <div className="container mx-auto px-4 py-12">
           <Tabs defaultValue="test" className="max-w-4xl mx-auto">
@@ -537,7 +537,7 @@ const Quiz = () => {
     }
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-900 to-slate-900">
         <Header />
         <div className="container mx-auto px-4 py-8">
           <Card className="max-w-3xl mx-auto shadow-lg">
@@ -675,7 +675,7 @@ const Quiz = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-900 to-slate-900">
       <Header />
       
       {/* Achievement Notification */}
