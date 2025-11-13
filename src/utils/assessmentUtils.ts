@@ -946,10 +946,12 @@ export const generateAssessmentQuestions = (
         questions = generatePlaceholderQuestions(skillConfig);
     }
     
-    allQuestions.push(...questions);
+    // Shuffle only within each skill group to maintain skill grouping
+    allQuestions.push(...shuffleArray(questions));
   }
   
-  return shuffleArray(allQuestions);
+  // Return questions grouped by skill (no shuffling between skills)
+  return allQuestions;
 };
 
 export const evaluateAssessment = (score: number): {
