@@ -13,7 +13,7 @@ const LanguageSwitcher = () => {
   return (
     <button
       onClick={toggleLanguage}
-      className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all duration-200 text-sm font-medium border border-white/20 hover:border-white/40"
+      className="flex items-center gap-2 px-3 py-2 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white transition-all duration-200 text-sm font-medium border border-emerald-600 hover:border-emerald-700 shadow-md hover:shadow-lg"
       title={currentLang === 'th' ? t('switchToEnglish') : t('switchToThai')}
     >
       <Languages className="w-4 h-4" />
