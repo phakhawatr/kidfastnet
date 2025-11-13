@@ -751,9 +751,34 @@ const generateSubtractionQuestions = (config: SkillConfig): AssessmentQuestion[]
         break;
       }
       case 'find_unknown': {
-        const a = randInt(Math.max(50, min), max);
-        const result = randInt(20, a - 20);
-        const b = a - result;
+        // แยก logic ตามช่วงเพื่อป้องกันคำตอบเป็นจำนวนลบ
+        let a, result, b;
+        
+        if (max <= 10) {
+          // สำหรับ ป.1 เทอม 1 (range เล็ก)
+          a = randInt(Math.max(5, min), max);
+          result = randInt(min, Math.max(min, a - 1)); // result ต้องน้อยกว่า a
+          b = a - result;
+        } else if (max <= 20) {
+          // สำหรับช่วง 11-20
+          a = randInt(Math.max(10, min), max);
+          result = randInt(Math.max(min, 5), Math.max(min, a - 3)); // result ต้องน้อยกว่า a
+          b = a - result;
+        } else {
+          // สำหรับ ป.1 เทอม 2 และสูงกว่า (range ใหญ่)
+          a = randInt(Math.max(30, min), max);
+          result = randInt(Math.max(10, min), Math.max(min, a - 10)); // result ต้องน้อยกว่า a
+          b = a - result;
+        }
+        
+        // ตรวจสอบความถูกต้อง
+        if (b < 0 || a - b !== result) {
+          // ถ้าเกิดข้อผิดพลาด ให้สร้างใหม่อย่างง่าย
+          a = max;
+          b = Math.floor(max / 2);
+          result = a - b;
+        }
+        
         correctAnswer = b;
         question = `${a} - __ = ${result}`;
         choices = generateChoices(correctAnswer);
