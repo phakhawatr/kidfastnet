@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
@@ -8,18 +8,20 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ShapeDisplay from '@/components/ShapeDisplay';
 import QuizHistory from '@/components/QuizHistory';
+import CertificateCard from '@/components/CertificateCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ClipboardPen, Clock, Award, ChevronLeft, ChevronRight, BookOpen, Send, Eye, CheckCircle, XCircle, TrendingUp, TrendingDown, Minus, Hash, Scale, ArrowUpDown, Grid3x3, Plus, Sparkles, Shapes, Ruler, BarChart2, LucideIcon, BarChart3 } from 'lucide-react';
+import { ClipboardPen, Clock, Award, ChevronLeft, ChevronRight, BookOpen, Send, Eye, CheckCircle, XCircle, TrendingUp, TrendingDown, Minus, Hash, Scale, ArrowUpDown, Grid3x3, Plus, Sparkles, Shapes, Ruler, BarChart2, LucideIcon, BarChart3, Download, Share2, Facebook, MessageCircle, Twitter } from 'lucide-react';
 import { getGradeOptions, getSemesterOptions, curriculumConfig } from '@/config/curriculum';
 import { evaluateAssessment } from '@/utils/assessmentUtils';
+import { downloadCertificate, shareCertificate } from '@/utils/certificateUtils';
 
 const Quiz = () => {
-  const { user, registrationId } = useAuth();
+  const { user, registrationId, profile } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation(['quiz', 'common']);
   const { toast } = useToast();
@@ -32,6 +34,8 @@ const Quiz = () => {
   const [showAnswers, setShowAnswers] = useState(false);
   const [isSendingLine, setIsSendingLine] = useState(false);
   const [lineSent, setLineSent] = useState(false);
+  const [showCertificate, setShowCertificate] = useState(false);
+  const certificateRef = useRef<HTMLDivElement>(null);
 
   const {
     questions,
@@ -123,6 +127,49 @@ const Quiz = () => {
     setShowAnswers(false);
     setShowTopicOutline(false);
     setLineSent(false);
+    setShowCertificate(false);
+  };
+
+  const handleDownloadCertificate = async () => {
+    try {
+      const filename = `certificate_${profile?.nickname || 'student'}_${new Date().toISOString().split('T')[0]}.png`;
+      await downloadCertificate(certificateRef.current, filename);
+      toast({
+        title: "ดาวน์โหลดสำเร็จ",
+        description: "บันทึกใบประกาศเรียบร้อยแล้ว",
+      });
+    } catch (error) {
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถดาวน์โหลดใบประกาศได้",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleShareCertificate = async (platform: 'facebook' | 'line' | 'twitter') => {
+    try {
+      const correctAnswers = calculateCorrectAnswers();
+      const score = questions.length > 0 ? (correctAnswers / questions.length) * 100 : 0;
+      
+      await shareCertificate(
+        certificateRef.current,
+        platform,
+        score,
+        profile?.nickname || 'นักเรียน'
+      );
+      
+      toast({
+        title: "แชร์สำเร็จ",
+        description: `เปิดหน้าต่างแชร์ไปยัง ${platform === 'facebook' ? 'Facebook' : platform === 'line' ? 'LINE' : 'Twitter'} แล้ว`,
+      });
+    } catch (error) {
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถแชร์ใบประกาศได้",
+        variant: "destructive",
+      });
+    }
   };
 
   // Get topic outline for selected grade and semester
@@ -645,6 +692,94 @@ const Quiz = () => {
                 <span>เวลาที่ใช้:</span>
                 <span className="font-mono font-semibold">{Math.floor(timeTaken / 60)} นาที {timeTaken % 60} วินาที</span>
               </div>
+            </div>
+
+            {/* Certificate Section */}
+            <div className="border-t-2 border-purple-200 pt-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-purple-900 flex items-center gap-2">
+                  <Award className="w-6 h-6" />
+                  ใบประกาศผลการสอบ
+                </h3>
+                <Button
+                  onClick={() => setShowCertificate(!showCertificate)}
+                  variant="outline"
+                  size="sm"
+                >
+                  {showCertificate ? 'ซ่อน' : 'แสดง'}
+                </Button>
+              </div>
+
+              {showCertificate && (
+                <div className="space-y-4">
+                  {/* Certificate Preview */}
+                  <div className="flex justify-center overflow-x-auto pb-4">
+                    <div className="transform scale-75 origin-top">
+                      <CertificateCard
+                        ref={certificateRef}
+                        nickname={profile?.nickname || 'นักเรียน'}
+                        score={score}
+                        grade={selectedGrade}
+                        semester={selectedSemester}
+                        correctAnswers={correctAnswers}
+                        totalQuestions={questions.length}
+                        date={new Date().toLocaleDateString('th-TH', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                        evaluation={evaluation}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Download and Share Buttons */}
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                      <Share2 className="w-5 h-5" />
+                      ดาวน์โหลดและแชร์
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <Button
+                        onClick={handleDownloadCertificate}
+                        className="bg-purple-600 hover:bg-purple-700 flex items-center justify-center gap-2"
+                      >
+                        <Download className="w-4 h-4" />
+                        ดาวน์โหลดใบประกาศ
+                      </Button>
+                      <div className="grid grid-cols-3 gap-2">
+                        <Button
+                          onClick={() => handleShareCertificate('facebook')}
+                          variant="outline"
+                          className="flex items-center justify-center gap-1 border-blue-600 text-blue-600 hover:bg-blue-50"
+                        >
+                          <Facebook className="w-4 h-4" />
+                          <span className="hidden md:inline">FB</span>
+                        </Button>
+                        <Button
+                          onClick={() => handleShareCertificate('line')}
+                          variant="outline"
+                          className="flex items-center justify-center gap-1 border-green-600 text-green-600 hover:bg-green-50"
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                          <span className="hidden md:inline">LINE</span>
+                        </Button>
+                        <Button
+                          onClick={() => handleShareCertificate('twitter')}
+                          variant="outline"
+                          className="flex items-center justify-center gap-1 border-sky-600 text-sky-600 hover:bg-sky-50"
+                        >
+                          <Twitter className="w-4 h-4" />
+                          <span className="hidden md:inline">X</span>
+                        </Button>
+                      </div>
+                    </div>
+                    <p className="text-xs text-blue-700 mt-2">
+                      💡 คลิกดาวน์โหลดเพื่อบันทึกใบประกาศ หรือแชร์ไปยัง Social Media เพื่อโชว์ผลการเรียนของคุณ!
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Skill Breakdown Section */}
