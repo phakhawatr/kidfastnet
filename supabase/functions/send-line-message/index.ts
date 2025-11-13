@@ -219,7 +219,7 @@ async function sendLineFlexMessage(lineUserId: string, data: any) {
     resultMessage = 'ดีมาก! 👍';
   }
 
-  // Build basic info contents - always include these
+  // Build basic info contents - always include nickname and score
   const basicInfoContents = [
     {
       type: 'box',
@@ -255,7 +255,7 @@ async function sendLineFlexMessage(lineUserId: string, data: any) {
         },
         {
           type: 'text',
-          text: `${score}/${total} (${percentage}%)`,
+          text: `${String(score)}/${String(total)} (${String(percentage)}%)`,
           size: 'sm',
           color: '#111111',
           align: 'end',
@@ -265,8 +265,8 @@ async function sendLineFlexMessage(lineUserId: string, data: any) {
     }
   ];
   
-  // Add optional fields if they exist and are not 'ไม่ระบุ'
-  if (timeSpent && timeSpent !== 'ไม่ระบุ') {
+  // Add time if available
+  if (timeSpent && String(timeSpent) !== 'ไม่ระบุ' && String(timeSpent).trim() !== '') {
     basicInfoContents.push({
       type: 'box',
       layout: 'horizontal',
@@ -289,7 +289,8 @@ async function sendLineFlexMessage(lineUserId: string, data: any) {
     });
   }
   
-  if (level && level !== 'ไม่ระบุ') {
+  // Add level if available
+  if (level && String(level) !== 'ไม่ระบุ' && String(level).trim() !== '') {
     basicInfoContents.push({
       type: 'box',
       layout: 'horizontal',
