@@ -473,7 +473,7 @@ const PercentageApp: React.FC = () => {
           <Link to="/profile">
             <Button variant="outline" size="lg" className="bg-white hover:bg-purple-50 border-2 border-purple-300 text-purple-700 font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-105">
               <ArrowLeft className="w-5 h-5 mr-2" />
-              🏠 กลับ
+              🏠 {t('common.back')}
             </Button>
           </Link>
           

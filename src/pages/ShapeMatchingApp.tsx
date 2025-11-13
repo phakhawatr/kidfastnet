@@ -242,10 +242,10 @@ const ShapeMatchingApp: React.FC = () => {
             <Link to="/profile">
               <Button variant="outline" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                กลับ
+                {t('common.back')}
               </Button>
             </Link>
-            <h1 className="text-2xl font-bold text-gray-800">จับคู่ทรงเรขาคณิต</h1>
+            <h1 className="text-2xl font-bold text-gray-800">{t('shapes.title')}</h1>
           </div>
 
           <div className="flex items-center gap-4">
@@ -263,7 +263,7 @@ const ShapeMatchingApp: React.FC = () => {
         <Card className="mb-6">
           <CardContent className="p-4">
             <p className="text-center text-gray-600">
-              🎯 คลิกที่ทรงเรขาคณิตด้านซ้าย แล้วคลิกที่ชื่อทรงด้านขวาที่ตรงกัน
+              🎯 {t('shapes.instructions')}
             </p>
           </CardContent>
         </Card>
@@ -273,7 +273,7 @@ const ShapeMatchingApp: React.FC = () => {
           <div className="grid grid-cols-2 gap-2 sm:gap-4 md:gap-6 lg:gap-8">
             {/* Left Side - Shapes */}
             <div className="space-y-2">
-              <h2 className="text-sm sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-4">ทรงเรขาคณิต</h2>
+              <h2 className="text-sm sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-4">{t('shapes.shapes')}</h2>
               {questions.map((question) => {
                 const connection = getConnectionForLeft(question.id);
                 const isSelected = selectedLeft === question.id;
@@ -295,7 +295,7 @@ const ShapeMatchingApp: React.FC = () => {
 
             {/* Right Side - Names */}
             <div className="space-y-2">
-              <h2 className="text-sm sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-4">ชื่อทรง</h2>
+              <h2 className="text-sm sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-4">{t('shapes.names')}</h2>
               {shuffledAnswers.map((answer) => {
                 const connection = isRightConnected(answer.id);
                 const isConnected = connection !== undefined;
@@ -322,7 +322,7 @@ const ShapeMatchingApp: React.FC = () => {
             <CardHeader>
               <CardTitle className="text-center flex items-center justify-center gap-2">
                 <Trophy className="w-6 h-6 text-yellow-500" />
-                ผลลัพธ์
+                {t('shapes.results')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -330,21 +330,21 @@ const ShapeMatchingApp: React.FC = () => {
                 <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
                   <div className="bg-green-50 p-4 rounded-lg">
                     <div className="text-2xl font-bold text-green-600">{score}</div>
-                    <div className="text-sm text-gray-600">คะแนน</div>
+                    <div className="text-sm text-gray-600">{t('shapes.score')}</div>
                   </div>
                   <div className="bg-blue-50 p-4 rounded-lg">
                     <div className="text-2xl font-bold text-blue-600">{formatTime(timeElapsed)}</div>
-                    <div className="text-sm text-gray-600">เวลาที่ใช้</div>
+                    <div className="text-sm text-gray-600">{t('shapes.timeUsed')}</div>
                   </div>
                 </div>
                 
                 <div className="flex gap-3 justify-center">
                   <Button onClick={resetGame} variant="outline">
                     <RotateCcw className="w-4 h-4 mr-2" />
-                    เล่นใหม่
+                    {t('shapes.playAgain')}
                   </Button>
                   <Button onClick={nextSet}>
-                    ชุดต่อไป
+                    {t('shapes.nextSet')}
                   </Button>
                 </div>
               </div>
@@ -357,7 +357,7 @@ const ShapeMatchingApp: React.FC = () => {
           <div className="flex justify-center gap-3 mt-6">
             <Button onClick={resetGame} variant="outline">
               <RotateCcw className="w-4 h-4 mr-2" />
-              เริ่มใหม่
+              {t('shapes.restart')}
             </Button>
             <button
               onClick={generateRandomSet}
@@ -367,7 +367,7 @@ const ShapeMatchingApp: React.FC = () => {
               }}
             >
               <span className="text-2xl">✨</span>
-              <span>AI สร้างโจทย์ใหม่</span>
+              <span>{t('shapes.generateNew')}</span>
             </button>
           </div>
         )}

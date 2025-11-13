@@ -368,24 +368,24 @@ export default function MeasurementApp() {
         <div className="flex items-center gap-4 mb-4">
           <Link to="/profile" className="flex items-center gap-2 text-zinc-600 hover:text-zinc-800 transition-colors">
             <ArrowLeft className="w-5 h-5" />
-            <span>กลับ</span>
+            <span>{t('common.back')}</span>
           </Link>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-black flex items-center gap-2">📏 ฝึกวัดความยาว</h1>
-        <p className="text-zinc-600 mt-1 text-base">วัดความสูงและความยาวของวัตถุต่างๆ แล้วเขียนคำตอบเป็นเมตรและเซนติเมตร</p>
+        <h1 className="text-3xl sm:text-4xl font-black flex items-center gap-2">📏 {t('measurement.title')}</h1>
+        <p className="text-zinc-600 mt-1 text-base">{t('measurement.subtitle')}</p>
       </header>
 
       <main className="max-w-6xl mx-auto p-6 pt-3">
         <div className="flex flex-wrap items-center gap-2 mb-6">
           <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-amber-100 shadow-sm">
-            <span className="text-sm text-zinc-600">จำนวนข้อ:</span>
+            <span className="text-sm text-zinc-600">{t('measurement.questionCount')}:</span>
             {[6, 9, 12].map(n => <button key={n} onClick={() => applyCount(n)} className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${count === n ? "bg-amber-600 text-white border-amber-600" : "bg-zinc-50 hover:bg-zinc-100"}`}>
                 {n}
               </button>)}
           </div>
 
           <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-amber-100 shadow-sm">
-            <span className="text-sm text-zinc-600">ระดับ:</span>
+            <span className="text-sm text-zinc-600">{t('measurement.level')}:</span>
             {[{
             key: "easy",
             label: "ง่าย (10ซม.)"
@@ -408,18 +408,18 @@ export default function MeasurementApp() {
             }}
           >
             <span className="text-2xl">✨</span>
-            <span>AI สร้างโจทย์ใหม่</span>
+            <span>{t('measurement.generateNew')}</span>
           </button>
           <button onClick={checkAnswers} className="px-5 py-3 rounded-2xl text-lg bg-teal-600 text-white hover:bg-teal-700 shadow-lg">
-            ✅ ตรวจคำตอบ
+            ✅ {t('measurement.checkAnswers')}
           </button>
           <button onClick={showAll} className="px-5 py-3 rounded-2xl text-lg bg-orange-500 text-white hover:bg-orange-600 shadow-lg">
-            👀 เฉลยทั้งหมด
+            👀 {t('measurement.revealAll')}
           </button>
 
           {/* Timer */}
           <div className="ml-auto text-base bg-amber-50 border-2 border-amber-200 rounded-full px-4 py-2 font-semibold">
-            ⏱️ เวลา: <span className="font-semibold">{formatMS(elapsedMs)}</span>
+            ⏱️ {t('measurement.timer')}: <span className="font-semibold">{formatMS(elapsedMs)}</span>
           </div>
         </div>
 

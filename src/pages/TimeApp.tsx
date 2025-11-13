@@ -119,6 +119,7 @@ function Clock({ hour, minute }) {
 
 // ---------- One Card ----------
 function Card({ idx, time, answer, setAnswer, result, showAnswer, onReset }) {
+  const { t } = useTranslation('exercises');
   const hourRef = useRef(null);
   const minuteRef = useRef(null);
 
@@ -145,7 +146,7 @@ function Card({ idx, time, answer, setAnswer, result, showAnswer, onReset }) {
         <Clock hour={time.h} minute={time.m} />
       </div>
 
-      <div className="text-center text-sm text-zinc-500">นาฬิกา {idx + 1}</div>
+      <div className="text-center text-sm text-zinc-500">{t('time.clock')} {idx + 1}</div>
 
       <div className="flex items-center gap-1 text-2xl">
         <input
@@ -153,7 +154,7 @@ function Card({ idx, time, answer, setAnswer, result, showAnswer, onReset }) {
           inputMode="numeric"
           maxLength={2}
           className="w-16 text-center border rounded-xl py-2 px-2 focus:outline-none focus:ring-2 focus:ring-sky-400"
-          placeholder="ชม."
+          placeholder={t('time.hour')}
           value={answer.h}
           onChange={(e) => {
             const v = e.target.value.replace(/\D/g, "");
@@ -168,7 +169,7 @@ function Card({ idx, time, answer, setAnswer, result, showAnswer, onReset }) {
           inputMode="numeric"
           maxLength={2}
           className="w-16 text-center border rounded-xl py-2 px-2 focus:outline-none focus:ring-2 focus:ring-sky-400"
-          placeholder="นาที"
+          placeholder={t('time.minute')}
           value={answer.m}
           onChange={(e) => {
             const v = e.target.value.replace(/\D/g, "");
@@ -178,10 +179,10 @@ function Card({ idx, time, answer, setAnswer, result, showAnswer, onReset }) {
       </div>
 
       <div className="h-6 text-sm">
-        {status === "correct" && <span className="text-green-600">✅ ถูกต้อง!</span>}
-        {status === "wrong" && <span className="text-red-500">❌ ลองใหม่อีกครั้ง</span>}
+        {status === "correct" && <span className="text-green-600">✅ {t('common.correct')}</span>}
+        {status === "wrong" && <span className="text-red-500">❌ {t('common.tryAgain')}</span>}
         {status === "showing" && (
-          <span className="text-sky-700">คำตอบ: {time.h}:{pad2(time.m)}</span>
+          <span className="text-sky-700">{t('time.answer')}: {time.h}:{pad2(time.m)}</span>
         )}
       </div>
 
@@ -190,7 +191,7 @@ function Card({ idx, time, answer, setAnswer, result, showAnswer, onReset }) {
           onClick={() => onReset(idx)}
           className="text-xs px-3 py-1 rounded-full bg-zinc-100 hover:bg-zinc-200"
         >
-          ล้างคำตอบ
+          {t('time.clearAnswer')}
         </button>
       </div>
     </div>
@@ -467,12 +468,12 @@ export default function TimeApp() {
             className="flex items-center gap-2 text-zinc-600 hover:text-zinc-800 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span>กลับ</span>
+            <span>{t('common.back')}</span>
           </Link>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold">ฝึกอ่านเวลา ⏰ – Telling Time to the Minute</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold">{t('time.title')} ⏰ – {t('time.subtitle')}</h1>
         <p className="text-zinc-600 mt-1 text-sm">
-          เขียนเวลาให้ตรงกับนาฬิกาในรูปแบบ <strong>ชั่วโมง:นาที</strong> (12-hour). ตัวอย่าง: <code>7:05</code>
+          {t('time.description')}. {t('time.example')}: <code>7:05</code>
         </p>
       </header>
 
@@ -506,7 +507,7 @@ export default function TimeApp() {
           </button>
           
           <div className="flex items-center gap-2">
-            <span className="text-sm text-zinc-600">จำนวนข้อ:</span>
+            <span className="text-sm text-zinc-600">{t('time.questionCount')}:</span>
             {[10, 15, 20, 30].map((count) => (
               <button
                 key={count}

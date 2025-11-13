@@ -388,21 +388,21 @@ const WeighingApp: React.FC = () => {
             <Link to="/profile">
               <Button variant="outline" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                กลับหน้าหลัก
+                {t('weighing.backToHome')}
               </Button>
             </Link>
             
             <div className="text-center">
               <h1 className="text-2xl md:text-3xl font-bold text-primary mb-1">
-                ⚖️ อ่านค่าน้ำหนักจากตาชั่ง
+                ⚖️ {t('weighing.title')}
               </h1>
               <p className="text-muted-foreground">
-                ดูเข็มบนหน้าปัดแล้วกรอกน้ำหนักให้ถูกต้อง – หน่วย <strong>kg</strong> หรือ <strong>g</strong> ตามกำหนด
+                {t('weighing.subtitle')}
               </p>
             </div>
             
             <Badge variant="secondary" className="text-lg px-3 py-1">
-              สำเร็จ: {correctCount}/{tasks.length}
+              {t('weighing.completed')}: {correctCount}/{tasks.length}
             </Badge>
           </div>
 
@@ -417,11 +417,11 @@ const WeighingApp: React.FC = () => {
                 }}
               >
                 <span className="text-xl">✨</span>
-                <span>AI สร้างโจทย์ใหม่</span>
+                <span>{t('weighing.generateNew')}</span>
               </button>
               <Button onClick={revealAnswers} variant="outline">
                 <Eye className="w-4 h-4 mr-2" />
-                เฉลย
+                {t('weighing.reveal')}
               </Button>
             </div>
 

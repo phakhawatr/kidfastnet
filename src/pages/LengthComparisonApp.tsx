@@ -247,13 +247,13 @@ const LengthComparisonApp: React.FC = () => {
             <Link to="/profile">
               <Button variant="outline" size="sm" className="border-2 border-purple-300 text-purple-700 hover:bg-purple-50">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                🏠 กลับบ้าน
+                🏠 {t('lengthComparison.backHome')}
               </Button>
             </Link>
             <div className="flex items-center gap-3">
               <img src={giraffeMascot} alt="Giraffe Mascot" className="w-12 h-12" />
               <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                🎯 จับคู่ความยาว
+                🎯 {t('lengthComparison.title')}
               </h1>
             </div>
           </div>
@@ -276,10 +276,10 @@ const LengthComparisonApp: React.FC = () => {
               <img src={elephantMascot} alt="Elephant" className="w-16 h-16" />
               <div className="text-center">
                 <p className="text-lg font-semibold text-purple-700 mb-2">
-                  🎯 วิธีเล่นง่ายๆ นะจ๊ะ!
+                  🎯 {t('lengthComparison.howToPlay')}
                 </p>
                 <p className="text-purple-600">
-                  คลิกที่โจทย์ด้านซ้าย แล้วคลิกที่คำตอบด้านขวาที่มีความยาวเท่ากัน ✨
+                  {t('lengthComparison.instructions')} ✨
                 </p>
               </div>
               <img src={mouseMascot} alt="Mouse" className="w-16 h-16" />
@@ -295,7 +295,7 @@ const LengthComparisonApp: React.FC = () => {
               <div className="flex items-center gap-2 mb-4">
                 <img src={giraffeMascot} alt="Giraffe" className="w-8 h-8" />
                 <h2 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-                  📝 โจทย์
+                  📝 {t('lengthComparison.questions')}
                 </h2>
               </div>
               {questions.map((question, index) => {
@@ -340,7 +340,7 @@ const LengthComparisonApp: React.FC = () => {
               <div className="flex items-center gap-2 mb-4">
                 <img src={elephantMascot} alt="Elephant" className="w-8 h-8" />
                 <h2 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                  💡 คำตอบ
+                  💡 {t('lengthComparison.answers')}
                 </h2>
               </div>
               {shuffledAnswers.map((answer, index) => {
@@ -388,7 +388,7 @@ const LengthComparisonApp: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <Trophy className="w-8 h-8 text-yellow-500" />
                   <span className="text-2xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
-                    🎉 ผลลัพธ์ 🎉
+                    🎉 {t('lengthComparison.results')} 🎉
                   </span>
                 </div>
                 <img src={mouseMascot} alt="Celebrating Mouse" className="w-12 h-12" />

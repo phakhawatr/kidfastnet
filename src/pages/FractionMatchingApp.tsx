@@ -336,10 +336,10 @@ const FractionMatchingApp: React.FC = () => {
             <Link to="/profile">
               <Button variant="outline" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                กลับ
+                {t('common.back')}
               </Button>
             </Link>
-            <h1 className="text-2xl font-bold text-gray-800">จับคู่เศษส่วน</h1>
+            <h1 className="text-2xl font-bold text-gray-800">{t('fractions.title')}</h1>
           </div>
 
           <Badge variant="secondary" className="text-sm">
@@ -352,7 +352,7 @@ const FractionMatchingApp: React.FC = () => {
         <Card className="mb-6">
           <CardContent className="p-4">
             <p className="text-center text-gray-600">
-              🎯 คลิกที่รูปวงกลมด้านซ้าย แล้วคลิกที่เศษส่วนด้านขวาที่มีค่าเท่ากัน
+              🎯 {t('fractions.instructions')}
             </p>
           </CardContent>
         </Card>
@@ -362,7 +362,7 @@ const FractionMatchingApp: React.FC = () => {
           <div className="grid grid-cols-2 gap-2 sm:gap-4 md:gap-6 lg:gap-8">
             {/* Left Side - Visual Fractions */}
             <div className="space-y-2">
-              <h2 className="text-sm sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-4">วงกลมเศษส่วน</h2>
+              <h2 className="text-sm sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-4">{t('fractions.visualFractions')}</h2>
               {questions.map((question) => {
                 const connection = getConnectionForLeft(question.id);
                 const isSelected = selectedLeft === question.id;
@@ -384,7 +384,7 @@ const FractionMatchingApp: React.FC = () => {
 
             {/* Right Side - Fraction Numbers */}
             <div className="space-y-2">
-              <h2 className="text-sm sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-4">ตัวเลขเศษส่วน</h2>
+              <h2 className="text-sm sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-4">{t('fractions.numberFractions')}</h2>
               {shuffledAnswers.map((answer) => {
                 const connection = isRightConnected(answer.id);
                 const isConnected = connection !== undefined;
@@ -411,7 +411,7 @@ const FractionMatchingApp: React.FC = () => {
             <CardHeader>
               <CardTitle className="text-center flex items-center justify-center gap-2">
                 <Trophy className="w-6 h-6 text-yellow-500" />
-                ผลลัพธ์
+                {t('fractions.results')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -419,21 +419,21 @@ const FractionMatchingApp: React.FC = () => {
                 <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
                   <div className="bg-green-50 p-4 rounded-lg">
                     <div className="text-2xl font-bold text-green-600">{score}</div>
-                    <div className="text-sm text-gray-600">คะแนน</div>
+                    <div className="text-sm text-gray-600">{t('fractions.score')}</div>
                   </div>
                   <div className="bg-blue-50 p-4 rounded-lg">
                     <div className="text-2xl font-bold text-blue-600">{formatTime(timeElapsed)}</div>
-                    <div className="text-sm text-gray-600">เวลาที่ใช้</div>
+                    <div className="text-sm text-gray-600">{t('fractions.timeUsed')}</div>
                   </div>
                 </div>
                 
                 <div className="flex gap-3 justify-center">
                   <Button onClick={resetGame} variant="outline">
                     <RotateCcw className="w-4 h-4 mr-2" />
-                    เล่นใหม่
+                    {t('fractions.playAgain')}
                   </Button>
                   <Button onClick={nextSet}>
-                    ชุดต่อไป
+                    {t('fractions.nextSet')}
                   </Button>
                 </div>
               </div>
@@ -446,7 +446,7 @@ const FractionMatchingApp: React.FC = () => {
           <div className="flex justify-center gap-3 mt-6">
             <Button onClick={resetGame} variant="outline">
               <RotateCcw className="w-4 h-4 mr-2" />
-              เริ่มใหม่
+              {t('fractions.restart')}
             </Button>
             <button
               onClick={generateRandomSet}
@@ -456,7 +456,7 @@ const FractionMatchingApp: React.FC = () => {
               }}
             >
               <span className="text-2xl">✨</span>
-              <span>AI สร้างโจทย์ใหม่</span>
+              <span>{t('fractions.generateNew')}</span>
             </button>
           </div>
         )}
