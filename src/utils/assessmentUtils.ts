@@ -2526,8 +2526,13 @@ const generateWeighingQuestions = (config: SkillConfig): AssessmentQuestion[] =>
 const generateFractionsQuestions = (config: SkillConfig): AssessmentQuestion[] => {
   const questions: AssessmentQuestion[] = [];
   
+  // Determine if this is Grade 4 level based on description
+  const isGrade4 = config.description?.includes('แท้-เศษเกิน-จำนวนคละ');
+  
   for (let i = 0; i < config.count; i++) {
-    const questionTypes = ['whole_half_unit', 'read_write_fraction', 'fraction_equals_one', 'one_unit_of_fraction', 'compare_same_denominator'];
+    const questionTypes = isGrade4 
+      ? ['proper_improper_mixed', 'equivalent_fractions', 'simplest_form', 'compare_unlike', 'order_fractions', 'add_fractions', 'subtract_fractions', 'mixed_operations']
+      : ['whole_half_unit', 'read_write_fraction', 'fraction_equals_one', 'one_unit_of_fraction', 'compare_same_denominator'];
     const type = questionTypes[i % questionTypes.length];
     
     let question = '';
@@ -2781,6 +2786,414 @@ const generatePlaceholderQuestions = (config: SkillConfig): AssessmentQuestion[]
   return questions;
 };
 
+const generateDecimalsQuestions = (config: SkillConfig): AssessmentQuestion[] => {
+  const questions: AssessmentQuestion[] = [];
+  
+  for (let i = 0; i < config.count; i++) {
+    const questionTypes = ['read_write', 'place_value', 'compare', 'order', 'add_decimals', 'subtract_decimals', 'word_problem'];
+    const type = questionTypes[i % questionTypes.length];
+    
+    let question = '';
+    let correctAnswer: number | string = 0;
+    let choices: (number | string)[] = [];
+    let explanation = '';
+    
+    switch (type) {
+      case 'read_write': {
+        const whole = randInt(0, 99);
+        const decimal = randInt(0, 999);
+        const decimalStr = String(decimal).padStart(3, '0');
+        question = `${whole}.${decimalStr} อ่านว่าอย่างไร`;
+        correctAnswer = `${whole} จุด ${decimalStr.split('').join(' ')}`;
+        choices = shuffleArray([
+          `${whole} จุด ${decimalStr.split('').join(' ')}`,
+          `${whole} จุด ${decimal}`,
+          `${whole} และ ${decimal}`,
+          `${whole}${decimal}`
+        ]);
+        explanation = `ทศนิยม ${whole}.${decimalStr} อ่านว่า ${whole} จุด ${decimalStr.split('').join(' ')}`;
+        break;
+      }
+      case 'place_value': {
+        const num = (Math.random() * 100).toFixed(2);
+        const parts = num.split('.');
+        const tenths = parts[1][0];
+        question = `ในทศนิยม ${num} ตัวเลข ${tenths} อยู่ในหลักใด`;
+        correctAnswer = 'หลักเสี้ยว';
+        choices = shuffleArray(['หลักสิบ', 'หลักหน่วย', 'หลักเสี้ยว', 'หลักสตางค์']);
+        explanation = `ตำแหน่งแรกหลังจุดทศนิยมคือหลักเสี้ยว`;
+        break;
+      }
+      case 'compare': {
+        const dec1 = (Math.random() * 10).toFixed(2);
+        const dec2 = (Math.random() * 10).toFixed(2);
+        const comp = parseFloat(dec1) > parseFloat(dec2) ? '>' : parseFloat(dec1) < parseFloat(dec2) ? '<' : '=';
+        question = `เปรียบเทียบ ${dec1} กับ ${dec2}`;
+        correctAnswer = comp;
+        choices = shuffleArray(['>', '<', '=']);
+        explanation = `${dec1} ${comp} ${dec2}`;
+        break;
+      }
+      case 'order': {
+        const decs = [
+          (Math.random() * 5).toFixed(1),
+          (Math.random() * 5 + 5).toFixed(1),
+          (Math.random() * 5 + 10).toFixed(1)
+        ];
+        const sorted = [...decs].sort((a, b) => parseFloat(a) - parseFloat(b));
+        question = `เรียงลำดับจากน้อยไปมาก: ${decs.join(', ')}`;
+        correctAnswer = sorted.join(', ');
+        choices = shuffleArray([
+          sorted.join(', '),
+          decs.join(', '),
+          [...decs].reverse().join(', '),
+          [...sorted].reverse().join(', ')
+        ]);
+        explanation = `เรียงจากน้อยไปมาก: ${sorted.join(', ')}`;
+        break;
+      }
+      case 'add_decimals': {
+        const add1 = (Math.random() * 50).toFixed(2);
+        const add2 = (Math.random() * 50).toFixed(2);
+        const sumDec = (parseFloat(add1) + parseFloat(add2)).toFixed(2);
+        question = `${add1} + ${add2} = เท่าใด`;
+        correctAnswer = sumDec;
+        choices = generateChoices(parseFloat(sumDec));
+        explanation = `${add1} + ${add2} = ${sumDec}`;
+        break;
+      }
+      case 'subtract_decimals': {
+        const sub1 = (Math.random() * 50 + 50).toFixed(2);
+        const sub2 = (Math.random() * 50).toFixed(2);
+        const diffDec = (parseFloat(sub1) - parseFloat(sub2)).toFixed(2);
+        question = `${sub1} - ${sub2} = เท่าใด`;
+        correctAnswer = diffDec;
+        choices = generateChoices(parseFloat(diffDec));
+        explanation = `${sub1} - ${sub2} = ${diffDec}`;
+        break;
+      }
+      case 'word_problem': {
+        const price1 = (Math.random() * 100 + 50).toFixed(2);
+        const price2 = (Math.random() * 50 + 20).toFixed(2);
+        const totalPrice = (parseFloat(price1) + parseFloat(price2)).toFixed(2);
+        question = `ซื้อของชิ้นที่ 1 ราคา ${price1} บาท และชิ้นที่ 2 ราคา ${price2} บาท รวมเป็นเงินเท่าใด`;
+        correctAnswer = totalPrice;
+        choices = generateChoices(parseFloat(totalPrice));
+        explanation = `${price1} + ${price2} = ${totalPrice} บาท`;
+        break;
+      }
+      default:
+        question = 'ทศนิยม';
+        correctAnswer = '0';
+        choices = ['0', '1', '2', '3'];
+        explanation = '';
+    }
+    
+    questions.push({
+      question,
+      correctAnswer,
+      choices,
+      difficulty: config.difficulty,
+      explanation
+    });
+  }
+  
+  return questions;
+};
+
+const generateAnglesQuestions = (config: SkillConfig): AssessmentQuestion[] => {
+  const questions: AssessmentQuestion[] = [];
+  
+  for (let i = 0; i < config.count; i++) {
+    const questionTypes = ['identify_elements', 'angle_naming', 'angle_types', 'measure_angle', 'compare_angles', 'construct_angle'];
+    const type = questionTypes[i % questionTypes.length];
+    
+    let question = '';
+    let correctAnswer: number | string = 0;
+    let choices: (number | string)[] = [];
+    let explanation = '';
+    
+    switch (type) {
+      case 'identify_elements': {
+        const elements = ['จุด', 'เส้นตรง', 'รังสี', 'ส่วนของเส้นตรง'];
+        const element = elements[i % elements.length];
+        question = `${element} มีลักษณะอย่างไร`;
+        const answers = {
+          'จุด': { correct: 'ไม่มีความยาว', exp: 'จุดเป็นตำแหน่งไม่มีขนาด' },
+          'เส้นตรง': { correct: 'ยาวไม่สิ้นสุดทั้งสองข้าง', exp: 'เส้นตรงทอดยาวไม่สิ้นสุดทั้งสองทิศทาง' },
+          'รังสี': { correct: 'ยาวไม่สิ้นสุดข้างเดียว', exp: 'รังสีมีจุดเริ่มต้นและทอดยาวไปทางเดียว' },
+          'ส่วนของเส้นตรง': { correct: 'มีความยาวจำกัด', exp: 'ส่วนของเส้นตรงมีจุดเริ่มต้นและจุดสิ้นสุด' }
+        };
+        correctAnswer = answers[element as keyof typeof answers].correct;
+        choices = shuffleArray(['ไม่มีความยาว', 'มีความยาวจำกัด', 'ยาวไม่สิ้นสุดทั้งสองข้าง', 'ยาวไม่สิ้นสุดข้างเดียว']);
+        explanation = answers[element as keyof typeof answers].exp;
+        break;
+      }
+      case 'angle_types': {
+        const angles = [
+          { name: 'มุมแหลม', min: 5, max: 85 },
+          { name: 'มุมฉาก', min: 90, max: 90 },
+          { name: 'มุมป้าน', min: 95, max: 175 },
+          { name: 'มุมเฉียง', min: 180, max: 180 }
+        ];
+        const angle = angles[i % angles.length];
+        const degree = randInt(angle.min, angle.max);
+        question = `มุม ${degree} องศา เป็นมุมประเภทใด`;
+        correctAnswer = angle.name;
+        choices = shuffleArray(['มุมแหลม', 'มุมฉาก', 'มุมป้าน', 'มุมเฉียง']);
+        explanation = degree < 90 ? 'มุมน้อยกว่า 90 องศา เป็นมุมแหลม'
+          : degree === 90 ? 'มุมเท่ากับ 90 องศา เป็นมุมฉาก'
+          : degree < 180 ? 'มุมมากกว่า 90 แต่น้อยกว่า 180 องศา เป็นมุมป้าน'
+          : 'มุมเท่ากับ 180 องศา เป็นมุมเฉียง';
+        break;
+      }
+      case 'measure_angle': {
+        const measuredAngle = [30, 45, 60, 90, 120, 135, 150][randInt(0, 6)];
+        const angleB = measuredAngle + 30;
+        question = `ถ้ามุม A มีขนาด ${measuredAngle} องศา และมุม B มีขนาด ${angleB} องศา มุมใดใหญ่กว่า`;
+        correctAnswer = 'มุม B';
+        choices = shuffleArray(['มุม A', 'มุม B', 'เท่ากัน', 'ไม่สามารถบอกได้']);
+        explanation = `${angleB} > ${measuredAngle} จึง มุม B ใหญ่กว่า`;
+        break;
+      }
+      case 'compare_angles': {
+        const angleA = randInt(10, 170);
+        const angleB = randInt(10, 170);
+        const angleComp = angleA > angleB ? 'มุม A ใหญ่กว่า' : angleA < angleB ? 'มุม B ใหญ่กว่า' : 'เท่ากัน';
+        question = `มุม A = ${angleA}° และมุม B = ${angleB}° เปรียบเทียบขนาดมุม`;
+        correctAnswer = angleComp;
+        choices = shuffleArray(['มุม A ใหญ่กว่า', 'มุม B ใหญ่กว่า', 'เท่ากัน', 'ไม่สามารถเปรียบเทียบได้']);
+        explanation = `${angleA}° ${angleA > angleB ? '>' : angleA < angleB ? '<' : '='} ${angleB}°`;
+        break;
+      }
+      case 'construct_angle': {
+        const constructAngle = [30, 45, 60, 90, 120, 135][randInt(0, 5)];
+        question = `ถ้าต้องการสร้างมุม ${constructAngle} องศา ควรใช้เครื่องมืออะไร`;
+        correctAnswer = 'โปรแทรกเตอร์';
+        choices = shuffleArray(['โปรแทรกเตอร์', 'ไม้บรรทัด', 'วงเวียน', 'ดินสอ']);
+        explanation = 'โปรแทรกเตอร์ใช้วัดและสร้างมุมในขนาดที่ต้องการ';
+        break;
+      }
+      case 'angle_naming': {
+        question = `มุมที่มีจุดยอด B และแขนมุมเป็นรังสี BA และ BC เรียกว่ามุมอะไร`;
+        correctAnswer = 'มุม ABC';
+        choices = shuffleArray(['มุม ABC', 'มุม BAC', 'มุม B', 'มุม CBA']);
+        explanation = 'เรียกชื่อมุมโดยใช้อักษร 3 ตัว โดยจุดยอดอยู่ตรงกลาง';
+        break;
+      }
+      default:
+        question = 'มุม';
+        correctAnswer = '1';
+        choices = ['1', '2', '3', '4'];
+        explanation = '';
+    }
+    
+    questions.push({
+      question,
+      correctAnswer,
+      choices,
+      difficulty: config.difficulty,
+      explanation
+    });
+  }
+  
+  return questions;
+};
+
+const generateRectanglesQuestions = (config: SkillConfig): AssessmentQuestion[] => {
+  const questions: AssessmentQuestion[] = [];
+  
+  for (let i = 0; i < config.count; i++) {
+    const questionTypes = ['identify_type', 'properties', 'perimeter', 'area', 'word_problem_perimeter', 'word_problem_area'];
+    const type = questionTypes[i % questionTypes.length];
+    
+    let question = '';
+    let correctAnswer: number | string = 0;
+    let choices: (number | string)[] = [];
+    let explanation = '';
+    
+    switch (type) {
+      case 'identify_type': {
+        const shapes = ['สี่เหลี่ยมจัตุรัส', 'สี่เหลี่ยมผืนผ้า'];
+        const shape = shapes[i % 2];
+        question = `${shape} มีสมบัติอย่างไร`;
+        if (shape === 'สี่เหลี่ยมจัตุรัส') {
+          correctAnswer = 'ทุกด้านเท่ากัน ทุกมุมเป็นมุมฉาก';
+          choices = shuffleArray([
+            'ทุกด้านเท่ากัน ทุกมุมเป็นมุมฉาก',
+            'ด้านตรงข้ามเท่ากัน',
+            'มีด้านคู่หนึ่งขนาน',
+            'ไม่มีมุมฉาก'
+          ]);
+          explanation = 'สี่เหลี่ยมจัตุรัสมี 4 ด้านเท่ากัน และทุกมุมเป็นมุมฉาก';
+        } else {
+          correctAnswer = 'ด้านตรงข้ามเท่ากัน ทุกมุมเป็นมุมฉาก';
+          choices = shuffleArray([
+            'ด้านตรงข้ามเท่ากัน ทุกมุมเป็นมุมฉาก',
+            'ทุกด้านเท่ากัน',
+            'มีด้านคู่หนึ่งขนาน',
+            'ไม่มีมุมฉาก'
+          ]);
+          explanation = 'สี่เหลี่ยมผืนผ้ามีด้านตรงข้ามเท่ากัน และทุกมุมเป็นมุมฉาก';
+        }
+        break;
+      }
+      case 'properties': {
+        question = `สี่เหลี่ยมจัตุรัสมีมุมฉากกี่มุม`;
+        correctAnswer = '4';
+        choices = shuffleArray(['2', '3', '4', '1']);
+        explanation = 'สี่เหลี่ยมจัตุรัสมี 4 มุม และทุกมุมเป็นมุมฉาก';
+        break;
+      }
+      case 'perimeter': {
+        const length = randInt(5, 15);
+        const width = randInt(3, 12);
+        const perimeter = 2 * (length + width);
+        question = `สี่เหลี่ยมผืนผ้ามีความยาว ${length} ซม. และความกว้าง ${width} ซม. ความยาวรอบรูปเท่าใด`;
+        correctAnswer = perimeter;
+        choices = generateChoices(perimeter);
+        explanation = `ความยาวรอบรูป = 2 × (${length} + ${width}) = ${perimeter} ซม.`;
+        break;
+      }
+      case 'area': {
+        const areaLength = randInt(4, 16);
+        const areaWidth = randInt(3, 13);
+        const area = areaLength * areaWidth;
+        question = `สี่เหลี่ยมผืนผ้ามีความยาว ${areaLength} ม. และความกว้าง ${areaWidth} ม. พื้นที่เท่าใด`;
+        correctAnswer = area;
+        choices = generateChoices(area);
+        explanation = `พื้นที่ = ${areaLength} × ${areaWidth} = ${area} ตร.ม.`;
+        break;
+      }
+      case 'word_problem_perimeter': {
+        const gardenLength = randInt(10, 25);
+        const gardenWidth = randInt(5, 15);
+        const gardenPerimeter = 2 * (gardenLength + gardenWidth);
+        question = `สวนสี่เหลี่ยมผืนผ้ามีความยาว ${gardenLength} ม. และความกว้าง ${gardenWidth} ม. ต้องการทำรั้วรอบสวน ต้องใช้รั้วยาวกี่เมตร`;
+        correctAnswer = gardenPerimeter;
+        choices = generateChoices(gardenPerimeter);
+        explanation = `รั้วรอบสวน = 2 × (${gardenLength} + ${gardenWidth}) = ${gardenPerimeter} ม.`;
+        break;
+      }
+      case 'word_problem_area': {
+        const roomLength = randInt(4, 12);
+        const roomWidth = randInt(3, 9);
+        const roomArea = roomLength * roomWidth;
+        question = `ห้องสี่เหลี่ยมผืนผ้ามีความยาว ${roomLength} ม. และความกว้าง ${roomWidth} ม. ต้องการปูกระเบื้อง ต้องใช้กระเบื้องกี่ตารางเมตร`;
+        correctAnswer = roomArea;
+        choices = generateChoices(roomArea);
+        explanation = `พื้นที่ห้อง = ${roomLength} × ${roomWidth} = ${roomArea} ตร.ม.`;
+        break;
+      }
+      default:
+        question = 'สี่เหลี่ยมมุมฉาก';
+        correctAnswer = '0';
+        choices = ['0', '1', '2', '3'];
+        explanation = '';
+    }
+    
+    questions.push({
+      question,
+      correctAnswer,
+      choices,
+      difficulty: config.difficulty,
+      explanation
+    });
+  }
+  
+  return questions;
+};
+
+const generateDataPresentationQuestions = (config: SkillConfig): AssessmentQuestion[] => {
+  const questions: AssessmentQuestion[] = [];
+  
+  for (let i = 0; i < config.count; i++) {
+    const questionTypes = ['read_table', 'read_chart', 'interpret_data', 'compare_data', 'find_total', 'find_difference'];
+    const type = questionTypes[i % questionTypes.length];
+    
+    let question = '';
+    let correctAnswer: number | string = 0;
+    let choices: (number | string)[] = [];
+    let explanation = '';
+    
+    switch (type) {
+      case 'read_table': {
+        const fruits = ['แอปเปิล', 'กล้วย', 'ส้ม'];
+        const quantities = [15, 20, 12];
+        const fruitIndex = i % fruits.length;
+        question = `จากตารางแสดงจำนวนผลไม้: ${fruits[0]} ${quantities[0]} ผล, ${fruits[1]} ${quantities[1]} ผล, ${fruits[2]} ${quantities[2]} ผล มี${fruits[fruitIndex]}กี่ผล`;
+        correctAnswer = quantities[fruitIndex];
+        choices = generateChoices(quantities[fruitIndex]);
+        explanation = `จากตารางแสดงว่า ${fruits[fruitIndex]} มี ${quantities[fruitIndex]} ผล`;
+        break;
+      }
+      case 'read_chart': {
+        const students = [25, 30, 28, 32];
+        const grade = i % 4;
+        question = `จากแผนภูมิแท่งแสดงจำนวนนักเรียน: ป.1 = 25 คน, ป.2 = 30 คน, ป.3 = 28 คน, ป.4 = 32 คน ป.${grade + 1} มีนักเรียนกี่คน`;
+        correctAnswer = students[grade];
+        choices = generateChoices(students[grade]);
+        explanation = `จากแผนภูมิแสดงว่า ป.${grade + 1} มี ${students[grade]} คน`;
+        break;
+      }
+      case 'interpret_data': {
+        const sales = [100, 150, 120, 180];
+        const maxSales = Math.max(...sales);
+        const maxDay = sales.indexOf(maxSales) + 1;
+        question = `ร้านค้าขายของได้ วันที่ 1 = 100 บาท, วันที่ 2 = 150 บาท, วันที่ 3 = 120 บาท, วันที่ 4 = 180 บาท วันไหนขายได้มากที่สุด`;
+        correctAnswer = `วันที่ ${maxDay}`;
+        choices = shuffleArray(['วันที่ 1', 'วันที่ 2', 'วันที่ 3', 'วันที่ 4']);
+        explanation = `วันที่ ${maxDay} ขายได้ ${maxSales} บาท ซึ่งมากที่สุด`;
+        break;
+      }
+      case 'compare_data': {
+        const classA = 28;
+        const classB = 32;
+        const diff = classB - classA;
+        question = `ห้อง A มีนักเรียน ${classA} คน ห้อง B มีนักเรียน ${classB} คน ห้อง B มีนักเรียนมากกว่าห้อง A กี่คน`;
+        correctAnswer = diff;
+        choices = generateChoices(diff);
+        explanation = `${classB} - ${classA} = ${diff} คน`;
+        break;
+      }
+      case 'find_total': {
+        const week = [50, 60, 55, 70, 65];
+        const total = week.reduce((a, b) => a + b, 0);
+        question = `ร้านขายของได้ จันทร์ 50 บาท, อังคาร 60 บาท, พุธ 55 บาท, พฤหัส 70 บาท, ศุกร์ 65 บาท รวมทั้งสัปดาห์ขายได้กี่บาท`;
+        correctAnswer = total;
+        choices = generateChoices(total);
+        explanation = `50 + 60 + 55 + 70 + 65 = ${total} บาท`;
+        break;
+      }
+      case 'find_difference': {
+        const month1 = 120;
+        const month2 = 150;
+        const monthDiff = month2 - month1;
+        question = `เดือนแรกขายได้ ${month1} ชิ้น เดือนที่สองขายได้ ${month2} ชิ้น เดือนที่สองขายได้เพิ่มขึ้นกี่ชิ้น`;
+        correctAnswer = monthDiff;
+        choices = generateChoices(monthDiff);
+        explanation = `${month2} - ${month1} = ${monthDiff} ชิ้น`;
+        break;
+      }
+      default:
+        question = 'การนำเสนอข้อมูล';
+        correctAnswer = '0';
+        choices = ['0', '1', '2', '3'];
+        explanation = '';
+    }
+    
+    questions.push({
+      question,
+      correctAnswer,
+      choices,
+      difficulty: config.difficulty,
+      explanation
+    });
+  }
+  
+  return questions;
+};
+
 export const generateAssessmentQuestions = (
   grade: number,
   semester: number
@@ -2854,6 +3267,18 @@ export const generateAssessmentQuestions = (
         break;
       case 'average':
         questions = generateAverageQuestions(skillConfig);
+        break;
+      case 'decimals':
+        questions = generateDecimalsQuestions(skillConfig);
+        break;
+      case 'angles':
+        questions = generateAnglesQuestions(skillConfig);
+        break;
+      case 'rectangles':
+        questions = generateRectanglesQuestions(skillConfig);
+        break;
+      case 'dataPresentaton':
+        questions = generateDataPresentationQuestions(skillConfig);
         break;
       default:
         console.warn(`Skill ${skillConfig.skill} not implemented yet, using placeholder`);
