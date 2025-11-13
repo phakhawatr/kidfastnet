@@ -15,5 +15,22 @@
   "nextQuestion": "Next",
   "viewResults": "View Results",
   "tryAgain": "Try Again",
-  "backToHome": "Back to Home"
+  "backToHome": "Back to Home",
+  "skills": {
+    "counting": "Counting",
+    "comparing": "Comparing Numbers",
+    "ordering": "Ordering Numbers",
+    "placeValue": "Place Value",
+    "addition": "Addition",
+    "subtraction": "Subtraction",
+    "patterns": "Patterns",
+    "shapes": "Shapes",
+    "measurement": "Measurement",
+    "pictograph": "Pictograph",
+    "multiplication": "Multiplication",
+    "division": "Division",
+    "money": "Money",
+    "time": "Time",
+    "fractions": "Fractions"
+  }
 }

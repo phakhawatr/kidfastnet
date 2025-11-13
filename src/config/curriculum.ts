@@ -9,10 +9,27 @@ export interface SkillConfig {
 export const curriculumConfig: Record<string, Record<string, SkillConfig[]>> = {
   grade1: {
     semester1: [
-      { skill: 'addition', difficulty: 'easy', count: 10, range: [1, 20] },
-      { skill: 'subtraction', difficulty: 'easy', count: 8, range: [1, 10] },
-      { skill: 'numberBonds', difficulty: 'easy', count: 6, range: [1, 10] },
-      { skill: 'shapes', difficulty: 'easy', count: 6 }
+      // 1. จำนวนนับพื้นฐาน (0-100)
+      { skill: 'counting', difficulty: 'easy', count: 5, range: [0, 100] },
+      { skill: 'comparing', difficulty: 'easy', count: 4, range: [0, 100] },
+      { skill: 'ordering', difficulty: 'easy', count: 3, range: [0, 100] },
+      { skill: 'placeValue', difficulty: 'easy', count: 3, range: [0, 99] },
+      
+      // 2. การบวก-ลบ (ผลลัพธ์/ตัวตั้งไม่เกิน 10)
+      { skill: 'addition', difficulty: 'easy', count: 5, range: [0, 10] },
+      { skill: 'subtraction', difficulty: 'easy', count: 5, range: [0, 10] },
+      
+      // 3. แบบรูป
+      { skill: 'patterns', difficulty: 'easy', count: 4 },
+      
+      // 4. เรขาคณิต
+      { skill: 'shapes', difficulty: 'easy', count: 4 },
+      
+      // 5. การวัด
+      { skill: 'measurement', difficulty: 'easy', count: 3 },
+      
+      // 6. สถิติ
+      { skill: 'pictograph', difficulty: 'easy', count: 3 }
     ],
     semester2: [
       { skill: 'addition', difficulty: 'easy', count: 8, range: [10, 50] },

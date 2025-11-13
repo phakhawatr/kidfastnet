@@ -15,5 +15,22 @@
   "nextQuestion": "ข้อถัดไป",
   "viewResults": "ดูผลคะแนน",
   "tryAgain": "ทำใหม่อีกครั้ง",
-  "backToHome": "กลับหน้าหลัก"
+  "backToHome": "กลับหน้าหลัก",
+  "skills": {
+    "counting": "จำนวนนับ",
+    "comparing": "การเปรียบเทียบ",
+    "ordering": "การเรียงลำดับ",
+    "placeValue": "ค่าประจำหลัก",
+    "addition": "การบวก",
+    "subtraction": "การลบ",
+    "patterns": "แบบรูป",
+    "shapes": "รูปทรงเรขาคณิต",
+    "measurement": "การวัด",
+    "pictograph": "แผนภูมิรูปภาพ",
+    "multiplication": "การคูณ",
+    "division": "การหาร",
+    "money": "เงิน",
+    "time": "เวลา",
+    "fractions": "เศษส่วน"
+  }
 }
