@@ -360,8 +360,10 @@ const Quiz = () => {
       skillStats[q.skill].total++;
       
       const userAnswer = answers.get(idx);
-      const isCorrect = q.choices[userAnswer ?? -1] === q.correctAnswer || 
-                       userAnswer === q.correctAnswer;
+                      const isCorrect = userAnswer !== undefined && (
+                        q.choices[userAnswer] === q.correctAnswer || 
+                        String(q.choices[userAnswer]) === String(q.correctAnswer)
+                      );
       if (isCorrect) {
         skillStats[q.skill].correct++;
       }

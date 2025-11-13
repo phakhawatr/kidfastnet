@@ -48,9 +48,14 @@ export const useAssessment = (userId: string, grade: number, semester: number) =
   const calculateCorrectAnswers = (): number => {
     let correct = 0;
     questions.forEach((q, i) => {
-      const userAnswer = answers.get(i);
-      if (String(userAnswer) === String(q.correctAnswer)) {
-        correct++;
+      const userAnswerIndex = answers.get(i);
+      if (userAnswerIndex !== undefined) {
+        const userAnswerValue = q.choices[userAnswerIndex];
+        // ตรวจสอบ 2 กรณี: เปรียบเทียบค่าโดยตรง หรือ convert เป็น string
+        if (userAnswerValue === q.correctAnswer || 
+            String(userAnswerValue) === String(q.correctAnswer)) {
+          correct++;
+        }
       }
     });
     return correct;
