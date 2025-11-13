@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
@@ -107,7 +107,6 @@ const Profile = () => {
   const memberId = getMemberId();
   
   const [selectedGrade, setSelectedGrade] = useState('1');
-  const [randomRecommendations, setRandomRecommendations] = useState<any[]>([]);
   const [registrationData, setRegistrationData] = useState<{
     created_at: string | null;
     approved_at: string | null;
@@ -262,8 +261,8 @@ const Profile = () => {
     mascot: mascotWeighing
   }];
 
-  // Function to shuffle array and pick 3 random items with translations
-  const getRandomRecommendations = (grade: string) => {
+  // Function to shuffle array and pick 3 random items with translations (memoized)
+  const getRandomRecommendations = useCallback((grade: string) => {
     const structure = recommendationStructure[grade as keyof typeof recommendationStructure] || [];
     const shuffled = [...structure].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, 3).map(item => ({
@@ -271,12 +270,12 @@ const Profile = () => {
       title: t(`recommendations.items.${grade}.${item.key}.title`),
       description: t(`recommendations.items.${grade}.${item.key}.description`)
     }));
-  };
+  }, [t]);
 
-  // Randomize recommendations when selectedGrade or language changes
-  useEffect(() => {
-    setRandomRecommendations(getRandomRecommendations(selectedGrade));
-  }, [selectedGrade, t]);
+  // Memoized random recommendations that update when grade or language changes
+  const randomRecommendations = useMemo(() => {
+    return getRandomRecommendations(selectedGrade);
+  }, [selectedGrade, getRandomRecommendations]);
 
   // Get grade label for display
   const getGradeLabel = (gradeId: string) => {
