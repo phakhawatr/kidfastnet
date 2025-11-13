@@ -57,6 +57,10 @@ export const useAssessment = (userId: string, grade: number, semester: number) =
   };
 
   const submitAssessment = async () => {
+    if (!userId) {
+      throw new Error('User ID is required to submit assessment');
+    }
+
     const timeTaken = Math.floor((Date.now() - startTime) / 1000);
     const correct = calculateCorrectAnswers();
     const score = questions.length > 0 ? (correct / questions.length) * 100 : 0;
@@ -82,7 +86,10 @@ export const useAssessment = (userId: string, grade: number, semester: number) =
         completed_at: new Date().toISOString()
       }]);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw new Error(`Failed to save assessment: ${error.message}`);
+      }
       setIsSubmitted(true);
     } catch (error) {
       console.error('Error submitting assessment:', error);

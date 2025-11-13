@@ -1,6 +1,9 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { useAssessment } from '@/hooks/useAssessment';
+import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,15 +14,17 @@ import { Progress } from '@/components/ui/progress';
 import { FileQuestion, Clock, Award, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getGradeOptions, getSemesterOptions } from '@/config/curriculum';
 import { evaluateAssessment } from '@/utils/assessmentUtils';
-import { useNavigate } from 'react-router-dom';
 
 const Quiz = () => {
-  const { user, profile } = useAuth();
+  const { user, registrationId } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { toast } = useToast();
   const [screen, setScreen] = useState<'select' | 'assessment' | 'results'>('select');
   const [selectedGrade, setSelectedGrade] = useState<number>(1);
   const [selectedSemester, setSelectedSemester] = useState<number>(1);
   const [hasStarted, setHasStarted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     questions,
@@ -36,16 +41,48 @@ const Quiz = () => {
   } = useAssessment(user?.id || '', hasStarted ? selectedGrade : 0, hasStarted ? selectedSemester : 0);
 
   const handleStartAssessment = () => {
+    const userId = user?.id || registrationId;
+    if (!userId) {
+      toast({
+        title: "กรุณาเข้าสู่ระบบ",
+        description: "กรุณาเข้าสู่ระบบก่อนทำแบบทดสอบ",
+        variant: "destructive",
+      });
+      return;
+    }
     setHasStarted(true);
     setScreen('assessment');
   };
 
   const handleSubmit = async () => {
+    const userId = user?.id || registrationId;
+    if (!userId) {
+      toast({
+        title: "ไม่สามารถส่งคำตอบได้",
+        description: "กรุณาเข้าสู่ระบบก่อนส่งคำตอบ",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
     try {
       await submitAssessment();
+      toast({
+        title: "ส่งคำตอบสำเร็จ",
+        description: "บันทึกผลการสอบเรียบร้อยแล้ว",
+        variant: "default",
+      });
       setScreen('results');
     } catch (error) {
       console.error('Error submitting assessment:', error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: error instanceof Error ? error.message : "ไม่สามารถส่งคำตอบได้ กรุณาลองใหม่อีกครั้ง",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -199,8 +236,9 @@ const Quiz = () => {
                         onClick={handleSubmit} 
                         className="bg-green-600 hover:bg-green-700"
                         size="lg"
+                        disabled={isSubmitting}
                       >
-                        ส่งคำตอบ
+                        {isSubmitting ? 'กำลังส่ง...' : 'ส่งคำตอบ'}
                       </Button>
                     ) : (
                       <Button 

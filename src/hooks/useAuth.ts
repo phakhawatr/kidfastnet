@@ -473,6 +473,7 @@ export const useAuth = () => {
     username,
     isDemo,
     isLoading,
+    registrationId: authState?.registrationId,
     login,
     signup,
     logout,
