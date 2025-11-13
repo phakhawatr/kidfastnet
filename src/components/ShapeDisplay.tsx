@@ -3,7 +3,7 @@ interface ShapeDisplayProps {
   size?: number;
 }
 
-const ShapeDisplay = ({ shape, size = 48 }: ShapeDisplayProps) => {
+const ShapeDisplay = ({ shape, size = 38 }: ShapeDisplayProps) => {
   const shapeColors: Record<string, string> = {
     'circle-red': '#ef4444',
     'circle-blue': '#3b82f6',
