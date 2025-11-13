@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/button';
 import { useNumberBondsGame } from '@/hooks/useNumberBondsGame';
 import { formatTime, calculateStars, getEncouragement } from '@/utils/numberBondsUtils';
 import Confetti from 'react-confetti';
+import { useTranslation } from 'react-i18next';
 
 const NumberBondsApp = () => {
+  const { t } = useTranslation('exercises');
   const navigate = useNavigate();
   const [showSettings, setShowSettings] = useState(false);
   
@@ -39,7 +41,7 @@ const NumberBondsApp = () => {
   if (!currentProblem) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
-        <div className="text-xl text-gray-600">กำลังโหลด...</div>
+        <div className="text-xl text-gray-600">{t('common.loading')}</div>
       </div>
     );
   }
@@ -71,11 +73,11 @@ const NumberBondsApp = () => {
             className="gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            กลับ
+            {t('numberBonds.back')}
           </Button>
           
           <h1 className="text-2xl font-bold text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Number Bonds
+            {t('numberBonds.title')}
           </h1>
           
           <Button
@@ -89,7 +91,7 @@ const NumberBondsApp = () => {
         {/* Progress & Timer */}
         <div className="flex items-center justify-between mt-4 text-sm">
           <div className="font-semibold text-gray-700">
-            ข้อ {currentIndex + 1} / {problems.length}
+            {t('common.question')} {currentIndex + 1} / {problems.length}
           </div>
           <div className="font-mono text-blue-600 font-bold">
             {formatTime(elapsedTime)}
@@ -108,27 +110,27 @@ const NumberBondsApp = () => {
       {/* Settings Panel */}
       {showSettings && (
         <div className="max-w-4xl mx-auto mb-6 bg-white rounded-2xl shadow-lg p-6 animate-fade-in">
-          <h3 className="font-bold text-lg mb-4">ตั้งค่า</h3>
+          <h3 className="font-bold text-lg mb-4">{t('common.settings')}</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Number of problems */}
             <div>
-              <label className="block text-sm font-medium mb-2">จำนวนข้อ</label>
+              <label className="block text-sm font-medium mb-2">{t('numberBonds.numberOfProblems')}</label>
               <select
                 value={count}
                 onChange={(e) => changeSettings(Number(e.target.value), maxNumber, difficulty)}
                 className="w-full p-2 border rounded-lg"
               >
-                <option value={5}>5 ข้อ</option>
-                <option value={10}>10 ข้อ</option>
-                <option value={15}>15 ข้อ</option>
-                <option value={20}>20 ข้อ</option>
+                <option value={5}>5 {t('common.problems')}</option>
+                <option value={10}>10 {t('common.problems')}</option>
+                <option value={15}>15 {t('common.problems')}</option>
+                <option value={20}>20 {t('common.problems')}</option>
               </select>
             </div>
 
             {/* Max Number */}
             <div>
-              <label className="block text-sm font-medium mb-2">เลขสูงสุด</label>
+              <label className="block text-sm font-medium mb-2">{t('numberBonds.maxNumber')}</label>
               <select
                 value={maxNumber}
                 onChange={(e) => changeSettings(count, Number(e.target.value), difficulty)}
@@ -143,15 +145,15 @@ const NumberBondsApp = () => {
 
             {/* Difficulty */}
             <div>
-              <label className="block text-sm font-medium mb-2">ระดับ</label>
+              <label className="block text-sm font-medium mb-2">{t('common.difficulty')}</label>
               <select
                 value={difficulty}
                 onChange={(e) => changeSettings(count, maxNumber, e.target.value as any)}
                 className="w-full p-2 border rounded-lg"
               >
-                <option value="easy">ง่าย</option>
-                <option value="medium">ปานกลาง</option>
-                <option value="hard">ยาก</option>
+                <option value="easy">{t('common.easy')}</option>
+                <option value="medium">{t('common.medium')}</option>
+                <option value="hard">{t('common.hard')}</option>
               </select>
             </div>
           </div>
@@ -186,7 +188,7 @@ const NumberBondsApp = () => {
                   )}
                 </div>
                 <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-sm font-semibold text-gray-600">
-                  ทั้งหมด
+                  {t('numberBonds.whole')}
                 </div>
               </div>
 
@@ -217,7 +219,7 @@ const NumberBondsApp = () => {
                     )}
                   </div>
                   <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-sm font-semibold text-gray-600 whitespace-nowrap">
-                    ส่วนที่ 1
+                    {t('numberBonds.part1')}
                   </div>
                 </div>
 
@@ -246,7 +248,7 @@ const NumberBondsApp = () => {
                     )}
                   </div>
                   <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-sm font-semibold text-gray-600 whitespace-nowrap">
-                    ส่วนที่ 2
+                    {t('numberBonds.part2')}
                   </div>
                 </div>
               </div>
@@ -271,7 +273,7 @@ const NumberBondsApp = () => {
               className="gap-2"
             >
               <ChevronLeft className="w-4 h-4" />
-              ก่อนหน้า
+              {t('common.previous')}
             </Button>
 
             <Button
@@ -280,7 +282,7 @@ const NumberBondsApp = () => {
               className="gap-2"
             >
               <RotateCcw className="w-4 h-4" />
-              ล้าง
+              {t('numberBonds.clear')}
             </Button>
 
             <Button
@@ -290,13 +292,13 @@ const NumberBondsApp = () => {
             >
               {currentIndex < problems.length - 1 ? (
                 <>
-                  ถัดไป
+                  {t('common.next')}
                   <ChevronRight className="w-4 h-4" />
                 </>
               ) : (
                 <>
                   <Check className="w-4 h-4" />
-                  ส่งคำตอบ
+                  {t('numberBonds.submitAnswer')}
                 </>
               )}
             </Button>
@@ -307,7 +309,7 @@ const NumberBondsApp = () => {
         <div className="max-w-2xl mx-auto">
           <div className="bg-white rounded-3xl shadow-2xl p-8 text-center">
             <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              สรุปผลการทำ
+              {t('numberBonds.summary')}
             </h2>
 
             {/* Stars */}
@@ -330,7 +332,7 @@ const NumberBondsApp = () => {
 
             {/* Time */}
             <div className="text-lg mb-8 text-gray-500">
-              ใช้เวลา: <span className="font-mono font-bold">{formatTime(elapsedTime)}</span>
+              {t('numberBonds.timeUsed')}: <span className="font-mono font-bold">{formatTime(elapsedTime)}</span>
             </div>
 
             {/* Action Buttons */}
@@ -340,14 +342,14 @@ const NumberBondsApp = () => {
                 className="gap-2 bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600"
               >
                 <RotateCcw className="w-4 h-4" />
-                เริ่มใหม่
+                {t('results.playAgain')}
               </Button>
               
               <Button
                 variant="outline"
                 onClick={() => navigate('/profile')}
               >
-                กลับหน้าหลัก
+                {t('common.backToProfile')}
               </Button>
             </div>
           </div>
