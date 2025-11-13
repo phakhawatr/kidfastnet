@@ -344,14 +344,21 @@ const Quiz = () => {
                         return (
                           <div 
                             key={idx} 
-                            className="bg-white p-3 rounded-lg border border-purple-200 flex justify-between items-center hover:shadow-sm transition-shadow"
+                            className="bg-white p-4 rounded-lg border border-purple-200 hover:shadow-sm transition-shadow"
                           >
-                            <span className="font-medium text-gray-800">
-                              {idx + 1}. {skillNameTh}
-                            </span>
-                            <span className="text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-medium">
-                              {topic.count} ข้อ
-                            </span>
+                            <div className="flex justify-between items-start mb-2">
+                              <span className="font-semibold text-gray-800">
+                                {idx + 1}. {skillNameTh}
+                              </span>
+                              <span className="text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-medium flex-shrink-0 ml-2">
+                                {topic.count} ข้อ
+                              </span>
+                            </div>
+                            {topic.description && (
+                              <p className="text-sm text-gray-600 mt-1 leading-relaxed">
+                                {topic.description}
+                              </p>
+                            )}
                           </div>
                         );
                       })}

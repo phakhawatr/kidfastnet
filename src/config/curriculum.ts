@@ -4,32 +4,33 @@ export interface SkillConfig {
   count: number;
   range?: [number, number];
   tables?: number[];
+  description?: string;
 }
 
 export const curriculumConfig: Record<string, Record<string, SkillConfig[]>> = {
   grade1: {
     semester1: [
       // 1. จำนวนนับพื้นฐาน (0-100)
-      { skill: 'counting', difficulty: 'easy', count: 5, range: [0, 100] },
-      { skill: 'comparing', difficulty: 'easy', count: 4, range: [0, 100] },
-      { skill: 'ordering', difficulty: 'easy', count: 3, range: [0, 100] },
-      { skill: 'placeValue', difficulty: 'easy', count: 3, range: [0, 99] },
+      { skill: 'counting', difficulty: 'easy', count: 5, range: [0, 100], description: 'นับทีละ 1 และทีละ 10 อ่าน-เขียนเลขไทย/อารบิก ในช่วง 0-100' },
+      { skill: 'comparing', difficulty: 'easy', count: 4, range: [0, 100], description: 'เปรียบเทียบจำนวนด้วยสัญลักษณ์ =, ≠, >, <' },
+      { skill: 'ordering', difficulty: 'easy', count: 3, range: [0, 100], description: 'เรียงลำดับจำนวนจากน้อยไปมาก มากไปน้อย และอันดับที่' },
+      { skill: 'placeValue', difficulty: 'easy', count: 3, range: [0, 99], description: 'แยกจำนวนเป็นหลักสิบและหลักหน่วย' },
       
       // 2. การบวก-ลบ (ผลลัพธ์/ตัวตั้งไม่เกิน 10)
-      { skill: 'addition', difficulty: 'easy', count: 6, range: [0, 10] },
-      { skill: 'subtraction', difficulty: 'easy', count: 6, range: [0, 10] },
+      { skill: 'addition', difficulty: 'easy', count: 6, range: [0, 10], description: 'บวกสองจำนวน ผลบวกไม่เกิน 10 และใช้สมบัติสลับที่' },
+      { skill: 'subtraction', difficulty: 'easy', count: 6, range: [0, 10], description: 'ลบสองจำนวน ตัวตั้งไม่เกิน 10 และโจทย์สถานการณ์' },
       
       // 3. แบบรูป
-      { skill: 'patterns', difficulty: 'easy', count: 4 },
+      { skill: 'patterns', difficulty: 'easy', count: 4, description: 'เติมจำนวนที่หายไปในแบบรูปที่เพิ่ม/ลดทีละ 1 หรือทีละ 10 และแบบรูปซ้ำ' },
       
       // 4. เรขาคณิต
-      { skill: 'shapes', difficulty: 'easy', count: 4 },
+      { skill: 'shapes', difficulty: 'easy', count: 4, description: 'จำแนกรูปร่าง 2 มิติและ 3 มิติพื้นฐาน เช่น สามเหลี่ยม สี่เหลี่ยม วงกลม' },
       
       // 5. การวัด
-      { skill: 'measurement', difficulty: 'easy', count: 3 },
+      { skill: 'measurement', difficulty: 'easy', count: 3, description: 'วัดและเปรียบเทียบความยาว (ซม./ม.) และน้ำหนัก (กก./ขีด)' },
       
       // 6. สถิติ
-      { skill: 'pictograph', difficulty: 'easy', count: 2 }
+      { skill: 'pictograph', difficulty: 'easy', count: 2, description: 'อ่านและตีความแผนภูมิรูปภาพ (1 รูป = 1 หน่วย)' }
     ],
     semester2: [
       // 1. จำนวนนับและค่าประจำหลัก (21-100) - 15 ข้อ
