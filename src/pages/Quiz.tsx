@@ -143,9 +143,10 @@ const Quiz = () => {
         body: JSON.stringify({
           userId,
           exerciseType: `แบบทดสอบชั้น ป.${selectedGrade} เทอม ${selectedSemester}`,
-          score: score.toFixed(1),
+          nickname: 'นักเรียน',
           correctAnswers,
           totalQuestions: questions.length,
+          percentage: Math.round(score),
           timeTaken: `${Math.floor(timeTaken / 60)} นาที ${timeTaken % 60} วินาที`,
         }),
       });

@@ -12,7 +12,31 @@ serve(async (req) => {
   }
 
   try {
-    const { userId, exerciseType, nickname, score, total, percentage, timeSpent, level, problems } = await req.json();
+    const requestData = await req.json();
+    console.log('Received data:', requestData);
+    
+    // Support both old format (nickname, score, total) and new format (correctAnswers, totalQuestions)
+    const { 
+      userId, 
+      exerciseType,
+      nickname,
+      score: rawScore,
+      total,
+      correctAnswers,
+      totalQuestions,
+      percentage,
+      timeTaken,
+      timeSpent,
+      level,
+      problems 
+    } = requestData;
+    
+    // Calculate values based on available data
+    const actualScore = correctAnswers ?? rawScore ?? 0;
+    const actualTotal = totalQuestions ?? total ?? 0;
+    const actualPercentage = percentage ?? (actualTotal > 0 ? Math.round((actualScore / actualTotal) * 100) : 0);
+    const actualTimeSpent = timeTaken ?? timeSpent ?? 'ไม่ระบุ';
+    const actualNickname = nickname ?? 'นักเรียน';
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -79,13 +103,13 @@ serve(async (req) => {
     // Send Flex Message
     await sendLineFlexMessage(user.line_user_id, {
       exerciseType,
-      nickname,
-      score,
-      total,
-      percentage,
-      timeSpent,
-      level,
-      problems
+      nickname: actualNickname,
+      score: actualScore,
+      total: actualTotal,
+      percentage: actualPercentage,
+      timeSpent: actualTimeSpent,
+      level: level || 'ไม่ระบุ',
+      problems: problems || []
     });
 
     // Log successful send
@@ -93,10 +117,10 @@ serve(async (req) => {
       user_id: userId,
       exercise_type: exerciseType,
       message_data: {
-        score: score,
-        total: total,
-        percentage: percentage,
-        time_spent: timeSpent
+        score: actualScore,
+        total: actualTotal,
+        percentage: actualPercentage,
+        time_spent: actualTimeSpent
       },
       sent_at: new Date().toISOString(),
       success: true
@@ -119,10 +143,18 @@ serve(async (req) => {
     
     // Log failed attempt
     try {
-      const { userId, exerciseType } = await req.json();
+      const requestData = await req.clone().json();
+      const userId = requestData.userId;
+      const exerciseType = requestData.exerciseType || 'unknown';
+      
+      const supabase = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      );
+      
       await supabase.from('line_message_logs').insert({
         user_id: userId,
-        exercise_type: exerciseType || 'unknown',
+        exercise_type: exerciseType,
         message_data: { error: error.message },
         sent_at: new Date().toISOString(),
         success: false,
@@ -143,6 +175,16 @@ async function sendLineFlexMessage(lineUserId: string, data: any) {
   const channelAccessToken = Deno.env.get('LINE_CHANNEL_ACCESS_TOKEN');
   
   const { exerciseType, nickname, score, total, percentage, timeSpent, level, problems } = data;
+  
+  console.log('Sending LINE message with data:', {
+    exerciseType,
+    nickname,
+    score,
+    total,
+    percentage,
+    timeSpent,
+    level
+  });
 
   // Exercise type name mapping (English to Thai)
   const exerciseNameMap: Record<string, string> = {
@@ -177,24 +219,102 @@ async function sendLineFlexMessage(lineUserId: string, data: any) {
     resultMessage = 'ดีมาก! 👍';
   }
 
-  // Build problem details (show only incorrect ones if there are many)
-  let problemDetails = '';
-  const incorrectProblems = problems?.filter((p: any) => !p.isCorrect) || [];
+  // Build basic info contents - always include these
+  const basicInfoContents = [
+    {
+      type: 'box',
+      layout: 'horizontal',
+      contents: [
+        {
+          type: 'text',
+          text: '👤 ชื่อ:',
+          size: 'sm',
+          color: '#555555',
+          flex: 0
+        },
+        {
+          type: 'text',
+          text: String(nickname || 'นักเรียน'),
+          size: 'sm',
+          color: '#111111',
+          align: 'end',
+          weight: 'bold'
+        }
+      ]
+    },
+    {
+      type: 'box',
+      layout: 'horizontal',
+      contents: [
+        {
+          type: 'text',
+          text: '📊 คะแนน:',
+          size: 'sm',
+          color: '#555555',
+          flex: 0
+        },
+        {
+          type: 'text',
+          text: `${score}/${total} (${percentage}%)`,
+          size: 'sm',
+          color: '#111111',
+          align: 'end',
+          weight: 'bold'
+        }
+      ]
+    }
+  ];
   
-  if (incorrectProblems.length > 0 && incorrectProblems.length <= 5) {
-    problemDetails = '\n\n❌ ข้อที่ผิด:\n' + incorrectProblems.map((p: any) => 
-      `• ${p.question} = ${p.userAnswer} (ถูกต้อง: ${p.correctAnswer})`
-    ).join('\n');
-  } else if (incorrectProblems.length > 5) {
-    problemDetails = `\n\n❌ ผิด ${incorrectProblems.length} ข้อ (แสดง 3 ข้อแรก):\n` + 
-      incorrectProblems.slice(0, 3).map((p: any) => 
-        `• ${p.question} = ${p.userAnswer} (ถูกต้อง: ${p.correctAnswer})`
-      ).join('\n');
+  // Add optional fields if they exist and are not 'ไม่ระบุ'
+  if (timeSpent && timeSpent !== 'ไม่ระบุ') {
+    basicInfoContents.push({
+      type: 'box',
+      layout: 'horizontal',
+      contents: [
+        {
+          type: 'text',
+          text: '⏱️ เวลา:',
+          size: 'sm',
+          color: '#555555',
+          flex: 0
+        },
+        {
+          type: 'text',
+          text: String(timeSpent),
+          size: 'sm',
+          color: '#111111',
+          align: 'end'
+        }
+      ]
+    });
+  }
+  
+  if (level && level !== 'ไม่ระบุ') {
+    basicInfoContents.push({
+      type: 'box',
+      layout: 'horizontal',
+      contents: [
+        {
+          type: 'text',
+          text: '🎯 ระดับ:',
+          size: 'sm',
+          color: '#555555',
+          flex: 0
+        },
+        {
+          type: 'text',
+          text: String(level),
+          size: 'sm',
+          color: '#111111',
+          align: 'end'
+        }
+      ]
+    });
   }
 
   const flexMessage = {
     type: 'flex',
-    altText: `${nickname} ทำโจทย์${exerciseName}ได้ ${score}/${total} คะแนน`,
+    altText: `${nickname} ทำข้อสอบ${exerciseName}ได้ ${score}/${total} คะแนน`,
     contents: {
       type: 'bubble',
       hero: {
@@ -210,7 +330,7 @@ async function sendLineFlexMessage(lineUserId: string, data: any) {
           },
           {
             type: 'text',
-            text: exerciseType === 'test' ? 'ข้อความทดสอบ' : exerciseName,
+            text: exerciseName,
             weight: 'bold',
             size: 'xl',
             align: 'center',
@@ -237,92 +357,7 @@ async function sendLineFlexMessage(lineUserId: string, data: any) {
             layout: 'vertical',
             margin: 'lg',
             spacing: 'sm',
-            contents: [
-              {
-                type: 'box',
-                layout: 'horizontal',
-                contents: [
-                  {
-                    type: 'text',
-                    text: '👤 ชื่อ:',
-                    size: 'sm',
-                    color: '#555555',
-                    flex: 0
-                  },
-                  {
-                    type: 'text',
-                    text: nickname,
-                    size: 'sm',
-                    color: '#111111',
-                    align: 'end',
-                    weight: 'bold'
-                  }
-                ]
-              },
-              {
-                type: 'box',
-                layout: 'horizontal',
-                contents: [
-                  {
-                    type: 'text',
-                    text: '📊 คะแนน:',
-                    size: 'sm',
-                    color: '#555555',
-                    flex: 0
-                  },
-                  {
-                    type: 'text',
-                    text: `${score}/${total} (${percentage}%)`,
-                    size: 'sm',
-                    color: '#111111',
-                    align: 'end',
-                    weight: 'bold'
-                  }
-                ]
-              },
-              ...(exerciseType !== 'test' ? [
-                {
-                  type: 'box',
-                  layout: 'horizontal',
-                  contents: [
-                    {
-                      type: 'text',
-                      text: '⏱️ เวลา:',
-                      size: 'sm',
-                      color: '#555555',
-                      flex: 0
-                    },
-                    {
-                      type: 'text',
-                      text: timeSpent,
-                      size: 'sm',
-                      color: '#111111',
-                      align: 'end'
-                    }
-                  ]
-                },
-                {
-                  type: 'box',
-                  layout: 'horizontal',
-                  contents: [
-                    {
-                      type: 'text',
-                      text: '🎯 ระดับ:',
-                      size: 'sm',
-                      color: '#555555',
-                      flex: 0
-                    },
-                    {
-                      type: 'text',
-                      text: level,
-                      size: 'sm',
-                      color: '#111111',
-                      align: 'end'
-                    }
-                  ]
-                }
-              ] : [])
-            ]
+            contents: basicInfoContents
           }
         ]
       },
@@ -333,7 +368,7 @@ async function sendLineFlexMessage(lineUserId: string, data: any) {
         contents: [
           {
             type: 'text',
-            text: exerciseType === 'test' ? '✅ การเชื่อมต่อ LINE ทำงานปกติ' : '🎓 ข้อมูลจาก KidFast',
+            text: '🎓 ข้อมูลจาก KidFast',
             color: '#aaaaaa',
             size: 'xs',
             align: 'center'
@@ -367,24 +402,6 @@ async function sendLineFlexMessage(lineUserId: string, data: any) {
     const errorText = await response.text();
     console.error('Failed to send LINE message:', errorText);
     throw new Error(`Failed to send LINE message: ${response.status}`);
-  }
-
-  // Send problem details as separate text message if exists
-  if (problemDetails) {
-    await fetch('https://api.line.me/v2/bot/message/push', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${channelAccessToken}`
-      },
-      body: JSON.stringify({
-        to: lineUserId,
-        messages: [{
-          type: 'text',
-          text: problemDetails
-        }]
-      })
-    });
   }
 
   return response.json();
