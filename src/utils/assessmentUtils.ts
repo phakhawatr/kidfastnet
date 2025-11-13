@@ -68,10 +68,24 @@ const generateCountingQuestions = (config: SkillConfig): AssessmentQuestion[] =>
   const questions: AssessmentQuestion[] = [];
   const [min, max] = config.range || [0, 100];
   
-  // สำหรับ ป.2 เทอม 1 (0-1000) จะมีคำถามประเภทเพิ่มเติม
-  const questionTypes = max > 100 
-    ? ['count_by_2', 'count_by_5', 'count_by_10', 'count_by_100', 'thai_numeral', 'odd_even', 'place_value_identify']
-    : ['count_by_1', 'count_by_10', 'thai_numeral', 'hundred_chart', 'count_backward'];
+  // ตรวจสอบระดับ: ป.4 (≥100,000 ถึงล้าน-สิบล้าน)
+  const isMillion = max >= 1000000;
+  const isHundredThousand = max >= 100000;
+  
+  let questionTypes: string[];
+  if (isMillion) {
+    // ป.4: จำนวนถึงล้าน-สิบล้าน
+    questionTypes = ['read_number', 'write_thai', 'write_text', 'place_value_identify', 'estimate', 'ordering'];
+  } else if (isHundredThousand) {
+    // ป.3: จำนวนถึงแสนหมื่น
+    questionTypes = ['count_by_100', 'count_by_1000', 'thai_numeral', 'place_value_identify', 'ordering'];
+  } else if (max > 100) {
+    // ป.2: 0-1000
+    questionTypes = ['count_by_2', 'count_by_5', 'count_by_10', 'count_by_100', 'thai_numeral', 'odd_even', 'place_value_identify'];
+  } else {
+    // ป.1: 0-100
+    questionTypes = ['count_by_1', 'count_by_10', 'thai_numeral', 'hundred_chart', 'count_backward'];
+  }
   
   for (let i = 0; i < config.count; i++) {
     const type = questionTypes[i % questionTypes.length];
@@ -81,6 +95,144 @@ const generateCountingQuestions = (config: SkillConfig): AssessmentQuestion[] =>
     let explanation = '';
     
     switch (type) {
+      case 'read_number': {
+        // อ่านตัวเลข (ป.4)
+        const num = randInt(min, max);
+        const numStr = num.toLocaleString('th-TH');
+        question = `เลข ${numStr} อ่านว่าอย่างไร?`;
+        
+        // แปลงเป็นตัวหนังสือ
+        const thaiNumbers = ['', 'หนึ่ง', 'สอง', 'สาม', 'สี่', 'ห้า', 'หก', 'เจ็ด', 'แปด', 'เก้า'];
+        const positions = ['', 'สิบ', 'ร้อย', 'พัน', 'หมื่น', 'แสน', 'ล้าน', 'สิบล้าน'];
+        
+        let text = '';
+        const digits = String(num).split('').reverse();
+        for (let j = digits.length - 1; j >= 0; j--) {
+          const digit = parseInt(digits[j]);
+          if (digit > 0) {
+            if (j === 1 && digit === 1) {
+              text += 'สิบ';
+            } else if (j === 1 && digit === 2) {
+              text += 'ยี่สิบ';
+            } else if (j === 0 && digit === 1 && digits.length > 1) {
+              text += 'เอ็ด';
+            } else {
+              text += thaiNumbers[digit] + positions[j];
+            }
+          }
+        }
+        
+        correctAnswer = text;
+        
+        // สร้างตัวเลือกผิด
+        const wrongChoices = [];
+        const numPlusOne = num + 1;
+        const numMinusOne = num - 1;
+        
+        // ตัวเลือกผิดแบบง่าย (เปลี่ยนเลขหลักสุดท้าย)
+        wrongChoices.push(`${text.slice(0, -3)}สอง`);
+        wrongChoices.push(`${text.slice(0, -3)}สาม`);
+        wrongChoices.push(`${text.slice(0, -4)}แปด`);
+        
+        choices = shuffleArray([correctAnswer, ...wrongChoices.slice(0, 3)]);
+        explanation = `${numStr} อ่านว่า "${text}"`;
+        break;
+      }
+      case 'write_thai': {
+        // เขียนเลขไทย (ป.4)
+        const num = randInt(min, max);
+        const thaiDigits = ['๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙'];
+        const arabicStr = String(num);
+        let thaiStr = '';
+        for (const digit of arabicStr) {
+          thaiStr += thaiDigits[parseInt(digit)];
+        }
+        
+        question = `เลข ${num.toLocaleString('th-TH')} เขียนเป็นเลขไทยได้ว่าอย่างไร?`;
+        correctAnswer = thaiStr;
+        
+        // สร้างตัวเลือกผิด
+        choices = [thaiStr];
+        const wrongNum1 = num + 1;
+        const wrongNum2 = num - 1;
+        const wrongNum3 = num + 10;
+        
+        for (const wrong of [wrongNum1, wrongNum2, wrongNum3]) {
+          let wrongThai = '';
+          for (const digit of String(wrong)) {
+            wrongThai += thaiDigits[parseInt(digit)];
+          }
+          choices.push(wrongThai);
+        }
+        
+        choices = shuffleArray(choices).slice(0, 4);
+        explanation = `${num.toLocaleString('th-TH')} เขียนเป็นเลขไทยได้เป็น ${thaiStr}`;
+        break;
+      }
+      case 'write_text': {
+        // เขียนเป็นตัวหนังสือ (ป.4)
+        const nums = [1000000, 2500000, 5000000, 7500000, 10000000];
+        const num = nums[i % nums.length];
+        const numStr = num.toLocaleString('th-TH');
+        
+        const textMap: Record<number, string> = {
+          1000000: 'หนึ่งล้าน',
+          2500000: 'สองล้านห้าแสน',
+          5000000: 'ห้าล้าน',
+          7500000: 'เจ็ดล้านห้าแสน',
+          10000000: 'สิบล้าน'
+        };
+        
+        question = `"${textMap[num]}" เขียนเป็นตัวเลขได้ว่าอย่างไร?`;
+        correctAnswer = numStr;
+        
+        choices = shuffleArray([
+          numStr,
+          (num + 100000).toLocaleString('th-TH'),
+          (num - 100000).toLocaleString('th-TH'),
+          (num * 2).toLocaleString('th-TH')
+        ]);
+        explanation = `${textMap[num]} เท่ากับ ${numStr}`;
+        break;
+      }
+      case 'estimate': {
+        // การประมาณค่า (ป.4)
+        const num = randInt(min, max);
+        const roundToNearest = num >= 1000000 ? 1000000 : 100000;
+        const estimated = Math.round(num / roundToNearest) * roundToNearest;
+        
+        question = `ประมาณค่า ${num.toLocaleString('th-TH')} ให้ใกล้เคียงที่สุด (ปัดเป็น${roundToNearest >= 1000000 ? 'ล้าน' : 'แสน'})`;
+        correctAnswer = estimated.toLocaleString('th-TH');
+        
+        choices = shuffleArray([
+          estimated.toLocaleString('th-TH'),
+          (estimated + roundToNearest).toLocaleString('th-TH'),
+          (estimated - roundToNearest).toLocaleString('th-TH'),
+          (Math.round(num / (roundToNearest / 10)) * (roundToNearest / 10)).toLocaleString('th-TH')
+        ]);
+        explanation = `${num.toLocaleString('th-TH')} ประมาณเป็น ${estimated.toLocaleString('th-TH')}`;
+        break;
+      }
+      case 'ordering': {
+        // เรียงลำดับ (ป.4)
+        const nums = Array.from({ length: 4 }, () => randInt(min, max));
+        const sorted = [...nums].sort((a, b) => a - b);
+        
+        question = `เรียงจำนวนจากน้อยไปมาก: ${nums.map(n => n.toLocaleString('th-TH')).join(', ')}`;
+        correctAnswer = sorted.map(n => n.toLocaleString('th-TH')).join(', ');
+        
+        choices = [
+          sorted.map(n => n.toLocaleString('th-TH')).join(', '),
+          [...nums].sort((a, b) => b - a).map(n => n.toLocaleString('th-TH')).join(', '),
+          shuffleArray(nums).map(n => n.toLocaleString('th-TH')).join(', ')
+        ];
+        choices = [...new Set(choices)].slice(0, 4);
+        if (choices.length < 4) {
+          choices.push(shuffleArray(nums).map(n => n.toLocaleString('th-TH')).join(', '));
+        }
+        explanation = `เรียงจากน้อยไปมาก: ${correctAnswer}`;
+        break;
+      }
       case 'count_by_1': {
         const start = randInt(min, max - 5);
         const missing = randInt(1, 3);
@@ -2537,6 +2689,76 @@ const generateFractionsQuestions = (config: SkillConfig): AssessmentQuestion[] =
   return questions;
 };
 
+const generateAverageQuestions = (config: SkillConfig): AssessmentQuestion[] => {
+  const questions: AssessmentQuestion[] = [];
+  
+  for (let i = 0; i < config.count; i++) {
+    const questionTypes = ['simple_average', 'find_total_from_average', 'word_problem'];
+    const type = questionTypes[i % questionTypes.length];
+    
+    let question = '';
+    let correctAnswer: number | string = 0;
+    let choices: (number | string)[] = [];
+    let explanation = '';
+    
+    switch (type) {
+      case 'simple_average': {
+        // หาค่าเฉลี่ยอย่างง่าย (ป.4)
+        const count = randInt(3, 5);
+        const numbers = Array.from({ length: count }, () => randInt(10, 50));
+        const sum = numbers.reduce((a, b) => a + b, 0);
+        const avg = sum / count;
+        
+        question = `หาค่าเฉลี่ยของจำนวน: ${numbers.join(', ')}`;
+        correctAnswer = avg;
+        choices = generateChoices(avg);
+        explanation = `ค่าเฉลี่ย = (${numbers.join(' + ')}) ÷ ${count} = ${sum} ÷ ${count} = ${avg}`;
+        break;
+      }
+      case 'find_total_from_average': {
+        // หาผลรวมจากค่าเฉลี่ย (ป.4)
+        const count = randInt(3, 5);
+        const avg = randInt(15, 40);
+        const total = avg * count;
+        
+        question = `ถ้าค่าเฉลี่ยของจำนวน ${count} ตัวเลข เท่ากับ ${avg} ผลรวมของจำนวนทั้งหมดเท่าไร?`;
+        correctAnswer = total;
+        choices = generateChoices(total);
+        explanation = `ผลรวม = ค่าเฉลี่ย × จำนวนตัวเลข = ${avg} × ${count} = ${total}`;
+        break;
+      }
+      case 'word_problem': {
+        // โจทย์ปัญหาค่าเฉลี่ย (ป.4)
+        const days = randInt(3, 5);
+        const scores = Array.from({ length: days }, () => randInt(60, 100));
+        const sum = scores.reduce((a, b) => a + b, 0);
+        const avg = Math.round(sum / days);
+        
+        const subjects = ['คณิตศาสตร์', 'วิทยาศาสตร์', 'ภาษาไทย', 'สังคมศึกษา'];
+        const subject = subjects[i % subjects.length];
+        
+        question = `คะแนนสอบวิชา${subject} ${days} ครั้ง ได้ ${scores.join(', ')} คะแนน หาคะแนนเฉลี่ย`;
+        correctAnswer = avg;
+        choices = generateChoices(avg);
+        explanation = `คะแนนเฉลี่ย = (${scores.join(' + ')}) ÷ ${days} = ${sum} ÷ ${days} = ${avg}`;
+        break;
+      }
+    }
+    
+    questions.push({
+      id: `average_${Date.now()}_${i}_${Math.random()}`,
+      skill: 'average',
+      question,
+      correctAnswer,
+      choices,
+      difficulty: config.difficulty,
+      explanation
+    });
+  }
+  
+  return questions;
+};
+
 const generatePlaceholderQuestions = (config: SkillConfig): AssessmentQuestion[] => {
   const questions: AssessmentQuestion[] = [];
   
@@ -2629,6 +2851,9 @@ export const generateAssessmentQuestions = (
         break;
       case 'fractions':
         questions = generateFractionsQuestions(skillConfig);
+        break;
+      case 'average':
+        questions = generateAverageQuestions(skillConfig);
         break;
       default:
         console.warn(`Skill ${skillConfig.skill} not implemented yet, using placeholder`);
