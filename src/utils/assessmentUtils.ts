@@ -68,8 +68,8 @@ const generateCountingQuestions = (config: SkillConfig): AssessmentQuestion[] =>
   const [min, max] = config.range || [0, 100];
   
   const questionTypes = [
-    'count_by_1', 'count_by_10', 'thai_numeral', 'arabic_numeral', 
-    'missing_number'
+    'count_by_1', 'count_by_10', 'thai_numeral', 'hundred_chart', 
+    'count_backward'
   ];
   
   for (let i = 0; i < config.count; i++) {
@@ -89,16 +89,16 @@ const generateCountingQuestions = (config: SkillConfig): AssessmentQuestion[] =>
         break;
       }
       case 'count_by_10': {
-        const start = randInt(1, 5) * 10;
+        const start = randInt(Math.floor(min / 10), Math.floor(max / 10) - 3) * 10;
         const missing = randInt(1, 3);
         const sequence = Array.from({ length: 5 }, (_, idx) => idx === missing ? '__' : start + (idx * 10));
-        question = `เติมจำนวนที่หายไป: ${sequence.join(', ')}`;
+        question = `บนตารางร้อย ถ้าเริ่มที่ ${start} แล้วนับทีละ 10 จะได้: ${sequence.join(', ')}`;
         correctAnswer = start + (missing * 10);
         choices = generateChoices(correctAnswer);
         break;
       }
       case 'thai_numeral': {
-        const num = randInt(min, Math.min(max, 50));
+        const num = randInt(min, Math.min(max, 100));
         const thaiNumerals = ['๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙'];
         const thaiNum = num.toString().split('').map(d => thaiNumerals[parseInt(d)]).join('');
         question = `เลขไทย "${thaiNum}" เขียนเป็นเลขอารบิกว่าอะไร?`;
@@ -106,28 +106,21 @@ const generateCountingQuestions = (config: SkillConfig): AssessmentQuestion[] =>
         choices = generateChoices(correctAnswer);
         break;
       }
-      case 'arabic_numeral': {
-        const num = randInt(min, Math.min(max, 50));
-        const thaiNumerals = ['๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙'];
-        const thaiNum = num.toString().split('').map(d => thaiNumerals[parseInt(d)]).join('');
-        question = `เลขอารบิก "${num}" เขียนเป็นเลขไทยว่าอะไร?`;
-        correctAnswer = thaiNum;
-        choices = [thaiNum];
-        // Generate wrong Thai numerals
-        for (let j = 0; j < 3; j++) {
-          const wrongNum = num + randInt(-5, 5);
-          if (wrongNum >= 0 && wrongNum !== num) {
-            const wrongThai = wrongNum.toString().split('').map(d => thaiNumerals[parseInt(d)]).join('');
-            if (!choices.includes(wrongThai)) choices.push(wrongThai);
-          }
-        }
-        choices = shuffleArray(choices).slice(0, 4);
+      case 'hundred_chart': {
+        const start = randInt(min, max - 30);
+        const missing = randInt(1, 2);
+        const sequence = Array.from({ length: 4 }, (_, idx) => idx === missing ? '__' : start + (idx * 10));
+        question = `เติมจำนวนที่หายไปบนตารางร้อย (นับทีละ 10): ${sequence.join(', ')}`;
+        correctAnswer = start + (missing * 10);
+        choices = generateChoices(correctAnswer);
         break;
       }
-      case 'missing_number': {
-        const num = randInt(min + 1, max - 1);
-        question = `จำนวนใดอยู่ระหว่าง ${num - 1} และ ${num + 1}?`;
-        correctAnswer = num;
+      case 'count_backward': {
+        const start = randInt(min + 5, max);
+        const missing = randInt(1, 3);
+        const sequence = Array.from({ length: 5 }, (_, idx) => idx === missing ? '__' : start - idx);
+        question = `เติมจำนวนที่หายไป (นับถอยหลัง): ${sequence.join(', ')}`;
+        correctAnswer = start - missing;
         choices = generateChoices(correctAnswer);
         break;
       }
@@ -282,28 +275,32 @@ const generatePlaceValueQuestions = (config: SkillConfig): AssessmentQuestion[] 
   const [min, max] = config.range || [10, 99];
   
   for (let i = 0; i < config.count; i++) {
-    const num = randInt(Math.max(min, 10), max);
+    const num = randInt(Math.max(min, 21), max);
     const tens = Math.floor(num / 10);
     const ones = num % 10;
     
-    const questionTypes = ['tens_place', 'ones_place', 'tens_value'];
+    const questionTypes = ['tens_place', 'ones_place', 'decompose'];
     const type = questionTypes[i % questionTypes.length];
     
     let question = '';
-    let correctAnswer: number = 0;
+    let correctAnswer: number | string = 0;
+    let choices: (number | string)[] = [];
     
     switch (type) {
       case 'tens_place':
         question = `เลข ${num} มีหลักสิบเป็นเท่าไร?`;
         correctAnswer = tens;
+        choices = generateChoices(correctAnswer);
         break;
       case 'ones_place':
         question = `เลข ${num} มีหลักหน่วยเป็นเท่าไร?`;
         correctAnswer = ones;
+        choices = generateChoices(correctAnswer);
         break;
-      case 'tens_value':
-        question = `ค่าของหลักสิบในเลข ${num} คือเท่าไร?`;
-        correctAnswer = tens * 10;
+      case 'decompose':
+        question = `${num} = __ สิบ + ${ones} หน่วย`;
+        correctAnswer = tens;
+        choices = generateChoices(correctAnswer);
         break;
     }
     
@@ -312,7 +309,7 @@ const generatePlaceValueQuestions = (config: SkillConfig): AssessmentQuestion[] 
       skill: 'placeValue',
       question,
       correctAnswer,
-      choices: generateChoices(correctAnswer),
+      choices,
       difficulty: config.difficulty
     });
   }
@@ -324,7 +321,7 @@ const generatePatternsQuestions = (config: SkillConfig): AssessmentQuestion[] =>
   const questions: AssessmentQuestion[] = [];
   
   for (let i = 0; i < config.count; i++) {
-    const questionTypes = ['add_1', 'add_10', 'subtract_1', 'repeating_pattern'];
+    const questionTypes = ['hundred_chart_add_10', 'hundred_chart_subtract_10', 'geometric_pattern', 'shape_pattern'];
     const type = questionTypes[i % questionTypes.length];
     
     let question = '';
@@ -332,42 +329,51 @@ const generatePatternsQuestions = (config: SkillConfig): AssessmentQuestion[] =>
     let choices: (number | string)[] = [];
     
     switch (type) {
-      case 'add_1': {
-        const start = randInt(1, 20);
-        const sequence = Array.from({ length: 5 }, (_, idx) => idx === 2 ? '__' : start + idx);
-        question = `เติมจำนวนที่หายไป: ${sequence.join(', ')}`;
-        correctAnswer = start + 2;
+      case 'hundred_chart_add_10': {
+        const start = randInt(21, 60);
+        const missing = randInt(1, 2);
+        const sequence = Array.from({ length: 4 }, (_, idx) => idx === missing ? '__' : start + (idx * 10));
+        question = `เติมจำนวนที่หายไปบนตารางร้อย (เพิ่มทีละ 10): ${sequence.join(', ')}`;
+        correctAnswer = start + (missing * 10);
         choices = generateChoices(correctAnswer);
         break;
       }
-      case 'add_10': {
-        const start = randInt(1, 5) * 10;
-        const sequence = Array.from({ length: 5 }, (_, idx) => idx === 2 ? '__' : start + (idx * 10));
-        question = `เติมจำนวนที่หายไป: ${sequence.join(', ')}`;
-        correctAnswer = start + 20;
+      case 'hundred_chart_subtract_10': {
+        const start = randInt(50, 90);
+        const missing = randInt(1, 2);
+        const sequence = Array.from({ length: 4 }, (_, idx) => idx === missing ? '__' : start - (idx * 10));
+        question = `เติมจำนวนที่หายไป (ลดทีละ 10): ${sequence.join(', ')}`;
+        correctAnswer = start - (missing * 10);
         choices = generateChoices(correctAnswer);
         break;
       }
-      case 'subtract_1': {
-        const start = randInt(10, 25);
-        const sequence = Array.from({ length: 5 }, (_, idx) => idx === 2 ? '__' : start - idx);
-        question = `เติมจำนวนที่หายไป: ${sequence.join(', ')}`;
-        correctAnswer = start - 2;
-        choices = generateChoices(correctAnswer);
-        break;
-      }
-      case 'repeating_pattern': {
+      case 'geometric_pattern': {
         const patterns = [
-          { seq: ['🔵', '🔴'], correct: '🔵' },
-          { seq: ['⭐', '🌙'], correct: '⭐' },
-          { seq: ['🟢', '🟡'], correct: '🟢' },
-          { seq: ['❤️', '💙'], correct: '❤️' }
+          { seq: ['🔺', '⬜', '⭕'], correct: '🔺' },
+          { seq: ['⬜', '🔺', '⬜'], correct: '🔺' },
+          { seq: ['⭕', '🔺', '⬜'], correct: '⭕' },
+          { seq: ['🔺', '🔺', '⬜'], correct: '🔺' }
         ];
         const pattern = patterns[i % patterns.length];
         const fullSeq = [...pattern.seq, ...pattern.seq, '__'];
-        question = `รูปใดมาต่อ? ${fullSeq.join(' ')}`;
+        question = `รูปใดมาต่อในแบบรูปซ้ำ? ${fullSeq.join(' ')}`;
         correctAnswer = pattern.correct;
-        choices = shuffleArray([pattern.seq[0], pattern.seq[1], '🟣', '💚']).slice(0, 4);
+        choices = shuffleArray(['🔺', '⬜', '⭕', '🔴']).slice(0, 4);
+        if (!choices.includes(correctAnswer)) {
+          choices[0] = correctAnswer;
+        }
+        break;
+      }
+      case 'shape_pattern': {
+        const patterns = [
+          { seq: ['△', '□'], correct: '△' },
+          { seq: ['○', '△', '○'], correct: '△' }
+        ];
+        const pattern = patterns[i % patterns.length];
+        const fullSeq = [...pattern.seq, ...pattern.seq, '__'];
+        question = `สร้างแบบรูปซ้ำต่อไป: ${fullSeq.join(' ')}`;
+        correctAnswer = pattern.correct;
+        choices = shuffleArray(['△', '□', '○', '◇']).slice(0, 4);
         if (!choices.includes(correctAnswer)) {
           choices[0] = correctAnswer;
         }
@@ -401,12 +407,19 @@ const generateShapesQuestions = (config: SkillConfig): AssessmentQuestion[] => {
   const shapes3D = [
     { name: 'ทรงกลม', emoji: '⚽' },
     { name: 'ทรงกระบอก', emoji: '🥫' },
-    { name: 'กรวย', emoji: '🔺' },
-    { name: 'ทรงสี่เหลี่ยม', emoji: '📦' }
+    { name: 'กรวย', emoji: '🚧' },
+    { name: 'ทรงสี่เหลี่ยมมุมฉาก', emoji: '📦' }
+  ];
+  
+  const realWorldObjects = [
+    { name: 'ลูกฟุตบอล', emoji: '⚽', shape: 'ทรงกลม' },
+    { name: 'กล่องนม', emoji: '📦', shape: 'ทรงสี่เหลี่ยมมุมฉาก' },
+    { name: 'กรวยจราจร', emoji: '🚧', shape: 'กรวย' },
+    { name: 'กระป๋อง', emoji: '🥫', shape: 'ทรงกระบอก' }
   ];
   
   for (let i = 0; i < config.count; i++) {
-    const questionTypes = ['identify_2d', 'count_sides', 'identify_3d', 'classify_dimension'];
+    const questionTypes = ['real_world_connection', 'count_shapes', 'pattern_creation', 'identify_3d'];
     const type = questionTypes[i % questionTypes.length];
     
     let question = '';
@@ -414,40 +427,46 @@ const generateShapesQuestions = (config: SkillConfig): AssessmentQuestion[] => {
     let choices: (string | number)[] = [];
     
     switch (type) {
-      case 'identify_2d': {
-        const shape = shapes2D[i % shapes2D.length];
-        const others = shapes2D.filter(s => s.name !== shape.name);
-        question = `รูปใดเป็น${shape.name}?`;
-        correctAnswer = shape.emoji;
-        choices = shuffleArray([shape.emoji, ...others.slice(0, 3).map(s => s.emoji)]);
+      case 'real_world_connection': {
+        const obj = realWorldObjects[i % realWorldObjects.length];
+        question = `${obj.emoji} ${obj.name} เป็นรูปทรงอะไร?`;
+        correctAnswer = obj.shape;
+        choices = shuffleArray(shapes3D.map(s => s.name));
         break;
       }
-      case 'count_sides': {
-        const shape = shapes2D[i % shapes2D.length];
-        if (shape.sides > 0) {
-          question = `${shape.emoji} ${shape.name}มีกี่ด้าน?`;
-          correctAnswer = shape.sides;
-          choices = shuffleArray([shape.sides, shape.sides + 1, shape.sides - 1, shape.sides + 2].filter(n => n > 0));
-        } else {
-          const altShape = shapes2D[1]; // สี่เหลี่ยม
-          question = `${altShape.emoji} ${altShape.name}มีกี่ด้าน?`;
-          correctAnswer = altShape.sides;
-          choices = shuffleArray([3, 4, 5, 6]);
+      case 'count_shapes': {
+        const shapeToCount = ['🔺', '⬜', '⭕'][i % 3];
+        const count = randInt(3, 6);
+        const otherShapes = ['🔺', '⬜', '⭕', '🔴'];
+        const sequence = Array.from({ length: count + 2 }, (_, idx) => 
+          idx < count ? shapeToCount : otherShapes[randInt(0, 3)]
+        );
+        shuffleArray(sequence);
+        question = `ในรูปนี้มี ${shapeToCount} กี่รูป? ${sequence.join('')}`;
+        correctAnswer = count;
+        choices = generateChoices(count);
+        break;
+      }
+      case 'pattern_creation': {
+        const patterns = [
+          { seq: ['🔺', '⬜'], correct: '🔺' },
+          { seq: ['⭕', '🔺'], correct: '⭕' }
+        ];
+        const pattern = patterns[i % patterns.length];
+        const display = [...pattern.seq, ...pattern.seq];
+        question = `ถ้าใช้ ${display.join('')} มาต่อกัน รูปถัดไปคือ?`;
+        correctAnswer = pattern.correct;
+        choices = shuffleArray(['🔺', '⬜', '⭕', '🔴']).slice(0, 4);
+        if (!choices.includes(correctAnswer)) {
+          choices[0] = correctAnswer;
         }
         break;
       }
       case 'identify_3d': {
         const shape = shapes3D[i % shapes3D.length];
-        const others = shapes3D.filter(s => s.name !== shape.name);
-        question = `รูปทรงใดเป็น${shape.name}?`;
-        correctAnswer = shape.emoji;
-        choices = shuffleArray([shape.emoji, ...others.slice(0, 3).map(s => s.emoji)]);
-        break;
-      }
-      case 'classify_dimension': {
-        question = `รูปทรงใดเป็น 3 มิติ?`;
-        correctAnswer = shapes3D[0].emoji;
-        choices = shuffleArray([shapes3D[0].emoji, shapes2D[0].emoji, shapes2D[1].emoji, shapes2D[2].emoji]);
+        question = `${shape.emoji} เป็นรูปทรงอะไร?`;
+        correctAnswer = shape.name;
+        choices = shuffleArray(shapes3D.map(s => s.name));
         break;
       }
     }
@@ -469,7 +488,7 @@ const generateMeasurementQuestions = (config: SkillConfig): AssessmentQuestion[]
   const questions: AssessmentQuestion[] = [];
   
   for (let i = 0; i < config.count; i++) {
-    const questionTypes = ['length_convert', 'weight_convert', 'compare_length'];
+    const questionTypes = ['length_add_word_problem', 'length_subtract_word_problem', 'estimate_length'];
     const type = questionTypes[i % questionTypes.length];
     
     let question = '';
@@ -477,26 +496,32 @@ const generateMeasurementQuestions = (config: SkillConfig): AssessmentQuestion[]
     let choices: (number | string)[] = [];
     
     switch (type) {
-      case 'length_convert': {
-        const cm = randInt(1, 5) * 100;
-        question = `${cm} เซนติเมตร เท่ากับกี่เมตร?`;
-        correctAnswer = cm / 100;
+      case 'length_add_word_problem': {
+        const len1 = randInt(20, 50);
+        const len2 = randInt(15, 40);
+        question = `เชือกเส้นแรกยาว ${len1} เซนติเมตร เส้นที่สองยาว ${len2} เซนติเมตร รวมกันยาวกี่เซนติเมตร?`;
+        correctAnswer = len1 + len2;
         choices = generateChoices(correctAnswer);
         break;
       }
-      case 'weight_convert': {
-        const kg = randInt(1, 5);
-        question = `${kg} กิโลกรัม เท่ากับกี่ขีด? (1 กก. = 2 ขีด)`;
-        correctAnswer = kg * 2;
+      case 'length_subtract_word_problem': {
+        const total = randInt(60, 100);
+        const cut = randInt(20, 50);
+        question = `เชือกยาว ${total} เซนติเมตร ตัดไป ${cut} เซนติเมตร เหลือกี่เซนติเมตร?`;
+        correctAnswer = total - cut;
         choices = generateChoices(correctAnswer);
         break;
       }
-      case 'compare_length': {
-        const len1 = randInt(5, 30);
-        const len2 = randInt(5, 30);
-        question = `ดินสอยาว ${len1} ซม. ปากกายาว ${len2} ซม. อันไหนยาวกว่า?`;
-        correctAnswer = len1 > len2 ? 'ดินสอ' : len2 > len1 ? 'ปากกา' : 'เท่ากัน';
-        choices = ['ดินสอ', 'ปากกา', 'เท่ากัน'];
+      case 'estimate_length': {
+        const objects = [
+          { name: 'ปากกา', length: 15 },
+          { name: 'ดินสอ', length: 18 },
+          { name: 'ไม้บรรทัด', length: 30 }
+        ];
+        const obj = objects[i % objects.length];
+        question = `ความยาวของ${obj.name}ประมาณเท่าไหร่?`;
+        correctAnswer = `${obj.length} ซม.`;
+        choices = [`${obj.length - 10} ซม.`, `${obj.length} ซม.`, `${obj.length + 20} ซม.`, `${obj.length + 50} ซม.`];
         break;
       }
     }
@@ -583,38 +608,68 @@ const generateAdditionQuestions = (config: SkillConfig): AssessmentQuestion[] =>
   const [min, max] = config.range || [0, 10];
   
   for (let i = 0; i < config.count; i++) {
-    const questionTypes = ['basic', 'word_problem', 'commutative', 'symbol'];
+    const questionTypes = ['two_digit_plus_one_digit', 'two_digit_plus_two_digit', 'find_unknown', 'relationship', 'word_problem'];
     const type = questionTypes[i % questionTypes.length];
     
-    let a = randInt(min, max);
-    let b = randInt(min, max - a); // Ensure a + b <= max
-    const correctAnswer = a + b;
-    
     let question = '';
+    let correctAnswer: number | string = 0;
+    let choices: (number | string)[] = [];
     
     switch (type) {
-      case 'basic':
+      case 'two_digit_plus_one_digit': {
+        const tens = randInt(Math.floor(min / 10), Math.floor((max - 10) / 10));
+        const onesA = randInt(0, 9);
+        const onesB = randInt(1, Math.min(9, 99 - (tens * 10 + onesA)));
+        const a = tens * 10 + onesA;
+        const b = onesB;
+        correctAnswer = a + b;
         question = `${a} + ${b} = ?`;
+        choices = generateChoices(correctAnswer);
         break;
-      case 'word_problem':
+      }
+      case 'two_digit_plus_two_digit': {
+        const a = randInt(Math.max(10, min), Math.floor((max - 10) / 2));
+        const b = randInt(10, Math.min(max - a, 50));
+        correctAnswer = a + b;
+        question = `${a} + ${b} = ?`;
+        choices = generateChoices(correctAnswer);
+        break;
+      }
+      case 'find_unknown': {
+        const sum = randInt(Math.max(30, min), max);
+        const b = randInt(10, sum - 10);
+        const a = sum - b;
+        correctAnswer = a;
+        question = `__ + ${b} = ${sum}`;
+        choices = generateChoices(correctAnswer);
+        break;
+      }
+      case 'relationship': {
+        const a = randInt(Math.max(20, min), Math.floor(max / 2));
+        const b = randInt(10, Math.min(40, max - a));
+        const sum = a + b;
+        correctAnswer = a;
+        question = `ถ้า ${a} + ${b} = ${sum} แล้ว ${sum} - ${b} = ?`;
+        choices = generateChoices(correctAnswer);
+        break;
+      }
+      case 'word_problem': {
+        const a = randInt(Math.max(20, min), Math.floor(max / 2));
+        const b = randInt(10, Math.min(max - a, 40));
+        correctAnswer = a + b;
         question = `น้องมีลูกอม ${a} เม็ด พี่ให้อีก ${b} เม็ด รวมกี่เม็ด?`;
+        choices = generateChoices(correctAnswer);
         break;
-      case 'commutative':
-        question = `${a} + ${b} = ${b} + __`;
-        break;
-      case 'symbol':
-        question = `เติมเครื่องหมาย: ${a} __ ${b} = ${correctAnswer}`;
-        break;
+      }
     }
     
     questions.push({
-      id: `add_${Date.now()}_${i}_${Math.random()}`,
+      id: `addition_${Date.now()}_${i}_${Math.random()}`,
       skill: 'addition',
       question,
-      correctAnswer: type === 'commutative' ? a : type === 'symbol' ? '+' : correctAnswer,
-      choices: type === 'symbol' ? ['+', '-', '×', '÷'] : generateChoices(type === 'commutative' ? a : correctAnswer),
-      difficulty: config.difficulty,
-      explanation: `${a} + ${b} = ${correctAnswer}`
+      correctAnswer,
+      choices,
+      difficulty: config.difficulty
     });
   }
   
@@ -626,40 +681,71 @@ const generateSubtractionQuestions = (config: SkillConfig): AssessmentQuestion[]
   const [min, max] = config.range || [0, 10];
   
   for (let i = 0; i < config.count; i++) {
-    const questionTypes = ['basic', 'word_problem', 'symbol'];
+    const questionTypes = ['two_digit_minus_one_digit', 'two_digit_minus_two_digit', 'find_unknown', 'relationship', 'word_problem'];
     const type = questionTypes[i % questionTypes.length];
     
-    const b = randInt(min, max);
-    const a = randInt(b, max); // Ensure a >= b and a <= max
-    const correctAnswer = a - b;
-    
     let question = '';
+    let correctAnswer: number | string = 0;
+    let choices: (number | string)[] = [];
     
     switch (type) {
-      case 'basic':
+      case 'two_digit_minus_one_digit': {
+        const a = randInt(Math.max(21, min), max);
+        const b = randInt(1, Math.min(9, a));
+        correctAnswer = a - b;
         question = `${a} - ${b} = ?`;
+        choices = generateChoices(correctAnswer);
         break;
-      case 'word_problem':
+      }
+      case 'two_digit_minus_two_digit': {
+        const a = randInt(Math.max(30, min), max);
+        const b = randInt(10, a - 5);
+        correctAnswer = a - b;
+        question = `${a} - ${b} = ?`;
+        choices = generateChoices(correctAnswer);
+        break;
+      }
+      case 'find_unknown': {
+        const a = randInt(Math.max(50, min), max);
+        const result = randInt(20, a - 20);
+        const b = a - result;
+        correctAnswer = b;
+        question = `${a} - __ = ${result}`;
+        choices = generateChoices(correctAnswer);
+        break;
+      }
+      case 'relationship': {
+        const sum = randInt(Math.max(40, min), max);
+        const b = randInt(15, Math.floor(sum / 2));
+        const a = sum - b;
+        correctAnswer = b;
+        question = `ถ้า ${a} + ${b} = ${sum} แล้ว ${sum} - ${a} = ?`;
+        choices = generateChoices(correctAnswer);
+        break;
+      }
+      case 'word_problem': {
+        const a = randInt(Math.max(30, min), max);
+        const b = randInt(10, a - 5);
+        correctAnswer = a - b;
         question = `มีของเล่น ${a} ชิ้น เล่นหายไป ${b} ชิ้น เหลือกี่ชิ้น?`;
+        choices = generateChoices(correctAnswer);
         break;
-      case 'symbol':
-        question = `เติมเครื่องหมาย: ${a} __ ${b} = ${correctAnswer}`;
-        break;
+      }
     }
     
     questions.push({
-      id: `sub_${Date.now()}_${i}_${Math.random()}`,
+      id: `subtraction_${Date.now()}_${i}_${Math.random()}`,
       skill: 'subtraction',
       question,
-      correctAnswer: type === 'symbol' ? '-' : correctAnswer,
-      choices: type === 'symbol' ? ['+', '-', '×', '÷'] : generateChoices(correctAnswer),
-      difficulty: config.difficulty,
-      explanation: `${a} - ${b} = ${correctAnswer}`
+      correctAnswer,
+      choices,
+      difficulty: config.difficulty
     });
   }
   
   return questions;
 };
+
 
 const generateMultiplicationQuestions = (config: SkillConfig): AssessmentQuestion[] => {
   const questions: AssessmentQuestion[] = [];

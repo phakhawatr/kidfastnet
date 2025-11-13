@@ -31,6 +31,26 @@
     "division": "การหาร",
     "money": "เงิน",
     "time": "เวลา",
-    "fractions": "เศษส่วน"
+    "fractions": "เศษส่วน",
+    "decimals": "ทศนิยม",
+    "percentage": "ร้อยละ",
+    "ratios": "อัตราส่วน",
+    "algebra": "พีชคณิต",
+    "geometry": "เรขาคณิต",
+    "statistics": "สถิติ",
+    "probability": "ความน่าจะเป็น"
+  },
+  "questionTypes": {
+    "twoDigitPlusOneDigit": "บวกสองหลัก + หนึ่งหลัก",
+    "twoDigitPlusTwoDigit": "บวกสองหลัก + สองหลัก",
+    "findUnknown": "หาค่าที่ไม่ทราบ",
+    "relationship": "ความสัมพันธ์บวก-ลบ",
+    "hundredChart": "แบบรูปบนตารางร้อย",
+    "geometricPattern": "แบบรูปเรขาคณิต",
+    "realWorldConnection": "เชื่อมโยงสิ่งรอบตัว",
+    "countShapes": "นับจำนวนรูป",
+    "patternCreation": "สร้างแบบรูปซ้ำ",
+    "lengthWordProblem": "โจทย์ปัญหาความยาว",
+    "estimateLength": "ประมาณความยาว"
   }
 }

@@ -32,10 +32,24 @@ export const curriculumConfig: Record<string, Record<string, SkillConfig[]>> = {
       { skill: 'pictograph', difficulty: 'easy', count: 3 }
     ],
     semester2: [
-      { skill: 'addition', difficulty: 'easy', count: 8, range: [10, 50] },
-      { skill: 'subtraction', difficulty: 'easy', count: 8, range: [10, 30] },
-      { skill: 'money', difficulty: 'easy', count: 7 },
-      { skill: 'measurement', difficulty: 'easy', count: 7 }
+      // 1. จำนวนนับและค่าประจำหลัก (21-100) - 12 ข้อ
+      { skill: 'counting', difficulty: 'easy', count: 4, range: [21, 100] },
+      { skill: 'comparing', difficulty: 'easy', count: 3, range: [21, 100] },
+      { skill: 'ordering', difficulty: 'easy', count: 2, range: [21, 100] },
+      { skill: 'placeValue', difficulty: 'easy', count: 3, range: [21, 100] },
+      
+      // 2. การบวก-ลบ (ขยายถึง 100) - 10 ข้อ
+      { skill: 'addition', difficulty: 'easy', count: 5, range: [21, 100] },
+      { skill: 'subtraction', difficulty: 'easy', count: 5, range: [21, 100] },
+      
+      // 3. แบบรูป (ต่อยอด) - 4 ข้อ
+      { skill: 'patterns', difficulty: 'easy', count: 4 },
+      
+      // 4. เรขาคณิต (ต่อยอด) - 4 ข้อ
+      { skill: 'shapes', difficulty: 'easy', count: 4 },
+      
+      // 5. การวัดความยาว (ต่อยอด) - 3 ข้อ
+      { skill: 'measurement', difficulty: 'easy', count: 3 }
     ]
   },
   grade2: {

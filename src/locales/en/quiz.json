@@ -31,6 +31,26 @@
     "division": "Division",
     "money": "Money",
     "time": "Time",
-    "fractions": "Fractions"
+    "fractions": "Fractions",
+    "decimals": "Decimals",
+    "percentage": "Percentage",
+    "ratios": "Ratios",
+    "algebra": "Algebra",
+    "geometry": "Geometry",
+    "statistics": "Statistics",
+    "probability": "Probability"
+  },
+  "questionTypes": {
+    "twoDigitPlusOneDigit": "Two-Digit + One-Digit Addition",
+    "twoDigitPlusTwoDigit": "Two-Digit + Two-Digit Addition",
+    "findUnknown": "Find Unknown Value",
+    "relationship": "Addition-Subtraction Relationship",
+    "hundredChart": "Hundred Chart Pattern",
+    "geometricPattern": "Geometric Pattern",
+    "realWorldConnection": "Real-World Connection",
+    "countShapes": "Count Shapes",
+    "patternCreation": "Create Repeating Pattern",
+    "lengthWordProblem": "Length Word Problem",
+    "estimateLength": "Estimate Length"
   }
 }
