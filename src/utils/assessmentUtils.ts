@@ -28,6 +28,10 @@ const shuffleArray = <T>(array: T[]): T[] => {
   return result;
 };
 
+const gcd = (a: number, b: number): number => {
+  return b === 0 ? a : gcd(b, a % b);
+};
+
 const generateChoices = (
   correctAnswer: number | string,
   type: 'number' | 'text' = 'number'
@@ -2630,6 +2634,62 @@ const generateFractionsQuestions = (config: SkillConfig): AssessmentQuestion[] =
           imagePrompt = `⚖️ ${num1}/${den1} ${symbol} ${num2}/${den2}`;
           break;
         }
+        case 'order_fractions': {
+          const fractions = [[1,2], [1,3], [1,4], [2,3]];
+          const selected = shuffleArray([...fractions]).slice(0, 3);
+          const sorted = [...selected].sort((a, b) => (a[0]/a[1]) - (b[0]/b[1]));
+          
+          question = `เรียงเศษส่วนจากน้อยไปมาก: ${selected.map(f => `${f[0]}/${f[1]}`).join(', ')}`;
+          correctAnswer = sorted.map(f => `${f[0]}/${f[1]}`).join(', ');
+          const wrongOrder = [...sorted].reverse().map(f => `${f[0]}/${f[1]}`).join(', ');
+          choices = shuffleArray([correctAnswer, wrongOrder]);
+          explanation = `เรียงตามค่าจากน้อยไปมาก: ${correctAnswer}`;
+          imagePrompt = `📊 เรียงลำดับ: ${correctAnswer}`;
+          break;
+        }
+        case 'add_unlike_denominators': {
+          const pairs = [[1,2,1,4], [1,3,1,6], [1,2,1,3]];
+          const [num1, den1, num2, den2] = pairs[randInt(0, pairs.length - 1)];
+          const lcm = (den1 * den2) / gcd(den1, den2);
+          const newNum1 = num1 * (lcm / den1);
+          const newNum2 = num2 * (lcm / den2);
+          const sum = newNum1 + newNum2;
+          
+          question = `${num1}/${den1} + ${num2}/${den2} = ?`;
+          correctAnswer = `${sum}/${lcm}`;
+          choices = shuffleArray([`${sum}/${lcm}`, `${num1+num2}/${den1+den2}`, `${sum}/${den1}`, `${sum}/${den2}`]);
+          explanation = `ทำตัวส่วนให้เท่ากัน: ${num1}/${den1} = ${newNum1}/${lcm}, ${num2}/${den2} = ${newNum2}/${lcm}\n${newNum1}/${lcm} + ${newNum2}/${lcm} = ${sum}/${lcm}`;
+          imagePrompt = `➕ ${num1}/${den1} + ${num2}/${den2} = ${sum}/${lcm}`;
+          break;
+        }
+        case 'subtract_unlike_denominators': {
+          const pairs = [[1,2,1,4], [2,3,1,6], [1,2,1,3]];
+          const [num1, den1, num2, den2] = pairs[randInt(0, pairs.length - 1)];
+          const lcm = (den1 * den2) / gcd(den1, den2);
+          const newNum1 = num1 * (lcm / den1);
+          const newNum2 = num2 * (lcm / den2);
+          const diff = newNum1 - newNum2;
+          
+          question = `${num1}/${den1} - ${num2}/${den2} = ?`;
+          correctAnswer = `${diff}/${lcm}`;
+          choices = shuffleArray([`${diff}/${lcm}`, `${num1-num2}/${den1-den2}`, `${diff}/${den1}`, `${diff}/${den2}`]);
+          explanation = `ทำตัวส่วนให้เท่ากัน: ${num1}/${den1} = ${newNum1}/${lcm}, ${num2}/${den2} = ${newNum2}/${lcm}\n${newNum1}/${lcm} - ${newNum2}/${lcm} = ${diff}/${lcm}`;
+          imagePrompt = `➖ ${num1}/${den1} - ${num2}/${den2} = ${diff}/${lcm}`;
+          break;
+        }
+        case 'mixed_number_operations': {
+          const whole = randInt(1, 3);
+          const num = randInt(1, 3);
+          const den = randInt(num + 1, 6);
+          const improper = whole * den + num;
+          
+          question = `เปลี่ยน ${whole} ${num}/${den} ให้เป็นเศษเกิน`;
+          correctAnswer = `${improper}/${den}`;
+          choices = shuffleArray([`${improper}/${den}`, `${whole+num}/${den}`, `${num}/${whole*den}`, `${improper}/${whole}`]);
+          explanation = `${whole} ${num}/${den} = (${whole} × ${den} + ${num})/${den} = ${improper}/${den}`;
+          imagePrompt = `🔄 ${whole} ${num}/${den} = ${improper}/${den}`;
+          break;
+        }
         case 'word_problem_fractions': {
           const den = [4, 8][randInt(0, 1)];
           const eaten = randInt(2, den/2);
@@ -2643,12 +2703,10 @@ const generateFractionsQuestions = (config: SkillConfig): AssessmentQuestion[] =
           break;
         }
       }
-    }
-    
-    // Original Grade 3-4 logic
-    if (!isGrade5) {
+    } else if (isGrade4) {
+      // Grade 4 specific question types
       switch (type) {
-      case 'whole_half_unit': {
+        case 'whole_half_unit': {
         // ปริมาณเต็มหน่วย/ครึ่งหน่วย
         const items = ['แอปเปิ้ล', 'ส้ม', 'กล้วย', 'แตงโม', 'ขนมปัง'];
         const item = items[randInt(0, items.length - 1)];
@@ -2785,6 +2843,7 @@ const generateFractionsQuestions = (config: SkillConfig): AssessmentQuestion[] =
         }
         break;
       }
+      }
     }
     
     questions.push({
@@ -2794,7 +2853,8 @@ const generateFractionsQuestions = (config: SkillConfig): AssessmentQuestion[] =
       correctAnswer,
       choices,
       difficulty: config.difficulty,
-      explanation
+      explanation,
+      imagePrompt
     });
   }
   
