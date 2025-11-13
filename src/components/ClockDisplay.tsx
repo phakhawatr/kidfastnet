@@ -5,6 +5,8 @@ interface ClockDisplayProps {
 }
 
 export function ClockDisplay({ hour, minute, size = 180 }: ClockDisplayProps) {
+  console.log('🕐 ClockDisplay rendering:', { hour, minute, size });
+  
   const r = 80;
   const cx = size / 2;
   const cy = size / 2;
