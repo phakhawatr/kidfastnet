@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { FileQuestion, Clock, Award, ChevronLeft, ChevronRight, BookOpen, Send, Eye, CheckCircle, XCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { ClipboardPen, Clock, Award, ChevronLeft, ChevronRight, BookOpen, Send, Eye, CheckCircle, XCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { getGradeOptions, getSemesterOptions, curriculumConfig } from '@/config/curriculum';
 import { evaluateAssessment } from '@/utils/assessmentUtils';
 
@@ -251,8 +251,8 @@ const Quiz = () => {
           <Card className="max-w-2xl mx-auto shadow-lg">
             <CardHeader>
               <CardTitle className="text-3xl text-center flex items-center justify-center gap-3 text-purple-600">
-                <FileQuestion className="w-8 h-8" />
-                การสอบวัดระดับ
+                <ClipboardPen className="w-8 h-8" />
+                แบบทดสอบวัดระดับความรู้
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -349,7 +349,7 @@ const Quiz = () => {
                       className="flex-1 py-6 text-lg bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
                       size="lg"
                     >
-                      <FileQuestion className="w-5 h-5 mr-2" />
+                      <ClipboardPen className="w-5 h-5 mr-2" />
                       เริ่มทำข้อสอบ
                     </Button>
                   </div>
