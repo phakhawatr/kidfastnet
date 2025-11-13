@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { ClipboardPen, Clock, Award, ChevronLeft, ChevronRight, BookOpen, Send, Eye, CheckCircle, XCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { ClipboardPen, Clock, Award, ChevronLeft, ChevronRight, BookOpen, Send, Eye, CheckCircle, XCircle, TrendingUp, TrendingDown, Minus, Hash, Scale, ArrowUpDown, Grid3x3, Plus, Sparkles, Shapes, Ruler, BarChart2, LucideIcon } from 'lucide-react';
 import { getGradeOptions, getSemesterOptions, curriculumConfig } from '@/config/curriculum';
 import { evaluateAssessment } from '@/utils/assessmentUtils';
 
@@ -152,6 +152,32 @@ const Quiz = () => {
     geometry: 'เรขาคณิต',
     statistics: 'สถิติ',
     probability: 'ความน่าจะเป็น'
+  };
+
+  // Skill icons mapping
+  const skillIcons: Record<string, LucideIcon> = {
+    counting: Hash,
+    comparing: Scale,
+    ordering: ArrowUpDown,
+    placeValue: Grid3x3,
+    addition: Plus,
+    subtraction: Minus,
+    patterns: Sparkles,
+    shapes: Shapes,
+    measurement: Ruler,
+    pictograph: BarChart2,
+    multiplication: Plus,
+    division: Minus,
+    money: Clock,
+    time: Clock,
+    fractions: Grid3x3,
+    decimals: Grid3x3,
+    percentage: TrendingUp,
+    ratios: Scale,
+    algebra: Hash,
+    geometry: Shapes,
+    statistics: BarChart2,
+    probability: TrendingUp
   };
 
   const handleSendLine = async () => {
@@ -341,15 +367,19 @@ const Quiz = () => {
                      <div className="space-y-2">
                       {getTopicOutline().map((topic, idx) => {
                         const skillNameTh = skillNamesTh[topic.skill] || topic.skill;
+                        const SkillIcon = skillIcons[topic.skill];
                         return (
                           <div 
                             key={idx} 
                             className="bg-white p-4 rounded-lg border border-purple-200 hover:shadow-sm transition-shadow"
                           >
                             <div className="flex justify-between items-start mb-2">
-                              <span className="font-semibold text-gray-800">
-                                {idx + 1}. {skillNameTh}
-                              </span>
+                              <div className="flex items-center gap-2">
+                                {SkillIcon && <SkillIcon className="w-5 h-5 text-purple-600 flex-shrink-0" />}
+                                <span className="font-semibold text-gray-800">
+                                  {idx + 1}. {skillNameTh}
+                                </span>
+                              </div>
                               <span className="text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-medium flex-shrink-0 ml-2">
                                 {topic.count} ข้อ
                               </span>
