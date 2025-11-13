@@ -31,7 +31,7 @@ const Header = () => {
                   className="px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium transition-all duration-300 hover:scale-105 text-sm flex items-center gap-2 shadow-md hover:shadow-lg"
                 >
                   <Rocket className="w-4 h-4" />
-                  เริ่มฝึกเลย
+                  {t('startPractice')}
                 </Link>
                 <Link 
                   to="/quiz" 
