@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ChevronLeft, RefreshCw, Eye, EyeOff, Volume2, VolumeX, Printer, Palette } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
@@ -25,6 +26,7 @@ type GridSolution = {
 };
 
 const SumGridPuzzles: React.FC = () => {
+  const { t } = useTranslation('exercises');
   const [tasks, setTasks] = useState<Task[]>([]);
   const [grids, setGrids] = useState<Grid[]>([]);
   const [solutions, setSolutions] = useState<number[][][]>([]); // Store correct answers for each grid
@@ -305,12 +307,12 @@ const SumGridPuzzles: React.FC = () => {
               <span>กลับ</span>
             </Link>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-              ตารางบวก 3×3 (Sum Grid Puzzles)
+              {t('sumGridPuzzles.title')}
             </h1>
           </div>
           
           <p className="text-gray-600 text-sm md:text-base mb-4">
-            แก้ปริศนาตารางบวก 4×4 กรอกตัวเลขในช่องว่างให้ผลรวมแถวและคอลัมน์ถูกต้อง
+            {t('sumGridPuzzles.description')}
           </p>
           
           {/* Controls */}

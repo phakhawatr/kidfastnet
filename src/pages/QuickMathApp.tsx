@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ArrowLeft, RotateCcw, CheckCircle, Eye, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -298,6 +299,7 @@ const ProblemCard: React.FC<{
 };
 
 export default function QuickMathApp() {
+  const { t } = useTranslation('exercises');
   const [problemCount, setProblemCount] = useState(6);
   const [problems, setProblems] = useState<MeasurementObject[]>([]);
   const [userAnswers, setUserAnswers] = useState<Array<{ cm: string; mm: string }>>([]);
@@ -387,9 +389,9 @@ export default function QuickMathApp() {
               </Link>
               <div>
                 <h1 className="text-2xl font-bold flex items-center gap-2">
-                  📏 แอปวัดความยาวด้วยไม้บรรทัด
+                  📏 {t('quickMath.title')}
                 </h1>
-                <p className="text-amber-100">ฝึกทักษะการวัดความยาวและแปลงหน่วย</p>
+                <p className="text-amber-100">{t('quickMath.description')}</p>
               </div>
             </div>
             <div className="flex items-center gap-4">

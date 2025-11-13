@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ChevronLeft } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -16,6 +17,7 @@ interface GameState {
 }
 const NumberSeriesApp: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation('exercises');
   const {
     toast
   } = useToast();
@@ -248,10 +250,10 @@ const NumberSeriesApp: React.FC = () => {
           </div>
 
           <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-            อนุกรม – เติมเลขที่หายไป
+            {t('numberSeries.title')}
           </h1>
           <p className="text-muted-foreground text-sm md:text-base mb-4">
-            สังเกตรูปแบบของลำดับตัวเลข แล้วเติมคำตอบให้ถูกต้อง • ทั้งหมด <b>{state.tasks.length}</b> ข้อ
+            {t('numberSeries.description')} • {t('numberSeries.totalProblems', { count: state.tasks.length })}
           </p>
           
           <div className="flex flex-wrap gap-3 items-center">
