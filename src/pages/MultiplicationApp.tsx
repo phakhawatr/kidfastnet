@@ -47,7 +47,7 @@ const MultiplicationApp = () => {
     }
   ]);
   const [problemCount, setProblemCount] = useState(15);
-  const [difficulty, setDifficulty] = useState('ง่าย');
+  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
   const [dimensions, setDimensions] = useState<[number, number]>([1, 1]);
   const [problems, setProblems] = useState<Problem[]>([]);
   const [answers, setAnswers] = useState<Answer[]>([]);
@@ -99,13 +99,13 @@ const MultiplicationApp = () => {
 
   // Generate random number based on difficulty
   const generateNumber = (digits: number): string => {
-    const ranges: Record<string, number[]> = {
-      [t('common.easy')]: [0, 6],
-      [t('common.medium')]: [0, 8],
-      [t('common.hard')]: [1, 9]
+    const ranges: Record<'easy' | 'medium' | 'hard', number[]> = {
+      easy: [0, 6],
+      medium: [0, 8],
+      hard: [1, 9]
     };
     
-    const [min, max] = ranges[difficulty as keyof typeof ranges];
+    const [min, max] = ranges[difficulty];
     let result = '';
     
     for (let i = 0; i < digits; i++) {
@@ -350,10 +350,10 @@ const MultiplicationApp = () => {
         };
       });
 
-      const levelMap: Record<string, string> = {
-        [t('common.easy')]: t('common.easy'),
-        [t('common.medium')]: t('common.medium'),
-        [t('common.hard')]: t('common.hard')
+      const levelMap: Record<'easy' | 'medium' | 'hard', string> = {
+        easy: t('common.easy'),
+        medium: t('common.medium'),
+        hard: t('common.hard')
       };
 
       const percentage = Math.round((correctCount / problems.length) * 100);
@@ -726,13 +726,13 @@ const MultiplicationApp = () => {
             <div>
               <label className="block text-sm font-medium mb-2">{t('common.difficulty')}</label>
               <div className="flex flex-wrap gap-1">
-                {[t('common.easy'), t('common.medium'), t('common.hard')].map(level => (
+                {(['easy', 'medium', 'hard'] as const).map(level => (
                   <button
                     key={level}
                     onClick={() => setDifficulty(level)}
                     className={`chip ${difficulty === level ? 'active' : ''}`}
                   >
-                    {level}
+                    {t(`common.${level}`)}
                   </button>
                 ))}
               </div>
