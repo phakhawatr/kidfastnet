@@ -289,7 +289,7 @@ const Quiz = () => {
                   <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                     <h3 className="font-semibold mb-2 text-blue-900">📋 ข้อมูลการสอบ</h3>
                     <ul className="space-y-1 text-sm text-blue-800">
-                      <li>• จำนวนข้อสอบ: 30 ข้อ</li>
+                      <li>• จำนวนข้อสอบ: 40 ข้อ</li>
                       <li>• รูปแบบ: เลือกตัวเลือก 4 ข้อ</li>
                       <li>• ไม่จำกัดเวลา</li>
                       <li>• สามารถกลับมาแก้คำตอบได้ก่อนส่ง</li>
@@ -313,19 +313,22 @@ const Quiz = () => {
                       แผนผังหัวข้อการสอบ
                     </h3>
                     <div className="space-y-2">
-                      {getTopicOutline().map((topic, idx) => (
-                        <div 
-                          key={idx} 
-                          className="bg-white p-3 rounded-lg border border-purple-200 flex justify-between items-center hover:shadow-sm transition-shadow"
-                        >
-                          <span className="font-medium text-gray-800">
-                            {idx + 1}. {t(`quiz.skills.${topic.skill}`) || topic.skill}
-                          </span>
-                          <span className="text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-medium">
-                            {topic.count} ข้อ
-                          </span>
-                        </div>
-                      ))}
+                      {getTopicOutline().map((topic, idx) => {
+                        const skillNameTh = t(`quiz.skills.${topic.skill}`, { defaultValue: topic.skill });
+                        return (
+                          <div 
+                            key={idx} 
+                            className="bg-white p-3 rounded-lg border border-purple-200 flex justify-between items-center hover:shadow-sm transition-shadow"
+                          >
+                            <span className="font-medium text-gray-800">
+                              {idx + 1}. {skillNameTh}
+                            </span>
+                            <span className="text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-medium">
+                              {topic.count} ข้อ
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
                     <div className="mt-4 pt-4 border-t border-purple-200">
                       <p className="text-sm text-purple-800 font-medium">
