@@ -165,17 +165,31 @@ const generateComparingQuestions = (config: SkillConfig): AssessmentQuestion[] =
         break;
       }
       case 'compare_max': {
-        const nums = [num1, num2, randInt(min, max), randInt(min, max)];
-        correctAnswer = Math.max(...nums);
-        question = `ข้อใดมีค่ามากที่สุด? ${nums.join(', ')}`;
-        choices = shuffleArray(nums);
+        // สร้างตัวเลข 4 ตัวที่ไม่ซ้ำกัน
+        const nums = new Set<number>();
+        nums.add(num1);
+        nums.add(num2);
+        while (nums.size < 4) {
+          nums.add(randInt(min, max));
+        }
+        const numsArray = Array.from(nums);
+        correctAnswer = Math.max(...numsArray);
+        question = `ข้อใดมีค่ามากที่สุด? ${numsArray.join(', ')}`;
+        choices = shuffleArray(numsArray);
         break;
       }
       case 'compare_min': {
-        const nums = [num1, num2, randInt(min, max), randInt(min, max)];
-        correctAnswer = Math.min(...nums);
-        question = `ข้อใดมีค่าน้อยที่สุด? ${nums.join(', ')}`;
-        choices = shuffleArray(nums);
+        // สร้างตัวเลข 4 ตัวที่ไม่ซ้ำกัน
+        const nums = new Set<number>();
+        nums.add(num1);
+        nums.add(num2);
+        while (nums.size < 4) {
+          nums.add(randInt(min, max));
+        }
+        const numsArray = Array.from(nums);
+        correctAnswer = Math.min(...numsArray);
+        question = `ข้อใดมีค่าน้อยที่สุด? ${numsArray.join(', ')}`;
+        choices = shuffleArray(numsArray);
         break;
       }
       case 'true_false': {
@@ -218,7 +232,12 @@ const generateOrderingQuestions = (config: SkillConfig): AssessmentQuestion[] =>
     let correctAnswer: number | string = 0;
     let choices: (number | string)[] = [];
     
-    const nums = Array.from({ length: 4 }, () => randInt(min, max));
+    // สร้างตัวเลข 4 ตัวที่ไม่ซ้ำกัน
+    const numsSet = new Set<number>();
+    while (numsSet.size < 4) {
+      numsSet.add(randInt(min, max));
+    }
+    const nums = Array.from(numsSet);
     
     switch (type) {
       case 'order_asc': {
