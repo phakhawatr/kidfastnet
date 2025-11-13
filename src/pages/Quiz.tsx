@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { FileQuestion, Clock, Award, ChevronLeft, ChevronRight, BookOpen, Send, Eye, CheckCircle, XCircle } from 'lucide-react';
+import { FileQuestion, Clock, Award, ChevronLeft, ChevronRight, BookOpen, Send, Eye, CheckCircle, XCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { getGradeOptions, getSemesterOptions } from '@/config/curriculum';
 import { evaluateAssessment } from '@/utils/assessmentUtils';
 
@@ -349,6 +349,46 @@ const Quiz = () => {
   const score = questions.length > 0 ? (correctAnswers / questions.length) * 100 : 0;
   const evaluation = evaluateAssessment(score);
 
+  // Calculate skill breakdown
+  const calculateSkillBreakdown = () => {
+    const skillStats: Record<string, { correct: number; total: number }> = {};
+    
+    questions.forEach((q, idx) => {
+      if (!skillStats[q.skill]) {
+        skillStats[q.skill] = { correct: 0, total: 0 };
+      }
+      skillStats[q.skill].total++;
+      
+      const userAnswer = answers.get(idx);
+      const isCorrect = q.choices[userAnswer ?? -1] === q.correctAnswer || 
+                       userAnswer === q.correctAnswer;
+      if (isCorrect) {
+        skillStats[q.skill].correct++;
+      }
+    });
+    
+    return Object.entries(skillStats).map(([skill, stats]) => ({
+      skill,
+      correct: stats.correct,
+      total: stats.total,
+      percentage: (stats.correct / stats.total) * 100
+    })).sort((a, b) => b.percentage - a.percentage);
+  };
+
+  const skillBreakdown = calculateSkillBreakdown();
+
+  const getSkillIcon = (percentage: number) => {
+    if (percentage >= 80) return <TrendingUp className="w-5 h-5 text-green-600" />;
+    if (percentage >= 50) return <Minus className="w-5 h-5 text-yellow-600" />;
+    return <TrendingDown className="w-5 h-5 text-red-600" />;
+  };
+
+  const getSkillColor = (percentage: number) => {
+    if (percentage >= 80) return 'bg-green-500';
+    if (percentage >= 50) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <Header />
@@ -390,6 +430,61 @@ const Quiz = () => {
               <div className="flex items-center justify-between text-sm text-gray-600">
                 <span>เวลาที่ใช้:</span>
                 <span className="font-mono font-semibold">{Math.floor(timeTaken / 60)} นาที {timeTaken % 60} วินาที</span>
+              </div>
+            </div>
+
+            {/* Skill Breakdown Section */}
+            <div className="space-y-4 border-t pt-6">
+              <div className="flex items-center gap-2 text-xl font-bold text-purple-600">
+                <Award className="w-6 h-6" />
+                <span>ผลคะแนนแยกตามทักษะ</span>
+              </div>
+              <p className="text-sm text-gray-600">ดูว่าทักษะไหนที่แข็งแรงและควรพัฒนาต่อ</p>
+              
+              <div className="space-y-3">
+                {skillBreakdown.map((item) => (
+                  <Card key={item.skill} className="border-2 hover:shadow-md transition-shadow">
+                    <CardContent className="pt-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          {getSkillIcon(item.percentage)}
+                          <span className="font-semibold text-gray-800">
+                            {t(`quiz.skills.${item.skill}`, item.skill)}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm text-gray-600">
+                            {item.correct}/{item.total} ข้อ
+                          </span>
+                          <span className={`font-bold text-lg ${
+                            item.percentage >= 80 ? 'text-green-600' : 
+                            item.percentage >= 50 ? 'text-yellow-600' : 
+                            'text-red-600'
+                          }`}>
+                            {item.percentage.toFixed(0)}%
+                          </span>
+                        </div>
+                      </div>
+                      <Progress 
+                        value={item.percentage} 
+                        className="h-3"
+                        indicatorClassName={getSkillColor(item.percentage)}
+                      />
+                      <div className="mt-2 text-xs text-gray-500">
+                        {item.percentage >= 80 && '✨ ยอดเยี่ยม! เข้าใจดีมาก'}
+                        {item.percentage >= 50 && item.percentage < 80 && '👍 ดี แต่ควรฝึกเพิ่มเติม'}
+                        {item.percentage < 50 && '📚 ควรทบทวนและฝึกฝนเพิ่มเติม'}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mt-4">
+                <h4 className="font-semibold text-blue-900 mb-2">💡 คำแนะนำ</h4>
+                <p className="text-sm text-blue-800">
+                  ทักษะที่ได้คะแนนต่ำกว่า 50% ควรฝึกฝนเพิ่มเติมโดยเข้าไปเล่นเกมฝึกทักษะในหน้าหลัก
+                </p>
               </div>
             </div>
 
