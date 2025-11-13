@@ -897,21 +897,145 @@ const generateShapesQuestions = (config: SkillConfig): AssessmentQuestion[] => {
 const generateMeasurementQuestions = (config: SkillConfig): AssessmentQuestion[] => {
   const questions: AssessmentQuestion[] = [];
   
+  // ตรวจสอบว่าเป็น ป.3 (มม.-ซม.-ม.-กม.) หรือ ป.1-2 (ซม.-ม.)
+  const isAdvanced = config.description?.includes('มม.') || config.description?.includes('กม.') || config.difficulty === 'medium';
+  
   for (let i = 0; i < config.count; i++) {
-    const questionTypes = ['length_add_word_problem', 'length_subtract_word_problem', 'estimate_length'];
+    const questionTypes = isAdvanced 
+      ? ['unit_conversion', 'choose_unit', 'choose_tool', 'add_length', 'subtract_length', 'multiply_divide_length', 'word_problem']
+      : ['length_add_word_problem', 'length_subtract_word_problem', 'estimate_length'];
     const type = questionTypes[i % questionTypes.length];
     
     let question = '';
     let correctAnswer: number | string = 0;
     let choices: (number | string)[] = [];
+    let explanation = '';
     
     switch (type) {
+      case 'unit_conversion': {
+        // แปลงหน่วยความยาว (ป.3)
+        const conversionTypes = [
+          { from: 'มม.', to: 'ซม.', factor: 10, type: 'divide' },
+          { from: 'ซม.', to: 'มม.', factor: 10, type: 'multiply' },
+          { from: 'ซม.', to: 'ม.', factor: 100, type: 'divide' },
+          { from: 'ม.', to: 'ซม.', factor: 100, type: 'multiply' },
+          { from: 'ม.', to: 'กม.', factor: 1000, type: 'divide' },
+          { from: 'กม.', to: 'ม.', factor: 1000, type: 'multiply' }
+        ];
+        const conversion = conversionTypes[i % conversionTypes.length];
+        
+        if (conversion.type === 'multiply') {
+          const value = randInt(2, 10);
+          correctAnswer = value * conversion.factor;
+          question = `${value} ${conversion.from} เท่ากับกี่${conversion.to}?`;
+          choices = generateChoices(correctAnswer);
+          explanation = `1 ${conversion.from} = ${conversion.factor} ${conversion.to} ดังนั้น ${value} ${conversion.from} = ${value} × ${conversion.factor} = ${correctAnswer} ${conversion.to}`;
+        } else {
+          const value = randInt(2, 10) * conversion.factor;
+          correctAnswer = value / conversion.factor;
+          question = `${value} ${conversion.from} เท่ากับกี่${conversion.to}?`;
+          choices = generateChoices(correctAnswer);
+          explanation = `${conversion.factor} ${conversion.from} = 1 ${conversion.to} ดังนั้น ${value} ${conversion.from} = ${value} ÷ ${conversion.factor} = ${correctAnswer} ${conversion.to}`;
+        }
+        break;
+      }
+      case 'choose_unit': {
+        // เลือกหน่วยที่เหมาะสม (ป.3)
+        const objects = [
+          { name: 'หนอนตัวเล็ก', unit: 'มิลลิเมตร' },
+          { name: 'ดินสอ', unit: 'เซนติเมตร' },
+          { name: 'ห้องเรียน', unit: 'เมตร' },
+          { name: 'ระยะทางจากกรุงเทพฯ ไปเชียงใหม่', unit: 'กิโลเมตร' }
+        ];
+        const obj = objects[i % objects.length];
+        question = `ควรใช้หน่วยใดวัดความยาว${obj.name}?`;
+        correctAnswer = obj.unit;
+        choices = shuffleArray(['มิลลิเมตร', 'เซนติเมตร', 'เมตร', 'กิโลเมตร']);
+        explanation = `${obj.name}เหมาะสมที่จะวัดด้วย${obj.unit}`;
+        break;
+      }
+      case 'choose_tool': {
+        // เลือกเครื่องมือที่เหมาะสม (ป.3)
+        const tools = [
+          { object: 'โต๊ะเรียน', tool: 'ไม้บรรทัด/เมตร', reason: 'วัดความยาวประมาณ 1-2 เมตร' },
+          { object: 'สนามฟุตบอล', tool: 'เทปวัดระยะยาว', reason: 'วัดระยะทางไกล' },
+          { object: 'ความหนาของหนังสือ', tool: 'ไม้บรรทัด', reason: 'วัดความยาวสั้น ๆ' }
+        ];
+        const tool = tools[i % tools.length];
+        question = `ควรใช้เครื่องมือใดวัดความยาวของ${tool.object}?`;
+        correctAnswer = tool.tool;
+        choices = shuffleArray(['ไม้บรรทัด/เมตร', 'เทปวัดระยะยาว', 'ไม้บรรทัด']);
+        explanation = `${tool.object}${tool.reason} จึงควรใช้${tool.tool}`;
+        break;
+      }
+      case 'add_length': {
+        // บวกความยาว (ป.3)
+        const unit = ['ซม.', 'ม.'][i % 2];
+        const a = randInt(10, 100);
+        const b = randInt(10, 100);
+        correctAnswer = a + b;
+        question = `เชือกเส้นแรกยาว ${a} ${unit} เชือกเส้นที่สองยาว ${b} ${unit} เชือกทั้งสองเส้นยาวรวมกัน ${correctAnswer} ${unit}`;
+        choices = generateChoices(correctAnswer);
+        explanation = `${a} + ${b} = ${correctAnswer} ${unit}`;
+        break;
+      }
+      case 'subtract_length': {
+        // ลบความยาว (ป.3)
+        const unit = ['ซม.', 'ม.'][i % 2];
+        const a = randInt(50, 200);
+        const b = randInt(10, a - 10);
+        correctAnswer = a - b;
+        question = `เชือกยาว ${a} ${unit} ตัดไป ${b} ${unit} เหลือยาวกี่${unit}?`;
+        choices = generateChoices(correctAnswer);
+        explanation = `${a} - ${b} = ${correctAnswer} ${unit}`;
+        break;
+      }
+      case 'multiply_divide_length': {
+        // คูณ-หารความยาว (ป.3)
+        const operationType = i % 2;
+        if (operationType === 0) {
+          // คูณ
+          const length = randInt(5, 20);
+          const times = randInt(2, 5);
+          correctAnswer = length * times;
+          question = `ไม้เส้นหนึ่งยาว ${length} ซม. ถ้ามี ${times} เส้น ยาวรวมกัน ${correctAnswer} ซม.?`;
+          choices = generateChoices(correctAnswer);
+          explanation = `${length} × ${times} = ${correctAnswer} ซม.`;
+        } else {
+          // หาร
+          const total = randInt(20, 100);
+          const parts = randInt(2, 5);
+          correctAnswer = Math.floor(total / parts);
+          question = `เชือกยาว ${total} ซม. ตัดเป็น ${parts} ส่วนเท่า ๆ กัน ส่วนละกี่ซม.?`;
+          choices = generateChoices(correctAnswer);
+          explanation = `${total} ÷ ${parts} = ${correctAnswer} ซม.`;
+        }
+        break;
+      }
+      case 'word_problem': {
+        // โจทย์ปัญหาความยาว (ป.3)
+        const a = randInt(20, 100);
+        const b = randInt(10, 50);
+        const operation = i % 2;
+        if (operation === 0) {
+          correctAnswer = a + b;
+          question = `แมวเดินไป ${a} ซม. แล้วเดินต่ออีก ${b} ซม. แมวเดินทั้งหมดกี่ซม.?`;
+          explanation = `${a} + ${b} = ${correctAnswer} ซม.`;
+        } else {
+          correctAnswer = a - b;
+          question = `เส้นเชือกยาว ${a} ซม. ใช้ไป ${b} ซม. เหลือกี่ซม.?`;
+          explanation = `${a} - ${b} = ${correctAnswer} ซม.`;
+        }
+        choices = generateChoices(correctAnswer);
+        break;
+      }
       case 'length_add_word_problem': {
         const len1 = randInt(20, 50);
         const len2 = randInt(15, 40);
         question = `เชือกเส้นแรกยาว ${len1} เซนติเมตร เส้นที่สองยาว ${len2} เซนติเมตร รวมกันยาวกี่เซนติเมตร?`;
         correctAnswer = len1 + len2;
         choices = generateChoices(correctAnswer);
+        explanation = `${len1} + ${len2} = ${correctAnswer} เซนติเมตร`;
         break;
       }
       case 'length_subtract_word_problem': {
@@ -920,6 +1044,7 @@ const generateMeasurementQuestions = (config: SkillConfig): AssessmentQuestion[]
         question = `เชือกยาว ${total} เซนติเมตร ตัดไป ${cut} เซนติเมตร เหลือกี่เซนติเมตร?`;
         correctAnswer = total - cut;
         choices = generateChoices(correctAnswer);
+        explanation = `${total} - ${cut} = ${correctAnswer} เซนติเมตร`;
         break;
       }
       case 'estimate_length': {
@@ -932,6 +1057,7 @@ const generateMeasurementQuestions = (config: SkillConfig): AssessmentQuestion[]
         question = `ความยาวของ${obj.name}ประมาณเท่าไหร่?`;
         correctAnswer = `${obj.length} ซม.`;
         choices = [`${obj.length - 10} ซม.`, `${obj.length} ซม.`, `${obj.length + 20} ซม.`, `${obj.length + 50} ซม.`];
+        explanation = `${obj.name}มีความยาวประมาณ ${obj.length} ซม.`;
         break;
       }
     }
@@ -942,7 +1068,8 @@ const generateMeasurementQuestions = (config: SkillConfig): AssessmentQuestion[]
       question,
       correctAnswer,
       choices,
-      difficulty: config.difficulty
+      difficulty: config.difficulty,
+      explanation
     });
   }
   
@@ -1311,8 +1438,13 @@ const generateDivisionQuestions = (config: SkillConfig): AssessmentQuestion[] =>
   const questions: AssessmentQuestion[] = [];
   const [min, max] = config.range || [1, 50];
   
+  // ตรวจสอบว่าเป็น ป.3 เทอม 2 (หารสั้น/หารยาว 2-4 หลัก)
+  const isAdvanced = max >= 100;
+  
   for (let i = 0; i < config.count; i++) {
-    const questionTypes = ['meaning', 'basic_division', 'with_remainder', 'multiply_divide_relation', 'word_problem'];
+    const questionTypes = isAdvanced 
+      ? ['short_division_2digit', 'short_division_3digit', 'long_division_4digit', 'with_remainder_advanced', 'find_unknown', 'multiply_divide_relation', 'word_problem']
+      : ['meaning', 'basic_division', 'with_remainder', 'multiply_divide_relation', 'word_problem'];
     const type = questionTypes[i % questionTypes.length];
     
     let question = '';
@@ -1321,6 +1453,89 @@ const generateDivisionQuestions = (config: SkillConfig): AssessmentQuestion[] =>
     let explanation = '';
     
     switch (type) {
+      case 'short_division_2digit': {
+        // หารสั้น ตัวตั้ง 2 หลัก หารด้วย 1 หลัก (ลงตัว)
+        const divisor = randInt(2, 9);
+        const quotient = randInt(10, 99);
+        const dividend = divisor * quotient;
+        question = `${dividend} ÷ ${divisor} = ?`;
+        correctAnswer = quotient;
+        choices = generateChoices(correctAnswer);
+        explanation = `${dividend} ÷ ${divisor} = ${correctAnswer} (ตั้งหารสั้น)`;
+        break;
+      }
+      case 'short_division_3digit': {
+        // หารสั้น ตัวตั้ง 3 หลัก หารด้วย 1 หลัก (ลงตัว)
+        const divisor = randInt(2, 9);
+        const quotient = randInt(100, 999);
+        const dividend = divisor * quotient;
+        question = `${dividend} ÷ ${divisor} = ?`;
+        correctAnswer = quotient;
+        choices = generateChoices(correctAnswer);
+        explanation = `${dividend} ÷ ${divisor} = ${correctAnswer} (ตั้งหารสั้น)`;
+        break;
+      }
+      case 'long_division_4digit': {
+        // หารยาว ตัวตั้ง 4 หลัก หารด้วย 1 หลัก (ลงตัว)
+        const divisor = randInt(2, 9);
+        const quotient = randInt(1000, 9999);
+        const dividend = divisor * quotient;
+        question = `${dividend.toLocaleString()} ÷ ${divisor} = ?`;
+        correctAnswer = quotient;
+        choices = [
+          quotient,
+          quotient + 1,
+          quotient - 1,
+          quotient + 10
+        ];
+        choices = shuffleArray(choices);
+        explanation = `${dividend.toLocaleString()} ÷ ${divisor} = ${correctAnswer.toLocaleString()} (ตั้งหารยาว)`;
+        break;
+      }
+      case 'with_remainder_advanced': {
+        // หารไม่ลงตัว มีเศษ (ตัวตั้ง 2-3 หลัก)
+        const divisor = randInt(2, 9);
+        const quotient = randInt(10, 99);
+        const remainder = randInt(1, divisor - 1);
+        const dividend = (divisor * quotient) + remainder;
+        question = `${dividend} ÷ ${divisor} = ? เศษเท่าไร?`;
+        correctAnswer = `${quotient} เศษ ${remainder}`;
+        choices = shuffleArray([
+          `${quotient} เศษ ${remainder}`,
+          `${quotient + 1} เศษ 0`,
+          `${quotient} เศษ ${remainder + 1}`,
+          `${quotient - 1} เศษ ${divisor - 1}`
+        ]);
+        explanation = `${dividend} ÷ ${divisor} = ${quotient} เศษ ${remainder} เพราะ ${divisor} × ${quotient} = ${divisor * quotient} บวกเศษ ${remainder} = ${dividend}`;
+        break;
+      }
+      case 'find_unknown': {
+        // หาค่าที่ไม่ทราบในประโยคสัญลักษณ์
+        const divisor = randInt(2, 9);
+        const quotient = randInt(10, 50);
+        const dividend = divisor * quotient;
+        
+        const unknownTypes = ['dividend', 'divisor', 'quotient'];
+        const unknownType = unknownTypes[i % 3];
+        
+        if (unknownType === 'dividend') {
+          question = `__ ÷ ${divisor} = ${quotient} หาค่าที่ไม่ทราบ`;
+          correctAnswer = dividend;
+          choices = generateChoices(dividend);
+          explanation = `เพราะ ${divisor} × ${quotient} = ${dividend} ดังนั้น ${dividend} ÷ ${divisor} = ${quotient}`;
+        } else if (unknownType === 'divisor') {
+          question = `${dividend} ÷ __ = ${quotient} หาค่าที่ไม่ทราบ`;
+          correctAnswer = divisor;
+          choices = generateChoices(divisor);
+          explanation = `เพราะ ${dividend} ÷ ${quotient} = ${divisor} หรือ ${divisor} × ${quotient} = ${dividend}`;
+        } else {
+          question = `${dividend} ÷ ${divisor} = __ หาค่าที่ไม่ทราบ`;
+          correctAnswer = quotient;
+          choices = generateChoices(quotient);
+          explanation = `${dividend} ÷ ${divisor} = ${quotient}`;
+        }
+        break;
+      }
       case 'meaning': {
         const total = randInt(6, 20);
         const divisor = randInt(2, 5);
@@ -1333,7 +1548,7 @@ const generateDivisionQuestions = (config: SkillConfig): AssessmentQuestion[] =>
       }
       case 'basic_division': {
         const divisor = randInt(2, 9);
-        const quotient = randInt(2, Math.floor(max / divisor));
+        const quotient = randInt(2, Math.min(20, Math.floor(max / divisor)));
         const dividend = divisor * quotient;
         correctAnswer = quotient;
         question = `${dividend} ÷ ${divisor} = ?`;
@@ -1359,7 +1574,7 @@ const generateDivisionQuestions = (config: SkillConfig): AssessmentQuestion[] =>
       }
       case 'multiply_divide_relation': {
         const divisor = randInt(2, 9);
-        const quotient = randInt(3, 10);
+        const quotient = isAdvanced ? randInt(10, 99) : randInt(3, 10);
         const dividend = divisor * quotient;
         question = `ถ้า ${divisor} × ${quotient} = ${dividend} แล้ว ${dividend} ÷ ${divisor} = ?`;
         correctAnswer = quotient;
@@ -1368,13 +1583,15 @@ const generateDivisionQuestions = (config: SkillConfig): AssessmentQuestion[] =>
         break;
       }
       case 'word_problem': {
-        const total = randInt(12, 48);
-        const groups = randInt(2, 6);
+        const total = isAdvanced ? randInt(100, 500) : randInt(12, 48);
+        const groups = randInt(2, 9);
         const perGroup = Math.floor(total / groups);
         correctAnswer = perGroup;
-        question = `นำดอกไม้ ${total} ดอก มาจัดเป็น ${groups} แจกัน เท่า ๆ กัน แจกันละกี่ดอก?`;
+        const items = ['ดอกไม้', 'ลูกอม', 'ดินสอ', 'หนังสือ', 'ผลไม้'];
+        const item = items[randInt(0, items.length - 1)];
+        question = `นำ${item} ${total} ${item === 'หนังสือ' ? 'เล่ม' : item === 'ดินสอ' ? 'แท่ง' : item === 'ดอกไม้' ? 'ดอก' : 'ชิ้น'} มาแบ่งเป็น ${groups} กลุ่ม เท่า ๆ กัน กลุ่มละกี่${item === 'หนังสือ' ? 'เล่ม' : item === 'ดินสอ' ? 'แท่ง' : item === 'ดอกไม้' ? 'ดอก' : 'ชิ้น'}?`;
         choices = generateChoices(correctAnswer);
-        explanation = `${total} ÷ ${groups} = ${perGroup} แจกันละ ${perGroup} ดอก`;
+        explanation = `${total} ÷ ${groups} = ${perGroup}`;
         break;
       }
     }
@@ -1634,8 +1851,13 @@ const generateTimeQuestions = (config: SkillConfig): AssessmentQuestion[] => {
 const generateVolumeQuestions = (config: SkillConfig): AssessmentQuestion[] => {
   const questions: AssessmentQuestion[] = [];
   
+  // ตรวจสอบว่าเป็น ป.3 (มล.-ลิตร) หรือ ป.2 (ลิตร)
+  const isAdvanced = config.description?.includes('มล.') || config.difficulty === 'medium';
+  
   for (let i = 0; i < config.count; i++) {
-    const questionTypes = ['non_standard', 'liter_comparison', 'estimate', 'word_problem'];
+    const questionTypes = isAdvanced
+      ? ['ml_to_l', 'l_to_ml', 'choose_container', 'calculate_volume', 'word_problem']
+      : ['non_standard', 'liter_comparison', 'estimate', 'word_problem'];
     const type = questionTypes[i % questionTypes.length];
     
     let question = '';
@@ -1644,6 +1866,81 @@ const generateVolumeQuestions = (config: SkillConfig): AssessmentQuestion[] => {
     let explanation = '';
     
     switch (type) {
+      case 'ml_to_l': {
+        // แปลง มล. เป็น ลิตร (ป.3)
+        const liters = randInt(2, 5);
+        const ml = liters * 1000;
+        question = `${ml} มิลลิลิตร เท่ากับกี่ลิตร?`;
+        correctAnswer = liters;
+        choices = generateChoices(liters);
+        explanation = `1,000 มิลลิลิตร = 1 ลิตร ดังนั้น ${ml} มล. = ${liters} ลิตร`;
+        break;
+      }
+      case 'l_to_ml': {
+        // แปลงลิตรเป็น มล. (ป.3)
+        const liters = randInt(2, 5);
+        correctAnswer = liters * 1000;
+        question = `${liters} ลิตร เท่ากับกี่มิลลิลิตร?`;
+        choices = generateChoices(correctAnswer);
+        explanation = `1 ลิตร = 1,000 มิลลิลิตร ดังนั้น ${liters} ลิตร = ${correctAnswer} มล.`;
+        break;
+      }
+      case 'choose_container': {
+        // เลือกเครื่องตวง/หน่วยที่เหมาะสม (ป.3)
+        const containers = [
+          { liquid: 'ยาน้ำ', unit: 'มิลลิลิตร', tool: 'ช้อนตวง' },
+          { liquid: 'น้ำดื่ม', unit: 'ลิตร', tool: 'ขวด' },
+          { liquid: 'น้ำมันทำอาหาร', unit: 'ลิตร', tool: 'ขวด' },
+          { liquid: 'น้ำในสระว่ายน้ำ', unit: 'ลิตร', tool: 'ถัง' }
+        ];
+        const container = containers[i % containers.length];
+        question = `ควรใช้หน่วยใดวัดปริมาตร${container.liquid}?`;
+        correctAnswer = container.unit;
+        choices = shuffleArray(['มิลลิลิตร', 'ลิตร']);
+        if (choices.length < 4) {
+          choices.push('กรัม', 'เซนติเมตร');
+        }
+        explanation = `${container.liquid}เหมาะสมที่จะใช้หน่วย${container.unit}`;
+        break;
+      }
+      case 'calculate_volume': {
+        // คำนวณปริมาตร (ป.3): บวก-ลบ-คูณ-หาร
+        const operationType = i % 4;
+        if (operationType === 0) {
+          // บวก
+          const a = randInt(100, 500);
+          const b = randInt(100, 500);
+          correctAnswer = a + b;
+          question = `น้ำส้ม ${a} มล. น้ำแอปเปิล ${b} มล. รวมกี่มล.?`;
+          choices = generateChoices(correctAnswer);
+          explanation = `${a} + ${b} = ${correctAnswer} มล.`;
+        } else if (operationType === 1) {
+          // ลบ
+          const a = randInt(500, 1000);
+          const b = randInt(100, 400);
+          correctAnswer = a - b;
+          question = `มีน้ำ ${a} มล. ดื่มไป ${b} มล. เหลือกี่มล.?`;
+          choices = generateChoices(correctAnswer);
+          explanation = `${a} - ${b} = ${correctAnswer} มล.`;
+        } else if (operationType === 2) {
+          // คูณ
+          const perBottle = randInt(250, 1000);
+          const bottles = randInt(2, 5);
+          correctAnswer = perBottle * bottles;
+          question = `ขวดละ ${perBottle} มล. มี ${bottles} ขวด รวมกี่มล.?`;
+          choices = generateChoices(correctAnswer);
+          explanation = `${perBottle} × ${bottles} = ${correctAnswer} มล.`;
+        } else {
+          // หาร
+          const total = randInt(1000, 3000);
+          const containers = randInt(2, 5);
+          correctAnswer = Math.floor(total / containers);
+          question = `แบ่งน้ำ ${total} มล. ใส่ ${containers} แก้วเท่า ๆ กัน แก้วละกี่มล.?`;
+          choices = generateChoices(correctAnswer);
+          explanation = `${total} ÷ ${containers} = ${correctAnswer} มล.`;
+        }
+        break;
+      }
       case 'non_standard': {
         const cups = randInt(2, 5);
         question = `ถ้าใช้แก้วตวงน้ำ ${cups} แก้ว เต็มถังหนึ่งถัง ถังนี้จุน้ำกี่แก้ว?`;
@@ -1713,8 +2010,13 @@ const generateVolumeQuestions = (config: SkillConfig): AssessmentQuestion[] => {
 const generateMixedOperationsQuestions = (config: SkillConfig): AssessmentQuestion[] => {
   const questions: AssessmentQuestion[] = [];
   
+  // ตรวจสอบว่าเป็น ป.3 (มีวงเล็บ)
+  const isAdvanced = config.description?.includes('วงเล็บ') || config.difficulty === 'medium';
+  
   for (let i = 0; i < config.count; i++) {
-    const questionTypes = ['add_subtract', 'add_multiply', 'subtract_divide', 'multi_step'];
+    const questionTypes = isAdvanced
+      ? ['with_parentheses', 'write_expression', 'check_reasonableness', 'multi_step_with_parentheses']
+      : ['add_subtract', 'add_multiply', 'subtract_divide', 'multi_step'];
     const type = questionTypes[i % questionTypes.length];
     
     let question = '';
@@ -1723,6 +2025,84 @@ const generateMixedOperationsQuestions = (config: SkillConfig): AssessmentQuesti
     let explanation = '';
     
     switch (type) {
+      case 'with_parentheses': {
+        // ข้อละมีวงเล็บ (ป.3)
+        const a = randInt(10, 30);
+        const b = randInt(5, 15);
+        const c = randInt(2, 5);
+        const resultInside = a + b;
+        const finalResult = resultInside * c;
+        
+        question = `(${a} + ${b}) × ${c} = ?`;
+        correctAnswer = finalResult;
+        choices = [
+          finalResult,
+          a + b * c, // ผิด: คูณก่อน
+          (a + b) + c, // ผิด: บวกแทนคูณ
+          a * c + b // ผิด: ลำดับผิด
+        ];
+        choices = shuffleArray(choices);
+        explanation = `ทำในวงเล็บก่อน: (${a} + ${b}) = ${resultInside}, แล้วคูณ: ${resultInside} × ${c} = ${finalResult}`;
+        break;
+      }
+      case 'write_expression': {
+        // เขียนประโยคสัญลักษณ์จากสถานการณ์ (ป.3)
+        const boxPrice = randInt(20, 50);
+        const boxes = randInt(3, 5);
+        const discount = randInt(10, 20);
+        const result = (boxPrice * boxes) - discount;
+        
+        question = `กล่องดินสอราคา ${boxPrice} บาท ซื้อ ${boxes} กล่อง ลดราคา ${discount} บาท\nเขียนประโยคสัญลักษณ์ได้ว่าอย่างไร?`;
+        correctAnswer = `(${boxPrice} × ${boxes}) - ${discount}`;
+        
+        choices = shuffleArray([
+          `(${boxPrice} × ${boxes}) - ${discount}`,
+          `${boxPrice} × ${boxes} - ${discount}`, // ถูกแต่ไม่มีวงเล็บ
+          `${boxPrice} × (${boxes} - ${discount})`, // ผิด
+          `(${boxPrice} + ${boxes}) × ${discount}` // ผิด
+        ]);
+        explanation = `ต้องคูณก่อน (${boxPrice} × ${boxes}) = ${boxPrice * boxes} แล้วลบ ${discount} = ${result} บาท`;
+        break;
+      }
+      case 'check_reasonableness': {
+        // ตรวจสอบความสมเหตุสมผลของคำตอบ (ป.3)
+        const a = randInt(15, 25);
+        const b = randInt(8, 12);
+        const c = randInt(3, 6);
+        const correctResult = (a + b) * c;
+        const wrongResult = randInt(50, 80);
+        
+        question = `นักเรียนคำนวณ (${a} + ${b}) × ${c} = ${wrongResult}\nการคำนวณนี้สมเหตุสมผลหรือไม่? (ใช้การประมาณค่า)`;
+        correctAnswer = 'ไม่สมเหตุสมผล';
+        choices = shuffleArray(['สมเหตุสมผล', 'ไม่สมเหตุสมผล']);
+        
+        const approxA = Math.round(a / 10) * 10;
+        const approxB = Math.round(b / 10) * 10;
+        const approxC = Math.round(c / 5) * 5;
+        const approxResult = (approxA + approxB) * approxC;
+        
+        explanation = `ประมาณค่า: (${approxA} + ${approxB}) × ${approxC} ≈ ${approxResult}\nคำตอบจริง: (${a} + ${b}) × ${c} = ${correctResult}\nดังนั้น ${wrongResult} ไม่สมเหตุสมผล`;
+        break;
+      }
+      case 'multi_step_with_parentheses': {
+        // โจทย์หลายขั้นตอนมีวงเล็บ (ป.3)
+        const pricePerItem = randInt(15, 30);
+        const quantity = randInt(4, 8);
+        const extraCost = randInt(10, 20);
+        const total = (pricePerItem * quantity) + extraCost;
+        
+        question = `ซื้อของชิ้นละ ${pricePerItem} บาท จำนวน ${quantity} ชิ้น และค่าส่ง ${extraCost} บาท\nราคาทั้งหมดเท่าไร? (เขียนประโยคสัญลักษณ์)`;
+        correctAnswer = `(${pricePerItem} × ${quantity}) + ${extraCost}`;
+        
+        choices = shuffleArray([
+          `(${pricePerItem} × ${quantity}) + ${extraCost}`,
+          `${pricePerItem} × ${quantity} + ${extraCost}`, // ถูกแต่ไม่มีวงเล็บ
+          `${pricePerItem} × (${quantity} + ${extraCost})`, // ผิด
+          `(${pricePerItem} + ${quantity}) × ${extraCost}` // ผิด
+        ]);
+        explanation = `คูณก่อน (${pricePerItem} × ${quantity}) = ${pricePerItem * quantity} แล้วบวกค่าส่ง ${extraCost} = ${total} บาท`;
+        break;
+      }
       case 'add_subtract': {
         const a = randInt(20, 50);
         const b = randInt(10, 30);
@@ -1816,8 +2196,13 @@ const generateMixedOperationsQuestions = (config: SkillConfig): AssessmentQuesti
 const generateWeighingQuestions = (config: SkillConfig): AssessmentQuestion[] => {
   const questions: AssessmentQuestion[] = [];
   
+  // ตรวจสอบว่าเป็น ป.3 (กรัม-ขีด-กก.-ตัน) หรือ ป.1-2 (กก.-กรัม)
+  const isAdvanced = config.description?.includes('ตัน') || config.difficulty === 'medium';
+  
   for (let i = 0; i < config.count; i++) {
-    const questionTypes = ['kg_to_g', 'g_to_kg', 'khit_to_g', 'compare_weight', 'word_problem'];
+    const questionTypes = isAdvanced
+      ? ['unit_conversion', 'choose_unit', 'read_scale', 'calculate_weight', 'word_problem']
+      : ['kg_to_g', 'g_to_kg', 'khit_to_g', 'compare_weight', 'word_problem'];
     const type = questionTypes[i % questionTypes.length];
     
     let question = '';
@@ -1826,6 +2211,95 @@ const generateWeighingQuestions = (config: SkillConfig): AssessmentQuestion[] =>
     let explanation = '';
     
     switch (type) {
+      case 'unit_conversion': {
+        // แปลงหน่วยน้ำหนัก (ป.3): กรัม-ขีด-กก.-ตัน
+        const conversionTypes = [
+          { from: 'กรัม', to: 'ขีด', factor: 100, type: 'divide' },
+          { from: 'ขีด', to: 'กรัม', factor: 100, type: 'multiply' },
+          { from: 'กรัม', to: 'กก.', factor: 1000, type: 'divide' },
+          { from: 'กก.', to: 'กรัม', factor: 1000, type: 'multiply' },
+          { from: 'กก.', to: 'ตัน', factor: 1000, type: 'divide' },
+          { from: 'ตัน', to: 'กก.', factor: 1000, type: 'multiply' }
+        ];
+        const conversion = conversionTypes[i % conversionTypes.length];
+        
+        if (conversion.type === 'multiply') {
+          const value = randInt(2, 10);
+          correctAnswer = value * conversion.factor;
+          question = `${value} ${conversion.from} เท่ากับกี่${conversion.to}?`;
+          choices = generateChoices(correctAnswer);
+          explanation = `1 ${conversion.from} = ${conversion.factor} ${conversion.to} ดังนั้น ${value} ${conversion.from} = ${value} × ${conversion.factor} = ${correctAnswer} ${conversion.to}`;
+        } else {
+          const value = randInt(2, 10) * conversion.factor;
+          correctAnswer = value / conversion.factor;
+          question = `${value} ${conversion.from} เท่ากับกี่${conversion.to}?`;
+          choices = generateChoices(correctAnswer);
+          explanation = `${conversion.factor} ${conversion.from} = 1 ${conversion.to} ดังนั้น ${value} ${conversion.from} = ${value} ÷ ${conversion.factor} = ${correctAnswer} ${conversion.to}`;
+        }
+        break;
+      }
+      case 'choose_unit': {
+        // เลือกหน่วยที่เหมาะสม (ป.3)
+        const objects = [
+          { name: 'เหรียญ 1 บาท', unit: 'กรัม' },
+          { name: 'ถุงน้ำตาล', unit: 'กิโลกรัม' },
+          { name: 'รถยนต์', unit: 'ตัน' },
+          { name: 'ปากกา', unit: 'กรัม' }
+        ];
+        const obj = objects[i % objects.length];
+        question = `ควรใช้หน่วยใดวัดน้ำหนักของ${obj.name}?`;
+        correctAnswer = obj.unit;
+        choices = shuffleArray(['กรัม', 'ขีด', 'กิโลกรัม', 'ตัน']);
+        explanation = `${obj.name}เหมาะสมที่จะชั่งด้วยหน่วย${obj.unit}`;
+        break;
+      }
+      case 'read_scale': {
+        // อ่านเครื่องชั่ง (ป.3)
+        const weight = randInt(1, 10) * 100;
+        question = `เครื่องชั่งบอก ${weight} กรัม ถ้าแสดงเป็นกิโลกรัมจะเป็นเท่าไร?`;
+        correctAnswer = weight / 1000;
+        choices = generateChoices(correctAnswer);
+        explanation = `${weight} กรัม = ${weight} ÷ 1000 = ${correctAnswer} กก.`;
+        break;
+      }
+      case 'calculate_weight': {
+        // คำนวณน้ำหนัก (ป.3): บวก-ลบ-คูณ-หาร
+        const operationType = i % 4;
+        if (operationType === 0) {
+          // บวก
+          const a = randInt(100, 500);
+          const b = randInt(100, 500);
+          correctAnswer = a + b;
+          question = `ส้มหนัก ${a} กรัม แอปเปิลหนัก ${b} กรัม รวมหนักกี่กรัม?`;
+          choices = generateChoices(correctAnswer);
+          explanation = `${a} + ${b} = ${correctAnswer} กรัม`;
+        } else if (operationType === 1) {
+          // ลบ
+          const a = randInt(500, 1000);
+          const b = randInt(100, 400);
+          correctAnswer = a - b;
+          question = `เนื้อหนัก ${a} กรัม ตัดไป ${b} กรัม เหลือหนักกี่กรัม?`;
+          choices = generateChoices(correctAnswer);
+          explanation = `${a} - ${b} = ${correctAnswer} กรัม`;
+        } else if (operationType === 2) {
+          // คูณ
+          const weight = randInt(10, 50);
+          const quantity = randInt(2, 5);
+          correctAnswer = weight * quantity;
+          question = `แอปเปิล 1 ผลหนัก ${weight} กรัม ถ้ามี ${quantity} ผล หนักรวมกี่กรัม?`;
+          choices = generateChoices(correctAnswer);
+          explanation = `${weight} × ${quantity} = ${correctAnswer} กรัม`;
+        } else {
+          // หาร
+          const total = randInt(100, 500);
+          const parts = randInt(2, 5);
+          correctAnswer = Math.floor(total / parts);
+          question = `แบ่งน้ำตาล ${total} กรัม เป็น ${parts} ส่วนเท่า ๆ กัน ส่วนละกี่กรัม?`;
+          choices = generateChoices(correctAnswer);
+          explanation = `${total} ÷ ${parts} = ${correctAnswer} กรัม`;
+        }
+        break;
+      }
       case 'kg_to_g': {
         const kg = randInt(1, 5);
         correctAnswer = kg * 1000;
