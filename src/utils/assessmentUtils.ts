@@ -67,10 +67,10 @@ const generateCountingQuestions = (config: SkillConfig): AssessmentQuestion[] =>
   const questions: AssessmentQuestion[] = [];
   const [min, max] = config.range || [0, 100];
   
-  const questionTypes = [
-    'count_by_1', 'count_by_10', 'thai_numeral', 'hundred_chart', 
-    'count_backward'
-  ];
+  // สำหรับ ป.2 เทอม 1 (0-1000) จะมีคำถามประเภทเพิ่มเติม
+  const questionTypes = max > 100 
+    ? ['count_by_2', 'count_by_5', 'count_by_10', 'count_by_100', 'thai_numeral', 'odd_even', 'place_value_identify']
+    : ['count_by_1', 'count_by_10', 'thai_numeral', 'hundred_chart', 'count_backward'];
   
   for (let i = 0; i < config.count; i++) {
     const type = questionTypes[i % questionTypes.length];
@@ -90,6 +90,26 @@ const generateCountingQuestions = (config: SkillConfig): AssessmentQuestion[] =>
         explanation = `เราเริ่มนับจาก ${start} และนับเพิ่มทีละ 1 ดังนั้นลำดับที่ถูกต้องคือ ${start}, ${start+1}, ${start+2}, ${start+3}, ${start+4} คำตอบคือ ${correctAnswer}`;
         break;
       }
+      case 'count_by_2': {
+        const start = randInt(Math.floor(min / 2), Math.floor((max - 10) / 2) - 3) * 2;
+        const missing = randInt(1, 3);
+        const sequence = Array.from({ length: 5 }, (_, idx) => idx === missing ? '__' : start + (idx * 2));
+        question = `นับทีละ 2 เติมจำนวนที่หายไป: ${sequence.join(', ')}`;
+        correctAnswer = start + (missing * 2);
+        choices = generateChoices(correctAnswer);
+        explanation = `เมื่อนับทีละ 2 จาก ${start} จะได้ ${start}, ${start+2}, ${start+4}, ${start+6}, ${start+8} คำตอบคือ ${correctAnswer}`;
+        break;
+      }
+      case 'count_by_5': {
+        const start = randInt(Math.floor(min / 5), Math.floor((max - 25) / 5) - 3) * 5;
+        const missing = randInt(1, 3);
+        const sequence = Array.from({ length: 5 }, (_, idx) => idx === missing ? '__' : start + (idx * 5));
+        question = `นับทีละ 5 เติมจำนวนที่หายไป: ${sequence.join(', ')}`;
+        correctAnswer = start + (missing * 5);
+        choices = generateChoices(correctAnswer);
+        explanation = `เมื่อนับทีละ 5 จาก ${start} จะได้ ${start}, ${start+5}, ${start+10}, ${start+15}, ${start+20} คำตอบคือ ${correctAnswer}`;
+        break;
+      }
       case 'count_by_10': {
         const start = randInt(Math.floor(min / 10), Math.floor(max / 10) - 3) * 10;
         const missing = randInt(1, 3);
@@ -100,14 +120,63 @@ const generateCountingQuestions = (config: SkillConfig): AssessmentQuestion[] =>
         explanation = `เมื่อนับทีละ 10 จากตารางร้อย เริ่มจาก ${start} จะได้ ${start}, ${start+10}, ${start+20}, ${start+30}, ${start+40} คำตอบคือ ${correctAnswer}`;
         break;
       }
+      case 'count_by_100': {
+        const maxStart = Math.floor((max - 400) / 100);
+        const start = randInt(Math.floor(min / 100), Math.max(0, maxStart)) * 100;
+        const missing = randInt(1, 2);
+        const sequence = Array.from({ length: 4 }, (_, idx) => idx === missing ? '__' : start + (idx * 100));
+        question = `นับทีละ 100 เติมจำนวนที่หายไป: ${sequence.join(', ')}`;
+        correctAnswer = start + (missing * 100);
+        choices = generateChoices(correctAnswer);
+        explanation = `เมื่อนับทีละ 100 จาก ${start} จะได้ ${start}, ${start+100}, ${start+200}, ${start+300} คำตอบคือ ${correctAnswer}`;
+        break;
+      }
       case 'thai_numeral': {
-        const num = randInt(min, Math.min(max, 100));
+        const num = randInt(min, Math.min(max, max > 100 ? 999 : 100));
         const thaiNumerals = ['๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙'];
         const thaiNum = num.toString().split('').map(d => thaiNumerals[parseInt(d)]).join('');
         question = `เลขไทย "${thaiNum}" เขียนเป็นเลขอารบิกว่าอะไร?`;
         correctAnswer = num;
         choices = generateChoices(correctAnswer);
         explanation = `เลขไทย ${thaiNum} มีค่าเท่ากับเลขอารบิก ${num}`;
+        break;
+      }
+      case 'odd_even': {
+        const nums = Array.from({ length: 4 }, () => randInt(1, Math.min(max, 100)));
+        const oddNums = nums.filter(n => n % 2 === 1);
+        if (oddNums.length > 0) {
+          correctAnswer = oddNums[0];
+          question = `ข้อใดเป็นจำนวนคี่? ${nums.join(', ')}`;
+          choices = shuffleArray(nums);
+          explanation = `${correctAnswer} เป็นจำนวนคี่ เพราะหารด้วย 2 ไม่ลงตัว`;
+        } else {
+          correctAnswer = nums[0];
+          question = `ข้อใดเป็นจำนวนคู่? ${nums.join(', ')}`;
+          choices = shuffleArray(nums);
+          explanation = `${correctAnswer} เป็นจำนวนคู่ เพราะหารด้วย 2 ลงตัว`;
+        }
+        break;
+      }
+      case 'place_value_identify': {
+        const num = randInt(100, Math.min(max, 999));
+        const hundreds = Math.floor(num / 100);
+        const tens = Math.floor((num % 100) / 10);
+        const ones = num % 10;
+        const positions = ['หลักร้อย', 'หลักสิบ', 'หลักหน่วย'];
+        const position = positions[i % 3];
+        
+        if (position === 'หลักร้อย') {
+          correctAnswer = hundreds;
+          question = `เลข ${num} มี${position}เป็นเท่าไร?`;
+        } else if (position === 'หลักสิบ') {
+          correctAnswer = tens;
+          question = `เลข ${num} มี${position}เป็นเท่าไร?`;
+        } else {
+          correctAnswer = ones;
+          question = `เลข ${num} มี${position}เป็นเท่าไร?`;
+        }
+        choices = generateChoices(correctAnswer);
+        explanation = `${num} = ${hundreds} ร้อย + ${tens} สิบ + ${ones} หน่วย`;
         break;
       }
       case 'hundred_chart': {
@@ -317,32 +386,58 @@ const generatePlaceValueQuestions = (config: SkillConfig): AssessmentQuestion[] 
   const [min, max] = config.range || [10, 99];
   
   for (let i = 0; i < config.count; i++) {
-    const num = randInt(Math.max(min, 21), max);
-    const tens = Math.floor(num / 10);
+    // ถ้า max > 99 แสดงว่าเป็น 3 หลัก (ร้อย สิบ หน่วย)
+    const isThreeDigit = max > 99;
+    const num = randInt(Math.max(min, isThreeDigit ? 100 : 21), max);
+    
+    const hundreds = isThreeDigit ? Math.floor(num / 100) : 0;
+    const tens = Math.floor((num % 100) / 10);
     const ones = num % 10;
     
-    const questionTypes = ['tens_place', 'ones_place', 'decompose'];
+    const questionTypes = isThreeDigit 
+      ? ['hundreds_place', 'tens_place', 'ones_place', 'decompose_3digit']
+      : ['tens_place', 'ones_place', 'decompose'];
     const type = questionTypes[i % questionTypes.length];
     
     let question = '';
     let correctAnswer: number | string = 0;
     let choices: (number | string)[] = [];
+    let explanation = '';
     
     switch (type) {
+      case 'hundreds_place':
+        question = `เลข ${num} มีหลักร้อยเป็นเท่าไร?`;
+        correctAnswer = hundreds;
+        choices = generateChoices(correctAnswer);
+        explanation = `${num} = ${hundreds} ร้อย + ${tens} สิบ + ${ones} หน่วย`;
+        break;
       case 'tens_place':
         question = `เลข ${num} มีหลักสิบเป็นเท่าไร?`;
         correctAnswer = tens;
         choices = generateChoices(correctAnswer);
+        explanation = isThreeDigit 
+          ? `${num} = ${hundreds} ร้อย + ${tens} สิบ + ${ones} หน่วย`
+          : `${num} = ${tens} สิบ + ${ones} หน่วย`;
         break;
       case 'ones_place':
         question = `เลข ${num} มีหลักหน่วยเป็นเท่าไร?`;
         correctAnswer = ones;
         choices = generateChoices(correctAnswer);
+        explanation = isThreeDigit 
+          ? `${num} = ${hundreds} ร้อย + ${tens} สิบ + ${ones} หน่วย`
+          : `${num} = ${tens} สิบ + ${ones} หน่วย`;
+        break;
+      case 'decompose_3digit':
+        question = `${num} = __ ร้อย + ${tens} สิบ + ${ones} หน่วย`;
+        correctAnswer = hundreds;
+        choices = generateChoices(correctAnswer);
+        explanation = `${num} = ${hundreds} ร้อย + ${tens} สิบ + ${ones} หน่วย`;
         break;
       case 'decompose':
         question = `${num} = __ สิบ + ${ones} หน่วย`;
         correctAnswer = tens;
         choices = generateChoices(correctAnswer);
+        explanation = `${num} = ${tens} สิบ + ${ones} หน่วย`;
         break;
     }
     
@@ -352,7 +447,8 @@ const generatePlaceValueQuestions = (config: SkillConfig): AssessmentQuestion[] 
       question,
       correctAnswer,
       choices,
-      difficulty: config.difficulty
+      difficulty: config.difficulty,
+      explanation
     });
   }
   
@@ -859,18 +955,63 @@ const generateMultiplicationQuestions = (config: SkillConfig): AssessmentQuestio
   const tables = config.tables || [2, 3, 4, 5];
   
   for (let i = 0; i < config.count; i++) {
+    const questionTypes = ['group_concept', 'symbol_creation', 'basic_multiply', 'word_problem'];
+    const type = questionTypes[i % questionTypes.length];
+    
     const table = tables[randInt(0, tables.length - 1)];
-    const multiplier = randInt(1, 10);
-    const correctAnswer = table * multiplier;
+    const multiplier = randInt(2, 5);  // เบื้องต้นใช้ 2-5 กลุ่ม
+    const product = table * multiplier;
+    
+    let question = '';
+    let correctAnswer: number | string = product;
+    let choices: (number | string)[] = [];
+    let explanation = '';
+    
+    switch (type) {
+      case 'group_concept': {
+        question = `ถ้ามี ${multiplier} กลุ่ม กลุ่มละ ${table} ตัว รวมทั้งหมดกี่ตัว?`;
+        correctAnswer = product;
+        choices = generateChoices(product);
+        explanation = `${multiplier} กลุ่ม × ${table} ตัว/กลุ่ม = ${product} ตัว`;
+        break;
+      }
+      case 'symbol_creation': {
+        question = `${multiplier} กลุ่ม กลุ่มละ ${table} เขียนเป็นประโยคสัญลักษณ์การคูณได้ว่าอะไร?`;
+        const symbolAnswers = [
+          `${multiplier} × ${table}`,
+          `${table} × ${multiplier}`,
+          `${multiplier} + ${table}`,
+          `${table} + ${multiplier}`
+        ];
+        choices = shuffleArray(symbolAnswers);
+        correctAnswer = `${multiplier} × ${table}`;
+        explanation = `จากกลุ่มเท่า ๆ กัน ${multiplier} กลุ่ม กลุ่มละ ${table} เขียนเป็น ${multiplier} × ${table} = ${product}`;
+        break;
+      }
+      case 'basic_multiply': {
+        question = `${table} × ${multiplier} = ?`;
+        correctAnswer = product;
+        choices = generateChoices(product);
+        explanation = `${table} × ${multiplier} = ${product} หรือคิดว่า ${multiplier} กลุ่ม กลุ่มละ ${table}`;
+        break;
+      }
+      case 'word_problem': {
+        question = `มีจานอยู่ ${multiplier} จาน ในแต่ละจานมีขนม ${table} ชิ้น รวมขนมทั้งหมดกี่ชิ้น?`;
+        correctAnswer = product;
+        choices = generateChoices(product);
+        explanation = `${multiplier} จาน × ${table} ชิ้น/จาน = ${product} ชิ้น`;
+        break;
+      }
+    }
     
     questions.push({
       id: `mul_${Date.now()}_${i}_${Math.random()}`,
       skill: 'multiplication',
-      question: `${table} × ${multiplier} = ?`,
+      question,
       correctAnswer,
-      choices: generateChoices(correctAnswer),
+      choices,
       difficulty: config.difficulty,
-      explanation: `${table} × ${multiplier} = ${correctAnswer}`
+      explanation
     });
   }
   
@@ -919,6 +1060,90 @@ const generateDivisionQuestions = (config: SkillConfig): AssessmentQuestion[] =>
       choices: generateChoices(correctAnswer),
       difficulty: config.difficulty,
       explanation: `${dividend} ÷ ${divisor} = ${correctAnswer}`
+    });
+  }
+  
+  return questions;
+};
+
+const generateWeighingQuestions = (config: SkillConfig): AssessmentQuestion[] => {
+  const questions: AssessmentQuestion[] = [];
+  
+  for (let i = 0; i < config.count; i++) {
+    const questionTypes = ['kg_to_g', 'g_to_kg', 'khit_to_g', 'compare_weight', 'word_problem'];
+    const type = questionTypes[i % questionTypes.length];
+    
+    let question = '';
+    let correctAnswer: number | string = 0;
+    let choices: (number | string)[] = [];
+    let explanation = '';
+    
+    switch (type) {
+      case 'kg_to_g': {
+        const kg = randInt(1, 5);
+        correctAnswer = kg * 1000;
+        question = `${kg} กิโลกรัม เท่ากับกี่กรัม?`;
+        choices = generateChoices(correctAnswer);
+        explanation = `1 กิโลกรัม = 1,000 กรัม ดังนั้น ${kg} กิโลกรัม = ${correctAnswer} กรัม`;
+        break;
+      }
+      case 'g_to_kg': {
+        const kg = randInt(2, 5);
+        const grams = kg * 1000;
+        correctAnswer = kg;
+        question = `${grams} กรัม เท่ากับกี่กิโลกรัม?`;
+        choices = generateChoices(correctAnswer);
+        explanation = `1,000 กรัม = 1 กิโลกรัม ดังนั้น ${grams} กรัม = ${kg} กิโลกรัม`;
+        break;
+      }
+      case 'khit_to_g': {
+        const khit = randInt(2, 8);
+        correctAnswer = khit * 100;
+        question = `${khit} ขีด เท่ากับกี่กรัม? (1 ขีด = 100 กรัม)`;
+        choices = generateChoices(correctAnswer);
+        explanation = `1 ขีด = 100 กรัม ดังนั้น ${khit} ขีด = ${correctAnswer} กรัม`;
+        break;
+      }
+      case 'compare_weight': {
+        const objects = [
+          { name: 'กล้วย', weight: '100 กรัม' },
+          { name: 'แตงโม', weight: '2 กิโลกรัม' },
+          { name: 'แอปเปิล', weight: '150 กรัม' },
+          { name: 'มะม่วง', weight: '300 กรัม' }
+        ];
+        const selected = shuffleArray(objects).slice(0, 3);
+        const weights = selected.map(o => {
+          const match = o.weight.match(/(\d+)\s*(กรัม|กิโลกรัม)/);
+          if (!match) return 0;
+          const value = parseInt(match[1]);
+          return match[2] === 'กิโลกรัม' ? value * 1000 : value;
+        });
+        const maxIndex = weights.indexOf(Math.max(...weights));
+        correctAnswer = selected[maxIndex].name;
+        question = `ข้อใดหนักที่สุด?\n${selected.map(o => `${o.name} ${o.weight}`).join('\n')}`;
+        choices = shuffleArray(selected.map(o => o.name));
+        explanation = `${correctAnswer} หนักที่สุดเพราะมีน้ำหนัก ${selected[maxIndex].weight}`;
+        break;
+      }
+      case 'word_problem': {
+        const fruit1 = randInt(200, 500);
+        const fruit2 = randInt(200, 500);
+        correctAnswer = fruit1 + fruit2;
+        question = `มะม่วงหนัก ${fruit1} กรัม กล้วยหนัก ${fruit2} กรัม รวมหนักกี่กรัม?`;
+        choices = generateChoices(correctAnswer);
+        explanation = `วิธีคิด: ${fruit1} + ${fruit2} = ${correctAnswer} กรัม`;
+        break;
+      }
+    }
+    
+    questions.push({
+      id: `weighing_${Date.now()}_${i}_${Math.random()}`,
+      skill: 'weighing',
+      question,
+      correctAnswer,
+      choices,
+      difficulty: config.difficulty,
+      explanation
     });
   }
   
@@ -999,6 +1224,9 @@ export const generateAssessmentQuestions = (
         break;
       case 'money':
         questions = generateMoneyQuestions(skillConfig);
+        break;
+      case 'weighing':
+        questions = generateWeighingQuestions(skillConfig);
         break;
       case 'division':
         questions = generateDivisionQuestions(skillConfig);

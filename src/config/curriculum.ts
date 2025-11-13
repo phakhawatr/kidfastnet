@@ -55,10 +55,23 @@ export const curriculumConfig: Record<string, Record<string, SkillConfig[]>> = {
   },
   grade2: {
     semester1: [
-      { skill: 'addition', difficulty: 'medium', count: 10, range: [20, 100] },
-      { skill: 'subtraction', difficulty: 'medium', count: 10, range: [20, 100] },
-      { skill: 'multiplication', difficulty: 'easy', count: 10, tables: [2, 3, 5] },
-      { skill: 'placeValue', difficulty: 'easy', count: 10 }
+      // 1. จำนวนนับไม่เกิน 1,000 และ 0
+      { skill: 'counting', difficulty: 'easy', count: 5, range: [0, 1000], description: 'นับ อ่าน-เขียนเลขไทย/อารบิก 0-1,000 นับทีละ 2/5/10/100 จำนวนคี่-คู่' },
+      { skill: 'comparing', difficulty: 'easy', count: 4, range: [0, 1000], description: 'เปรียบเทียบและเรียงลำดับจำนวน 0-1,000' },
+      { skill: 'placeValue', difficulty: 'easy', count: 4, range: [0, 1000], description: 'ค่าประจำหลัก: หลักร้อย หลักสิบ หลักหน่วย' },
+      
+      // 2. การบวกและการลบจำนวนนับไม่เกิน 1,000
+      { skill: 'addition', difficulty: 'medium', count: 7, range: [0, 1000], description: 'บวกตั้งคอลัมน์ ผลบวกไม่เกิน 1,000 และโจทย์สถานการณ์' },
+      { skill: 'subtraction', difficulty: 'medium', count: 7, range: [0, 1000], description: 'ลบตั้งคอลัมน์ ตัวตั้งไม่เกิน 1,000 หาค่าที่ไม่ทราบ' },
+      
+      // 3. การวัดความยาว
+      { skill: 'measurement', difficulty: 'easy', count: 4, description: 'วัดความยาว (เมตร/เซนติเมตร) คาดคะเน แก้โจทย์' },
+      
+      // 4. การวัดน้ำหนัก
+      { skill: 'weighing', difficulty: 'easy', count: 4, description: 'วัดน้ำหนัก (กิโลกรัม/กรัม/ขีด) ความสัมพันธ์หน่วย แก้โจทย์' },
+      
+      // 5. การคูณ (เบื้องต้น)
+      { skill: 'multiplication', difficulty: 'easy', count: 5, tables: [2, 3, 4, 5], description: 'ความหมายการคูณ สร้างประโยคสัญลักษณ์จากกลุ่มเท่า ๆ กัน' }
     ],
     semester2: [
       { skill: 'multiplication', difficulty: 'medium', count: 12, tables: [2, 3, 4, 5] },
