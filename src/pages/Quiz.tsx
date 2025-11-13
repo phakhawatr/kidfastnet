@@ -569,23 +569,31 @@ const Quiz = () => {
                   </div>
 
                   <RadioGroup 
-                    value={String(answers.get(currentIndex) ?? '')} 
-                    onValueChange={(v) => setAnswer(currentIndex, Number(v))}
+                    value={answers.get(currentIndex) !== undefined ? String(answers.get(currentIndex)) : undefined}
+                    onValueChange={(v) => {
+                      const choiceIndex = parseInt(v, 10);
+                      console.log('📝 Answer selected:', { 
+                        questionIndex: currentIndex, 
+                        choiceIndex, 
+                        choiceValue: currentQuestion.choices[choiceIndex] 
+                      });
+                      setAnswer(currentIndex, choiceIndex);
+                    }}
                   >
                     <div className="space-y-3">
                       {currentQuestion.choices.map((choice, idx) => {
                         const isSelected = answers.get(currentIndex) === idx;
                         return (
                           <div 
-                            key={idx} 
+                            key={`q${currentIndex}-choice${idx}`}
                             className={`flex items-center space-x-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
                               isSelected 
                                 ? 'bg-blue-50 border-blue-400 shadow-sm' 
                                 : 'border-gray-200 hover:bg-purple-50 hover:border-purple-300'
                             }`}
                           >
-                            <RadioGroupItem value={String(idx)} id={`choice-${idx}`} />
-                            <Label htmlFor={`choice-${idx}`} className="flex-1 cursor-pointer">
+                            <RadioGroupItem value={String(idx)} id={`q${currentIndex}-choice${idx}`} />
+                            <Label htmlFor={`q${currentIndex}-choice${idx}`} className="flex-1 cursor-pointer">
                               {renderChoice(choice)}
                             </Label>
                           </div>

@@ -52,6 +52,15 @@ const ShapeDisplay = ({ shape, size = 38 }: ShapeDisplayProps) => {
     );
   }
 
+  // รองรับวงรี (ellipse)
+  if (shapeType === 'ellipse' || (shapeType === 'circle' && shapeColor === 'orange')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 100 100" className="inline-block">
+        <ellipse cx="50" cy="50" rx="45" ry="30" fill={color} stroke="#1e293b" strokeWidth="3" />
+      </svg>
+    );
+  }
+
   return <span className="text-2xl">{shape}</span>;
 };
 

@@ -599,10 +599,19 @@ const generateShapesQuestions = (config: SkillConfig): AssessmentQuestion[] => {
       // ป.2 เทอม 2 - รูป 2 มิติ
       case 'identify_2d': {
         const shape = shapes2D[i % shapes2D.length];
-        question = `${shape.emoji} เป็นรูปอะไร?`;
+        // แปลงชื่อรูปเป็น marker สำหรับแสดงรูปทรง
+        const shapeMarkers: Record<string, string> = {
+          'สามเหลี่ยม': 'triangle-red',
+          'สี่เหลี่ยมจัตุรัส': 'square-blue',
+          'สี่เหลี่ยมผืนผ้า': 'square-green',
+          'วงกลม': 'circle-red',
+          'วงรี': 'circle-orange' // ใช้สีส้มสำหรับวงรี
+        };
+        const marker = shapeMarkers[shape.name] || 'circle-blue';
+        question = `[${marker}] เป็นรูปอะไร?`;
         correctAnswer = shape.name;
         choices = shuffleArray(shapes2D.map(s => s.name).slice(0, 4));
-        explanation = `${shape.emoji} เป็น${shape.name}`;
+        explanation = `[${marker}] เป็น${shape.name}`;
         break;
       }
       case 'describe_2d': {
@@ -1285,12 +1294,32 @@ const generateTimeQuestions = (config: SkillConfig): AssessmentQuestion[] => {
           ]);
           explanation = `${minutes} นาที ยังไม่ถึง 1 ชั่วโมง`;
         } else {
+          // กรณีมีทั้งชั่วโมงและนาที
           const startHour = randInt(8, 11);
-          const endHour = startHour + hours;
-          question = `จากเวลา ${startHour}:00 น. ถึง ${endHour}:${minutes.toString().padStart(2, '0')} น. ใช้เวลากี่ชั่วโมง?`;
-          correctAnswer = hours;
-          choices = generateChoices(hours);
-          explanation = `จาก ${startHour}:00 น. ถึง ${endHour}:${minutes.toString().padStart(2, '0')} น. ใช้เวลา ${hours} ชั่วโมง`;
+          const startMinute = randInt(0, 11) * 5;
+          
+          // คำนวณเวลาสิ้นสุด
+          let endHour = startHour + hours;
+          let endMinute = startMinute + minutes;
+          
+          // ปรับชั่วโมงถ้านาทีเกิน 60
+          if (endMinute >= 60) {
+            endHour += Math.floor(endMinute / 60);
+            endMinute = endMinute % 60;
+          }
+          
+          question = `จากเวลา ${startHour}:${startMinute.toString().padStart(2, '0')} น. ถึง ${endHour}:${endMinute.toString().padStart(2, '0')} น. ใช้เวลาทั้งหมดกี่ชั่วโมงกี่นาที?`;
+          correctAnswer = `${hours} ชั่วโมง ${minutes} นาที`;
+          
+          // สร้างตัวเลือกคำตอบที่ใกล้เคียง
+          choices = shuffleArray([
+            `${hours} ชั่วโมง ${minutes} นาที`,
+            `${hours + 1} ชั่วโมง ${minutes} นาที`,
+            `${hours} ชั่วโมง ${minutes + 10} นาที`,
+            `${hours} ชั่วโมง ${minutes > 10 ? minutes - 10 : minutes + 10} นาที`
+          ]);
+          
+          explanation = `จาก ${startHour}:${startMinute.toString().padStart(2, '0')} น. ถึง ${endHour}:${endMinute.toString().padStart(2, '0')} น. ใช้เวลา ${hours} ชั่วโมง ${minutes} นาที`;
           
           questions.push({
             id: `time_${Date.now()}_${i}_${Math.random()}`,
@@ -1300,7 +1329,7 @@ const generateTimeQuestions = (config: SkillConfig): AssessmentQuestion[] => {
             choices,
             difficulty: config.difficulty,
             explanation,
-            clockDisplay: { hour: startHour, minute: 0 }
+            clockDisplay: { hour: startHour, minute: startMinute }
           });
           continue;
         }
