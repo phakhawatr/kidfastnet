@@ -136,10 +136,25 @@ export const curriculumConfig: Record<string, Record<string, SkillConfig[]>> = {
   },
   grade4: {
     semester1: [
-      { skill: 'multiplication', difficulty: 'hard', count: 10, range: [10, 999] },
-      { skill: 'division', difficulty: 'hard', count: 10, range: [10, 999] },
-      { skill: 'fractions', difficulty: 'medium', count: 10 },
-      { skill: 'decimals', difficulty: 'easy', count: 10 }
+      // 1. จำนวนนับที่มากกว่า 100,000 (25-30%)
+      { skill: 'counting', difficulty: 'hard', count: 6, range: [100000, 10000000], description: 'อ่าน-เขียนเลขไทย-อารบิก-ตัวหนังสือ ถึงสิบล้าน' },
+      { skill: 'placeValue', difficulty: 'hard', count: 6, range: [100000, 10000000], description: 'หลัก-ค่าประจำหลัก (ล้าน แสน หมื่น พัน ร้อย สิบ หน่วย)' },
+      { skill: 'comparing', difficulty: 'hard', count: 3, range: [100000, 10000000], description: 'เปรียบเทียบ-เรียงลำดับ ประมาณค่า' },
+      
+      // 2. บวก-ลบ ≥6 หลัก (20-25%)
+      { skill: 'addition', difficulty: 'hard', count: 6, range: [100000, 10000000], description: 'บวกตั้งคอลัมน์ ≥6 หลัก ตรวจความสมเหตุสมผล' },
+      { skill: 'subtraction', difficulty: 'hard', count: 6, range: [100000, 10000000], description: 'ลบตั้งคอลัมน์ ≥6 หลัก ค่าที่ไม่ทราบ' },
+      
+      // 3. คูณ-หาร (20-25%)
+      { skill: 'multiplication', difficulty: 'hard', count: 6, range: [10, 9999], description: 'คูณหลายหลัก ความสัมพันธ์คูณ-หาร' },
+      { skill: 'division', difficulty: 'hard', count: 6, range: [100, 99999], description: 'หารยาว/สั้น ตัวหาร 1-2 หลัก โจทย์สถานการณ์' },
+      
+      // 4. ระคน 4 กระบวนการ + ค่าเฉลี่ย (10-15%)
+      { skill: 'mixedOperations', difficulty: 'hard', count: 4, description: 'ระคน มี/ไม่มีวงเล็บ แปลงสถานการณ์' },
+      { skill: 'average', difficulty: 'easy', count: 3, description: 'ค่าเฉลี่ยอย่างง่าย' },
+      
+      // 5. เวลา (15-20%)
+      { skill: 'time', difficulty: 'hard', count: 8, description: 'วินาที-นาที-ชม.-วัน-สัปดาห์-เดือน-ปี ตารางเวลา โจทย์' }
     ],
     semester2: [
       { skill: 'fractions', difficulty: 'hard', count: 10 },
