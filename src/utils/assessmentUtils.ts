@@ -550,11 +550,23 @@ const generatePatternsQuestions = (config: SkillConfig): AssessmentQuestion[] =>
 const generateShapesQuestions = (config: SkillConfig): AssessmentQuestion[] => {
   const questions: AssessmentQuestion[] = [];
   
+  // ตรวจสอบว่าควรเน้นรูป 2 มิติหรือ 3 มิติจาก description
+  const focus2D = config.description?.includes('สองมิติ') || config.description?.includes('2 มิติ');
+  
   // Updated shapes with color variants for better visibility
   const coloredShapes = [
     'triangle-red', 'triangle-blue', 'triangle-green', 
     'square-red', 'square-blue', 'square-green',
     'circle-red', 'circle-blue', 'circle-green'
+  ];
+  
+  // รูป 2 มิติสำหรับ ป.2
+  const shapes2D = [
+    { name: 'สามเหลี่ยม', emoji: '🔺', sides: 3 },
+    { name: 'สี่เหลี่ยมจัตุรัส', emoji: '🟦', sides: 4 },
+    { name: 'สี่เหลี่ยมผืนผ้า', emoji: '▭', sides: 4 },
+    { name: 'วงกลม', emoji: '⭕', sides: 0 },
+    { name: 'วงรี', emoji: '⬭', sides: 0 }
   ];
   
   const shapes3D = [
@@ -572,19 +584,79 @@ const generateShapesQuestions = (config: SkillConfig): AssessmentQuestion[] => {
   ];
   
   for (let i = 0; i < config.count; i++) {
-    const questionTypes = ['real_world_connection', 'count_shapes', 'pattern_creation', 'identify_3d'];
+    const questionTypes = focus2D 
+      ? ['identify_2d', 'describe_2d', 'count_sides', 'draw_pattern_2d']
+      : ['real_world_connection', 'count_shapes', 'pattern_creation', 'identify_3d'];
     const type = questionTypes[i % questionTypes.length];
     
     let question = '';
     let correctAnswer: string | number = '';
     let choices: (string | number)[] = [];
+    let explanation = '';
     
     switch (type) {
+      // ป.2 เทอม 2 - รูป 2 มิติ
+      case 'identify_2d': {
+        const shape = shapes2D[i % shapes2D.length];
+        question = `${shape.emoji} เป็นรูปอะไร?`;
+        correctAnswer = shape.name;
+        choices = shuffleArray(shapes2D.map(s => s.name).slice(0, 4));
+        explanation = `${shape.emoji} เป็น${shape.name}`;
+        break;
+      }
+      case 'describe_2d': {
+        const shape = shapes2D[i % 3]; // เน้น สามเหลี่ยม, สี่เหลี่ยม, วงกลม
+        if (shape.sides > 0) {
+          question = `${shape.name}มีกี่ด้าน?`;
+          correctAnswer = shape.sides;
+          choices = generateChoices(shape.sides);
+          explanation = `${shape.name}มี ${shape.sides} ด้าน`;
+        } else if (shape.name === 'วงกลม') {
+          question = `${shape.name}มีมุมหรือไม่?`;
+          correctAnswer = 'ไม่มี';
+          choices = ['มี', 'ไม่มี'];
+          explanation = `${shape.name}ไม่มีมุม เป็นเส้นโค้งรอบวง`;
+        } else {
+          question = `รูป${shape.name}มีลักษณะอย่างไร?`;
+          correctAnswer = 'เป็นวงรีที่ยาวกว่ากลม';
+          choices = shuffleArray([
+            'เป็นวงรีที่ยาวกว่ากลม',
+            'เป็นวงกลมสมบูรณ์',
+            'มี 4 ด้าน',
+            'มีมุมแหลม'
+          ]);
+          explanation = 'วงรีเป็นรูปที่คล้ายวงกลมแต่ยาวกว่า';
+        }
+        break;
+      }
+      case 'count_sides': {
+        const shapes = [shapes2D[0], shapes2D[1]]; // สามเหลี่ยมและสี่เหลี่ยม
+        const shape = shapes[i % 2];
+        question = `นับด้านของรูป${shape.name}`;
+        correctAnswer = shape.sides;
+        choices = generateChoices(shape.sides);
+        explanation = `${shape.name}มี ${shape.sides} ด้าน`;
+        break;
+      }
+      case 'draw_pattern_2d': {
+        question = `รูปใดเป็นรูปสี่เหลี่ยมจัตุรัส?`;
+        correctAnswer = 'รูปที่มี 4 ด้านเท่ากัน';
+        choices = shuffleArray([
+          'รูปที่มี 4 ด้านเท่ากัน',
+          'รูปที่มี 3 ด้าน',
+          'รูปวงกลม',
+          'รูปที่มี 4 ด้านไม่เท่ากัน'
+        ]);
+        explanation = 'สี่เหลี่ยมจัตุรัสมี 4 ด้านเท่ากันทุกด้าน';
+        break;
+      }
+      // ป.1 - รูป 3 มิติและแบบรูป
       case 'real_world_connection': {
         const obj = realWorldObjects[i % realWorldObjects.length];
         question = `${obj.emoji} ${obj.name} เป็นรูปทรงอะไร?`;
         correctAnswer = obj.shape;
         choices = shuffleArray(shapes3D.map(s => s.name));
+        explanation = `${obj.name}เป็น${obj.shape}`;
         break;
       }
       case 'count_shapes': {
@@ -603,6 +675,7 @@ const generateShapesQuestions = (config: SkillConfig): AssessmentQuestion[] => {
         question = `ในรูปนี้มี [${shapeToCount}] กี่รูป? [shapes:${sequence.join(',')}]`;
         correctAnswer = count;
         choices = generateChoices(count);
+        explanation = `นับรูป [${shapeToCount}] ได้ ${count} รูป`;
         break;
       }
       case 'pattern_creation': {
@@ -624,6 +697,7 @@ const generateShapesQuestions = (config: SkillConfig): AssessmentQuestion[] => {
           pattern.correct,
           ...coloredShapes.filter(s => s !== pattern.correct).slice(0, 3)
         ]);
+        explanation = `แบบรูปซ้ำคือ ${pattern.seq.join(', ')} ดังนั้นรูปถัดไปคือ ${pattern.correct}`;
         break;
       }
       case 'identify_3d': {
@@ -631,6 +705,7 @@ const generateShapesQuestions = (config: SkillConfig): AssessmentQuestion[] => {
         question = `${shape.emoji} เป็นรูปทรงอะไร?`;
         correctAnswer = shape.name;
         choices = shuffleArray(shapes3D.map(s => s.name));
+        explanation = `${shape.emoji} เป็น${shape.name}`;
         break;
       }
     }
@@ -641,7 +716,8 @@ const generateShapesQuestions = (config: SkillConfig): AssessmentQuestion[] => {
       question,
       correctAnswer,
       choices,
-      difficulty: config.difficulty
+      difficulty: config.difficulty,
+      explanation
     });
   }
   
@@ -706,48 +782,66 @@ const generateMeasurementQuestions = (config: SkillConfig): AssessmentQuestion[]
 const generatePictographQuestions = (config: SkillConfig): AssessmentQuestion[] => {
   const questions: AssessmentQuestion[] = [];
   
-  const fruits = [
-    { name: 'แอปเปิล', emoji: '🍎', count: 3 },
-    { name: 'กล้วย', emoji: '🍌', count: 5 },
-    { name: 'ส้ม', emoji: '🍊', count: 2 }
-  ];
-  
   for (let i = 0; i < config.count; i++) {
-    const questionTypes = ['count_specific', 'find_max', 'count_total'];
+    const questionTypes = ['count_scale_2', 'count_scale_5', 'count_scale_10', 'find_max', 'count_total'];
     const type = questionTypes[i % questionTypes.length];
     
+    // กำหนดสเกล (1 รูปแทนกี่หน่วย)
+    let scale = 1;
+    if (type === 'count_scale_2') scale = 2;
+    else if (type === 'count_scale_5') scale = 5;
+    else if (type === 'count_scale_10') scale = 10;
+    else scale = [2, 5, 10][i % 3]; // สำหรับ type อื่นๆ สุ่มสเกล
+    
     const data = [
-      { name: 'แอปเปิล', emoji: '🍎', count: randInt(2, 6) },
-      { name: 'กล้วย', emoji: '🍌', count: randInt(2, 6) },
-      { name: 'ส้ม', emoji: '🍊', count: randInt(2, 6) }
+      { name: 'แอปเปิล', emoji: '🍎', pictures: randInt(2, 6) },
+      { name: 'กล้วย', emoji: '🍌', pictures: randInt(2, 6) },
+      { name: 'ส้ม', emoji: '🍊', pictures: randInt(2, 6) }
     ];
     
-    const chart = data.map(d => `${d.name}: ${d.emoji.repeat(d.count)} (${d.count})`).join('\n');
+    // คำนวณจำนวนจริง (pictures × scale)
+    const dataWithActual = data.map(d => ({
+      ...d,
+      actualCount: d.pictures * scale
+    }));
+    
+    const chart = dataWithActual.map(d => 
+      `${d.name}: ${d.emoji.repeat(d.pictures)} (${d.pictures} รูป)`
+    ).join('\n');
     
     let question = '';
     let correctAnswer: number | string = 0;
     let choices: (number | string)[] = [];
+    let explanation = '';
     
     switch (type) {
-      case 'count_specific': {
-        const item = data[i % data.length];
-        question = `แผนภูมิผลไม้:\n${chart}\n\nมี${item.name}กี่ผล?`;
-        correctAnswer = item.count;
+      case 'count_scale_2':
+      case 'count_scale_5':
+      case 'count_scale_10': {
+        const item = dataWithActual[i % dataWithActual.length];
+        question = `แผนภูมิผลไม้ (1 รูป = ${scale} หน่วย):\n${chart}\n\nมี${item.name}กี่ผล?`;
+        correctAnswer = item.actualCount;
         choices = generateChoices(correctAnswer);
+        explanation = `${item.name} มี ${item.pictures} รูป × ${scale} = ${item.actualCount} ผล`;
         break;
       }
       case 'find_max': {
-        const maxItem = data.reduce((max, item) => item.count > max.count ? item : max);
-        question = `แผนภูมิผลไม้:\n${chart}\n\nผลไม้ใดมีมากที่สุด?`;
+        const maxItem = dataWithActual.reduce((max, item) => 
+          item.actualCount > max.actualCount ? item : max
+        );
+        question = `แผนภูมิผลไม้ (1 รูป = ${scale} หน่วย):\n${chart}\n\nผลไม้ใดมีมากที่สุด?`;
         correctAnswer = maxItem.name;
-        choices = data.map(d => d.name);
+        choices = dataWithActual.map(d => d.name);
+        explanation = `${maxItem.name} มี ${maxItem.pictures} รูป × ${scale} = ${maxItem.actualCount} ผล ซึ่งมากที่สุด`;
         break;
       }
       case 'count_total': {
-        const total = data.reduce((sum, item) => sum + item.count, 0);
-        question = `แผนภูมิผลไม้:\n${chart}\n\nรวมทั้งหมดกี่ผล?`;
+        const total = dataWithActual.reduce((sum, item) => sum + item.actualCount, 0);
+        question = `แผนภูมิผลไม้ (1 รูป = ${scale} หน่วย):\n${chart}\n\nรวมทั้งหมดกี่ผล?`;
         correctAnswer = total;
         choices = generateChoices(correctAnswer);
+        const totalPictures = dataWithActual.reduce((sum, item) => sum + item.pictures, 0);
+        explanation = `รวม ${totalPictures} รูป × ${scale} = ${total} ผล`;
         break;
       }
     }
@@ -758,7 +852,8 @@ const generatePictographQuestions = (config: SkillConfig): AssessmentQuestion[] 
       question,
       correctAnswer,
       choices,
-      difficulty: config.difficulty
+      difficulty: config.difficulty,
+      explanation
     });
   }
   
@@ -1047,19 +1142,362 @@ const generateDivisionQuestions = (config: SkillConfig): AssessmentQuestion[] =>
   const [min, max] = config.range || [1, 50];
   
   for (let i = 0; i < config.count; i++) {
-    const divisor = randInt(2, 10);
-    const quotient = randInt(Math.ceil(min / divisor), Math.floor(max / divisor));
-    const dividend = divisor * quotient;
-    const correctAnswer = quotient;
+    const questionTypes = ['meaning', 'basic_division', 'with_remainder', 'multiply_divide_relation', 'word_problem'];
+    const type = questionTypes[i % questionTypes.length];
+    
+    let question = '';
+    let correctAnswer: number | string = 0;
+    let choices: (number | string)[] = [];
+    let explanation = '';
+    
+    switch (type) {
+      case 'meaning': {
+        const total = randInt(6, 20);
+        const divisor = randInt(2, 5);
+        const quotient = Math.floor(total / divisor);
+        question = `แบ่งขนม ${total} ชิ้น ให้เด็ก ${divisor} คน เท่า ๆ กัน คนละกี่ชิ้น?`;
+        correctAnswer = quotient;
+        choices = generateChoices(correctAnswer);
+        explanation = `${total} ÷ ${divisor} = ${quotient} คนละ ${quotient} ชิ้น`;
+        break;
+      }
+      case 'basic_division': {
+        const divisor = randInt(2, 9);
+        const quotient = randInt(2, Math.floor(max / divisor));
+        const dividend = divisor * quotient;
+        correctAnswer = quotient;
+        question = `${dividend} ÷ ${divisor} = ?`;
+        choices = generateChoices(correctAnswer);
+        explanation = `${dividend} ÷ ${divisor} = ${correctAnswer}`;
+        break;
+      }
+      case 'with_remainder': {
+        const divisor = randInt(2, 9);
+        const quotient = randInt(2, 10);
+        const remainder = randInt(1, divisor - 1);
+        const dividend = (divisor * quotient) + remainder;
+        question = `${dividend} ÷ ${divisor} = ? เศษเท่าไร?`;
+        correctAnswer = `${quotient} เศษ ${remainder}`;
+        choices = shuffleArray([
+          `${quotient} เศษ ${remainder}`,
+          `${quotient + 1} เศษ 0`,
+          `${quotient} เศษ ${remainder + 1}`,
+          `${quotient - 1} เศษ ${remainder}`
+        ]);
+        explanation = `${dividend} ÷ ${divisor} = ${quotient} เศษ ${remainder} เพราะ ${divisor} × ${quotient} = ${divisor * quotient} บวกเศษ ${remainder} = ${dividend}`;
+        break;
+      }
+      case 'multiply_divide_relation': {
+        const divisor = randInt(2, 9);
+        const quotient = randInt(3, 10);
+        const dividend = divisor * quotient;
+        question = `ถ้า ${divisor} × ${quotient} = ${dividend} แล้ว ${dividend} ÷ ${divisor} = ?`;
+        correctAnswer = quotient;
+        choices = generateChoices(correctAnswer);
+        explanation = `จากความสัมพันธ์ของคูณ-หาร: ${divisor} × ${quotient} = ${dividend} ดังนั้น ${dividend} ÷ ${divisor} = ${quotient}`;
+        break;
+      }
+      case 'word_problem': {
+        const total = randInt(12, 48);
+        const groups = randInt(2, 6);
+        const perGroup = Math.floor(total / groups);
+        correctAnswer = perGroup;
+        question = `นำดอกไม้ ${total} ดอก มาจัดเป็น ${groups} แจกัน เท่า ๆ กัน แจกันละกี่ดอก?`;
+        choices = generateChoices(correctAnswer);
+        explanation = `${total} ÷ ${groups} = ${perGroup} แจกันละ ${perGroup} ดอก`;
+        break;
+      }
+    }
     
     questions.push({
       id: `div_${Date.now()}_${i}_${Math.random()}`,
       skill: 'division',
-      question: `${dividend} ÷ ${divisor} = ?`,
+      question,
       correctAnswer,
-      choices: generateChoices(correctAnswer),
+      choices,
       difficulty: config.difficulty,
-      explanation: `${dividend} ÷ ${divisor} = ${correctAnswer}`
+      explanation
+    });
+  }
+  
+  return questions;
+};
+
+const generateTimeQuestions = (config: SkillConfig): AssessmentQuestion[] => {
+  const questions: AssessmentQuestion[] = [];
+  
+  for (let i = 0; i < config.count; i++) {
+    const questionTypes = ['read_time', 'time_duration', 'calendar', 'word_problem'];
+    const type = questionTypes[i % questionTypes.length];
+    
+    let question = '';
+    let correctAnswer: number | string = 0;
+    let choices: (number | string)[] = [];
+    let explanation = '';
+    
+    switch (type) {
+      case 'read_time': {
+        const hour = randInt(1, 12);
+        const minute = randInt(0, 11) * 5; // ช่วง 5 นาที
+        const timeStr = minute === 0 ? `${hour} นาฬิกา` : `${hour} นาฬิกา ${minute} นาที`;
+        question = `นาฬิกาแสดงเวลา ${timeStr} ข้อใดถูกต้อง?`;
+        correctAnswer = timeStr;
+        
+        // สร้างตัวเลือกที่ใกล้เคียง
+        const wrongChoices = [
+          minute === 0 ? `${hour} นาฬิกา 5 นาที` : `${hour} นาฬิกา ${(minute + 5) % 60} นาที`,
+          `${(hour % 12) + 1} นาฬิกา ${minute} นาที`,
+          minute >= 5 ? `${hour} นาฬิกา ${minute - 5} นาที` : `${hour} นาฬิกา 55 นาที`
+        ];
+        choices = shuffleArray([timeStr, ...wrongChoices]);
+        explanation = `นาฬิกาชี้ ${timeStr}`;
+        break;
+      }
+      case 'time_duration': {
+        const hours = randInt(1, 3);
+        const minutes = randInt(0, 11) * 5;
+        
+        if (hours > 0 && minutes === 0) {
+          question = `ใช้เวลา ${hours} ชั่วโมง เท่ากับกี่นาที?`;
+          correctAnswer = hours * 60;
+          choices = generateChoices(correctAnswer);
+          explanation = `1 ชั่วโมง = 60 นาที ดังนั้น ${hours} ชั่วโมง = ${hours * 60} นาที`;
+        } else if (hours === 0) {
+          question = `ใช้เวลา ${minutes} นาที เท่ากับกี่ชั่วโมงกี่นาที?`;
+          correctAnswer = `0 ชั่วโมง ${minutes} นาที`;
+          choices = shuffleArray([
+            `0 ชั่วโมง ${minutes} นาที`,
+            `1 ชั่วโมง ${minutes} นาที`,
+            `0 ชั่วโมง ${minutes + 5} นาที`,
+            `0 ชั่วโมง ${minutes - 5 < 0 ? 0 : minutes - 5} นาที`
+          ]);
+          explanation = `${minutes} นาที ยังไม่ถึง 1 ชั่วโมง`;
+        } else {
+          question = `จากเวลา 9:00 น. ถึง ${9 + hours}:${minutes.toString().padStart(2, '0')} น. ใช้เวลากี่ชั่วโมง?`;
+          correctAnswer = hours;
+          choices = generateChoices(hours);
+          explanation = `จาก 9:00 น. ถึง ${9 + hours}:${minutes.toString().padStart(2, '0')} น. ใช้เวลา ${hours} ชั่วโมง`;
+        }
+        break;
+      }
+      case 'calendar': {
+        const months = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 
+                       'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+        const month = months[randInt(0, 11)];
+        const day = randInt(1, 28);
+        
+        question = `วันที่ ${day} ${month} อยู่ในเดือนอะไร?`;
+        correctAnswer = month;
+        choices = shuffleArray([
+          month,
+          ...months.filter(m => m !== month).slice(0, 3)
+        ]);
+        explanation = `วันที่ ${day} ${month} อยู่ในเดือน${month}`;
+        break;
+      }
+      case 'word_problem': {
+        const startHour = randInt(8, 11);
+        const duration = randInt(1, 3);
+        const endHour = startHour + duration;
+        
+        question = `เริ่มทำการบ้านเวลา ${startHour}:00 น. เสร็จเวลา ${endHour}:00 น. ใช้เวลากี่ชั่วโมง?`;
+        correctAnswer = duration;
+        choices = generateChoices(duration);
+        explanation = `จาก ${startHour}:00 น. ถึง ${endHour}:00 น. ใช้เวลา ${duration} ชั่วโมง`;
+        break;
+      }
+    }
+    
+    questions.push({
+      id: `time_${Date.now()}_${i}_${Math.random()}`,
+      skill: 'time',
+      question,
+      correctAnswer,
+      choices,
+      difficulty: config.difficulty,
+      explanation
+    });
+  }
+  
+  return questions;
+};
+
+const generateVolumeQuestions = (config: SkillConfig): AssessmentQuestion[] => {
+  const questions: AssessmentQuestion[] = [];
+  
+  for (let i = 0; i < config.count; i++) {
+    const questionTypes = ['non_standard', 'liter_comparison', 'estimate', 'word_problem'];
+    const type = questionTypes[i % questionTypes.length];
+    
+    let question = '';
+    let correctAnswer: number | string = 0;
+    let choices: (number | string)[] = [];
+    let explanation = '';
+    
+    switch (type) {
+      case 'non_standard': {
+        const cups = randInt(2, 5);
+        question = `ถ้าใช้แก้วตวงน้ำ ${cups} แก้ว เต็มถังหนึ่งถัง ถังนี้จุน้ำกี่แก้ว?`;
+        correctAnswer = cups;
+        choices = generateChoices(cups);
+        explanation = `ถังจุน้ำได้ ${cups} แก้ว`;
+        break;
+      }
+      case 'liter_comparison': {
+        const containers = [
+          { name: 'ถ้วย', volume: 0.25 },
+          { name: 'ขวด', volume: 1 },
+          { name: 'ถัง', volume: 5 },
+          { name: 'แก้ว', volume: 0.5 }
+        ];
+        const selected = shuffleArray(containers).slice(0, 3);
+        const maxIndex = selected.reduce((max, item, idx, arr) => 
+          item.volume > arr[max].volume ? idx : max, 0);
+        correctAnswer = selected[maxIndex].name;
+        
+        question = `ข้อใดจุได้มากที่สุด?\n${selected.map(c => c.name).join(', ')}`;
+        choices = shuffleArray(selected.map(c => c.name));
+        explanation = `${correctAnswer}จุได้มากที่สุด`;
+        break;
+      }
+      case 'estimate': {
+        const objects = [
+          { name: 'ถ้วยน้ำ', volume: '250 มิลลิลิตร' },
+          { name: 'ขวดน้ำ', volume: '1 ลิตร' },
+          { name: 'แก้วน้ำ', volume: '500 มิลลิลิตร' }
+        ];
+        const obj = objects[i % objects.length];
+        question = `${obj.name}จุน้ำได้ประมาณเท่าไร?`;
+        correctAnswer = obj.volume;
+        choices = shuffleArray([
+          obj.volume,
+          ...objects.filter(o => o.volume !== obj.volume).map(o => o.volume)
+        ]);
+        explanation = `${obj.name}จุได้ประมาณ ${obj.volume}`;
+        break;
+      }
+      case 'word_problem': {
+        const bottle = randInt(2, 5);
+        const perBottle = 1;
+        correctAnswer = bottle * perBottle;
+        question = `มีขวดน้ำ ${bottle} ขวด ขวดละ ${perBottle} ลิตร รวมกี่ลิตร?`;
+        choices = generateChoices(correctAnswer);
+        explanation = `${bottle} × ${perBottle} = ${correctAnswer} ลิตร`;
+        break;
+      }
+    }
+    
+    questions.push({
+      id: `volume_${Date.now()}_${i}_${Math.random()}`,
+      skill: 'volume',
+      question,
+      correctAnswer,
+      choices,
+      difficulty: config.difficulty,
+      explanation
+    });
+  }
+  
+  return questions;
+};
+
+const generateMixedOperationsQuestions = (config: SkillConfig): AssessmentQuestion[] => {
+  const questions: AssessmentQuestion[] = [];
+  
+  for (let i = 0; i < config.count; i++) {
+    const questionTypes = ['add_subtract', 'add_multiply', 'subtract_divide', 'multi_step'];
+    const type = questionTypes[i % questionTypes.length];
+    
+    let question = '';
+    let correctAnswer: number | string = 0;
+    let choices: (number | string)[] = [];
+    let explanation = '';
+    
+    switch (type) {
+      case 'add_subtract': {
+        const a = randInt(20, 50);
+        const b = randInt(10, 30);
+        const c = randInt(5, 15);
+        const result = a + b - c;
+        correctAnswer = result;
+        question = `มีลูกบอล ${a} ลูก ซื้อมาเพิ่ม ${b} ลูก แล้วเอาไปแจก ${c} ลูก เหลือกี่ลูก?\nเขียนประโยคสัญลักษณ์ได้ว่า?`;
+        
+        choices = shuffleArray([
+          `${a} + ${b} - ${c}`,
+          `${a} - ${b} + ${c}`,
+          `${a} + ${b} + ${c}`,
+          `${a} - ${b} - ${c}`
+        ]);
+        correctAnswer = `${a} + ${b} - ${c}`;
+        explanation = `มี ${a} ซื้อเพิ่ม ${b} (+) แจกไป ${c} (-) = ${a} + ${b} - ${c} = ${result}`;
+        break;
+      }
+      case 'add_multiply': {
+        const groups = randInt(3, 5);
+        const perGroup = randInt(4, 8);
+        const extra = randInt(2, 5);
+        const result = (groups * perGroup) + extra;
+        correctAnswer = `${groups} × ${perGroup} + ${extra}`;
+        
+        question = `มีกล่องดินสอ ${groups} กล่อง กล่องละ ${perGroup} แท่ง และมีดินสออีก ${extra} แท่ง รวมกี่แท่ง?\nเขียนประโยคสัญลักษณ์ได้ว่า?`;
+        
+        choices = shuffleArray([
+          `${groups} × ${perGroup} + ${extra}`,
+          `${groups} + ${perGroup} × ${extra}`,
+          `${groups} × ${perGroup} - ${extra}`,
+          `(${groups} + ${perGroup}) × ${extra}`
+        ]);
+        explanation = `${groups} กล่อง × ${perGroup} แท่ง/กล่อง + ${extra} = ${result} แท่ง`;
+        break;
+      }
+      case 'subtract_divide': {
+        const total = randInt(24, 48);
+        const give = randInt(4, 12);
+        const remaining = total - give;
+        const groups = randInt(2, 4);
+        const perGroup = Math.floor(remaining / groups);
+        correctAnswer = `${total} - ${give}`;
+        
+        question = `มีลูกอม ${total} เม็ด เอาไปแจก ${give} เม็ด จะแบ่งที่เหลือให้เพื่อน ${groups} คน เท่า ๆ กัน\nต้องหาจำนวนที่เหลือก่อนโดยใช้ประโยคสัญลักษณ์ใด?`;
+        
+        choices = shuffleArray([
+          `${total} - ${give}`,
+          `${total} + ${give}`,
+          `${total} ÷ ${groups}`,
+          `${give} ÷ ${groups}`
+        ]);
+        explanation = `ต้องหาที่เหลือก่อน: ${total} - ${give} = ${remaining} เม็ด`;
+        break;
+      }
+      case 'multi_step': {
+        const price = randInt(5, 15);
+        const quantity = randInt(3, 6);
+        const paid = randInt(50, 100);
+        const cost = price * quantity;
+        const change = paid - cost;
+        correctAnswer = `${price} × ${quantity}`;
+        
+        question = `ซื้อขนม ${quantity} ชิ้น ชิ้นละ ${price} บาท จ่ายไป ${paid} บาท\nต้องหาราคาขนมทั้งหมดก่อนโดยใช้ประโยคสัญลักษณ์ใด?`;
+        
+        choices = shuffleArray([
+          `${price} × ${quantity}`,
+          `${paid} - ${price}`,
+          `${paid} ÷ ${quantity}`,
+          `${price} + ${quantity}`
+        ]);
+        explanation = `หาราคาขนมทั้งหมดก่อน: ${price} × ${quantity} = ${cost} บาท จากนั้นจึงหาเงินทอน ${paid} - ${cost} = ${change} บาท`;
+        break;
+      }
+    }
+    
+    questions.push({
+      id: `mixed_${Date.now()}_${i}_${Math.random()}`,
+      skill: 'mixedOperations',
+      question,
+      correctAnswer,
+      choices,
+      difficulty: config.difficulty,
+      explanation
     });
   }
   
@@ -1227,6 +1665,15 @@ export const generateAssessmentQuestions = (
         break;
       case 'weighing':
         questions = generateWeighingQuestions(skillConfig);
+        break;
+      case 'time':
+        questions = generateTimeQuestions(skillConfig);
+        break;
+      case 'volume':
+        questions = generateVolumeQuestions(skillConfig);
+        break;
+      case 'mixedOperations':
+        questions = generateMixedOperationsQuestions(skillConfig);
         break;
       case 'division':
         questions = generateDivisionQuestions(skillConfig);

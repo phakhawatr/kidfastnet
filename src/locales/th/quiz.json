@@ -32,6 +32,8 @@
     "division": "การหาร",
     "money": "เงิน",
     "time": "เวลา",
+    "volume": "ปริมาตรและความจุ",
+    "mixedOperations": "บวก-ลบ-คูณ-หารระคน",
     "fractions": "เศษส่วน",
     "decimals": "ทศนิยม",
     "percentage": "ร้อยละ",

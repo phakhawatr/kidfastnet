@@ -32,6 +32,8 @@
     "division": "Division",
     "money": "Money",
     "time": "Time",
+    "volume": "Volume",
+    "mixedOperations": "Mixed Operations",
     "fractions": "Fractions",
     "decimals": "Decimals",
     "percentage": "Percentage",

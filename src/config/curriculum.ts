@@ -74,10 +74,23 @@ export const curriculumConfig: Record<string, Record<string, SkillConfig[]>> = {
       { skill: 'multiplication', difficulty: 'easy', count: 5, tables: [2, 3, 4, 5], description: 'ความหมายการคูณ สร้างประโยคสัญลักษณ์จากกลุ่มเท่า ๆ กัน' }
     ],
     semester2: [
-      { skill: 'multiplication', difficulty: 'medium', count: 12, tables: [2, 3, 4, 5] },
-      { skill: 'division', difficulty: 'easy', count: 10, range: [1, 50] },
-      { skill: 'money', difficulty: 'medium', count: 9 },
-      { skill: 'time', difficulty: 'easy', count: 9 }
+      // 1. การหาร
+      { skill: 'division', difficulty: 'easy', count: 8, range: [1, 99], description: 'ความหมายการหาร ผลหาร/เศษ ความสัมพันธ์คูณ-หาร โจทย์ (ตัวตั้ง ≤ 2 หลัก)' },
+      
+      // 2. เวลา
+      { skill: 'time', difficulty: 'easy', count: 7, description: 'บอกเวลา นาฬิกา/นาที (ช่วง 5 นาที) ระยะเวลา อ่านปฏิทิน โจทย์เวลา' },
+      
+      // 3. การวัดปริมาตร/ความจุ
+      { skill: 'volume', difficulty: 'easy', count: 5, description: 'หน่วยไม่มาตรฐานถึงลิตร เปรียบเทียบ คาดคะเน โจทย์' },
+      
+      // 4. รูปเรขาคณิต
+      { skill: 'shapes', difficulty: 'easy', count: 6, description: 'จำแนก/บอกลักษณะรูปสองมิติ เขียนรูปจากแบบ' },
+      
+      // 5. บวก-ลบ-คูณ-หารระคน
+      { skill: 'mixedOperations', difficulty: 'medium', count: 6, description: 'แปลสถานการณ์เป็นประโยคสัญลักษณ์และหาคำตอบ' },
+      
+      // 6. แผนภูมิรูปภาพ
+      { skill: 'pictograph', difficulty: 'easy', count: 5, description: 'อ่าน-ใช้ข้อมูล 1 รูปแทน 2/5/10 หน่วย' }
     ]
   },
   grade3: {
