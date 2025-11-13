@@ -157,10 +157,20 @@ export const curriculumConfig: Record<string, Record<string, SkillConfig[]>> = {
       { skill: 'time', difficulty: 'hard', count: 8, description: 'วินาที-นาที-ชม.-วัน-สัปดาห์-เดือน-ปี ตารางเวลา โจทย์' }
     ],
     semester2: [
-      { skill: 'fractions', difficulty: 'hard', count: 10 },
-      { skill: 'decimals', difficulty: 'medium', count: 10 },
-      { skill: 'percentage', difficulty: 'easy', count: 10 },
-      { skill: 'geometry', difficulty: 'medium', count: 10 }
+      // 1. เศษส่วน (25-30%)
+      { skill: 'fractions', difficulty: 'hard', count: 12, description: 'เศษส่วนแท้-เศษเกิน-จำนวนคละ เศษส่วนเท่ากัน/อย่างต่ำ เปรียบเทียบ-เรียงลำดับ บวก-ลบ โจทย์' },
+      
+      // 2. ทศนิยม (20-25%)
+      { skill: 'decimals', difficulty: 'medium', count: 10, description: 'อ่าน-เขียนทศนิยม (ไม่เกิน 3 ตำแหน่ง) เปรียบเทียบ-เรียงลำดับ บวก-ลบ โจทย์' },
+      
+      // 3. มุม (10-15%)
+      { skill: 'angles', difficulty: 'medium', count: 6, description: 'จุด เส้นตรง รังสี ส่วนของเส้นตรง ชนิดมุม วัด-เปรียบเทียบองศา สร้างมุม' },
+      
+      // 4. สี่เหลี่ยมมุมฉาก (20-25%)
+      { skill: 'rectangles', difficulty: 'medium', count: 10, description: 'ชนิด-สมบัติ สร้างรูป ความยาวรอบรูป พื้นที่ โจทย์' },
+      
+      // 5. การนำเสนอข้อมูล (10-15%)
+      { skill: 'dataPresentaton', difficulty: 'easy', count: 6, description: 'เก็บ-จำแนกข้อมูล นำเสนอ (แผนภูมิ/ตาราง) ตอบคำถาม' }
     ]
   },
   grade5: {
