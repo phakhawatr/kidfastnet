@@ -603,7 +603,7 @@ const Quiz = () => {
                         onClick={handleSubmit} 
                         className="bg-green-600 hover:bg-green-700"
                         size="lg"
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || answers.get(currentIndex) === undefined}
                       >
                         {isSubmitting ? 'กำลังส่ง...' : 'ส่งคำตอบ'}
                       </Button>
@@ -611,6 +611,7 @@ const Quiz = () => {
                       <Button 
                         onClick={nextQuestion}
                         size="lg"
+                        disabled={answers.get(currentIndex) === undefined}
                       >
                         ข้อถัดไป
                         <ChevronRight className="w-4 h-4 ml-2" />
