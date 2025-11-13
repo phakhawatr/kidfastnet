@@ -175,16 +175,26 @@ export const curriculumConfig: Record<string, Record<string, SkillConfig[]>> = {
   },
   grade5: {
     semester1: [
-      { skill: 'fractions', difficulty: 'hard', count: 10 },
-      { skill: 'decimals', difficulty: 'hard', count: 10 },
-      { skill: 'percentage', difficulty: 'medium', count: 10 },
-      { skill: 'ratios', difficulty: 'easy', count: 10 }
+      // เศษส่วน (40-45%)
+      { skill: 'fractions', difficulty: 'medium', count: 25, range: [1, 20], description: 'เศษส่วนเท่ากัน เปรียบเทียบ-เรียงลำดับ ย่อ/ขยาย บวก-ลบ (รวมจำนวนคละ) โจทย์สถานการณ์' },
+      // ทศนิยม (35-40%)
+      { skill: 'decimals', difficulty: 'medium', count: 22, range: [0, 1000], description: 'ทศนิยมถึงหลักพันส่วน ค่าประจำหลัก อ่าน-เขียน เปรียบเทียบ บวก-ลบ คูณด้วย 10,100,1000' },
+      // ประมาณค่า (10-15%)
+      { skill: 'estimation', difficulty: 'medium', count: 8, range: [0, 1000], description: 'การประมาณค่า ปัดเศษ ตรวจความสมเหตุสมผล' },
+      // บูรณาการ (5-10%)
+      { skill: 'mixedProblems', difficulty: 'medium', count: 5, range: [0, 100], description: 'โจทย์บูรณาการเศษส่วน-ทศนิยม' }
     ],
     semester2: [
-      { skill: 'percentage', difficulty: 'hard', count: 10 },
-      { skill: 'ratios', difficulty: 'medium', count: 10 },
-      { skill: 'algebra', difficulty: 'easy', count: 10 },
-      { skill: 'geometry', difficulty: 'medium', count: 10 }
+      // ร้อยละ & บัญญัติไตรยางศ์ (35-40%)
+      { skill: 'percentage', difficulty: 'medium', count: 22, range: [0, 100], description: 'ร้อยละ ลดราคา กำไร-ขาดทุน บัญญัติไตรยางศ์' },
+      // อัตราส่วน-สัดส่วน
+      { skill: 'ratios', difficulty: 'medium', count: 10, range: [1, 100], description: 'อัตราส่วน สัดส่วน Rule of Three' },
+      // รูปสี่เหลี่ยม & พื้นที่สามเหลี่ยม (20-25%)
+      { skill: 'quadrilaterals', difficulty: 'medium', count: 15, range: [1, 20], description: 'จำแนก-สมบัติรูปสี่เหลี่ยม รอบรูป พื้นที่ พื้นที่สามเหลี่ยม' },
+      // ปริมาตร-ความจุ (15-20%)
+      { skill: 'volume', difficulty: 'medium', count: 12, range: [1, 100], description: 'ปริมาตร-ความจุของทรงสี่เหลี่ยมมุมฉาก กว้าง×ยาว×สูง เทียบหน่วย โจทย์' },
+      // การนำเสนอข้อมูล (10-15%)
+      { skill: 'graphReading', difficulty: 'medium', count: 8, range: [0, 100], description: 'อ่าน-ตีความ-สร้างกราฟเส้น/แผนภูมิแท่ง' }
     ]
   },
   grade6: {
