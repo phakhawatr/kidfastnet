@@ -25,6 +25,7 @@ import NumberSeriesApp from "./pages/NumberSeriesApp";
 import SumGridPuzzles from "./pages/SumGridPuzzles";
 import BackgroundRemoverPage from "./pages/BackgroundRemover";
 import ParentDashboard from "./pages/ParentDashboard";
+import AnalyticsDashboard from "./pages/AnalyticsDashboard";
 import AIMathTutor from "./pages/AIMathTutor";
 import AdaptiveLearningPath from "./pages/AdaptiveLearningPath";
 import NumberBondsApp from "./pages/NumberBondsApp";
@@ -70,6 +71,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <ParentDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route
+            path="/analytics" 
+            element={
+              <ProtectedRoute>
+                <AnalyticsDashboard />
               </ProtectedRoute>
             } 
           />

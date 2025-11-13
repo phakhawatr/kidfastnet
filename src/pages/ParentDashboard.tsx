@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
-import { Copy, Share2, QrCode, TrendingUp, Users, Award } from 'lucide-react';
+import { Copy, Share2, QrCode, TrendingUp, Users, Award, ChevronRight, BarChart3, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
@@ -421,6 +421,39 @@ const ParentDashboard = () => {
         <h1 className="text-4xl font-bold text-white mb-8 text-center">
           {t('pageTitle')}
         </h1>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50 hover:shadow-lg transition-all cursor-pointer" onClick={() => navigate('/analytics')}>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-purple-100 rounded-full">
+                  <BarChart3 className="w-8 h-8 text-purple-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-purple-900">Analytics Dashboard</h3>
+                  <p className="text-sm text-purple-700">วิเคราะห์พัฒนาการและผลการเรียนของบุตรหลาน</p>
+                </div>
+                <ChevronRight className="w-6 h-6 text-purple-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50 hover:shadow-lg transition-all cursor-pointer" onClick={() => navigate('/quiz')}>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-blue-100 rounded-full">
+                  <BookOpen className="w-8 h-8 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-blue-900">แบบทดสอบวัดระดับ</h3>
+                  <p className="text-sm text-blue-700">ทดสอบความรู้และวัดพัฒนาการ</p>
+                </div>
+                <ChevronRight className="w-6 h-6 text-blue-600" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Affiliate Link Section */}
         <Card className="mb-8">
