@@ -10,43 +10,46 @@ export const curriculumConfig: Record<string, Record<string, SkillConfig[]>> = {
   grade1: {
     semester1: [
       // 1. จำนวนนับพื้นฐาน (0-100)
-      { skill: 'counting', difficulty: 'easy', count: 6, range: [0, 100] },
-      { skill: 'comparing', difficulty: 'easy', count: 5, range: [0, 100] },
-      { skill: 'ordering', difficulty: 'easy', count: 4, range: [0, 100] },
-      { skill: 'placeValue', difficulty: 'easy', count: 4, range: [0, 99] },
+      { skill: 'counting', difficulty: 'easy', count: 5, range: [0, 100] },
+      { skill: 'comparing', difficulty: 'easy', count: 4, range: [0, 100] },
+      { skill: 'ordering', difficulty: 'easy', count: 3, range: [0, 100] },
+      { skill: 'placeValue', difficulty: 'easy', count: 3, range: [0, 99] },
       
       // 2. การบวก-ลบ (ผลลัพธ์/ตัวตั้งไม่เกิน 10)
-      { skill: 'addition', difficulty: 'easy', count: 7, range: [0, 10] },
-      { skill: 'subtraction', difficulty: 'easy', count: 7, range: [0, 10] },
+      { skill: 'addition', difficulty: 'easy', count: 6, range: [0, 10] },
+      { skill: 'subtraction', difficulty: 'easy', count: 6, range: [0, 10] },
       
       // 3. แบบรูป
-      { skill: 'patterns', difficulty: 'easy', count: 5 },
+      { skill: 'patterns', difficulty: 'easy', count: 4 },
       
       // 4. เรขาคณิต
-      { skill: 'shapes', difficulty: 'easy', count: 5 },
+      { skill: 'shapes', difficulty: 'easy', count: 4 },
       
       // 5. การวัด
-      { skill: 'measurement', difficulty: 'easy', count: 4 },
+      { skill: 'measurement', difficulty: 'easy', count: 3 },
       
       // 6. สถิติ
-      { skill: 'pictograph', difficulty: 'easy', count: 3 }
+      { skill: 'pictograph', difficulty: 'easy', count: 2 }
     ],
     semester2: [
-      // 1. จำนวนนับและค่าประจำหลัก (21-100) - 16 ข้อ
+      // 1. จำนวนนับและค่าประจำหลัก (21-100) - 15 ข้อ
       { skill: 'counting', difficulty: 'easy', count: 5, range: [21, 100] },
       { skill: 'comparing', difficulty: 'easy', count: 4, range: [21, 100] },
       { skill: 'ordering', difficulty: 'easy', count: 3, range: [21, 100] },
-      { skill: 'placeValue', difficulty: 'easy', count: 4, range: [21, 100] },
+      { skill: 'placeValue', difficulty: 'easy', count: 3, range: [21, 100] },
       
-      // 2. การบวก-ลบ (ขยายถึง 100) - 14 ข้อ
-      { skill: 'addition', difficulty: 'easy', count: 7, range: [21, 100] },
-      { skill: 'subtraction', difficulty: 'easy', count: 7, range: [21, 100] },
+      // 2. การบวก-ลบ (ขยายถึง 100) - 12 ข้อ
+      { skill: 'addition', difficulty: 'easy', count: 6, range: [21, 100] },
+      { skill: 'subtraction', difficulty: 'easy', count: 6, range: [21, 100] },
       
       // 3. แบบรูป (ต่อยอด) - 5 ข้อ
       { skill: 'patterns', difficulty: 'easy', count: 5 },
       
-      // 4. เรขาคณิต (ต่อยอด) - 5 ข้อ
-      { skill: 'shapes', difficulty: 'easy', count: 5 }
+      // 4. เรขาคณิต (ต่อยอด) - 4 ข้อ
+      { skill: 'shapes', difficulty: 'easy', count: 4 },
+      
+      // 5. การวัดความยาว (ต่อยอด) - 4 ข้อ
+      { skill: 'measurement', difficulty: 'easy', count: 4 }
     ]
   },
   grade2: {

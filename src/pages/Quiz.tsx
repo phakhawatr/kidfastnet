@@ -19,7 +19,7 @@ import { evaluateAssessment } from '@/utils/assessmentUtils';
 const Quiz = () => {
   const { user, registrationId } = useAuth();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t } = useTranslation(['quiz', 'common']);
   const { toast } = useToast();
   const [screen, setScreen] = useState<'select' | 'assessment' | 'results'>('select');
   const [selectedGrade, setSelectedGrade] = useState<number>(1);
@@ -126,6 +126,32 @@ const Quiz = () => {
     const gradeKey = `grade${selectedGrade}`;
     const semesterKey = `semester${selectedSemester}`;
     return curriculumConfig[gradeKey]?.[semesterKey] || [];
+  };
+
+  // Skill name translations
+  const skillNamesTh: Record<string, string> = {
+    counting: 'จำนวนนับ',
+    comparing: 'การเปรียบเทียบ',
+    ordering: 'การเรียงลำดับ',
+    placeValue: 'ค่าประจำหลัก',
+    addition: 'การบวก',
+    subtraction: 'การลบ',
+    patterns: 'แบบรูป',
+    shapes: 'รูปทรงเรขาคณิต',
+    measurement: 'การวัด',
+    pictograph: 'แผนภูมิรูปภาพ',
+    multiplication: 'การคูณ',
+    division: 'การหาร',
+    money: 'เงิน',
+    time: 'เวลา',
+    fractions: 'เศษส่วน',
+    decimals: 'ทศนิยม',
+    percentage: 'ร้อยละ',
+    ratios: 'อัตราส่วน',
+    algebra: 'พีชคณิต',
+    geometry: 'เรขาคณิต',
+    statistics: 'สถิติ',
+    probability: 'ความน่าจะเป็น'
   };
 
   const handleSendLine = async () => {
@@ -312,9 +338,9 @@ const Quiz = () => {
                       <BookOpen className="w-5 h-5" />
                       แผนผังหัวข้อการสอบ
                     </h3>
-                    <div className="space-y-2">
+                     <div className="space-y-2">
                       {getTopicOutline().map((topic, idx) => {
-                        const skillNameTh = t(`quiz.skills.${topic.skill}`, { defaultValue: topic.skill });
+                        const skillNameTh = skillNamesTh[topic.skill] || topic.skill;
                         return (
                           <div 
                             key={idx} 
@@ -573,12 +599,12 @@ const Quiz = () => {
                   <Card key={item.skill} className="border-2 hover:shadow-md transition-shadow">
                     <CardContent className="pt-4">
                       <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          {getSkillIcon(item.percentage)}
-                          <span className="font-semibold text-gray-800">
-                            {t(`quiz.skills.${item.skill}`, item.skill)}
-                          </span>
-                        </div>
+                         <div className="flex items-center gap-2">
+                           {getSkillIcon(item.percentage)}
+                           <span className="font-semibold text-gray-800">
+                             {skillNamesTh[item.skill] || item.skill}
+                           </span>
+                         </div>
                         <div className="flex items-center gap-3">
                           <span className="text-sm text-gray-600">
                             {item.correct}/{item.total} ข้อ
