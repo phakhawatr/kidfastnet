@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Home, Settings, RefreshCw, Eye, EyeOff, Award, Clock, Grid3x3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -17,6 +18,7 @@ import Confetti from 'react-confetti';
 
 const AreaModelApp = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation('exercises');
   
   // Settings
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
@@ -202,7 +204,7 @@ const AreaModelApp = () => {
   if (problems.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 flex items-center justify-center">
-        <div className="text-white text-xl">กำลังโหลด...</div>
+        <div className="text-white text-xl">{t('common.loading')}</div>
       </div>
     );
   }
@@ -220,7 +222,7 @@ const AreaModelApp = () => {
             className="bg-white/90 hover:bg-white"
           >
             <Home className="mr-2 h-4 w-4" />
-            หน้าหลัก
+            {t('areaModel.backToHome')}
           </Button>
           
           <div className="flex items-center gap-2 bg-white/90 px-4 py-2 rounded-lg">
@@ -236,21 +238,21 @@ const AreaModelApp = () => {
             className="bg-white/90 hover:bg-white"
           >
             <Settings className="mr-2 h-4 w-4" />
-            ตั้งค่า
+            {t('common.settings')}
           </Button>
         </div>
 
         <h1 className="text-3xl md:text-4xl font-bold text-white text-center mb-2">
-          📐 พื้นที่สี่เหลี่ยมคูณ (Area Model)
+          📐 {t('areaModel.title')}
         </h1>
         <p className="text-white/90 text-center mb-4">
-          เรียนรู้การคูณด้วยแนวคิดพื้นที่ แบบ Singapore Math
+          {t('areaModel.description')}
         </p>
 
         {/* Progress Bar */}
         <div className="bg-white/90 rounded-lg p-4">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-semibold">ข้อที่ {currentIndex + 1} / {problems.length}</span>
+            <span className="text-sm font-semibold">{t('common.question', { current: currentIndex + 1, total: problems.length })}</span>
             <span className="text-sm font-semibold">{Math.round(progress)}%</span>
           </div>
           <Progress value={progress} className="h-3" />
@@ -260,11 +262,11 @@ const AreaModelApp = () => {
       {/* Settings Panel */}
       {showSettings && (
         <div className="max-w-6xl mx-auto mb-6 bg-white rounded-xl p-6 shadow-xl">
-          <h3 className="text-xl font-bold mb-4">⚙️ ตั้งค่าเกม</h3>
+          <h3 className="text-xl font-bold mb-4">⚙️ {t('common.settings')}</h3>
           
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold mb-2">ระดับความยาก:</label>
+              <label className="block text-sm font-semibold mb-2">{t('common.difficulty')}:</label>
               <div className="flex gap-2">
                 {(['easy', 'medium', 'hard'] as Difficulty[]).map((level) => (
                   <Button
@@ -272,16 +274,16 @@ const AreaModelApp = () => {
                     variant={difficulty === level ? 'default' : 'outline'}
                     onClick={() => setDifficulty(level)}
                   >
-                    {level === 'easy' && '😊 ง่าย (1×1 หลัก)'}
-                    {level === 'medium' && '😎 ปานกลาง (2×1 หลัก)'}
-                    {level === 'hard' && '🔥 ยาก (2×2 หลัก)'}
+                    {level === 'easy' && `😊 ${t('common.easy')} (1×1 ${t('areaModel.digits')})`}
+                    {level === 'medium' && `😎 ${t('common.medium')} (2×1 ${t('areaModel.digits')})`}
+                    {level === 'hard' && `🔥 ${t('common.hard')} (2×2 ${t('areaModel.digits')})`}
                   </Button>
                 ))}
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-2">จำนวนข้อ: {problemCount}</label>
+              <label className="block text-sm font-semibold mb-2">{t('areaModel.numberOfProblems')}: {problemCount}</label>
               <input
                 type="range"
                 min="3"
@@ -294,7 +296,7 @@ const AreaModelApp = () => {
 
             <Button onClick={startNewGame} className="w-full">
               <RefreshCw className="mr-2 h-4 w-4" />
-              เริ่มเกมใหม่
+              {t('areaModel.startNewGame')}
             </Button>
           </div>
         </div>
@@ -340,7 +342,7 @@ const AreaModelApp = () => {
                   size="lg"
                   className="px-8"
                 >
-                  ตอบ
+                  {t('areaModel.answer')}
                 </Button>
               </div>
 
@@ -351,7 +353,7 @@ const AreaModelApp = () => {
                   className="flex-1"
                 >
                   <Grid3x3 className="mr-2 h-4 w-4" />
-                  {showBreakdown ? 'ซ่อนการแยก' : 'แสดงการแยกตัวเลข'}
+                  {showBreakdown ? t('areaModel.hideBreakdown') : t('areaModel.showBreakdown')}
                 </Button>
                 
                 <Button
@@ -360,13 +362,13 @@ const AreaModelApp = () => {
                   className="flex-1"
                 >
                   {showSteps ? <EyeOff className="mr-2 h-4 w-4" /> : <Eye className="mr-2 h-4 w-4" />}
-                  {showSteps ? 'ซ่อนวิธีทำ' : 'ดูวิธีทำ'}
+                  {showSteps ? t('areaModel.hideSteps') : t('areaModel.showSteps')}
                 </Button>
               </div>
 
               {showSteps && (
                 <div className="p-4 bg-accent rounded-lg">
-                  <h3 className="font-semibold mb-2">วิธีทำ:</h3>
+                  <h3 className="font-semibold mb-2">{t('areaModel.steps')}:</h3>
                   <ol className="space-y-1 text-sm">
                     {getSolutionSteps(currentProblem).map((step, index) => (
                       <li key={index}>{step}</li>
@@ -393,6 +395,7 @@ const AreaModelApp = () => {
 
 // Results screen
 const ResultsScreen = ({ problems, userAnswers, results, elapsedTime, onRestart, onHome }: any) => {
+  const { t } = useTranslation('exercises');
   const correctCount = results.filter((r: boolean) => r).length;
   const stars = calculateStars(correctCount, problems.length);
   const percentage = Math.round((correctCount / problems.length) * 100);
@@ -400,18 +403,18 @@ const ResultsScreen = ({ problems, userAnswers, results, elapsedTime, onRestart,
   return (
     <div className="max-w-4xl mx-auto">
       <div className="bg-white rounded-xl p-8 shadow-xl text-center">
-        <h2 className="text-3xl font-bold mb-4">🎉 เสร็จสิ้น!</h2>
+        <h2 className="text-3xl font-bold mb-4">🎉 {t('results.completed')}</h2>
         
         <div className="flex justify-center items-center gap-8 mb-6">
           <div className="text-center">
             <Award className="h-16 w-16 mx-auto mb-2 text-primary" />
             <div className="text-4xl mb-2">{'⭐'.repeat(stars)}</div>
-            <p className="text-sm text-muted-foreground">{stars} ดาว</p>
+            <p className="text-sm text-muted-foreground">{stars} {t('results.stars')}</p>
           </div>
           
           <div className="text-center">
             <div className="text-5xl font-bold text-primary">{percentage}%</div>
-            <p className="text-sm text-muted-foreground">ความแม่นยำ</p>
+            <p className="text-sm text-muted-foreground">{t('results.accuracy')}</p>
           </div>
           
           <div className="text-center">
@@ -419,22 +422,22 @@ const ResultsScreen = ({ problems, userAnswers, results, elapsedTime, onRestart,
             <div className="text-2xl font-bold">
               {Math.floor(elapsedTime / 60000)}:{String(Math.floor((elapsedTime % 60000) / 1000)).padStart(2, '0')}
             </div>
-            <p className="text-sm text-muted-foreground">เวลาที่ใช้</p>
+            <p className="text-sm text-muted-foreground">{t('results.timeUsed')}</p>
           </div>
         </div>
 
         <div className="text-lg mb-6">
-          ทำถูก <span className="font-bold text-primary">{correctCount}</span> จาก {problems.length} ข้อ
+          {t('results.correctAnswers', { correct: correctCount, total: problems.length })}
         </div>
 
         <div className="flex gap-4 justify-center">
           <Button onClick={onRestart} size="lg">
             <RefreshCw className="mr-2 h-4 w-4" />
-            เล่นอีกครั้ง
+            {t('results.playAgain')}
           </Button>
           <Button onClick={onHome} variant="outline" size="lg">
             <Home className="mr-2 h-4 w-4" />
-            กลับหน้าหลัก
+            {t('common.backToProfile')}
           </Button>
         </div>
       </div>

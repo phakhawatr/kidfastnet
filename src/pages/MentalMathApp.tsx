@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Home, Settings, RefreshCw, Lightbulb, Award, Clock, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -16,6 +17,7 @@ import Confetti from 'react-confetti';
 
 const MentalMathApp = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation('exercises');
   
   // Settings
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
@@ -206,7 +208,7 @@ const MentalMathApp = () => {
   if (problems.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-cyan-500 via-blue-500 to-indigo-600 flex items-center justify-center">
-        <div className="text-white text-xl">กำลังโหลด...</div>
+        <div className="text-white text-xl">{t('common.loading')}</div>
       </div>
     );
   }
@@ -224,7 +226,7 @@ const MentalMathApp = () => {
             className="bg-white/90 hover:bg-white"
           >
             <Home className="mr-2 h-4 w-4" />
-            หน้าหลัก
+            {t('mentalMath.backToHome')}
           </Button>
           
           <div className="flex items-center gap-2 bg-white/90 px-4 py-2 rounded-lg">
@@ -240,21 +242,21 @@ const MentalMathApp = () => {
             className="bg-white/90 hover:bg-white"
           >
             <Settings className="mr-2 h-4 w-4" />
-            ตั้งค่า
+            {t('common.settings')}
           </Button>
         </div>
 
         <h1 className="text-3xl md:text-4xl font-bold text-white text-center mb-2">
-          ⚡ คิดเลขเร็ว (Mental Math)
+          ⚡ {t('mentalMath.title')}
         </h1>
         <p className="text-white/90 text-center mb-4">
-          เทคนิคแยกตัวเลขเพื่อคำนวณง่ายขึ้น แบบ Singapore Math
+          {t('mentalMath.description')}
         </p>
 
         {/* Progress Bar */}
         <div className="bg-white/90 rounded-lg p-4">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-semibold">ข้อที่ {currentIndex + 1} / {problems.length}</span>
+            <span className="text-sm font-semibold">{t('common.question', { current: currentIndex + 1, total: problems.length })}</span>
             <span className="text-sm font-semibold">{Math.round(progress)}%</span>
           </div>
           <Progress value={progress} className="h-3" />
@@ -264,11 +266,11 @@ const MentalMathApp = () => {
       {/* Settings Panel */}
       {showSettings && (
         <div className="max-w-4xl mx-auto mb-6 bg-white rounded-xl p-6 shadow-xl">
-          <h3 className="text-xl font-bold mb-4">⚙️ ตั้งค่าเกม</h3>
+          <h3 className="text-xl font-bold mb-4">⚙️ {t('common.settings')}</h3>
           
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold mb-2">ระดับความยาก:</label>
+              <label className="block text-sm font-semibold mb-2">{t('common.difficulty')}:</label>
               <div className="flex gap-2">
                 {(['easy', 'medium', 'hard'] as Difficulty[]).map((level) => (
                   <Button
@@ -276,16 +278,16 @@ const MentalMathApp = () => {
                     variant={difficulty === level ? 'default' : 'outline'}
                     onClick={() => setDifficulty(level)}
                   >
-                    {level === 'easy' && '😊 ง่าย (ทำให้กลม 10)'}
-                    {level === 'medium' && '😎 ปานกลาง (2 หลัก)'}
-                    {level === 'hard' && '🔥 ยาก (ทำให้กลม 100)'}
+                    {level === 'easy' && `😊 ${t('common.easy')} (${t('mentalMath.makeRound10')})`}
+                    {level === 'medium' && `😎 ${t('common.medium')} (2 ${t('mentalMath.digits')})`}
+                    {level === 'hard' && `🔥 ${t('common.hard')} (${t('mentalMath.makeRound100')})`}
                   </Button>
                 ))}
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-2">จำนวนข้อ: {problemCount}</label>
+              <label className="block text-sm font-semibold mb-2">{t('mentalMath.numberOfProblems')}: {problemCount}</label>
               <input
                 type="range"
                 min="3"
@@ -298,7 +300,7 @@ const MentalMathApp = () => {
 
             <Button onClick={startNewGame} className="w-full">
               <RefreshCw className="mr-2 h-4 w-4" />
-              เริ่มเกมใหม่
+              {t('mentalMath.startNewGame')}
             </Button>
           </div>
         </div>
@@ -386,7 +388,7 @@ const MentalMathApp = () => {
                   size="lg"
                   className="px-8"
                 >
-                  ตอบ
+                  {t('mentalMath.answer')}
                 </Button>
               </div>
 
@@ -397,7 +399,7 @@ const MentalMathApp = () => {
                   className="w-full"
                 >
                   <Lightbulb className="mr-2 h-4 w-4" />
-                  ดูวิธีคิด (แสดงขั้นตอน)
+                  {t('mentalMath.showThinking')}
                 </Button>
               )}
             </div>
@@ -414,13 +416,13 @@ const MentalMathApp = () => {
                   {num}
                 </Button>
               ))}
-              <Button
-                variant="outline"
-                onClick={() => handleInputChange(currentInput.slice(0, -1))}
-                className="h-14"
-              >
-                ← ลบ
-              </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => handleInputChange(currentInput.slice(0, -1))}
+                  className="h-14"
+                >
+                  ← {t('mentalMath.delete')}
+                </Button>
             </div>
           </div>
         </div>
@@ -440,6 +442,7 @@ const MentalMathApp = () => {
 
 // Results screen
 const ResultsScreen = ({ problems, userAnswers, results, elapsedTime, onRestart, onHome }: any) => {
+  const { t } = useTranslation('exercises');
   const correctCount = results.filter((r: boolean) => r).length;
   const stars = calculateStars(correctCount, problems.length);
   const percentage = Math.round((correctCount / problems.length) * 100);
@@ -448,34 +451,34 @@ const ResultsScreen = ({ problems, userAnswers, results, elapsedTime, onRestart,
   return (
     <div className="max-w-4xl mx-auto">
       <div className="bg-white rounded-xl p-8 shadow-xl text-center">
-        <h2 className="text-3xl font-bold mb-4">🎉 เสร็จสิ้น!</h2>
+        <h2 className="text-3xl font-bold mb-4">🎉 {t('results.completed')}</h2>
         
         <div className="flex justify-center items-center gap-8 mb-6">
           <div className="text-center">
             <Award className="h-16 w-16 mx-auto mb-2 text-primary" />
             <div className="text-4xl mb-2">{'⭐'.repeat(stars)}</div>
-            <p className="text-sm text-muted-foreground">{stars} ดาว</p>
+            <p className="text-sm text-muted-foreground">{stars} {t('results.stars')}</p>
           </div>
           
           <div className="text-center">
             <div className="text-5xl font-bold text-primary">{percentage}%</div>
-            <p className="text-sm text-muted-foreground">ความแม่นยำ</p>
+            <p className="text-sm text-muted-foreground">{t('results.accuracy')}</p>
           </div>
           
           <div className="text-center">
             <Zap className="h-16 w-16 mx-auto mb-2 text-amber-500" />
             <div className="text-2xl font-bold">{avgTime}s</div>
-            <p className="text-sm text-muted-foreground">เฉลี่ยต่อข้อ</p>
+            <p className="text-sm text-muted-foreground">{t('mentalMath.avgPerQuestion')}</p>
           </div>
         </div>
 
         <div className="text-lg mb-6">
-          ทำถูก <span className="font-bold text-primary">{correctCount}</span> จาก {problems.length} ข้อ
+          {t('results.correctAnswers', { correct: correctCount, total: problems.length })}
         </div>
 
         {/* Review Answers */}
         <div className="mb-6 max-h-64 overflow-y-auto">
-          <h3 className="font-semibold mb-3">รายละเอียด:</h3>
+          <h3 className="font-semibold mb-3">{t('mentalMath.details')}:</h3>
           {problems.map((problem: any, index: number) => (
             <div
               key={index}
@@ -490,10 +493,10 @@ const ResultsScreen = ({ problems, userAnswers, results, elapsedTime, onRestart,
                 </span>
               </div>
               <div className="text-sm text-muted-foreground mt-1">
-                คำตอบของคุณ: <span className="font-semibold">{userAnswers[index]}</span>
+                {t('mentalMath.yourAnswer')}: <span className="font-semibold">{userAnswers[index]}</span>
                 {!results[index] && (
                   <span className="ml-2">
-                    (ถูกต้อง: <span className="font-semibold">{problem.answer}</span>)
+                    ({t('mentalMath.correct')}: <span className="font-semibold">{problem.answer}</span>)
                   </span>
                 )}
               </div>
@@ -504,11 +507,11 @@ const ResultsScreen = ({ problems, userAnswers, results, elapsedTime, onRestart,
         <div className="flex gap-4 justify-center">
           <Button onClick={onRestart} size="lg">
             <RefreshCw className="mr-2 h-4 w-4" />
-            เล่นอีกครั้ง
+            {t('results.playAgain')}
           </Button>
           <Button onClick={onHome} variant="outline" size="lg">
             <Home className="mr-2 h-4 w-4" />
-            กลับหน้าหลัก
+            {t('common.backToProfile')}
           </Button>
         </div>
       </div>

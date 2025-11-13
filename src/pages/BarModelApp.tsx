@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Settings, Lightbulb, CheckCircle, XCircle, RotateCcw, Play, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -12,6 +13,7 @@ import Confetti from 'react-confetti';
 export default function BarModelApp() {
   console.log('🎯 BarModelApp loaded');
   const navigate = useNavigate();
+  const { t } = useTranslation('exercises');
   const [showSettings, setShowSettings] = useState(false);
 
   const {
@@ -70,7 +72,7 @@ export default function BarModelApp() {
             >
               <ArrowLeft className="h-6 w-6" />
             </Button>
-            <h1 className="text-2xl font-bold text-purple-800">ผลการทำแบบฝึกหัด</h1>
+            <h1 className="text-2xl font-bold text-purple-800">{t('barModel.resultsTitle')}</h1>
             <div className="w-10"></div>
           </div>
 
@@ -94,7 +96,7 @@ export default function BarModelApp() {
                 <div className="text-6xl font-bold text-purple-600 mb-2">
                   {correctCount}/{problems.length}
                 </div>
-                <div className="text-xl text-gray-600">คะแนนที่ได้</div>
+                <div className="text-xl text-gray-600">{t('barModel.score')}</div>
               </div>
 
               {/* Encouragement */}
@@ -104,12 +106,12 @@ export default function BarModelApp() {
 
               {/* Time */}
               <div className="text-lg text-gray-600">
-                ⏱️ เวลาที่ใช้: {formatTime(elapsedTime)}
+                ⏱️ {t('barModel.timeUsed')}: {formatTime(elapsedTime)}
               </div>
 
               {/* Problem Review */}
               <div className="mt-8 space-y-4">
-                <h3 className="text-xl font-bold text-gray-800">รายละเอียดคำตอบ</h3>
+                <h3 className="text-xl font-bold text-gray-800">{t('barModel.answerDetails')}</h3>
                 {problems.map((problem, idx) => (
                   <div
                     key={problem.id}
@@ -122,11 +124,11 @@ export default function BarModelApp() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="font-semibold text-gray-800 mb-1">
-                          ข้อ {idx + 1}: {problem.question}
+                          {t('common.question', { current: idx + 1, total: problems.length })}: {problem.question}
                         </div>
                         <div className="text-sm text-gray-600">
-                          คำตอบของคุณ: {problem.userAnswer || '-'} | 
-                          คำตอบที่ถูก: {problem.correctAnswer}
+                          {t('barModel.yourAnswer')}: {problem.userAnswer || '-'} | 
+                          {t('barModel.correctAnswer')}: {problem.correctAnswer}
                         </div>
                       </div>
                       {problem.isCorrect ? (
@@ -146,14 +148,14 @@ export default function BarModelApp() {
                   className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8"
                 >
                   <Play className="w-5 h-5 mr-2" />
-                  เริ่มใหม่
+                  {t('barModel.startNew')}
                 </Button>
                 <Button
                   onClick={() => navigate('/profile')}
                   variant="outline"
                   className="px-8"
                 >
-                  กลับหน้าหลัก
+                  {t('common.backToProfile')}
                 </Button>
               </div>
             </div>
@@ -169,13 +171,13 @@ export default function BarModelApp() {
       <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100 p-4">
         <div className="max-w-2xl mx-auto">
           <Card className="p-6 bg-white/80 backdrop-blur-sm">
-            <h2 className="text-2xl font-bold text-purple-800 mb-6">⚙️ ตั้งค่า</h2>
+            <h2 className="text-2xl font-bold text-purple-800 mb-6">⚙️ {t('common.settings')}</h2>
 
             <div className="space-y-6">
               {/* Number of problems */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  จำนวนโจทย์
+                  {t('barModel.numberOfProblems')}
                 </label>
                 <div className="flex gap-2">
                   {[5, 10, 15, 20].map((n) => (
@@ -193,7 +195,7 @@ export default function BarModelApp() {
               {/* Problem Type */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  ประเภทโจทย์
+                  {t('barModel.problemType')}
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   <Button
@@ -201,28 +203,28 @@ export default function BarModelApp() {
                     onClick={() => changeSettings(undefined, 'part-whole', undefined)}
                     size="sm"
                   >
-                    ส่วนรวม
+                    {t('barModel.partWhole')}
                   </Button>
                   <Button
                     variant={type === 'comparison' ? 'default' : 'outline'}
                     onClick={() => changeSettings(undefined, 'comparison', undefined)}
                     size="sm"
                   >
-                    เปรียบเทียบ
+                    {t('barModel.comparison')}
                   </Button>
                   <Button
                     variant={type === 'before-after' ? 'default' : 'outline'}
                     onClick={() => changeSettings(undefined, 'before-after', undefined)}
                     size="sm"
                   >
-                    ก่อน-หลัง
+                    {t('barModel.beforeAfter')}
                   </Button>
                   <Button
                     variant={type === 'change' ? 'default' : 'outline'}
                     onClick={() => changeSettings(undefined, 'change', undefined)}
                     size="sm"
                   >
-                    โจทย์คำถาม
+                    {t('barModel.change')}
                   </Button>
                   <Button
                     variant={type === 'mixed' ? 'default' : 'outline'}
@@ -230,7 +232,7 @@ export default function BarModelApp() {
                     className="col-span-2"
                     size="sm"
                   >
-                    ผสมทั้งหมด
+                    {t('barModel.mixed')}
                   </Button>
                 </div>
               </div>
@@ -238,26 +240,26 @@ export default function BarModelApp() {
               {/* Difficulty */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  ระดับความยาก
+                  {t('common.difficulty')}
                 </label>
                 <div className="flex gap-2">
                   <Button
                     variant={difficulty === 'easy' ? 'default' : 'outline'}
                     onClick={() => changeSettings(undefined, undefined, 'easy')}
                   >
-                    ง่าย
+                    {t('common.easy')}
                   </Button>
                   <Button
                     variant={difficulty === 'medium' ? 'default' : 'outline'}
                     onClick={() => changeSettings(undefined, undefined, 'medium')}
                   >
-                    ปานกลาง
+                    {t('common.medium')}
                   </Button>
                   <Button
                     variant={difficulty === 'hard' ? 'default' : 'outline'}
                     onClick={() => changeSettings(undefined, undefined, 'hard')}
                   >
-                    ยาก
+                    {t('common.hard')}
                   </Button>
                 </div>
               </div>
@@ -271,14 +273,14 @@ export default function BarModelApp() {
                   }}
                   className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500"
                 >
-                  เริ่มใหม่
+                  {t('barModel.startNew')}
                 </Button>
                 <Button
                   onClick={() => setShowSettings(false)}
                   variant="outline"
                   className="flex-1"
                 >
-                  ยกเลิก
+                  {t('common.cancel')}
                 </Button>
               </div>
             </div>
@@ -304,8 +306,8 @@ export default function BarModelApp() {
           </Button>
           
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-purple-800">📊 Bar Model Method</h1>
-            <p className="text-sm text-gray-600">วิธีแท่งภาพ (Singapore Math) - โจทย์หลากหลายรูปแบบ</p>
+            <h1 className="text-2xl font-bold text-purple-800">📊 {t('barModel.title')}</h1>
+            <p className="text-sm text-gray-600">{t('barModel.description')}</p>
           </div>
 
           <Button
@@ -321,7 +323,7 @@ export default function BarModelApp() {
         {/* Progress */}
         <div className="mb-6">
           <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-            <span>ข้อ {currentIndex + 1} / {problems.length}</span>
+            <span>{t('common.question', { current: currentIndex + 1, total: problems.length })}</span>
             <span>⏱️ {formatTime(elapsedTime)}</span>
           </div>
           <div className="h-2 bg-white/50 rounded-full overflow-hidden">
@@ -336,13 +338,13 @@ export default function BarModelApp() {
         <Card className="p-6 bg-white/80 backdrop-blur-sm mb-6">
           {/* Story */}
           <div className="mb-6 p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
-            <div className="text-sm font-medium text-blue-800 mb-2">📖 โจทย์</div>
+            <div className="text-sm font-medium text-blue-800 mb-2">📖 {t('barModel.story')}</div>
             <p className="text-gray-800 leading-relaxed">{currentProblem.story}</p>
           </div>
 
           {/* Question */}
           <div className="mb-6 p-4 bg-purple-50 rounded-lg border-2 border-purple-200">
-            <div className="text-sm font-medium text-purple-800 mb-2">❓ คำถาม</div>
+            <div className="text-sm font-medium text-purple-800 mb-2">❓ {t('barModel.question')}</div>
             <p className="text-lg font-semibold text-gray-800">{currentProblem.question}</p>
           </div>
 
@@ -363,11 +365,11 @@ export default function BarModelApp() {
               className="w-full"
             >
               <Lightbulb className="w-4 h-4 mr-2" />
-              {showHint ? 'ซ่อนคำใบ้' : 'แสดงคำใบ้'}
+              {showHint ? t('barModel.hideHint') : t('barModel.showHint')}
             </Button>
             {showHint && (
               <div className="mt-3 p-4 bg-yellow-50 rounded-lg border-2 border-yellow-200">
-                <div className="text-sm font-medium text-yellow-800 mb-1">💡 คำใบ้</div>
+                <div className="text-sm font-medium text-yellow-800 mb-1">💡 {t('barModel.hint')}</div>
                 <p className="text-gray-700">{currentProblem.hint}</p>
               </div>
             )}
@@ -386,11 +388,11 @@ export default function BarModelApp() {
                 <span className={`font-semibold ${
                   currentProblem.isCorrect ? 'text-green-700' : 'text-red-700'
                 }`}>
-                  {currentProblem.isCorrect ? '✅ ถูกต้อง!' : '❌ ไม่ถูกต้อง'}
+                  {currentProblem.isCorrect ? `✅ ${t('barModel.correct')}` : `❌ ${t('barModel.incorrect')}`}
                 </span>
                 {!currentProblem.isCorrect && (
                   <span className="text-gray-700">
-                    คำตอบที่ถูก: {currentProblem.correctAnswer}
+                    {t('barModel.correctAnswer')}: {currentProblem.correctAnswer}
                   </span>
                 )}
               </div>
@@ -406,7 +408,7 @@ export default function BarModelApp() {
             disabled={currentIndex === 0}
             className="flex-1"
           >
-            ⬅️ ก่อนหน้า
+            ⬅️ {t('common.previous')}
           </Button>
 
           {currentProblem.isCorrect === null ? (
@@ -415,7 +417,7 @@ export default function BarModelApp() {
               disabled={!currentProblem.userAnswer}
               className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500"
             >
-              ✅ ส่งคำตอบ
+              ✅ {t('barModel.submitAnswer')}
             </Button>
           ) : (
             <Button
@@ -424,7 +426,7 @@ export default function BarModelApp() {
               className="flex-1"
             >
               <RotateCcw className="w-4 h-4 mr-2" />
-              ลองใหม่
+              {t('barModel.tryAgain')}
             </Button>
           )}
 
@@ -434,14 +436,14 @@ export default function BarModelApp() {
               onClick={nextProblem}
               className="flex-1"
             >
-              ถัดไป ➡️
+              {t('common.next')} ➡️
             </Button>
           ) : (
             <Button
               onClick={submitAllAnswers}
               className="flex-1 bg-gradient-to-r from-green-500 to-teal-500"
             >
-              🏁 ส่งทั้งหมด
+              🏁 {t('barModel.submitAll')}
             </Button>
           )}
         </div>
