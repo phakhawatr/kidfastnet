@@ -12,6 +12,7 @@ import QuizHistory from '@/components/QuizHistory';
 import CertificateCard from '@/components/CertificateCard';
 import AchievementBadge from '@/components/AchievementBadge';
 import AchievementNotification from '@/components/AchievementNotification';
+import { ClockDisplay } from '@/components/ClockDisplay';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -554,10 +555,16 @@ const Quiz = () => {
               <Progress value={progress} className="h-2" />
             </CardHeader>
 
-            <CardContent className="space-y-6">
+             <CardContent className="space-y-6">
               {currentQuestion && (
                 <>
                   <div className="bg-white p-6 rounded-lg border-2 border-purple-200">
+                    {currentQuestion.clockDisplay && (
+                      <ClockDisplay 
+                        hour={currentQuestion.clockDisplay.hour} 
+                        minute={currentQuestion.clockDisplay.minute}
+                      />
+                    )}
                     {renderQuestionText(currentQuestion.question)}
                   </div>
 
