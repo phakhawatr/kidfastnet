@@ -132,6 +132,15 @@
     "noRemainder": "ไม่มีเศษ",
     "anyRemainder": "ทั้งหมด"
   },
+  "errors": {
+    "lineNotConnected": "⚠️ ยังไม่ได้เชื่อมต่อบัญชี LINE",
+    "connectLineFromProfile": "กรุณาไปที่หน้าโปรไฟล์เพื่อเชื่อมต่อบัญชี LINE",
+    "userNotFound": "⚠️ ไม่พบข้อมูลผู้ใช้",
+    "pleaseLogin": "กรุณาเข้าสู่ระบบใหม่อีกครั้ง",
+    "quotaExceeded": "❌ ส่งครบ 20 ครั้งแล้ววันนี้",
+    "sendFailed": "❌ ส่งไม่สำเร็จ",
+    "sendFailedDesc": "ไม่สามารถส่งข้อความได้ กรุณาลองใหม่อีกครั้ง"
+  },
   "money": {
     "title": "เงินตรา",
     "subtitle": "ฝึกนับเงินและทอนเงิน",

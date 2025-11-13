@@ -135,11 +135,11 @@ const MultiplicationTable = () => {
           <div className="flex items-center gap-4">
             <Button variant="outline" onClick={() => navigate('/profile')} className="flex items-center gap-2">
               <ArrowLeft className="w-4 h-4" />
-              กลับหน้าหลัก
+              {t('common.backToProfile')}
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-foreground">🔢 ตารางสูตรคูณ</h1>
-              <p className="text-muted-foreground">ฝึกจำสูตรคูณให้แม่น!</p>
+              <h1 className="text-3xl font-bold text-foreground">{t('multiplication.tableTitle')}</h1>
+              <p className="text-muted-foreground">{t('multiplication.tableSubtitle')}</p>
             </div>
           </div>
           
@@ -147,7 +147,7 @@ const MultiplicationTable = () => {
           <div className="flex gap-4">
             <Badge variant="secondary" className="flex items-center gap-1">
               <Trophy className="w-4 h-4" />
-              สถิติดีสุด: {bestStreak}
+              {t('results.bestStreak')}: {bestStreak}
             </Badge>
             {gameActive && (
               <Badge variant={timeLeft < 10 ? "destructive" : "default"} className="flex items-center gap-1">
@@ -165,7 +165,7 @@ const MultiplicationTable = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Target className="w-5 h-5" />
-                  โหมดเกม
+                  {t('common.gameMode')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -179,7 +179,7 @@ const MultiplicationTable = () => {
                         : 'hover:bg-muted/50'
                     }`}
                   >
-                    📚 เรียนรู้
+                    {t('common.learn')}
                   </Button>
                   <Button 
                     variant="outline"
@@ -190,7 +190,7 @@ const MultiplicationTable = () => {
                         : 'hover:bg-muted/50'
                     }`}
                   >
-                    🎮 ทดสอบความเร็ว
+                    {t('multiplication.speedTest')}
                   </Button>
                 </div>
                 
@@ -207,12 +207,12 @@ const MultiplicationTable = () => {
                     {gameActive ? (
                       <>
                         <span>⏹️</span>
-                        <span>หยุดเกม</span>
+                        <span>{t('common.stopGame')}</span>
                       </>
                     ) : (
                       <>
                         <span className="text-2xl">✨</span>
-                        <span>AI เริ่มเกมส์</span>
+                        <span>{t('common.aiStartGame')}</span>
                       </>
                     )}
                   </button>
@@ -223,7 +223,7 @@ const MultiplicationTable = () => {
             {/* Table Selection */}
             <Card className="mt-6">
               <CardHeader>
-                <CardTitle>เลือกสูตรคูณ</CardTitle>
+                <CardTitle>{t('multiplication.selectTable')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-3 gap-2">
@@ -259,24 +259,24 @@ const MultiplicationTable = () => {
                 <div className="grid grid-cols-3 gap-4 mb-8">
                   <div className="text-center p-4 bg-green-50 rounded-lg">
                     <div className="text-3xl font-bold text-green-600">{score}</div>
-                    <div className="text-sm text-muted-foreground">ถูก</div>
+                    <div className="text-sm text-muted-foreground">{t('results.correct')}</div>
                   </div>
                   <div className="text-center p-4 bg-orange-50 rounded-lg">
                     <div className="text-3xl font-bold text-orange-600">{totalQuestions}</div>
-                    <div className="text-sm text-muted-foreground">ข้อทั้งหมด</div>
+                    <div className="text-sm text-muted-foreground">{t('results.totalQuestions')}</div>
                   </div>
                   <div className="text-center p-4 bg-blue-50 rounded-lg">
                     <div className="text-3xl font-bold text-blue-600">
                       {totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0}%
                     </div>
-                    <div className="text-sm text-muted-foreground">คะแนน</div>
+                    <div className="text-sm text-muted-foreground">{t('results.score')}</div>
                   </div>
                 </div>
 
                 {gameMode === 'practice' && gameActive && (
                   <div className="text-center mb-6">
                     <div className="flex items-center justify-center gap-2 mb-2">
-                      <span className="text-lg font-medium">Streak:</span>
+                      <span className="text-lg font-medium">{t('results.streak')}:</span>
                       <Badge variant="secondary" className="text-lg px-3 py-1">
                         🔥 {streak}
                       </Badge>
@@ -319,7 +319,7 @@ const MultiplicationTable = () => {
                         <span className={`text-xl font-bold ${
                           isCorrect ? 'text-green-600' : 'text-red-600'
                         }`}>
-                          {isCorrect ? 'ถูกต้อง! 🎉' : 'ลองใหม่ 💪'}
+                          {isCorrect ? t('common.correct') + ' 🎉' : t('common.tryAgain') + ' 💪'}
                         </span>
                       </div>
                       <div className="text-2xl font-medium">
@@ -337,7 +337,7 @@ const MultiplicationTable = () => {
                         size="lg"
                         className="px-8 py-3 text-lg"
                       >
-                        ตรวจสอบ
+                        {t('common.check')}
                       </Button>
                     )}
                     
@@ -348,7 +348,7 @@ const MultiplicationTable = () => {
                         size="lg"
                         className="px-8 py-3 text-lg bg-green-600 hover:bg-green-700"
                       >
-                        ส่งคำตอบ
+                        {t('common.submitAnswer')}
                       </Button>
                     )}
                     
@@ -358,7 +358,7 @@ const MultiplicationTable = () => {
                         size="lg"
                         className="px-8 py-3 text-lg"
                       >
-                        ข้อต่อไป
+                        {t('common.nextQuestion')}
                       </Button>
                     )}
                     
@@ -370,7 +370,7 @@ const MultiplicationTable = () => {
                         className="px-6 py-3 text-lg flex items-center gap-2"
                       >
                         <RotateCcw className="w-5 h-5" />
-                        เริ่มใหม่
+                        {t('common.startNew')}
                       </Button>
                     )}
                   </div>
@@ -383,7 +383,7 @@ const MultiplicationTable = () => {
           <div className="lg:col-span-1">
             <Card>
               <CardHeader>
-                <CardTitle>สูตรคูณ {selectedTable}</CardTitle>
+                <CardTitle>{t('multiplication.table')} {selectedTable}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-1 max-h-96 overflow-y-auto">
@@ -414,7 +414,7 @@ const MultiplicationTable = () => {
             {/* Visual Grid */}
             <Card className="mt-6">
               <CardHeader>
-                <CardTitle>แสดงผลด้วยภาพ</CardTitle>
+                <CardTitle>{t('multiplication.visualDisplay')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid gap-1 max-w-sm mx-auto" style={{ 
@@ -430,7 +430,7 @@ const MultiplicationTable = () => {
                   ))}
                 </div>
                 <div className="text-center mt-4 text-sm text-muted-foreground">
-                  {currentQuestion} กลุ่ม × {selectedTable} ชิ้น = {selectedTable * currentQuestion} ชิ้น
+                  {currentQuestion} {t('multiplication.groupsTimesItems').replace('×', `× ${selectedTable}`).replace('=', `= ${selectedTable * currentQuestion}`)}
                 </div>
               </CardContent>
             </Card>

@@ -132,6 +132,15 @@
     "noRemainder": "No Remainder",
     "anyRemainder": "Any"
   },
+  "errors": {
+    "lineNotConnected": "⚠️ LINE Not Connected",
+    "connectLineFromProfile": "Please go to Profile page to connect your LINE account",
+    "userNotFound": "⚠️ User Not Found",
+    "pleaseLogin": "Please log in again",
+    "quotaExceeded": "❌ Reached 20 messages for today",
+    "sendFailed": "❌ Send Failed",
+    "sendFailedDesc": "Unable to send message. Please try again."
+  },
   "money": {
     "title": "Money",
     "subtitle": "Practice Counting Money and Change",
@@ -230,7 +239,8 @@
     "timeLimit": "Time Limit"
   },
   "settings": {
-    "problemCount": "Number of Problems"
+    "problemCount": "Number of Problems",
+    "difficulty": "Difficulty Level"
   },
   "pdf": {
     "uploadLogo": "School Logo (for PDF Worksheet)",

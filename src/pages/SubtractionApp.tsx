@@ -88,13 +88,13 @@ const SubtractionApp: React.FC = () => {
     
     // Validate file type
     if (!file.type.match(/^image\/(jpeg|jpg|png|webp)$/)) {
-      alert('กรุณาเลือกไฟล์รูปภาพ (JPG, PNG, WEBP)');
+      alert(t('pdf.invalidFileType'));
       return;
     }
     
     // Validate file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
-      alert('ขนาดไฟล์ต้องไม่เกิน 2MB');
+      alert(t('pdf.fileTooLarge'));
       return;
     }
     
@@ -147,7 +147,7 @@ const SubtractionApp: React.FC = () => {
     return `
       <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 6px; background: #fefce8; font-family: 'Noto Sans Thai', sans-serif;">
         <div style="font-size: 7pt; margin-bottom: 4px; color: #666; display: flex; align-items: center;">
-          <span style="color: #f59e0b; margin-right: 2px; font-size: 9pt;">★</span> ข้อ ${idx + 1}
+          <span style="color: #f59e0b; margin-right: 2px; font-size: 9pt;">★</span> ${t('common.question')} ${idx + 1}
         </div>
         
         <div style="display: flex; flex-direction: column; align-items: center; gap: 1.5px; padding-top: 3px;">
@@ -207,7 +207,7 @@ const SubtractionApp: React.FC = () => {
       <div style="width: 210mm; min-height: 297mm; background: white; padding: 8mm 20mm; page-break-after: always; font-family: 'Noto Sans Thai', sans-serif;">
         <!-- Header -->
         <div style="margin-bottom: 8mm; position: relative;">
-          ${totalPages > 1 ? `<div style="position: absolute; top: 0; right: 0; font-size: 10pt; color: #666;">หน้า ${pageNum}/${totalPages}</div>` : ''}
+          ${totalPages > 1 ? `<div style="position: absolute; top: 0; right: 0; font-size: 10pt; color: #666;">${t('pdf.page')} ${pageNum}/${totalPages}</div>` : ''}
           
           <div style="display: flex; align-items: flex-start; gap: 8mm; margin-bottom: 6mm;">
             ${schoolLogo ? `
@@ -221,19 +221,19 @@ const SubtractionApp: React.FC = () => {
             <div style="flex: 1;">
               <!-- Title centered -->
               <div style="font-size: 20pt; font-weight: bold; margin-bottom: 6mm; text-align: center; border-top: 2px solid #333; border-bottom: 2px solid #333; padding: 4mm 0;">
-                ใบงานการลบ
+                ${t('subtraction.worksheetTitle')}
               </div>
               
               <!-- School and student info -->
               <div style="display: flex; justify-content: space-between; font-size: 11pt; margin-bottom: 3mm;">
-                <div>ชื่อ-สกุล: _______________________</div>
+                <div>${t('pdf.studentName')}: _______________________</div>
                 <div style="display: flex; gap: 15mm;">
-                  <span>ชั้น: __________</span>
-                  <span>เลขที่: __________</span>
+                  <span>${t('pdf.class')}: __________</span>
+                  <span>${t('pdf.number')}: __________</span>
                 </div>
               </div>
               <div style="font-size: 11pt;">
-                โรงเรียน: _______________________
+                ${t('pdf.school')}: _______________________
               </div>
             </div>
           </div>
@@ -272,7 +272,7 @@ const SubtractionApp: React.FC = () => {
       
     } catch (error) {
       console.error('Error generating PDF preview:', error);
-      alert('เกิดข้อผิดพลาดในการสร้าง PDF');
+      alert(t('pdf.generationError'));
     }
   }
 
@@ -315,7 +315,7 @@ const SubtractionApp: React.FC = () => {
       
     } catch (error) {
       console.error('Error saving PDF:', error);
-      alert('เกิดข้อผิดพลาดในการบันทึก PDF');
+      alert(t('pdf.saveError'));
     }
   }
 
@@ -340,12 +340,12 @@ const SubtractionApp: React.FC = () => {
         <div className="relative z-10 mx-auto my-4 w-[96%] max-w-5xl">
           <div className="rounded-2xl bg-white shadow-xl border flex flex-col overflow-hidden h-[85vh]" style={{ height: '85svh' }}>
             <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-white z-10">
-              <div className="font-bold text-lg">ผลการทำที่ผ่านมา • {fmtDate(item.ts)}</div>
-              <button onClick={onClose} className="px-3 py-1 rounded-lg bg-zinc-100 hover:bg-zinc-200">ปิด</button>
+              <div className="font-bold text-lg">{t('results.pastResults')} • {fmtDate(item.ts)}</div>
+              <button onClick={onClose} className="px-3 py-1 rounded-lg bg-zinc-100 hover:bg-zinc-200">{t('common.close')}</button>
             </div>
             <div className="p-4 overflow-y-auto flex-1 overscroll-contain" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
               {!hasSnap ? (
-                <div className="text-sm text-zinc-500">รายการนี้ไม่มีข้อมูลโจทย์ที่บันทึกไว้</div>
+                <div className="text-sm text-zinc-500">{t('results.noDataSaved')}</div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {item.snapshot!.map((s, idx) => {
@@ -353,13 +353,13 @@ const SubtractionApp: React.FC = () => {
                     return (
                       <div key={idx} className="rounded-2xl border bg-white p-3">
                         <div className="flex items-center justify-between">
-                          <div className="text-sm text-zinc-500">ข้อ {idx + 1}</div>
+                          <div className="text-sm text-zinc-500">{t('common.question')} {idx + 1}</div>
                           <div className={ok ? "text-emerald-600 text-xl" : "text-rose-600 text-xl"}>{ok ? "✅" : "❌"}</div>
                         </div>
                         <div className="text-2xl font-bold my-1">
                           {s.c != null ? (<><span>{s.a}</span> - <span>{s.b}</span> - <span>{s.c}</span> = <span className="text-sky-700">{s.correct}</span></>) : (<><span>{s.a}</span> - <span>{s.b}</span> = <span className="text-sky-700">{s.correct}</span></>)}
                         </div>
-                        <div className="text-sm">ตอบของฉัน: <span className={ok ? 'text-emerald-600 font-semibold' : 'text-rose-600 font-semibold'}>{s.answer || '—'}</span></div>
+                        <div className="text-sm">{t('results.yourAnswer')}: <span className={ok ? 'text-emerald-600 font-semibold' : 'text-rose-600 font-semibold'}>{s.answer || '—'}</span></div>
                       </div>
                     );
                   })}
@@ -385,11 +385,11 @@ const SubtractionApp: React.FC = () => {
     if (!open || !data) return null;
     const pct = Math.round((data.correct / Math.max(1, data.total)) * 100);
     let icon = "💪";
-    let title = "สู้ต่ออีกนิด!";
+    let title = t('praise.keepTrying');
     let color = "text-rose-600";
-    if (pct >= 90) { icon = "🏆"; title = "ยอดเยี่ยม!"; color = "text-emerald-600"; }
-    else if (pct >= 70) { icon = "🎯"; title = "ดีมาก!"; color = "text-sky-600"; }
-    else if (pct >= 40) { icon = "👍"; title = "ใช้ได้!"; color = "text-amber-600"; }
+    if (pct >= 90) { icon = "🏆"; title = t('praise.excellent'); color = "text-emerald-600"; }
+    else if (pct >= 70) { icon = "🎯"; title = t('praise.great'); color = "text-sky-600"; }
+    else if (pct >= 40) { icon = "👍"; title = t('praise.good'); color = "text-amber-600"; }
 
     const stars = calcStars(data.correct, data.total);
     const msg = praiseText(pct);
@@ -402,7 +402,7 @@ const SubtractionApp: React.FC = () => {
             <div className="text-4xl">{icon}</div>
             <div>
               <div className={`text-xl font-bold ${color}`}>{title}</div>
-              <div className="text-zinc-500 text-sm">ผลคะแนนและเวลาในรอบนี้</div>
+              <div className="text-zinc-500 text-sm">{t('results.summary')}</div>
             </div>
           </div>
 
@@ -415,14 +415,14 @@ const SubtractionApp: React.FC = () => {
 
           <div className="mt-4 grid grid-cols-2 gap-3 text-center">
             <div className="rounded-xl border p-3">
-              <div className="text-xs text-zinc-500">คะแนน</div>
+              <div className="text-xs text-zinc-500">{t('results.score')}</div>
               <div className="text-2xl font-semibold">{data.correct}/{data.total}</div>
               <div className="text-xs text-zinc-400">{Math.round((data.correct / Math.max(1, data.total)) * 100)}%</div>
             </div>
             <div className="rounded-xl border p-3">
-              <div className="text-xs text-zinc-500">เวลา</div>
+              <div className="text-xs text-zinc-500">{t('results.timeUsed')}</div>
               <div className="text-2xl font-semibold">{formatMS(data.elapsedMs)}</div>
-              <div className="text-xs text-zinc-400">ระดับ: {data.level === 'easy' ? 'ง่าย' : data.level === 'medium' ? 'ปานกลาง' : 'ยาก'}</div>
+              <div className="text-xs text-zinc-400">{t('common.difficulty')}: {t(`common.${data.level}`)}</div>
             </div>
           </div>
 
@@ -444,22 +444,22 @@ const SubtractionApp: React.FC = () => {
               {isSendingLine ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
-                  <span>กำลังส่ง...</span>
+                  <span>{t('common.sending')}</span>
                 </>
               ) : lineSent ? (
                 <>
-                  <span>✅ ส่งแล้ว</span>
+                  <span>✅ {t('common.sent')}</span>
                   {lineQuota && (
                     <span className="text-xs opacity-75">
-                      (เหลือ {lineQuota.remaining}/{lineQuota.total})
+                      ({t('common.remaining')} {lineQuota.remaining}/{lineQuota.total})
                     </span>
                   )}
                 </>
               ) : (lineQuota && lineQuota.remaining <= 0) ? (
-                <span>🚫 ส่งครบ 20 ครั้งแล้ววันนี้</span>
+                <span>{t('common.quotaExceeded')}</span>
               ) : (
                 <>
-                  <span>📤 ส่งผลให้ผู้ปกครองทาง LINE</span>
+                  <span>{t('common.sendToLine')}</span>
                   {lineQuota && (
                     <span className="text-xs opacity-75">
                       ({lineQuota.remaining}/{lineQuota.total})
@@ -472,11 +472,11 @@ const SubtractionApp: React.FC = () => {
             {/* Existing buttons */}
             <div className="flex gap-2 justify-end">
               {alreadyShowing ? (
-                <div className="px-4 py-2 rounded-xl bg-amber-100 text-amber-800 font-medium">👀 แสดงเฉลยแล้ว</div>
+                <div className="px-4 py-2 rounded-xl bg-amber-100 text-amber-800 font-medium">{t('common.answersShown')}</div>
               ) : (
-                <button onClick={onShowAnswers} className="px-4 py-2 rounded-xl bg-amber-500 text-white hover:bg-amber-600">ดูเฉลยทั้งหมด</button>
+                <button onClick={onShowAnswers} className="px-4 py-2 rounded-xl bg-amber-500 text-white hover:bg-amber-600">{t('common.showAllAnswers')}</button>
               )}
-              <button onClick={() => { if (onSave) onSave(); if (onClose) onClose(); }} className="px-4 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200">ปิด</button>
+              <button onClick={() => { if (onSave) onSave(); if (onClose) onClose(); }} className="px-4 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200">{t('common.close')}</button>
             </div>
           </div>
         </div>
@@ -493,20 +493,20 @@ const SubtractionApp: React.FC = () => {
         <div className="relative w-[95%] h-[95%] max-w-7xl bg-white rounded-2xl shadow-2xl flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b gap-4">
-            <h3 className="text-xl font-bold">ตัวอย่างใบงาน PDF</h3>
+            <h3 className="text-xl font-bold">{t('pdf.preview')}</h3>
             
             {/* Logo Upload in Preview */}
             <div className="flex items-center gap-2 bg-zinc-50 rounded-lg px-3 py-2 border">
-              <span className="text-sm text-zinc-600">โลโก้:</span>
+              <span className="text-sm text-zinc-600">{t('pdf.schoolLogo')}:</span>
               {schoolLogo ? (
                 <div className="flex items-center gap-2">
-                  <img src={schoolLogo} alt="โลโก้โรงเรียน" className="w-8 h-8 object-contain border rounded" />
+                  <img src={schoolLogo} alt={t('pdf.schoolLogo')} className="w-8 h-8 object-contain border rounded" />
                   <button
                     onClick={handleRemoveLogo}
                     className="px-2 py-1 rounded text-xs font-semibold bg-rose-100 text-rose-700 hover:bg-rose-200 flex items-center gap-1"
                   >
                     <X size={14} />
-                    ลบ
+                    {t('pdf.removeLogo')}
                   </button>
                 </div>
               ) : (
@@ -515,7 +515,7 @@ const SubtractionApp: React.FC = () => {
                   className="px-3 py-1 rounded text-sm font-semibold bg-white hover:bg-zinc-100 cursor-pointer flex items-center gap-1 border"
                 >
                   <Upload size={14} />
-                  อัปโหลด
+                  {t('pdf.uploadLogo')}
                 </label>
               )}
             </div>
@@ -526,13 +526,13 @@ const SubtractionApp: React.FC = () => {
                 className="flex items-center gap-2 px-6 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 font-semibold"
               >
                 <Printer size={20} />
-                บันทึก PDF
+                {t('pdf.save')}
               </button>
               <button
                 onClick={() => setShowPdfPreview(false)}
                 className="px-4 py-2 bg-zinc-200 text-zinc-800 rounded-lg hover:bg-zinc-300"
               >
-                ปิด
+                {t('common.close')}
               </button>
             </div>
           </div>
@@ -561,7 +561,7 @@ const SubtractionApp: React.FC = () => {
             className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 hover:bg-white shadow-sm border"
           >
             <ArrowLeft size={20} />
-            <span>กลับหน้าหลัก</span>
+            <span>{t('common.backToProfile')}</span>
           </Link>
         </div>
         <h1 className="text-3xl sm:text-4xl font-black flex items-center gap-2">➖ การลบที่ผลลัพธ์ไม่เกิน 1,000</h1>
@@ -573,7 +573,7 @@ const SubtractionApp: React.FC = () => {
         <div className="control-panel flex flex-wrap items-center gap-2 mb-4">
           {/* จำนวนข้อ */}
           <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 shadow-sm">
-            <span className="text-sm text-zinc-600">จำนวนข้อ:</span>
+            <span className="text-sm text-zinc-600">{t('settings.problemCount')}:</span>
             {[10, 15, 30, 40].map((n) => (
               <button key={n} onClick={() => applyNewCount(n)} className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${count === n ? "bg-sky-600 text-white border-sky-600" : "bg-zinc-50 hover:bg-zinc-100"}`}>{n}</button>
             ))}
@@ -581,39 +581,39 @@ const SubtractionApp: React.FC = () => {
 
           {/* ระดับ */}
           <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 shadow-sm">
-            <span className="text-sm text-zinc-600">ระดับ:</span>
-            {[{ key: "easy", label: "ง่าย" }, { key: "medium", label: "ปานกลาง" }, { key: "hard", label: "ยาก" }].map((lv) => (
+            <span className="text-sm text-zinc-600">{t('common.difficulty')}:</span>
+            {[{ key: "easy", label: t('common.easy') }, { key: "medium", label: t('common.medium') }, { key: "hard", label: t('common.hard') }].map((lv) => (
               <button key={lv.key} onClick={() => applyLevel(lv.key)} className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${level === lv.key ? "bg-purple-600 text-white border-purple-600" : "bg-zinc-50 hover:bg-zinc-100"}`}>{lv.label}</button>
             ))}
           </div>
 
           {/* จำนวนหลัก */}
           <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 shadow-sm">
-            <span className="text-sm text-zinc-600">จำนวนหลัก:</span>
+            <span className="text-sm text-zinc-600">{t('common.digits')}:</span>
             {[1, 2, 3].map((d) => (
-              <button key={d} onClick={() => applyDigits(d)} className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${digits === d ? "bg-indigo-600 text-white border-indigo-600" : "bg-zinc-50 hover:bg-zinc-100"}`}>{d} หลัก</button>
+              <button key={d} onClick={() => applyDigits(d)} className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${digits === d ? "bg-indigo-600 text-white border-indigo-600" : "bg-zinc-50 hover:bg-zinc-100"}`}>{d} {t('common.digit')}</button>
             ))}
           </div>
 
           {/* การยืม */}
           <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 shadow-sm">
-            <span className="text-sm text-zinc-600">การยืม:</span>
-            {[{ val: true, label: "มี" }, { val: false, label: "ไม่มี" }].map((opt) => (
+            <span className="text-sm text-zinc-600">{t('subtraction.borrowOption')}:</span>
+            {[{ val: true, label: t('subtraction.hasBorrow') }, { val: false, label: t('subtraction.noBorrow') }].map((opt) => (
               <button key={opt.label} onClick={() => applyBorrow(opt.val)} className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${allowBorrow === opt.val ? "bg-rose-600 text-white border-rose-600" : "bg-zinc-50 hover:bg-zinc-100"}`}>{opt.label}</button>
             ))}
           </div>
 
           {/* จำนวนชุดตัวเลข */}
           <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 shadow-sm">
-            <span className="text-sm text-zinc-600">จำนวนชุดตัวเลข:</span>
-            {[{k:2,label:"2 จำนวน"},{k:3,label:"3 จำนวน"}].map(op => (
+            <span className="text-sm text-zinc-600">{t('subtraction.operands')}:</span>
+            {[{k:2,label:t('subtraction.twoNumbers')},{k:3,label:t('subtraction.threeNumbers')}].map(op => (
               <button key={op.k} onClick={() => applyOperands(op.k)} className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${operands===op.k?"bg-teal-600 text-white border-teal-600":"bg-zinc-50 hover:bg-zinc-100"}`}>{op.label}</button>
             ))}
           </div>
 
           {/* Logo Upload Section */}
           <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 shadow-sm">
-            <span className="text-sm text-zinc-600">โลโก้โรงเรียน:</span>
+            <span className="text-sm text-zinc-600">{t('pdf.schoolLogo')}:</span>
             <input
               ref={logoInputRef}
               type="file"
@@ -624,13 +624,13 @@ const SubtractionApp: React.FC = () => {
             />
             {schoolLogo ? (
               <div className="flex items-center gap-2">
-                <img src={schoolLogo} alt="โลโก้โรงเรียน" className="w-10 h-10 object-contain border rounded-lg" />
+                <img src={schoolLogo} alt={t('pdf.schoolLogo')} className="w-10 h-10 object-contain border rounded-lg" />
                 <button
                   onClick={handleRemoveLogo}
                   className="px-3 py-2 rounded-full text-sm font-semibold bg-rose-100 text-rose-700 hover:bg-rose-200 flex items-center gap-1"
                 >
                   <X size={16} />
-                  ลบโลโก้
+                  {t('pdf.removeLogo')}
                 </button>
               </div>
             ) : (
@@ -639,7 +639,7 @@ const SubtractionApp: React.FC = () => {
                 className="px-4 py-2 rounded-full text-base font-semibold border-2 bg-zinc-50 hover:bg-zinc-100 cursor-pointer flex items-center gap-2"
               >
                 <Upload size={16} />
-                อัปโหลดโลโก้
+                {t('pdf.uploadLogo')}
               </label>
             )}
           </div>
@@ -653,17 +653,17 @@ const SubtractionApp: React.FC = () => {
             }}
           >
             <span className="text-2xl">✨</span>
-            <span>AI สร้างโจทย์ใหม่</span>
+            <span>{t('common.aiGenerate')}</span>
           </button>
-          <button onClick={wrappedCheckAnswers} className="px-5 py-3 rounded-2xl text-lg bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg">✅ ตรวจคำตอบ (Check)</button>
-          <button onClick={() => showAll({ openSummary: true })} className="px-5 py-3 rounded-2xl text-lg bg-amber-500 text-white hover:bg-amber-600 shadow-lg">👀 เฉลยทั้งหมด (Show Answers)</button>
+          <button onClick={wrappedCheckAnswers} className="px-5 py-3 rounded-2xl text-lg bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg">✅ {t('common.checkAnswers')}</button>
+          <button onClick={() => showAll({ openSummary: true })} className="px-5 py-3 rounded-2xl text-lg bg-amber-500 text-white hover:bg-amber-600 shadow-lg">👀 {t('common.showAnswers')}</button>
           <button onClick={printToPDF} className="px-5 py-3 rounded-2xl text-lg bg-purple-600 text-white hover:bg-purple-700 shadow-lg flex items-center gap-2">
             <Printer size={20} />
-            🖨️ พิมพ์ PDF
+            {t('pdf.print')}
           </button>
 
           {/* Live timer */}
-          <div className="ml-auto text-base bg-sky-50 border-2 border-sky-200 rounded-full px-4 py-2 font-semibold">⏱️ เวลา: <span className="font-semibold">{formatMS(elapsedMs)}</span>{startedAt && !finishedAt && <span className="text-zinc-400"> (นับอยู่)</span>}</div>
+          <div className="ml-auto text-base bg-sky-50 border-2 border-sky-200 rounded-full px-4 py-2 font-semibold">⏱️ {t('results.timeUsed')}: <span className="font-semibold">{formatMS(elapsedMs)}</span>{startedAt && !finishedAt && <span className="text-zinc-400"> ({t('common.counting')})</span>}</div>
         </div>
 
         {/* Problems grid */}
@@ -686,42 +686,42 @@ const SubtractionApp: React.FC = () => {
 
         {/* Bottom action bar */}
         <div className="mt-6 flex justify-center">
-          <button onClick={wrappedCheckAnswers} className="px-8 py-4 rounded-3xl text-xl bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg">✅ ตรวจคำตอบ</button>
+          <button onClick={wrappedCheckAnswers} className="px-8 py-4 rounded-3xl text-xl bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg">✅ {t('common.checkAnswers')}</button>
         </div>
 
         {/* History panel */}
         <section className="mt-10 max-w-5xl">
           <div className="flex items-center gap-3 mb-2">
-            <h2 className="text-base font-semibold">สถิติรอบที่ผ่านมา</h2>
-            <button onClick={clearHistory} className="ml-auto text-xs px-3 py-1 rounded-full bg-zinc-100 hover:bg-zinc-200">ล้างสถิติ</button>
+            <h2 className="text-base font-semibold">{t('results.pastStats')}</h2>
+            <button onClick={clearHistory} className="ml-auto text-xs px-3 py-1 rounded-full bg-zinc-100 hover:bg-zinc-200">{t('results.clearStats')}</button>
           </div>
           {history.length === 0 ? (
-            <div className="text-sm text-zinc-500">ยังไม่มีสถิติ ลองทำโจทย์แล้วกด "ตรวจคำตอบ" แล้วกดปุ่ม "ปิด" เพื่อบันทึก</div>
+            <div className="text-sm text-zinc-500">{t('results.noStats')}</div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="text-left text-zinc-500">
                   <tr>
-                    <th className="py-2 pr-3">วันที่/เวลา</th>
-                    <th className="py-2 pr-3">ระดับ</th>
-                    <th className="py-2 pr-3">จำนวนข้อ</th>
-                    <th className="py-2 pr-3">เวลา</th>
-                    <th className="py-2 pr-3">คะแนน</th>
-                    <th className="py-2 pr-3">ระดับ</th>
-                    <th className="py-2 pr-3">ดูผล</th>
+                    <th className="py-2 pr-3">{t('results.dateTime')}</th>
+                    <th className="py-2 pr-3">{t('common.difficulty')}</th>
+                    <th className="py-2 pr-3">{t('settings.problemCount')}</th>
+                    <th className="py-2 pr-3">{t('results.timeUsed')}</th>
+                    <th className="py-2 pr-3">{t('results.score')}</th>
+                    <th className="py-2 pr-3">{t('results.rating')}</th>
+                    <th className="py-2 pr-3">{t('results.viewResults')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {history.map((h, i) => (
                     <tr key={i} className="border-t">
                       <td className="py-2 pr-3 whitespace-nowrap">{fmtDate(h.ts)}</td>
-                      <td className="py-2 pr-3">{h.level === 'easy' ? 'ง่าย' : h.level === 'medium' ? 'ปานกลาง' : 'ยาก'}</td>
+                      <td className="py-2 pr-3">{t(`common.${h.level}`)}</td>
                       <td className="py-2 pr-3">{h.count}</td>
                       <td className="py-2 pr-3">{formatMS(h.durationMs)}</td>
                       <td className="py-2 pr-3">{h.correct}/{h.count}</td>
                       <td className="py-2 pr-3">{Array.from({length: h.stars}).map((_, si) => '★').join('')}{Array.from({length: 3 - h.stars}).map((_, si) => '☆').join('')}</td>
                       <td className="py-2 pr-3">
-                        <button onClick={() => openHistory(i)} className="text-sky-600 hover:text-sky-800 text-xs underline">ดูรายละเอียด</button>
+                        <button onClick={() => openHistory(i)} className="text-sky-600 hover:text-sky-800 text-xs underline">{t('results.view')}</button>
                       </td>
                     </tr>
                   ))}
