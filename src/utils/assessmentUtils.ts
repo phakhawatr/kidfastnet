@@ -387,17 +387,31 @@ const generatePlaceValueQuestions = (config: SkillConfig): AssessmentQuestion[] 
   const [min, max] = config.range || [10, 99];
   
   for (let i = 0; i < config.count; i++) {
-    // ถ้า max > 99 แสดงว่าเป็น 3 หลัก (ร้อย สิบ หน่วย)
-    const isThreeDigit = max > 99;
-    const num = randInt(Math.max(min, isThreeDigit ? 100 : 21), max);
+    // ตรวจสอบจำนวนหลัก
+    const isFiveDigit = max >= 10000;
+    const isFourDigit = max >= 1000 && max < 10000;
+    const isThreeDigit = max >= 100 && max < 1000;
     
-    const hundreds = isThreeDigit ? Math.floor(num / 100) : 0;
+    const num = randInt(min, max);
+    
+    // แยกหลักแต่ละหลัก
+    const tenThousands = isFiveDigit ? Math.floor(num / 10000) : 0;
+    const thousands = (isFiveDigit || isFourDigit) ? Math.floor((num % 10000) / 1000) : 0;
+    const hundreds = (isFiveDigit || isFourDigit || isThreeDigit) ? Math.floor((num % 1000) / 100) : 0;
     const tens = Math.floor((num % 100) / 10);
     const ones = num % 10;
     
-    const questionTypes = isThreeDigit 
-      ? ['hundreds_place', 'tens_place', 'ones_place', 'decompose_3digit']
-      : ['tens_place', 'ones_place', 'decompose'];
+    let questionTypes: string[];
+    if (isFiveDigit) {
+      questionTypes = ['ten_thousands_place', 'thousands_place', 'hundreds_place', 'tens_place', 'ones_place', 'decompose_5digit', 'value_of_digit'];
+    } else if (isFourDigit) {
+      questionTypes = ['thousands_place', 'hundreds_place', 'tens_place', 'ones_place', 'decompose_4digit', 'value_of_digit'];
+    } else if (isThreeDigit) {
+      questionTypes = ['hundreds_place', 'tens_place', 'ones_place', 'decompose_3digit'];
+    } else {
+      questionTypes = ['tens_place', 'ones_place', 'decompose'];
+    }
+    
     const type = questionTypes[i % questionTypes.length];
     
     let question = '';
@@ -406,27 +420,59 @@ const generatePlaceValueQuestions = (config: SkillConfig): AssessmentQuestion[] 
     let explanation = '';
     
     switch (type) {
+      case 'ten_thousands_place':
+        question = `เลข ${num.toLocaleString()} มีหลักหมื่นเป็นเท่าไร?`;
+        correctAnswer = tenThousands;
+        choices = generateChoices(correctAnswer);
+        explanation = `${num.toLocaleString()} = ${tenThousands} หมื่น + ${thousands} พัน + ${hundreds} ร้อย + ${tens} สิบ + ${ones} หน่วย`;
+        break;
+      case 'thousands_place':
+        question = `เลข ${num.toLocaleString()} มีหลักพันเป็นเท่าไร?`;
+        correctAnswer = thousands;
+        choices = generateChoices(correctAnswer);
+        explanation = isFiveDigit 
+          ? `${num.toLocaleString()} = ${tenThousands} หมื่น + ${thousands} พัน + ${hundreds} ร้อย + ${tens} สิบ + ${ones} หน่วย`
+          : `${num.toLocaleString()} = ${thousands} พัน + ${hundreds} ร้อย + ${tens} สิบ + ${ones} หน่วย`;
+        break;
       case 'hundreds_place':
-        question = `เลข ${num} มีหลักร้อยเป็นเท่าไร?`;
+        question = `เลข ${num.toLocaleString()} มีหลักร้อยเป็นเท่าไร?`;
         correctAnswer = hundreds;
         choices = generateChoices(correctAnswer);
-        explanation = `${num} = ${hundreds} ร้อย + ${tens} สิบ + ${ones} หน่วย`;
+        explanation = isFiveDigit
+          ? `${num.toLocaleString()} = ${tenThousands} หมื่น + ${thousands} พัน + ${hundreds} ร้อย + ${tens} สิบ + ${ones} หน่วย`
+          : isFourDigit
+          ? `${num.toLocaleString()} = ${thousands} พัน + ${hundreds} ร้อย + ${tens} สิบ + ${ones} หน่วย`
+          : `${num} = ${hundreds} ร้อย + ${tens} สิบ + ${ones} หน่วย`;
         break;
       case 'tens_place':
-        question = `เลข ${num} มีหลักสิบเป็นเท่าไร?`;
+        question = `เลข ${num.toLocaleString()} มีหลักสิบเป็นเท่าไร?`;
         correctAnswer = tens;
         choices = generateChoices(correctAnswer);
-        explanation = isThreeDigit 
-          ? `${num} = ${hundreds} ร้อย + ${tens} สิบ + ${ones} หน่วย`
+        explanation = isFiveDigit
+          ? `${num.toLocaleString()} = ${tenThousands} หมื่น + ${thousands} พัน + ${hundreds} ร้อย + ${tens} สิบ + ${ones} หน่วย`
+          : isFourDigit || isThreeDigit
+          ? `${num.toLocaleString()} = ${thousands > 0 ? thousands + ' พัน + ' : ''}${hundreds} ร้อย + ${tens} สิบ + ${ones} หน่วย`
           : `${num} = ${tens} สิบ + ${ones} หน่วย`;
         break;
       case 'ones_place':
-        question = `เลข ${num} มีหลักหน่วยเป็นเท่าไร?`;
+        question = `เลข ${num.toLocaleString()} มีหลักหน่วยเป็นเท่าไร?`;
         correctAnswer = ones;
         choices = generateChoices(correctAnswer);
-        explanation = isThreeDigit 
-          ? `${num} = ${hundreds} ร้อย + ${tens} สิบ + ${ones} หน่วย`
-          : `${num} = ${tens} สิบ + ${ones} หน่วย`;
+        explanation = isFiveDigit
+          ? `${num.toLocaleString()} = ${tenThousands} หมื่น + ${thousands} พัน + ${hundreds} ร้อย + ${tens} สิบ + ${ones} หน่วย`
+          : `หลักหน่วยคือตัวเลขสุดท้าย = ${ones}`;
+        break;
+      case 'decompose_5digit':
+        question = `${num.toLocaleString()} = __ หมื่น + ${thousands} พัน + ${hundreds} ร้อย + ${tens} สิบ + ${ones} หน่วย`;
+        correctAnswer = tenThousands;
+        choices = generateChoices(correctAnswer);
+        explanation = `${num.toLocaleString()} = ${tenThousands} หมื่น + ${thousands} พัน + ${hundreds} ร้อย + ${tens} สิบ + ${ones} หน่วย`;
+        break;
+      case 'decompose_4digit':
+        question = `${num.toLocaleString()} = __ พัน + ${hundreds} ร้อย + ${tens} สิบ + ${ones} หน่วย`;
+        correctAnswer = thousands;
+        choices = generateChoices(correctAnswer);
+        explanation = `${num.toLocaleString()} = ${thousands} พัน + ${hundreds} ร้อย + ${tens} สิบ + ${ones} หน่วย`;
         break;
       case 'decompose_3digit':
         question = `${num} = __ ร้อย + ${tens} สิบ + ${ones} หน่วย`;
@@ -440,6 +486,41 @@ const generatePlaceValueQuestions = (config: SkillConfig): AssessmentQuestion[] 
         choices = generateChoices(correctAnswer);
         explanation = `${num} = ${tens} สิบ + ${ones} หน่วย`;
         break;
+      case 'value_of_digit': {
+        // ค่าประจำหลัก เช่น เลข 4 ในตำแหน่งพันมีค่าเป็น 4,000
+        const digitPosition = isFiveDigit ? randInt(0, 4) : randInt(0, 3);
+        let digitValue = 0;
+        let positionName = '';
+        let actualValue = 0;
+        
+        if (digitPosition === 0) {
+          digitValue = ones;
+          positionName = 'หน่วย';
+          actualValue = ones;
+        } else if (digitPosition === 1) {
+          digitValue = tens;
+          positionName = 'สิบ';
+          actualValue = tens * 10;
+        } else if (digitPosition === 2) {
+          digitValue = hundreds;
+          positionName = 'ร้อย';
+          actualValue = hundreds * 100;
+        } else if (digitPosition === 3) {
+          digitValue = thousands;
+          positionName = 'พัน';
+          actualValue = thousands * 1000;
+        } else {
+          digitValue = tenThousands;
+          positionName = 'หมื่น';
+          actualValue = tenThousands * 10000;
+        }
+        
+        question = `เลข ${digitValue} ในหลัก${positionName}ของจำนวน ${num.toLocaleString()} มีค่าเท่าไร?`;
+        correctAnswer = actualValue;
+        choices = generateChoices(actualValue);
+        explanation = `เลข ${digitValue} อยู่ในหลัก${positionName} มีค่าเป็น ${actualValue.toLocaleString()}`;
+        break;
+      }
     }
     
     questions.push({
@@ -553,6 +634,7 @@ const generateShapesQuestions = (config: SkillConfig): AssessmentQuestion[] => {
   
   // ตรวจสอบว่าควรเน้นรูป 2 มิติหรือ 3 มิติจาก description
   const focus2D = config.description?.includes('สองมิติ') || config.description?.includes('2 มิติ');
+  const focusSymmetry = config.description?.includes('สมมาตร');
   
   // Updated shapes with color variants for better visibility
   const coloredShapes = [
@@ -561,13 +643,13 @@ const generateShapesQuestions = (config: SkillConfig): AssessmentQuestion[] => {
     'circle-red', 'circle-blue', 'circle-green'
   ];
   
-  // รูป 2 มิติสำหรับ ป.2
+  // รูป 2 มิติ
   const shapes2D = [
-    { name: 'สามเหลี่ยม', emoji: '🔺', sides: 3 },
-    { name: 'สี่เหลี่ยมจัตุรัส', emoji: '🟦', sides: 4 },
-    { name: 'สี่เหลี่ยมผืนผ้า', emoji: '▭', sides: 4 },
-    { name: 'วงกลม', emoji: '⭕', sides: 0 },
-    { name: 'วงรี', emoji: '⬭', sides: 0 }
+    { name: 'สามเหลี่ยม', emoji: '🔺', sides: 3, symmetryLines: 1 },
+    { name: 'สี่เหลี่ยมจัตุรัส', emoji: '🟦', sides: 4, symmetryLines: 4 },
+    { name: 'สี่เหลี่ยมผืนผ้า', emoji: '▭', sides: 4, symmetryLines: 2 },
+    { name: 'วงกลม', emoji: '⭕', sides: 0, symmetryLines: 'infinite' },
+    { name: 'วงรี', emoji: '⬭', sides: 0, symmetryLines: 2 }
   ];
   
   const shapes3D = [
@@ -585,9 +667,19 @@ const generateShapesQuestions = (config: SkillConfig): AssessmentQuestion[] => {
   ];
   
   for (let i = 0; i < config.count; i++) {
-    const questionTypes = focus2D 
-      ? ['identify_2d', 'describe_2d', 'count_sides', 'draw_pattern_2d']
-      : ['real_world_connection', 'count_shapes', 'pattern_creation', 'identify_3d'];
+    let questionTypes: string[];
+    
+    if (focusSymmetry) {
+      // ป.3 - ความสมมาตร
+      questionTypes = ['identify_symmetry', 'count_symmetry_lines', 'has_symmetry', 'create_symmetric'];
+    } else if (focus2D) {
+      // ป.2 - รูป 2 มิติพื้นฐาน
+      questionTypes = ['identify_2d', 'describe_2d', 'count_sides', 'draw_pattern_2d'];
+    } else {
+      // ป.1 - รูป 3 มิติและแบบรูป
+      questionTypes = ['real_world_connection', 'count_shapes', 'pattern_creation', 'identify_3d'];
+    }
+    
     const type = questionTypes[i % questionTypes.length];
     
     let question = '';
@@ -596,6 +688,74 @@ const generateShapesQuestions = (config: SkillConfig): AssessmentQuestion[] => {
     let explanation = '';
     
     switch (type) {
+      // ป.3 - ความสมมาตร
+      case 'identify_symmetry': {
+        const shapeMarkers: Record<string, string> = {
+          'สามเหลี่ยม': 'triangle-red',
+          'สี่เหลี่ยมจัตุรัส': 'square-blue',
+          'สี่เหลี่ยมผืนผ้า': 'square-green',
+          'วงกลม': 'circle-red',
+          'วงรี': 'circle-orange'
+        };
+        
+        const shape = shapes2D[i % (shapes2D.length - 1)]; // ไม่รวมวงรี
+        const marker = shapeMarkers[shape.name] || 'square-blue';
+        question = `[${marker}] รูปนี้มีแกนสมมาตรหรือไม่?`;
+        correctAnswer = 'มี';
+        choices = shuffleArray(['มี', 'ไม่มี']);
+        explanation = `${shape.name}มีแกนสมมาตร สามารถพับครึ่งให้ทับกันพอดีได้`;
+        break;
+      }
+      case 'count_symmetry_lines': {
+        const shapesWithSymmetry = [
+          { name: 'สามเหลี่ยมด้านเท่า', lines: 3 },
+          { name: 'สี่เหลี่ยมจัตุรัส', lines: 4 },
+          { name: 'สี่เหลี่ยมผืนผ้า', lines: 2 },
+          { name: 'วงกลม', lines: 'มากมาย' }
+        ];
+        const shape = shapesWithSymmetry[i % shapesWithSymmetry.length];
+        
+        if (shape.lines === 'มากมาย') {
+          question = `${shape.name}มีแกนสมมาตรกี่เส้น?`;
+          correctAnswer = 'มากมาย';
+          choices = shuffleArray(['มากมาย', '4', '2', '1']);
+          explanation = `${shape.name}มีแกนสมมาตรมากมาย (ไม่จำกัด) เพราะสามารถพับผ่านจุดศูนย์กลางทุกทิศทางแล้วทับกันพอดี`;
+        } else {
+          question = `${shape.name}มีแกนสมมาตรกี่เส้น?`;
+          correctAnswer = shape.lines;
+          choices = generateChoices(shape.lines as number);
+          explanation = `${shape.name}มีแกนสมมาตร ${shape.lines} เส้น`;
+        }
+        break;
+      }
+      case 'has_symmetry': {
+        const items = [
+          { name: 'หัวใจ', hasSym: true, lines: 1 },
+          { name: 'ผีเสื้อ', hasSym: true, lines: 1 },
+          { name: 'ใบไม้ทั่วไป', hasSym: true, lines: 1 },
+          { name: 'ดาว 5 แฉก', hasSym: true, lines: 5 }
+        ];
+        const item = items[i % items.length];
+        question = `รูป${item.name}มีแกนสมมาตรหรือไม่?`;
+        correctAnswer = item.hasSym ? 'มี' : 'ไม่มี';
+        choices = shuffleArray(['มี', 'ไม่มี']);
+        explanation = item.hasSym 
+          ? `รูป${item.name}มีแกนสมมาตร ${item.lines} เส้น` 
+          : `รูป${item.name}ไม่มีแกนสมมาตร`;
+        break;
+      }
+      case 'create_symmetric': {
+        question = `ถ้าพับกระดาษตามแกนสมมาตร แล้วตัดรูปออก เมื่อกางออกจะได้รูปแบบใด?`;
+        correctAnswer = 'รูปที่สมมาตรเหมือนกันทั้งสองข้าง';
+        choices = shuffleArray([
+          'รูปที่สมมาตรเหมือนกันทั้งสองข้าง',
+          'รูปที่ไม่เท่ากัน',
+          'รูปครึ่งเดียว',
+          'รูปที่หงายกัน'
+        ]);
+        explanation = 'เมื่อพับตามแกนสมมาตรแล้วตัดรูป เมื่อกางออกจะได้รูปที่สมมาตรทั้งสองข้าง';
+        break;
+      }
       // ป.2 เทอม 2 - รูป 2 มิติ
       case 'identify_2d': {
         const shape = shapes2D[i % shapes2D.length];
@@ -1236,8 +1396,13 @@ const generateDivisionQuestions = (config: SkillConfig): AssessmentQuestion[] =>
 const generateTimeQuestions = (config: SkillConfig): AssessmentQuestion[] => {
   const questions: AssessmentQuestion[] = [];
   
+  // ตรวจสอบระดับความยาก - ป.3 จะมีการแปลงหน่วยและโจทย์คูณ-หาร
+  const isAdvanced = config.difficulty === 'medium' || config.difficulty === 'hard';
+  
   for (let i = 0; i < config.count; i++) {
-    const questionTypes = ['read_time', 'time_duration', 'calendar', 'word_problem'];
+    const questionTypes = isAdvanced 
+      ? ['read_time', 'time_duration', 'convert_units', 'compare_time', 'multiply_divide_time', 'word_problem']
+      : ['read_time', 'time_duration', 'calendar', 'word_problem'];
     const type = questionTypes[i % questionTypes.length];
     
     let question = '';
@@ -1273,6 +1438,83 @@ const generateTimeQuestions = (config: SkillConfig): AssessmentQuestion[] => {
           clockDisplay: { hour, minute }
         });
         continue;
+      }
+      case 'convert_units': {
+        // การแปลงหน่วย ชั่วโมง⇄นาที (ป.3)
+        const conversionType = i % 2;
+        if (conversionType === 0) {
+          // ชั่วโมง → นาที
+          const hours = randInt(1, 5);
+          question = `${hours} ชั่วโมง เท่ากับกี่นาที?`;
+          correctAnswer = hours * 60;
+          choices = generateChoices(correctAnswer);
+          explanation = `1 ชั่วโมง = 60 นาที ดังนั้น ${hours} ชั่วโมง = ${hours} × 60 = ${correctAnswer} นาที`;
+        } else {
+          // นาที → ชั่วโมง
+          const hours = randInt(2, 5);
+          const minutes = hours * 60;
+          question = `${minutes} นาที เท่ากับกี่ชั่วโมง?`;
+          correctAnswer = hours;
+          choices = generateChoices(hours);
+          explanation = `60 นาที = 1 ชั่วโมง ดังนั้น ${minutes} นาที = ${minutes} ÷ 60 = ${hours} ชั่วโมง`;
+        }
+        break;
+      }
+      case 'compare_time': {
+        // เปรียบเทียบระยะเวลา (ป.3)
+        const time1_h = randInt(1, 3);
+        const time1_m = randInt(0, 5) * 10;
+        const time2_h = randInt(1, 3);
+        const time2_m = randInt(0, 5) * 10;
+        
+        const total1 = time1_h * 60 + time1_m;
+        const total2 = time2_h * 60 + time2_m;
+        
+        if (total1 === total2) {
+          // สร้างใหม่ให้ไม่เท่ากัน
+          const time2_h_new = time1_h + 1;
+          const total2_new = time2_h_new * 60 + time2_m;
+          question = `${time1_h} ชั่วโมง ${time1_m} นาที กับ ${time2_h_new} ชั่วโมง ${time2_m} นาที อันไหนนานกว่า?`;
+          correctAnswer = `${time2_h_new} ชั่วโมง ${time2_m} นาที`;
+          choices = shuffleArray([
+            `${time1_h} ชั่วโมง ${time1_m} นาที`,
+            `${time2_h_new} ชั่วโมง ${time2_m} นาที`,
+            'เท่ากัน'
+          ]);
+          explanation = `${time1_h} ชม. ${time1_m} นาที = ${total1} นาที, ${time2_h_new} ชม. ${time2_m} นาที = ${total2_new} นาที ดังนั้น ${time2_h_new} ชั่วโมง ${time2_m} นาที นานกว่า`;
+        } else {
+          question = `${time1_h} ชั่วโมง ${time1_m} นาที กับ ${time2_h} ชั่วโมง ${time2_m} นาที อันไหนนานกว่า?`;
+          correctAnswer = total1 > total2 ? `${time1_h} ชั่วโมง ${time1_m} นาที` : `${time2_h} ชั่วโมง ${time2_m} นาที`;
+          choices = shuffleArray([
+            `${time1_h} ชั่วโมง ${time1_m} นาที`,
+            `${time2_h} ชั่วโมง ${time2_m} นาที`,
+            'เท่ากัน'
+          ]);
+          explanation = `${time1_h} ชม. ${time1_m} นาที = ${total1} นาที, ${time2_h} ชม. ${time2_m} นาที = ${total2} นาที ดังนั้น ${correctAnswer} นานกว่า`;
+        }
+        break;
+      }
+      case 'multiply_divide_time': {
+        // โจทย์คูณ-หารเวลา (ป.3)
+        const operationType = i % 2;
+        if (operationType === 0) {
+          // คูณ
+          const minutes = randInt(5, 15);
+          const times = randInt(2, 4);
+          correctAnswer = minutes * times;
+          question = `ถ้าใช้เวลาทำงาน ${minutes} นาที ถ้าทำ ${times} ครั้ง ใช้เวลาทั้งหมดกี่นาที?`;
+          choices = generateChoices(correctAnswer);
+          explanation = `${minutes} × ${times} = ${correctAnswer} นาที`;
+        } else {
+          // หาร
+          const totalMinutes = randInt(30, 120);
+          const people = randInt(2, 5);
+          correctAnswer = Math.floor(totalMinutes / people);
+          question = `ใช้เวลาทำงานทั้งหมด ${totalMinutes} นาที แบ่งให้ ${people} คน เท่า ๆ กัน คนละกี่นาที?`;
+          choices = generateChoices(correctAnswer);
+          explanation = `${totalMinutes} ÷ ${people} = ${correctAnswer} นาที`;
+        }
+        break;
       }
       case 'time_duration': {
         const hours = randInt(1, 3);
@@ -1655,6 +1897,172 @@ const generateWeighingQuestions = (config: SkillConfig): AssessmentQuestion[] =>
   return questions;
 };
 
+const generateFractionsQuestions = (config: SkillConfig): AssessmentQuestion[] => {
+  const questions: AssessmentQuestion[] = [];
+  
+  for (let i = 0; i < config.count; i++) {
+    const questionTypes = ['whole_half_unit', 'read_write_fraction', 'fraction_equals_one', 'one_unit_of_fraction', 'compare_same_denominator'];
+    const type = questionTypes[i % questionTypes.length];
+    
+    let question = '';
+    let correctAnswer: number | string = 0;
+    let choices: (number | string)[] = [];
+    let explanation = '';
+    
+    switch (type) {
+      case 'whole_half_unit': {
+        // ปริมาณเต็มหน่วย/ครึ่งหน่วย
+        const items = ['แอปเปิ้ล', 'ส้ม', 'กล้วย', 'แตงโม', 'ขนมปัง'];
+        const item = items[randInt(0, items.length - 1)];
+        const isWhole = i % 2 === 0;
+        
+        if (isWhole) {
+          question = `มี${item} 1 ลูกเต็ม จะเขียนเป็นเศษส่วนได้ว่าอย่างไร?`;
+          correctAnswer = '1 หรือ 2/2';
+          choices = shuffleArray(['1 หรือ 2/2', '1/2', '2/1', '0']);
+          explanation = `${item} 1 ลูกเต็ม เขียนเป็นเศษส่วนได้เป็น 1 หรือ 2/2`;
+        } else {
+          question = `มี${item}ครึ่งลูก จะเขียนเป็นเศษส่วนได้ว่าอย่างไร?`;
+          correctAnswer = '1/2';
+          choices = shuffleArray(['1/2', '2/1', '1', '2/2']);
+          explanation = `${item}ครึ่งลูก เขียนเป็นเศษส่วนได้เป็น 1/2`;
+        }
+        break;
+      }
+      case 'read_write_fraction': {
+        // เขียนและอ่านค่าเป็นเศษส่วน
+        const numerators = [1, 2, 3];
+        const denominators = [2, 3, 4, 5];
+        const num = numerators[randInt(0, numerators.length - 1)];
+        const den = denominators[randInt(0, denominators.length - 1)];
+        
+        const readingTypes = ['write', 'read'];
+        const readType = readingTypes[i % 2];
+        
+        if (readType === 'write') {
+          const thaiNumbers: Record<number, string> = {
+            1: 'หนึ่ง', 2: 'สอง', 3: 'สาม', 4: 'สี่', 5: 'ห้า'
+          };
+          question = `"${thaiNumbers[num]}ส่วน${thaiNumbers[den]}" เขียนเป็นตัวเลขได้ว่าอย่างไร?`;
+          correctAnswer = `${num}/${den}`;
+          choices = shuffleArray([
+            `${num}/${den}`,
+            `${den}/${num}`,
+            `${num}/${den + 1}`,
+            `${num + 1}/${den}`
+          ]);
+          explanation = `${thaiNumbers[num]}ส่วน${thaiNumbers[den]} เขียนเป็นตัวเลข ${num}/${den}`;
+        } else {
+          question = `เศษส่วน ${num}/${den} อ่านว่าอย่างไร?`;
+          const thaiNumbers: Record<number, string> = {
+            1: 'หนึ่ง', 2: 'สอง', 3: 'สาม', 4: 'สี่', 5: 'ห้า'
+          };
+          correctAnswer = `${thaiNumbers[num]}ส่วน${thaiNumbers[den]}`;
+          choices = shuffleArray([
+            `${thaiNumbers[num]}ส่วน${thaiNumbers[den]}`,
+            `${thaiNumbers[den]}ส่วน${thaiNumbers[num]}`,
+            `${thaiNumbers[num]}ใน${thaiNumbers[den]}`,
+            `${thaiNumbers[den]}ใน${thaiNumbers[num]}`
+          ]);
+          explanation = `เศษส่วน ${num}/${den} อ่านว่า ${thaiNumbers[num]}ส่วน${thaiNumbers[den]}`;
+        }
+        break;
+      }
+      case 'fraction_equals_one': {
+        // เศษส่วนที่เท่ากับ 1
+        const denominators = [2, 3, 4, 5, 6];
+        const den = denominators[randInt(0, denominators.length - 1)];
+        
+        question = `เศษส่วนใดเท่ากับ 1?`;
+        correctAnswer = `${den}/${den}`;
+        choices = shuffleArray([
+          `${den}/${den}`,
+          `1/${den}`,
+          `${den}/1`,
+          `${den - 1}/${den}`
+        ]);
+        explanation = `เศษส่วนที่ตัวเศษและตัวส่วนเท่ากันจะมีค่าเท่ากับ 1 ดังนั้น ${den}/${den} = 1`;
+        break;
+      }
+      case 'one_unit_of_fraction': {
+        // หา 1 หน่วยของเศษส่วน
+        const wholes = [2, 3, 4];
+        const whole = wholes[randInt(0, wholes.length - 1)];
+        const denominators = [2, 3, 4];
+        const den = denominators[randInt(0, denominators.length - 1)];
+        const total = whole * den;
+        
+        question = `ถ้า ${den}/${den} เท่ากับ ${whole} แล้ว 1/${den} เท่ากับเท่าไร?`;
+        correctAnswer = whole / den;
+        choices = generateChoices(whole / den);
+        explanation = `${den}/${den} = ${whole} ดังนั้น 1/${den} = ${whole} ÷ ${den} = ${whole / den}`;
+        break;
+      }
+      case 'compare_same_denominator': {
+        // เปรียบเทียบเศษส่วนเมื่อตัวส่วนเท่ากัน
+        const den = randInt(3, 6);
+        const num1 = randInt(1, den - 1);
+        let num2 = randInt(1, den - 1);
+        while (num2 === num1) {
+          num2 = randInt(1, den - 1);
+        }
+        
+        const compareType = i % 3;
+        if (compareType === 0) {
+          // หาเศษส่วนที่มากกว่า
+          question = `เศษส่วนใดมากกว่า?`;
+          correctAnswer = num1 > num2 ? `${num1}/${den}` : `${num2}/${den}`;
+          choices = shuffleArray([`${num1}/${den}`, `${num2}/${den}`]);
+          if (choices.length < 4) {
+            const num3 = num1 > num2 ? num1 - 1 : num2 - 1;
+            if (num3 > 0) choices.push(`${num3}/${den}`);
+            const num4 = Math.min(num1, num2) + 1;
+            if (num4 < den) choices.push(`${num4}/${den}`);
+          }
+          explanation = `เมื่อตัวส่วนเท่ากัน เศษส่วนที่มีตัวเศษมากกว่าจะมีค่ามากกว่า ดังนั้น ${correctAnswer} มากกว่า`;
+        } else if (compareType === 1) {
+          // หาเศษส่วนที่น้อยกว่า
+          question = `เศษส่วนใดน้อยกว่า?`;
+          correctAnswer = num1 < num2 ? `${num1}/${den}` : `${num2}/${den}`;
+          choices = shuffleArray([`${num1}/${den}`, `${num2}/${den}`]);
+          if (choices.length < 4) {
+            const num3 = num1 < num2 ? num1 + 1 : num2 + 1;
+            if (num3 < den) choices.push(`${num3}/${den}`);
+            const num4 = Math.max(num1, num2) - 1;
+            if (num4 > 0) choices.push(`${num4}/${den}`);
+          }
+          explanation = `เมื่อตัวส่วนเท่ากัน เศษส่วนที่มีตัวเศษน้อยกว่าจะมีค่าน้อยกว่า ดังนั้น ${correctAnswer} น้อยกว่า`;
+        } else {
+          // เรียงลำดับ
+          const nums = [num1, num2].sort((a, b) => a - b);
+          question = `เรียงเศษส่วนจากน้อยไปมาก: ${num1}/${den}, ${num2}/${den}`;
+          correctAnswer = `${nums[0]}/${den}, ${nums[1]}/${den}`;
+          const wrongOrder = `${nums[1]}/${den}, ${nums[0]}/${den}`;
+          choices = shuffleArray([correctAnswer, wrongOrder]);
+          if (choices.length < 4) {
+            choices.push(`${nums[0]}/${den + 1}, ${nums[1]}/${den + 1}`);
+            choices.push(`${nums[0]}/${den}, ${nums[1]}/${den + 1}`);
+          }
+          explanation = `เมื่อตัวส่วนเท่ากัน เรียงตามตัวเศษจากน้อยไปมาก: ${correctAnswer}`;
+        }
+        break;
+      }
+    }
+    
+    questions.push({
+      id: `fractions_${Date.now()}_${i}_${Math.random()}`,
+      skill: 'fractions',
+      question,
+      correctAnswer,
+      choices,
+      difficulty: config.difficulty,
+      explanation
+    });
+  }
+  
+  return questions;
+};
+
 const generatePlaceholderQuestions = (config: SkillConfig): AssessmentQuestion[] => {
   const questions: AssessmentQuestion[] = [];
   
@@ -1744,6 +2152,9 @@ export const generateAssessmentQuestions = (
         break;
       case 'division':
         questions = generateDivisionQuestions(skillConfig);
+        break;
+      case 'fractions':
+        questions = generateFractionsQuestions(skillConfig);
         break;
       default:
         console.warn(`Skill ${skillConfig.skill} not implemented yet, using placeholder`);
