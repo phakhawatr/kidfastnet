@@ -103,7 +103,7 @@ const MoneyApp = () => {
             className="mb-4"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            กลับหน้าโปรไฟล์
+            {t('money.backToProfile')}
           </Button>
           
           <Card className="bg-white/90 backdrop-blur shadow-xl">
@@ -117,9 +117,9 @@ const MoneyApp = () => {
                   />
                 </div>
                 <Trophy className="w-20 h-20 mx-auto mb-4 text-yellow-500" />
-                <h1 className="text-4xl font-bold mb-2 text-primary">เยี่ยมมาก!</h1>
+                <h1 className="text-4xl font-bold mb-2 text-primary">{t('money.excellent')}</h1>
                 <p className="text-2xl text-muted-foreground mb-4">
-                  คุณทำได้ {correctCount}/{problems.length} ข้อ
+                  {t('money.youScored')} {correctCount}/{problems.length} {t('money.problems')}
                 </p>
                 
                 <div className="flex justify-center gap-2 mb-4">
@@ -141,12 +141,12 @@ const MoneyApp = () => {
                 
                 <div className="flex items-center justify-center gap-2 text-muted-foreground">
                   <Clock className="w-5 h-5" />
-                  <span>เวลาที่ใช้: {getFormattedTime()}</span>
+                  <span>{t('money.timeUsed')}: {getFormattedTime()}</span>
                 </div>
               </div>
               
               <div className="space-y-4 mb-6">
-                <h2 className="text-xl font-bold text-primary">สรุปผลการทำโจทย์</h2>
+                <h2 className="text-xl font-bold text-primary">{t('money.problemSummary')}</h2>
                 {problems.map((problem, index) => (
                   <div
                     key={problem.id}
@@ -161,15 +161,15 @@ const MoneyApp = () => {
                         {problem.isCorrect ? '✅' : '❌'}
                       </span>
                       <div className="flex-1">
-                        <p className="font-medium mb-1">ข้อ {index + 1}: {problem.story}</p>
+                        <p className="font-medium mb-1">{t('money.problem')} {index + 1}: {problem.story}</p>
                         <p className="text-sm text-muted-foreground mb-2">{problem.question}</p>
                         <div className="flex gap-4 text-sm">
                           <span className="text-green-600 font-semibold">
-                            คำตอบที่ถูก: {problem.correctAnswer} บาท
+                            {t('money.correctAnswer')}: {problem.correctAnswer} {t('money.baht')}
                           </span>
                           {problem.userAnswer && (
                             <span className={problem.isCorrect ? 'text-green-600' : 'text-red-600'}>
-                              คำตอบของคุณ: {problem.userAnswer} บาท
+                              {t('money.yourAnswer')}: {problem.userAnswer} {t('money.baht')}
                             </span>
                           )}
                         </div>
@@ -188,14 +188,14 @@ const MoneyApp = () => {
                   className="gap-2"
                 >
                   <RotateCcw className="h-5 w-5" />
-                  เล่นอีกครั้ง
+                  {t('money.playAgain')}
                 </Button>
                 <Button
                   onClick={() => navigate('/profile')}
                   variant="outline"
                   size="lg"
                 >
-                  กลับหน้าโปรไฟล์
+                  {t('money.backToProfile')}
                 </Button>
               </div>
             </CardContent>
@@ -216,15 +216,15 @@ const MoneyApp = () => {
             className="mb-4"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            กลับไปทำโจทย์
+            {t('money.backToGame')}
           </Button>
           
           <Card className="bg-white/90 backdrop-blur shadow-xl">
             <CardContent className="p-6 space-y-6">
-              <h2 className="text-2xl font-bold text-primary">ตั้งค่าการเล่น</h2>
+              <h2 className="text-2xl font-bold text-primary">{t('money.gameSettings')}</h2>
               
               <div>
-                <label className="block text-sm font-medium mb-2">จำนวนโจทย์</label>
+                <label className="block text-sm font-medium mb-2">{t('money.problemCount')}</label>
                 <div className="grid grid-cols-3 gap-2">
                   {[5, 10, 15].map((count) => (
                     <Button
@@ -232,62 +232,62 @@ const MoneyApp = () => {
                       onClick={() => changeSettings(count)}
                       variant={problemCount === count ? 'default' : 'outline'}
                     >
-                      {count} ข้อ
+                      {count} {t('money.problems')}
                     </Button>
                   ))}
                 </div>
               </div>
               
               <div>
-                <label className="block text-sm font-medium mb-2">ประเภทโจทย์</label>
+                <label className="block text-sm font-medium mb-2">{t('money.problemType')}</label>
                 <div className="grid grid-cols-2 gap-2">
                   <Button
                     onClick={() => changeSettings(undefined, 'counting')}
                     variant={problemType === 'counting' ? 'default' : 'outline'}
                   >
-                    นับเงิน
+                    {t('money.counting')}
                   </Button>
                   <Button
                     onClick={() => changeSettings(undefined, 'change')}
                     variant={problemType === 'change' ? 'default' : 'outline'}
                   >
-                    ทอนเงิน
+                    {t('money.change')}
                   </Button>
                   <Button
                     onClick={() => changeSettings(undefined, 'shopping')}
                     variant={problemType === 'shopping' ? 'default' : 'outline'}
                   >
-                    ซื้อของ
+                    {t('money.shopping')}
                   </Button>
                   <Button
                     onClick={() => changeSettings(undefined, 'mixed')}
                     variant={problemType === 'mixed' ? 'default' : 'outline'}
                   >
-                    ผสม
+                    {t('money.mixed')}
                   </Button>
                 </div>
               </div>
               
               <div>
-                <label className="block text-sm font-medium mb-2">ระดับความยาก</label>
+                <label className="block text-sm font-medium mb-2">{t('common.difficulty')}</label>
                 <div className="grid grid-cols-3 gap-2">
                   <Button
                     onClick={() => changeSettings(undefined, undefined, 'easy')}
                     variant={difficulty === 'easy' ? 'default' : 'outline'}
                   >
-                    ง่าย
+                    {t('common.easy')}
                   </Button>
                   <Button
                     onClick={() => changeSettings(undefined, undefined, 'medium')}
                     variant={difficulty === 'medium' ? 'default' : 'outline'}
                   >
-                    ปานกลาง
+                    {t('common.medium')}
                   </Button>
                   <Button
                     onClick={() => changeSettings(undefined, undefined, 'hard')}
                     variant={difficulty === 'hard' ? 'default' : 'outline'}
                   >
-                    ยาก
+                    {t('common.hard')}
                   </Button>
                 </div>
               </div>
@@ -300,7 +300,7 @@ const MoneyApp = () => {
                 className="w-full"
                 size="lg"
               >
-                เริ่มเล่นใหม่
+                {t('money.startNew')}
               </Button>
             </CardContent>
           </Card>
@@ -317,14 +317,14 @@ const MoneyApp = () => {
         <div className="flex items-center justify-between mb-4">
           <Button onClick={() => navigate('/profile')} variant="ghost">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            กลับ
+            {t('common.back')}
           </Button>
           <div className="flex items-center gap-3">
             <img src={moneyMascot} alt="Money Mascot" className="w-10 h-10" />
             <div>
-              <div className="text-lg font-semibold">เงินตรา</div>
+              <div className="text-lg font-semibold">{t('money.title')}</div>
               <div className="text-xs text-muted-foreground">
-                ข้อ {currentProblemIndex + 1}/{problems.length}
+                {t('money.problem')} {currentProblemIndex + 1}/{problems.length}
               </div>
             </div>
           </div>
@@ -364,12 +364,12 @@ const MoneyApp = () => {
                       alt={`${coin.value} ${coin.unit}`}
                       className={`${coin.unit === 'บาท' && coin.value >= 20 ? 'w-24 h-16' : 'w-16 h-16'} object-contain`}
                     />
-                    <div className="text-center">
-                      <div className="text-sm font-bold text-primary">{coin.value} {coin.unit}</div>
-                      <div className="text-xs text-muted-foreground bg-gray-100 px-2 py-1 rounded-full">
-                        จำนวน {coin.count} {coin.unit === 'บาท' && coin.value >= 20 ? 'ใบ' : 'เหรียญ'}
+                      <div className="text-center">
+                        <div className="text-sm font-bold text-primary">{coin.value} {coin.unit}</div>
+                        <div className="text-xs text-muted-foreground bg-gray-100 px-2 py-1 rounded-full">
+                          จำนวน {coin.count} {coin.unit === 'บาท' && coin.value >= 20 ? t('money.pieces') : t('money.coins')}
+                        </div>
                       </div>
-                    </div>
                   </div>
                 ))}
               </div>
@@ -387,11 +387,11 @@ const MoneyApp = () => {
                   type="number"
                   value={currentProblem.userAnswer}
                   onChange={(e) => handleAnswer(e.target.value)}
-                  placeholder="กรอกคำตอบ"
+                  placeholder={t('money.enterAnswer')}
                   className="text-xl text-center"
                   disabled={currentProblem.isCorrect !== null}
                 />
-                <span className="text-xl font-semibold">บาท</span>
+                <span className="text-xl font-semibold">{t('money.baht')}</span>
               </div>
             </div>
             
@@ -411,11 +411,11 @@ const MoneyApp = () => {
                     className={`w-16 h-16 ${currentProblem.isCorrect ? 'animate-bounce' : ''}`}
                   />
                   <p className="text-xl font-bold">
-                    {currentProblem.isCorrect ? '✅ ถูกต้อง!' : '❌ ลองใหม่อีกครั้งนะ'}
+                    {currentProblem.isCorrect ? `✅ ${t('common.correct')}!` : `❌ ${t('common.tryAgain')}`}
                   </p>
                   {!currentProblem.isCorrect && (
                     <p className="text-sm mt-2 bg-white/70 px-4 py-2 rounded-lg">
-                      คำตอบที่ถูกต้องคือ <span className="font-bold text-lg">{currentProblem.correctAnswer} บาท</span>
+                      {t('money.correctAnswer')}: <span className="font-bold text-lg">{currentProblem.correctAnswer} {t('money.baht')}</span>
                     </p>
                   )}
                 </div>
@@ -442,35 +442,35 @@ const MoneyApp = () => {
             variant="outline"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            ข้อก่อนหน้า
+            {t('common.previous')}
           </Button>
           
           <Button onClick={toggleHint} variant="outline">
             <Lightbulb className="mr-2 h-4 w-4" />
-            {showHints ? 'ซ่อนคำใบ้' : 'แสดงคำใบ้'}
+            {showHints ? t('common.hideHint') : t('common.showHint')}
           </Button>
           
           {currentProblem.isCorrect === null ? (
             <Button onClick={submitAnswer} disabled={!currentProblem.userAnswer}>
               <Check className="mr-2 h-4 w-4" />
-              ตรวจคำตอบ
+              {t('common.checkAnswer')}
             </Button>
           ) : (
             <Button onClick={() => resetProblem(currentProblemIndex)} variant="outline">
               <RotateCcw className="mr-2 h-4 w-4" />
-              ทำใหม่
+              {t('common.reset')}
             </Button>
           )}
           
           {currentProblemIndex < problems.length - 1 ? (
             <Button onClick={nextProblem} variant="outline">
-              ข้อถัดไป
+              {t('common.next')}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           ) : (
             <Button onClick={submitAllAnswers} className="bg-green-600 hover:bg-green-700">
               <Trophy className="mr-2 h-4 w-4" />
-              ส่งคำตอบทั้งหมด
+              {t('common.submitAll')}
             </Button>
           )}
         </div>

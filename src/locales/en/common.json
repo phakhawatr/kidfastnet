@@ -8,5 +8,13 @@
   "close": "Close",
   "back": "Back",
   "next": "Next",
-  "submit": "Submit"
+  "submit": "Submit",
+  "previous": "Previous",
+  "hideHint": "Hide Hint",
+  "showHint": "Show Hint",
+  "checkAnswer": "Check Answer",
+  "reset": "Reset",
+  "submitAll": "Submit All",
+  "correct": "Correct",
+  "tryAgain": "Try Again"
 }

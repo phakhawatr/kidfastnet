@@ -8,5 +8,13 @@
   "close": "ปิด",
   "back": "กลับ",
   "next": "ถัดไป",
-  "submit": "ส่ง"
+  "submit": "ส่ง",
+  "previous": "ก่อนหน้า",
+  "hideHint": "ซ่อนคำใบ้",
+  "showHint": "แสดงคำใบ้",
+  "checkAnswer": "ตรวจคำตอบ",
+  "reset": "รีเซ็ต",
+  "submitAll": "ส่งคำตอบทั้งหมด",
+  "correct": "ถูกต้อง",
+  "tryAgain": "ลองใหม่อีกครั้ง"
 }
