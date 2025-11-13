@@ -7,12 +7,14 @@ import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ShapeDisplay from '@/components/ShapeDisplay';
+import QuizHistory from '@/components/QuizHistory';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { ClipboardPen, Clock, Award, ChevronLeft, ChevronRight, BookOpen, Send, Eye, CheckCircle, XCircle, TrendingUp, TrendingDown, Minus, Hash, Scale, ArrowUpDown, Grid3x3, Plus, Sparkles, Shapes, Ruler, BarChart2, LucideIcon } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ClipboardPen, Clock, Award, ChevronLeft, ChevronRight, BookOpen, Send, Eye, CheckCircle, XCircle, TrendingUp, TrendingDown, Minus, Hash, Scale, ArrowUpDown, Grid3x3, Plus, Sparkles, Shapes, Ruler, BarChart2, LucideIcon, BarChart3 } from 'lucide-react';
 import { getGradeOptions, getSemesterOptions, curriculumConfig } from '@/config/curriculum';
 import { evaluateAssessment } from '@/utils/assessmentUtils';
 
@@ -303,14 +305,27 @@ const Quiz = () => {
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
         <Header />
         <div className="container mx-auto px-4 py-12">
-          <Card className="max-w-2xl mx-auto shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-3xl text-center flex items-center justify-center gap-3 text-purple-600">
-                <ClipboardPen className="w-8 h-8" />
-                แบบทดสอบวัดระดับความรู้
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
+          <Tabs defaultValue="test" className="max-w-4xl mx-auto">
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="test" className="text-base font-semibold">
+                <ClipboardPen className="w-4 h-4 mr-2" />
+                ทำแบบทดสอบ
+              </TabsTrigger>
+              <TabsTrigger value="history" className="text-base font-semibold">
+                <BarChart3 className="w-4 h-4 mr-2" />
+                ประวัติ & สถิติ
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="test">
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="text-3xl text-center flex items-center justify-center gap-3 text-purple-600">
+                    <ClipboardPen className="w-8 h-8" />
+                    แบบทดสอบวัดระดับความรู้
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">{/* ... keep existing code (selection form content) */}
               <div>
                 <Label className="text-lg mb-3 block font-semibold">เลือกชั้น</Label>
                 <RadioGroup value={String(selectedGrade)} onValueChange={(v) => setSelectedGrade(Number(v))}>
@@ -426,9 +441,15 @@ const Quiz = () => {
               )}
             </CardContent>
           </Card>
-        </div>
-        <Footer />
-      </div>
+        </TabsContent>
+
+        <TabsContent value="history">
+          <QuizHistory userId={user?.id || registrationId || ''} />
+        </TabsContent>
+      </Tabs>
+    </div>
+    <Footer />
+  </div>
     );
   }
 
