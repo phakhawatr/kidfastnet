@@ -5,7 +5,15 @@ export interface SkillConfig {
   range?: [number, number];
   tables?: number[];
   description?: string;
+  points?: number[];
+  questionTypes?: string[];
 }
+
+export const assessmentTypes = {
+  semester1: 'semester1',
+  semester2: 'semester2',
+  nt: 'nt'
+} as const;
 
 export const curriculumConfig: Record<string, Record<string, SkillConfig[]>> = {
   grade1: {
@@ -132,6 +140,79 @@ export const curriculumConfig: Record<string, Record<string, SkillConfig[]>> = {
       
       // 6. บวก-ลบ-คูณ-หารระคน (15-20%)
       { skill: 'mixedOperations', difficulty: 'medium', count: 8, description: 'เขียนประโยคสัญลักษณ์ มีวงเล็บ ตรวจสอบความสมเหตุสมผล' }
+    ],
+    nt: [
+      // การสอบวัดระดับชาติ (NT) ป.3 - 30 ข้อ แบบเลือกตอบ 4 ตัวเลือก
+      // 1. การนับและแบบรูป (5 ข้อ)
+      { 
+        skill: 'counting', 
+        difficulty: 'medium', 
+        count: 5, 
+        range: [0, 10000],
+        points: [3, 3, 3, 4, 4],
+        questionTypes: ['compare_from_table', 'number_patterns', 'place_value', 'ordering', 'word_problems'],
+        description: 'เปรียบเทียบจำนวน แบบรูป ค่าประจำหลัก เรียงลำดับ โจทย์ปัญหา'
+      },
+      
+      // 2. เศษส่วน (6 ข้อ)
+      { 
+        skill: 'fractions', 
+        difficulty: 'medium', 
+        count: 6,
+        points: [3, 3, 3, 3, 4, 4],
+        questionTypes: ['compare_with_pictures', 'equivalent_fractions', 'add_same_denominator', 'subtract_same_denominator', 'word_problems', 'mixed_operations'],
+        description: 'เปรียบเทียบ เศษส่วนเท่ากัน บวก-ลบเศษส่วน โจทย์ปัญหา'
+      },
+      
+      // 3. เงิน (4 ข้อ)
+      { 
+        skill: 'money', 
+        difficulty: 'medium', 
+        count: 4,
+        points: [3, 4, 4, 4],
+        questionTypes: ['count_money_pictures', 'making_change', 'shopping_problems', 'budgeting'],
+        description: 'นับเงิน ทอนเงิน โจทย์ซื้อของ การวางแผนใช้เงิน'
+      },
+      
+      // 4. เวลา (4 ข้อ)
+      { 
+        skill: 'time', 
+        difficulty: 'medium', 
+        count: 4,
+        points: [3, 3, 4, 4],
+        questionTypes: ['read_clock', 'time_duration', 'schedules', 'word_problems'],
+        description: 'อ่านนาฬิกา ระยะเวลา ตารางเวลา โจทย์ปัญหา'
+      },
+      
+      // 5. การวัด (4 ข้อ)
+      { 
+        skill: 'measurement', 
+        difficulty: 'medium', 
+        count: 4,
+        points: [3, 3, 4, 4],
+        questionTypes: ['length_comparison', 'unit_conversion', 'perimeter', 'word_problems'],
+        description: 'เปรียบเทียบความยาว แปลงหน่วย รอบรูป โจทย์ปัญหา'
+      },
+      
+      // 6. รูปเรขาคณิต (3 ข้อ)
+      { 
+        skill: 'shapes', 
+        difficulty: 'medium', 
+        count: 3,
+        points: [3, 3, 4],
+        questionTypes: ['identify_shapes', 'symmetry', 'patterns'],
+        description: 'จำแนกรูป สมมาตร แบบรูปเรขาคณิต'
+      },
+      
+      // 7. การนำเสนอข้อมูล (4 ข้อ)
+      { 
+        skill: 'dataPresentation', 
+        difficulty: 'medium', 
+        count: 4,
+        points: [3, 3, 3, 4],
+        questionTypes: ['read_table', 'read_pictograph', 'read_bar_chart', 'interpret_data'],
+        description: 'อ่านตาราง แผนภูมิรูปภาพ แผนภูมิแท่ง แปลความหมายข้อมูล'
+      }
     ]
   },
   grade4: {
