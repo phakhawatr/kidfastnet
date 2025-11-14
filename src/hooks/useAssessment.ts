@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { AssessmentQuestion, generateAssessmentQuestions } from '@/utils/assessmentUtils';
 import { supabase } from '@/integrations/supabase/client';
 
-export const useAssessment = (userId: string, grade: number, semester: number) => {
+export const useAssessment = (userId: string, grade: number, semesterOrType: number | string) => {
   const [questions, setQuestions] = useState<AssessmentQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Map<number, any>>(new Map());
@@ -11,9 +11,17 @@ export const useAssessment = (userId: string, grade: number, semester: number) =
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (grade && semester) {
+    if (grade && semesterOrType) {
       setIsLoading(true);
-      const qs = generateAssessmentQuestions(grade, semester);
+      let qs: AssessmentQuestion[];
+      
+      // ตรวจสอบว่าเป็น NT หรือ semester
+      if (semesterOrType === 'nt') {
+        qs = generateAssessmentQuestions(grade, 'nt' as any);
+      } else {
+        qs = generateAssessmentQuestions(grade, semesterOrType as number);
+      }
+      
       setQuestions(qs);
       setStartTime(Date.now());
       setCurrentIndex(0);
@@ -21,7 +29,7 @@ export const useAssessment = (userId: string, grade: number, semester: number) =
       setIsSubmitted(false);
       setIsLoading(false);
     }
-  }, [grade, semester]);
+  }, [grade, semesterOrType]);
 
   const setAnswer = (questionIndex: number, answer: any) => {
     setAnswers(prev => new Map(prev).set(questionIndex, answer));
@@ -75,10 +83,15 @@ export const useAssessment = (userId: string, grade: number, semester: number) =
     const correct = calculateCorrectAnswers();
     const score = questions.length > 0 ? (correct / questions.length) * 100 : 0;
 
+    // Determine semester and assessment_type from semesterOrType
+    const assessmentType = semesterOrType === 'nt' ? 'nt' : 'semester';
+    const semesterValue = typeof semesterOrType === 'number' ? semesterOrType : null;
+
     console.log('📊 Assessment data:', {
       user_id: userId,
       grade,
-      semester,
+      semester: semesterValue,
+      assessment_type: assessmentType,
       total_questions: questions.length,
       correct_answers: correct,
       score: parseFloat(score.toFixed(2)),
@@ -89,7 +102,8 @@ export const useAssessment = (userId: string, grade: number, semester: number) =
       const insertData = {
         user_id: userId,
         grade,
-        semester,
+        semester: semesterValue,
+        assessment_type: assessmentType,
         total_questions: questions.length,
         correct_answers: correct,
         score: parseFloat(score.toFixed(2)),
