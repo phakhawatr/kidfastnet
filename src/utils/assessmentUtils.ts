@@ -3756,12 +3756,20 @@ const generateGraphReadingQuestions = (config: SkillConfig): AssessmentQuestion[
 
 export const generateAssessmentQuestions = (
   grade: number,
-  semester: number
+  semesterOrType: number | string
 ): AssessmentQuestion[] => {
-  const config = curriculumConfig[`grade${grade}`]?.[`semester${semester}`];
+  let config;
+  
+  if (semesterOrType === 'nt') {
+    // Handle NT assessments
+    config = curriculumConfig[`grade${grade}`]?.['nt'];
+  } else {
+    // Handle semester assessments
+    config = curriculumConfig[`grade${grade}`]?.[`semester${semesterOrType}`];
+  }
   
   if (!config) {
-    console.warn(`No curriculum found for grade ${grade} semester ${semester}`);
+    console.warn(`No curriculum found for grade ${grade} ${semesterOrType === 'nt' ? 'NT' : `semester ${semesterOrType}`}`);
     return [];
   }
   

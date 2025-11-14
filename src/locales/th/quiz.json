@@ -1,4 +1,23 @@
 {
+  "assessmentTypes": {
+    "semester1": "ภาคเรียนที่ 1",
+    "semester2": "ภาคเรียนที่ 2",
+    "nt": "สอบวัดระดับชาติ (NT)"
+  },
+  "ntInfo": {
+    "title": "แบบทดสอบความสามารถด้านคณิตศาสตร์",
+    "subtitle": "ชั้นประถมศึกษาปีที่ 3",
+    "description": "ข้อสอบแบบเลือกตอบ 4 ตัวเลือก",
+    "questions": "30 ข้อ",
+    "totalScore": "100 คะแนน",
+    "timeLimit": "90 นาที",
+    "features": {
+      "multipleChoice": "แบบเลือกตอบทั้งหมด",
+      "visualContent": "พร้อมภาพประกอบสวยงาม",
+      "realWorld": "โจทย์จากชีวิตจริง",
+      "autoGrade": "ตรวจให้คะแนนอัตโนมัติ"
+    }
+  },
   "title": "การสอบวัดระดับ",
   "selectGrade": "เลือกชั้น",
   "selectSemester": "เลือกเทอม",
