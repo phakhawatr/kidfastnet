@@ -32,6 +32,7 @@ const Quiz = () => {
   const [screen, setScreen] = useState<'select' | 'assessment' | 'results'>('select');
   const [selectedGrade, setSelectedGrade] = useState<number>(1);
   const [selectedSemester, setSelectedSemester] = useState<number>(1);
+  const [assessmentType, setAssessmentType] = useState<'semester1' | 'semester2' | 'nt'>('semester1');
   const [showTopicOutline, setShowTopicOutline] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -56,7 +57,11 @@ const Quiz = () => {
     submitAssessment,
     calculateCorrectAnswers,
     timeTaken
-  } = useAssessment(user?.id || registrationId || '', hasStarted ? selectedGrade : 0, hasStarted ? selectedSemester : 0);
+  } = useAssessment(
+    user?.id || registrationId || '', 
+    hasStarted ? selectedGrade : 0, 
+    hasStarted ? (assessmentType === 'nt' ? 'nt' : selectedSemester) : 0
+  );
 
   // Debug logs for userId
   console.log('🔍 Quiz - User ID:', user?.id);
@@ -148,6 +153,7 @@ const Quiz = () => {
     setHasStarted(false);
     setSelectedGrade(1);
     setSelectedSemester(1);
+    setAssessmentType('semester1');
     setShowAnswers(false);
     setShowTopicOutline(false);
     setLineSent(false);
@@ -426,7 +432,82 @@ const Quiz = () => {
                 </RadioGroup>
               </div>
 
-              {!showTopicOutline ? (
+              {selectedGrade === 3 && (
+                <div>
+                  <Label className="text-lg mb-3 block font-semibold">ประเภทการสอบ</Label>
+                  <RadioGroup value={assessmentType} onValueChange={(v) => {
+                    setAssessmentType(v as 'semester1' | 'semester2' | 'nt');
+                    if (v === 'semester1') setSelectedSemester(1);
+                    if (v === 'semester2') setSelectedSemester(2);
+                  }}>
+                    <div className="grid gap-2">
+                      <div className="flex items-center space-x-3 p-3 border-2 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-all cursor-pointer">
+                        <RadioGroupItem value="semester1" id="type-sem1" />
+                        <Label htmlFor="type-sem1" className="flex-1 cursor-pointer font-medium">ภาคเรียนที่ 1</Label>
+                      </div>
+                      <div className="flex items-center space-x-3 p-3 border-2 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-all cursor-pointer">
+                        <RadioGroupItem value="semester2" id="type-sem2" />
+                        <Label htmlFor="type-sem2" className="flex-1 cursor-pointer font-medium">ภาคเรียนที่ 2</Label>
+                      </div>
+                      <div className="flex items-center space-x-3 p-3 border-2 border-yellow-400 rounded-lg hover:bg-yellow-50 hover:border-yellow-500 transition-all cursor-pointer bg-gradient-to-r from-yellow-50 to-orange-50">
+                        <RadioGroupItem value="nt" id="type-nt" />
+                        <Label htmlFor="type-nt" className="flex-1 cursor-pointer font-medium flex items-center gap-2">
+                          <Trophy className="w-5 h-5 text-yellow-600" />
+                          <span className="text-yellow-900">สอบวัดระดับชาติ (NT)</span>
+                        </Label>
+                      </div>
+                    </div>
+                  </RadioGroup>
+                </div>
+              )}
+
+              {selectedGrade === 3 && assessmentType === 'nt' ? (
+                <>
+                  <Card className="border-yellow-400 bg-gradient-to-br from-yellow-50 to-orange-50">
+                    <CardContent className="pt-6">
+                      <div className="flex items-center gap-3 mb-4">
+                        <Trophy className="w-8 h-8 text-yellow-600" />
+                        <div>
+                          <h3 className="font-bold text-xl text-yellow-900">{t('quiz:ntInfo.title')}</h3>
+                          <p className="text-sm text-yellow-700">{t('quiz:ntInfo.subtitle')}</p>
+                        </div>
+                      </div>
+                      <div className="space-y-2 text-sm text-yellow-900">
+                        <p className="flex items-center gap-2">
+                          <span className="text-lg">📝</span>
+                          <b>{t('quiz:ntInfo.questions')}</b> ({t('quiz:ntInfo.description')})
+                        </p>
+                        <p className="flex items-center gap-2">
+                          <span className="text-lg">💯</span>
+                          <b>{t('quiz:ntInfo.totalScore')}</b>
+                        </p>
+                        <p className="flex items-center gap-2">
+                          <span className="text-lg">⏰</span>
+                          <b>{t('quiz:ntInfo.timeLimit')}</b>
+                        </p>
+                        <div className="mt-3 pt-3 border-t border-yellow-300">
+                          <p className="font-semibold mb-2">✨ คุณสมบัติพิเศษ:</p>
+                          <ul className="space-y-1 pl-4">
+                            <li>• {t('quiz:ntInfo.features.multipleChoice')}</li>
+                            <li>• {t('quiz:ntInfo.features.visualContent')}</li>
+                            <li>• {t('quiz:ntInfo.features.realWorld')}</li>
+                            <li>• {t('quiz:ntInfo.features.autoGrade')}</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Button 
+                    onClick={handleStartAssessment} 
+                    className="w-full py-6 text-lg bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600"
+                    size="lg"
+                  >
+                    <Trophy className="mr-2 h-6 w-6" />
+                    เริ่มทำแบบทดสอบ NT
+                  </Button>
+                </>
+              ) : (
                 <>
                   <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                     <h3 className="font-semibold mb-2 text-blue-900">📋 ข้อมูลการสอบ</h3>
