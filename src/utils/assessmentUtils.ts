@@ -1,6 +1,15 @@
 import { curriculumConfig, SkillConfig } from '@/config/curriculum';
 import { generateSubtractionProblems } from './subtractionUtils';
 import { generateMoneyProblems } from './moneyUtils';
+import {
+  generateNTCountingQuestions,
+  generateNTFractionsQuestions,
+  generateNTMoneyQuestions,
+  generateNTTimeQuestions,
+  generateNTMeasurementQuestions,
+  generateNTShapesQuestions,
+  generateNTDataPresentationQuestions
+} from './ntQuestionGenerators';
 
 export interface AssessmentQuestion {
   id: string;
@@ -3775,6 +3784,49 @@ export const generateAssessmentQuestions = (
   
   const allQuestions: AssessmentQuestion[] = [];
   
+  // Check if this is NT assessment
+  const isNT = semesterOrType === 'nt';
+  
+  if (isNT && grade === 3) {
+    // Generate NT-specific questions with real-world context
+    for (const skillConfig of config) {
+      let questions: AssessmentQuestion[] = [];
+      
+      switch (skillConfig.skill) {
+        case 'counting':
+          questions = generateNTCountingQuestions(skillConfig.count);
+          break;
+        case 'fractions':
+          questions = generateNTFractionsQuestions(skillConfig.count);
+          break;
+        case 'money':
+          questions = generateNTMoneyQuestions(skillConfig.count);
+          break;
+        case 'time':
+          questions = generateNTTimeQuestions(skillConfig.count);
+          break;
+        case 'measurement':
+          questions = generateNTMeasurementQuestions(skillConfig.count);
+          break;
+        case 'shapes':
+          questions = generateNTShapesQuestions(skillConfig.count);
+          break;
+        case 'dataPresentation':
+          questions = generateNTDataPresentationQuestions(skillConfig.count);
+          break;
+        default:
+          console.warn(`NT skill ${skillConfig.skill} not implemented, using placeholder`);
+          questions = generatePlaceholderQuestions(skillConfig);
+      }
+      
+      allQuestions.push(...questions);
+    }
+    
+    // Shuffle all NT questions for varied order
+    return shuffleArray(allQuestions);
+  }
+  
+  // Regular semester assessment question generation
   for (const skillConfig of config) {
     let questions: AssessmentQuestion[] = [];
     

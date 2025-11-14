@@ -507,7 +507,7 @@ const Quiz = () => {
                     เริ่มทำแบบทดสอบ NT
                   </Button>
                 </>
-              ) : (
+              ) : !showTopicOutline ? (
                 <>
                   <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                     <h3 className="font-semibold mb-2 text-blue-900">📋 ข้อมูลการสอบ</h3>
