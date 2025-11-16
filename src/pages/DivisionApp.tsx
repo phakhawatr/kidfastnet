@@ -790,9 +790,6 @@ const DivisionApp: React.FC = () => {
               {divisionType === 'remainder' ? (
                 // Multiple choice for remainder type
                 <div className="mt-4 space-y-2">
-                  <div className="text-center text-sm text-muted-foreground mb-2">
-                    {problem.quotient} เศษเท่าไร?
-                  </div>
                   {problem.options?.map((option, optIdx) => {
                     const isSelected = parseInt(answers[problemIndex]?.[0]) === option.remainder;
                     const isCorrect = option.remainder === problem.remainder;
@@ -803,7 +800,7 @@ const DivisionApp: React.FC = () => {
                         key={optIdx}
                         onClick={() => handleOptionSelect(problemIndex, option.remainder)}
                         disabled={results === 'checked'}
-                        className={`w-full p-3 text-lg rounded-lg border-2 transition-all font-medium ${
+                        className={`w-full p-4 text-xl rounded-lg border-3 transition-all font-bold ${
                           showFeedback
                             ? isCorrect
                               ? 'bg-green-100 border-green-500 text-green-900'
