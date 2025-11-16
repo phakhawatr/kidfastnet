@@ -93,20 +93,47 @@ const DivisionApp: React.FC = () => {
     const correctRemainder = problem.remainder;
     const options = [{ quotient: correctQuotient, remainder: correctRemainder }];
     
-    // Generate 3 wrong options
-    while (options.length < 4) {
+    // Generate 3 wrong options with safety counter
+    let attempts = 0;
+    const maxAttempts = 100;
+    
+    while (options.length < 4 && attempts < maxAttempts) {
+      attempts++;
+      
       let wrongQuotient = correctQuotient;
       let wrongRemainder = Math.floor(Math.random() * problem.divisor);
       
-      // Sometimes vary the quotient slightly
-      if (Math.random() > 0.5 && correctQuotient > 1) {
-        wrongQuotient = correctQuotient + (Math.random() > 0.5 ? 1 : -1);
+      // Vary quotient to ensure more variety
+      if (Math.random() > 0.3) {
+        const offset = Math.floor(Math.random() * 3) + 1; // 1-3
+        wrongQuotient = correctQuotient + (Math.random() > 0.5 ? offset : -offset);
+        wrongQuotient = Math.max(0, wrongQuotient); // Ensure non-negative
       }
       
-      // Don't duplicate
-      if (!options.some(opt => opt.quotient === wrongQuotient && opt.remainder === wrongRemainder) &&
-          wrongRemainder !== correctRemainder) {
+      // Check uniqueness
+      const isDuplicate = options.some(opt => 
+        opt.quotient === wrongQuotient && opt.remainder === wrongRemainder
+      );
+      
+      if (!isDuplicate && wrongRemainder !== correctRemainder) {
         options.push({ quotient: wrongQuotient, remainder: wrongRemainder });
+      }
+    }
+    
+    // Fallback: if we couldn't generate 4 options, fill with simple variations
+    while (options.length < 4) {
+      const offset = options.length;
+      const fallbackQuotient = correctQuotient + (offset % 2 === 0 ? offset : -offset);
+      const fallbackRemainder = (correctRemainder + offset) % problem.divisor;
+      
+      if (!options.some(opt => opt.quotient === fallbackQuotient && opt.remainder === fallbackRemainder)) {
+        options.push({ quotient: fallbackQuotient, remainder: fallbackRemainder });
+      } else {
+        // Last resort: just vary quotient
+        options.push({ 
+          quotient: Math.max(0, correctQuotient + offset + 1), 
+          remainder: fallbackRemainder 
+        });
       }
     }
     
