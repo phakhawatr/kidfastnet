@@ -30,7 +30,11 @@
     "viewSolution": "View Solution",
     "backToMenu": "Back to Menu",
     "generateNew": "🤖 AI Generate New",
-    "hideAnswer": "Hide Solution"
+    "hideAnswer": "Hide Solution",
+    "showSymbolHint": "🔢 Show Mathematical Expression",
+    "hideSymbolHint": "🔢 Hide Mathematical Expression",
+    "showConceptHint": "💡 Show Concept",
+    "hideConceptHint": "💡 Hide Concept"
   },
   "progress": {
     "question": "Question",
@@ -91,5 +95,11 @@
     "noQuestionCount": "Please select number of questions",
     "loadFailed": "Failed to load problems",
     "selectAnswer": "Please select an answer"
+  },
+  "hints": {
+    "symbolTitle": "Mathematical Expression",
+    "conceptTitle": "Concept",
+    "symbolDescription": "Show the math equation",
+    "conceptDescription": "Show the thinking process"
   }
 }

@@ -33,6 +33,8 @@ const WordProblemsApp = () => {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [userAnswers, setUserAnswers] = useState<(number | null)[]>([]);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [showSymbolHint, setShowSymbolHint] = useState(false);
+  const [showConceptHint, setShowConceptHint] = useState(false);
   const [startTime, setStartTime] = useState<number>(0);
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [isAIGenerating, setIsAIGenerating] = useState(false);
@@ -97,6 +99,8 @@ const WordProblemsApp = () => {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setSelectedAnswer(userAnswers[currentQuestionIndex + 1]);
       setShowExplanation(false);
+      setShowSymbolHint(false);
+      setShowConceptHint(false);
     } else {
       setGameState('results');
     }
@@ -315,6 +319,50 @@ const WordProblemsApp = () => {
                     })}
                   </div>
                 </RadioGroup>
+
+                {/* Hint Buttons */}
+                <div className="flex gap-2 pt-4 border-t border-border">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowSymbolHint(!showSymbolHint)}
+                    className="flex-1"
+                  >
+                    {showSymbolHint ? t('buttons.hideSymbolHint', '🔢 ซ่อนประโยคสัญลักษณ์') : t('buttons.showSymbolHint', '🔢 แสดงประโยคสัญลักษณ์')}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowConceptHint(!showConceptHint)}
+                    className="flex-1"
+                  >
+                    {showConceptHint ? t('buttons.hideConceptHint', '💡 ซ่อนแนวคิด') : t('buttons.showConceptHint', '💡 แสดงแนวคิด')}
+                  </Button>
+                </div>
+
+                {/* Symbol Hint Display */}
+                {showSymbolHint && (
+                  <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <p className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-1">
+                      🔢 {t('hints.symbolTitle', 'ประโยคสัญลักษณ์')}:
+                    </p>
+                    <p className="text-lg font-mono text-blue-900 dark:text-blue-100">
+                      {currentProblem.symbolHint}
+                    </p>
+                  </div>
+                )}
+
+                {/* Concept Hint Display */}
+                {showConceptHint && (
+                  <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+                    <p className="text-sm font-semibold text-amber-800 dark:text-amber-200 mb-1">
+                      💡 {t('hints.conceptTitle', 'แนวคิด')}:
+                    </p>
+                    <p className="text-base text-amber-900 dark:text-amber-100">
+                      {currentProblem.conceptHint}
+                    </p>
+                  </div>
+                )}
 
                 {/* Explanation */}
                 {showExplanation && (

@@ -10,6 +10,8 @@ export interface WordProblem {
   unit: string;
   choices: number[];
   explanation: string;
+  symbolHint: string;
+  conceptHint: string;
   hasMultipleUnits?: boolean;
   mainUnit?: number;
   subUnit?: number;
@@ -58,7 +60,9 @@ export function generateLengthProblems(count: number, difficulty: Difficulty): W
         `โบว์ผูกผมยาว ${a} ${unit} ยางมัดผมยาว ${b} ${unit} รวมยาวกี่${unit}`,
       answer: (a: number, b: number) => a + b,
       explanation: (a: number, b: number, ans: number) => 
-        `วิธีทำ: ${a} + ${b} = ${ans}`
+        `วิธีทำ: ${a} + ${b} = ${ans}`,
+      symbolHint: (a: number, b: number) => `${a} + ${b} = ?`,
+      conceptHint: () => "นำความยาวทั้งสองมาบวกกัน",
     },
     // การลบ
     {
@@ -66,7 +70,9 @@ export function generateLengthProblems(count: number, difficulty: Difficulty): W
         `โบว์ผูกผมยาว ${a} ${unit} ยางมัดผมยาว ${b} ${unit} โบว์ผูกผมยาวกว่ายางมัดผมกี่${unit}`,
       answer: (a: number, b: number) => a - b,
       explanation: (a: number, b: number, ans: number) => 
-        `วิธีทำ: ${a} - ${b} = ${ans}`
+        `วิธีทำ: ${a} - ${b} = ${ans}`,
+      symbolHint: (a: number, b: number) => `${a} - ${b} = ?`,
+      conceptHint: () => "นำความยาวของโบว์มาลบด้วยความยาวของยาง",
     },
     // การหาส่วนที่เพิ่ม
     {
@@ -74,7 +80,9 @@ export function generateLengthProblems(count: number, difficulty: Difficulty): W
         `ไม้ท่อนที่หนึ่งยาว ${a} ${unit} ไม้ท่อนที่สองยาวกว่าไม้ท่อนที่หนึ่ง ${b} ${unit} ไม้ท่อนที่สองยาวกี่${unit}`,
       answer: (a: number, b: number) => a + b,
       explanation: (a: number, b: number, ans: number) => 
-        `วิธีทำ: ${a} + ${b} = ${ans}`
+        `วิธีทำ: ${a} + ${b} = ${ans}`,
+      symbolHint: (a: number, b: number) => `${a} + ${b} = ?`,
+      conceptHint: () => "ไม้ท่อนที่สองยาวกว่า = ไม้ท่อนที่หนึ่ง + ส่วนที่เพิ่ม",
     },
     // การหาส่วนต่าง
     {
@@ -82,7 +90,9 @@ export function generateLengthProblems(count: number, difficulty: Difficulty): W
         `เชือกเส้นแรกยาว ${a} ${unit} เชือกเส้นที่สองยาว ${b} ${unit} เชือกเส้นแรกยาวกว่าเชือกเส้นที่สองกี่${unit}`,
       answer: (a: number, b: number) => a - b,
       explanation: (a: number, b: number, ans: number) => 
-        `วิธีทำ: ${a} - ${b} = ${ans}`
+        `วิธีทำ: ${a} - ${b} = ${ans}`,
+      symbolHint: (a: number, b: number) => `${a} - ${b} = ?`,
+      conceptHint: () => "นำความยาวเชือกเส้นแรกมาลบความยาวเชือกเส้นที่สอง",
     }
   ];
 
@@ -103,7 +113,9 @@ export function generateLengthProblems(count: number, difficulty: Difficulty): W
       correctAnswer,
       unit,
       choices: generateChoices(correctAnswer, difficulty),
-      explanation: template.explanation(a, b, correctAnswer)
+      explanation: template.explanation(a, b, correctAnswer),
+      symbolHint: template.symbolHint(a, b),
+      conceptHint: template.conceptHint(),
     });
   }
 
@@ -119,21 +131,27 @@ export function generateWeightProblems(count: number, difficulty: Difficulty): W
         `ซื้อส้มโอหนัก ${a} ${unit} ซื้อมะม่วงหนัก ${b} ${unit} รวมหนักกี่${unit}`,
       answer: (a: number, b: number) => a + b,
       explanation: (a: number, b: number, ans: number) => 
-        `วิธีทำ: ${a} + ${b} = ${ans}`
+        `วิธีทำ: ${a} + ${b} = ${ans}`,
+      symbolHint: (a: number, b: number) => `${a} + ${b} = ?`,
+      conceptHint: () => "นำน้ำหนักทั้งสองมาบวกกัน",
     },
     {
       question: (a: number, b: number, unit: string) => 
         `แป้งทำขนมหนัก ${a} ${unit} ซึ่งหนักกว่านํ้าตาล ${b} ${unit} นํ้าตาลหนักเท่าไร`,
       answer: (a: number, b: number) => a - b,
       explanation: (a: number, b: number, ans: number) => 
-        `วิธีทำ: ${a} - ${b} = ${ans}`
+        `วิธีทำ: ${a} - ${b} = ${ans}`,
+      symbolHint: (a: number, b: number) => `${a} - ${b} = ?`,
+      conceptHint: () => "น้ำตาลหนักน้อยกว่า = นำน้ำหนักแป้งมาลบส่วนต่าง",
     },
     {
       question: (a: number, b: number, unit: string) => 
         `มีน้ำตาล ${a} ${unit} ต้องการให้ครบ ${a + b} ${unit} ต้องซื้อเพิ่มอีกกี่${unit}`,
       answer: (a: number, b: number) => b,
       explanation: (a: number, b: number, ans: number) => 
-        `วิธีทำ: ${a + b} - ${a} = ${ans}`
+        `วิธีทำ: ${a + b} - ${a} = ${ans}`,
+      symbolHint: (a: number, b: number) => `${a + b} - ${a} = ?`,
+      conceptHint: () => "หาส่วนที่ขาด = เป้าหมาย - มีอยู่",
     }
   ];
 
@@ -154,7 +172,9 @@ export function generateWeightProblems(count: number, difficulty: Difficulty): W
       correctAnswer,
       unit,
       choices: generateChoices(correctAnswer, difficulty),
-      explanation: template.explanation(a, b, correctAnswer)
+      explanation: template.explanation(a, b, correctAnswer),
+      symbolHint: template.symbolHint(a, b),
+      conceptHint: template.conceptHint(),
     });
   }
 
@@ -170,21 +190,27 @@ export function generateVolumeProblems(count: number, difficulty: Difficulty): W
         `แม่ค้าขายผ้าให้คุณยายยาว ${a} ${unit} แม่ค้ายังเหลือผ้าอีก ${b} ${unit} เดิมแม่ค้ามีผ้ายาวกี่${unit}`,
       answer: (a: number, b: number) => a + b,
       explanation: (a: number, b: number, ans: number) => 
-        `วิธีทำ: ${a} + ${b} = ${ans}`
+        `วิธีทำ: ${a} + ${b} = ${ans}`,
+      symbolHint: (a: number, b: number) => `${a} + ${b} = ?`,
+      conceptHint: () => "นำความยาวที่ขายและเหลือมาบวกกัน",
     },
     {
       question: (a: number, b: number, unit: string) => 
         `มีผ้าผืนหนึ่งยาว ${a} ${unit} ใช้ตัดกระโปรงไปแล้วเหลือผ้ายาว ${b} ${unit} ใช้ผ้าตัดกระโปรงไปทั้งหมดกี่${unit}`,
       answer: (a: number, b: number) => a - b,
       explanation: (a: number, b: number, ans: number) => 
-        `วิธีทำ: ${a} - ${b} = ${ans}`
+        `วิธีทำ: ${a} - ${b} = ${ans}`,
+      symbolHint: (a: number, b: number) => `${a} - ${b} = ?`,
+      conceptHint: () => "นำความยาวเดิมมาลบความยาวที่เหลือ",
     },
     {
       question: (a: number, b: number) => 
         `ขวดนํ้าจุได้ ${a} ลิตร แก้วนํ้าจุได้ ${b} มิลลิลิตร รวมกันจุได้กี่ลิตร`,
       answer: (a: number, b: number) => a + (b / 1000),
       explanation: (a: number, b: number, ans: number) => 
-        `วิธีทำ: ${a} + (${b} ÷ 1000) = ${ans}`
+        `วิธีทำ: ${a} + (${b} ÷ 1000) = ${ans}`,
+      symbolHint: (a: number, b: number) => `${a} + (${b} ÷ 1,000) = ?`,
+      conceptHint: () => "แปลงมิลลิลิตรเป็นลิตรก่อน แล้วบวกกัน (1,000 มล. = 1 ล.)",
     }
   ];
 
@@ -205,7 +231,9 @@ export function generateVolumeProblems(count: number, difficulty: Difficulty): W
       correctAnswer,
       unit: unit,
       choices: generateChoices(correctAnswer, difficulty),
-      explanation: template.explanation(a, b, correctAnswer)
+      explanation: template.explanation(a, b, correctAnswer),
+      symbolHint: template.symbolHint ? template.symbolHint(a, b) : `${a} + ${b} = ?`,
+      conceptHint: template.conceptHint ? template.conceptHint() : "คิดตามโจทย์",
     });
   }
 
@@ -221,14 +249,18 @@ export function generateTimeProblems(count: number, difficulty: Difficulty): Wor
         `ระยะห่างระหว่างเรือเล็กกับท่าเรือ ${a} เมตร ระยะห่างระหว่างเรือใหญ่กับท่าเรือน้อยกว่า ${b} เมตร เรือใหญ่อยู่ห่างจากท่าเรือเท่าไร`,
       answer: (a: number, b: number) => a - b,
       explanation: (a: number, b: number, ans: number) => 
-        `วิธีทำ: ${a} - ${b} = ${ans} เมตร`
+        `วิธีทำ: ${a} - ${b} = ${ans} เมตร`,
+      symbolHint: (a: number, b: number) => `${a} - ${b} = ?`,
+      conceptHint: () => "ระยะทางน้อยกว่า = นำระยะทางเรือเล็กมาลบส่วนต่าง",
     },
     {
       question: (a: number, b: number) => 
         `เดินทางไป ${a} นาที พักผ่อน ${b} นาที รวมเวลาทั้งหมดกี่นาที`,
       answer: (a: number, b: number) => a + b,
       explanation: (a: number, b: number, ans: number) => 
-        `วิธีทำ: ${a} + ${b} = ${ans} นาที`
+        `วิธีทำ: ${a} + ${b} = ${ans} นาที`,
+      symbolHint: (a: number, b: number) => `${a} + ${b} = ?`,
+      conceptHint: () => "นำเวลาทั้งสองมาบวกกัน",
     }
   ];
 
@@ -248,7 +280,9 @@ export function generateTimeProblems(count: number, difficulty: Difficulty): Wor
       correctAnswer,
       unit: 'นาที',
       choices: generateChoices(correctAnswer, difficulty),
-      explanation: template.explanation(a, b, correctAnswer)
+      explanation: template.explanation(a, b, correctAnswer),
+      symbolHint: template.symbolHint(a, b),
+      conceptHint: template.conceptHint(),
     });
   }
 
