@@ -301,7 +301,7 @@ const SkillCard: React.FC<{
 
   const cardContent = (
     <div 
-      className={`relative rounded-3xl shadow-xl ${!disableLinks && !isEditMode ? 'hover:-translate-y-2 hover:shadow-2xl' : ''} ${isEditMode ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'} transition-all duration-300 ${skill.backgroundGradient} overflow-hidden group ${isPinned ? 'ring-2 ring-yellow-400 ring-offset-2' : ''}`}
+      className={`relative rounded-3xl shadow-xl h-full min-h-[180px] flex flex-col ${!disableLinks && !isEditMode ? 'hover:-translate-y-2 hover:shadow-2xl' : ''} ${isEditMode ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'} transition-all duration-300 ${skill.backgroundGradient} overflow-hidden group ${isPinned ? 'ring-2 ring-yellow-400 ring-offset-2' : ''}`}
     >
       {/* Pin Button */}
       {!isEditMode && onTogglePin && (
@@ -341,7 +341,7 @@ const SkillCard: React.FC<{
       </div>
 
       {/* Content */}
-      <div className="block p-5 pr-20 pb-6 relative z-5">
+      <div className="flex-1 flex flex-col justify-center p-5 pr-20 pb-6 relative z-5">
         <h3 className={`font-bold text-lg mb-2 ${skill.textColor} drop-shadow-sm`}>
           {skill.title}
         </h3>
@@ -551,7 +551,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({
             items={sortedSkills.map(s => s.hrefPreview || '')}
             strategy={rectSortingStrategy}
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 auto-rows-fr">
               {sortedSkills.map((skill) => (
                 <DraggableSkillCard
                   key={skill.hrefPreview}
