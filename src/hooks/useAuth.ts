@@ -291,10 +291,10 @@ export const useAuth = () => {
               const redirectPath = sessionStorage.getItem('redirect_after_login');
               sessionStorage.removeItem('redirect_after_login');
               
-              setTimeout(() => {
-                setAuthRefresh(prev => prev + 1);
-                navigate(redirectPath || '/landing');
-              }, 500);
+        setTimeout(() => {
+          setAuthRefresh(prev => prev + 1);
+          navigate(redirectPath || '/profile');
+        }, 500);
               
               return { success: true };
             }
