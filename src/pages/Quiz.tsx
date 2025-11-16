@@ -418,19 +418,21 @@ const Quiz = () => {
                 </RadioGroup>
               </div>
 
-              <div>
-                <Label className="text-lg mb-3 block font-semibold">เลือกเทอม</Label>
-                <RadioGroup value={String(selectedSemester)} onValueChange={(v) => setSelectedSemester(Number(v))}>
-                  <div className="grid gap-2">
-                    {getSemesterOptions().map(opt => (
-                      <div key={opt.value} className="flex items-center space-x-3 p-3 border-2 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-all cursor-pointer">
-                        <RadioGroupItem value={String(opt.value)} id={`sem-${opt.value}`} />
-                        <Label htmlFor={`sem-${opt.value}`} className="flex-1 cursor-pointer font-medium">{opt.label}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </RadioGroup>
-              </div>
+              {selectedGrade !== 3 && (
+                <div>
+                  <Label className="text-lg mb-3 block font-semibold">เลือกเทอม</Label>
+                  <RadioGroup value={String(selectedSemester)} onValueChange={(v) => setSelectedSemester(Number(v))}>
+                    <div className="grid gap-2">
+                      {getSemesterOptions().map(opt => (
+                        <div key={opt.value} className="flex items-center space-x-3 p-3 border-2 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-all cursor-pointer">
+                          <RadioGroupItem value={String(opt.value)} id={`sem-${opt.value}`} />
+                          <Label htmlFor={`sem-${opt.value}`} className="flex-1 cursor-pointer font-medium">{opt.label}</Label>
+                        </div>
+                      ))}
+                    </div>
+                  </RadioGroup>
+                </div>
+              )}
 
               {selectedGrade === 3 && (
                 <div>
@@ -650,7 +652,10 @@ const Quiz = () => {
                   </div>
 
                   <RadioGroup 
-                    value={answers.get(currentIndex) !== undefined ? String(answers.get(currentIndex)) : undefined}
+                    {...(answers.get(currentIndex) !== undefined 
+                      ? { value: String(answers.get(currentIndex)) } 
+                      : {}
+                    )}
                     onValueChange={(v) => {
                       const choiceIndex = parseInt(v, 10);
                       console.log('📝 Answer selected:', { 

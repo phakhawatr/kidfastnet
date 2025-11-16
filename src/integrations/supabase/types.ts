@@ -331,42 +331,48 @@ export type Database = {
       level_assessments: {
         Row: {
           assessment_data: Json | null
+          assessment_type: string | null
           completed_at: string | null
           correct_answers: number | null
           created_at: string | null
           grade: number
           id: string
           score: number | null
-          semester: number
+          semester: number | null
           time_taken: number | null
           total_questions: number | null
           user_id: string
+          weighted_score: number | null
         }
         Insert: {
           assessment_data?: Json | null
+          assessment_type?: string | null
           completed_at?: string | null
           correct_answers?: number | null
           created_at?: string | null
           grade: number
           id?: string
           score?: number | null
-          semester: number
+          semester?: number | null
           time_taken?: number | null
           total_questions?: number | null
           user_id: string
+          weighted_score?: number | null
         }
         Update: {
           assessment_data?: Json | null
+          assessment_type?: string | null
           completed_at?: string | null
           correct_answers?: number | null
           created_at?: string | null
           grade?: number
           id?: string
           score?: number | null
-          semester?: number
+          semester?: number | null
           time_taken?: number | null
           total_questions?: number | null
           user_id?: string
+          weighted_score?: number | null
         }
         Relationships: []
       }
