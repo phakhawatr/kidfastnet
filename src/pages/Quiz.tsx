@@ -463,54 +463,143 @@ const Quiz = () => {
                 </div>
               )}
 
-              {selectedGrade === 3 && assessmentType === 'nt' ? (
+              {selectedGrade === 3 && assessmentType === 'nt' && !showTopicOutline ? (
                 <>
-                  <Card className="border-yellow-400 bg-gradient-to-br from-yellow-50 to-orange-50">
-                    <CardContent className="pt-6">
-                      <div className="flex items-center gap-3 mb-4">
-                        <Trophy className="w-8 h-8 text-yellow-600" />
-                        <div>
-                          <h3 className="font-bold text-xl text-yellow-900">{t('quiz:ntInfo.title')}</h3>
-                          <p className="text-sm text-yellow-700">{t('quiz:ntInfo.subtitle')}</p>
-                        </div>
+                  <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Trophy className="w-7 h-7 text-yellow-600" />
+                      <div>
+                        <h3 className="font-semibold text-yellow-900">📋 ข้อมูลการสอบ</h3>
+                        <p className="text-xs text-yellow-700">สอบวัดระดับชาติ (NT) ป.3</p>
                       </div>
-                      <div className="space-y-2 text-sm text-yellow-900">
-                        <p className="flex items-center gap-2">
-                          <span className="text-lg">📝</span>
-                          <b>{t('quiz:ntInfo.questions')}</b> ({t('quiz:ntInfo.description')})
-                        </p>
-                        <p className="flex items-center gap-2">
-                          <span className="text-lg">💯</span>
-                          <b>{t('quiz:ntInfo.totalScore')}</b>
-                        </p>
-                        <p className="flex items-center gap-2">
-                          <span className="text-lg">⏰</span>
-                          <b>{t('quiz:ntInfo.timeLimit')}</b>
-                        </p>
-                <div className="mt-3 pt-3 border-t border-yellow-300">
-                  <p className="font-semibold mb-2">{t('quiz:ntInfo.categoriesTitle')}</p>
-                  <ul className="space-y-1.5 text-sm">
-                    <li>{t('quiz:ntInfo.categories.counting')}</li>
-                    <li>{t('quiz:ntInfo.categories.fractions')}</li>
-                    <li>{t('quiz:ntInfo.categories.money')}</li>
-                    <li>{t('quiz:ntInfo.categories.time')}</li>
-                    <li>{t('quiz:ntInfo.categories.measurement')}</li>
-                    <li>{t('quiz:ntInfo.categories.shapes')}</li>
-                    <li>{t('quiz:ntInfo.categories.data')}</li>
-                  </ul>
-                </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                    <ul className="space-y-1 text-sm text-yellow-800">
+                      <li>• จำนวนข้อสอบ: 30 ข้อ</li>
+                      <li>• รูปแบบ: เลือกตัวเลือก 4 ข้อ</li>
+                      <li>• คะแนนเต็ม: 100 คะแนน</li>
+                      <li>• เวลา: 90 นาที</li>
+                      <li>• แบ่งเป็น 7 หมวดหมู่</li>
+                    </ul>
+                  </div>
 
                   <Button 
-                    onClick={handleStartAssessment} 
+                    onClick={() => setShowTopicOutline(true)} 
                     className="w-full py-6 text-lg bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600"
                     size="lg"
                   >
-                    <Trophy className="mr-2 h-6 w-6" />
-                    เริ่มทำแบบทดสอบ NT
+                    <BookOpen className="w-5 h-5 mr-2" />
+                    ดูหัวข้อการสอบ
                   </Button>
+                </>
+              ) : selectedGrade === 3 && assessmentType === 'nt' && showTopicOutline ? (
+                <>
+                  <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-lg border-2 border-yellow-300">
+                    <h3 className="font-semibold mb-4 text-yellow-900 flex items-center gap-2 text-lg">
+                      <Trophy className="w-5 h-5" />
+                      แผนผังหัวข้อการสอบ NT
+                    </h3>
+                    <div className="space-y-2">
+                      <div className="bg-white p-4 rounded-lg border border-yellow-200">
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">📚</span>
+                            <span className="font-semibold text-gray-800">1. Counting & Patterns</span>
+                          </div>
+                          <span className="text-sm bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full font-medium">5 ข้อ</span>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-1">เปรียบเทียบขนาด, แนบกฎ, ตำแหน่งจำนัด</p>
+                      </div>
+
+                      <div className="bg-white p-4 rounded-lg border border-yellow-200">
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">🧮</span>
+                            <span className="font-semibold text-gray-800">2. Fractions</span>
+                          </div>
+                          <span className="text-sm bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full font-medium">6 ข้อ</span>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-1">เศษส่วน, บวก-ลบ, โจทย์ปัญหา</p>
+                      </div>
+
+                      <div className="bg-white p-4 rounded-lg border border-yellow-200">
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">💰</span>
+                            <span className="font-semibold text-gray-800">3. Money</span>
+                          </div>
+                          <span className="text-sm bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full font-medium">4 ข้อ</span>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-1">ชื่นเชย, ทอนเงิน, ซื้อของ</p>
+                      </div>
+
+                      <div className="bg-white p-4 rounded-lg border border-yellow-200">
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">⏰</span>
+                            <span className="font-semibold text-gray-800">4. Time</span>
+                          </div>
+                          <span className="text-sm bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full font-medium">4 ข้อ</span>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-1">อ่านนาฬิกา, ระยะเวลา, ตารางเวลา</p>
+                      </div>
+
+                      <div className="bg-white p-4 rounded-lg border border-yellow-200">
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">📏</span>
+                            <span className="font-semibold text-gray-800">5. Measurement</span>
+                          </div>
+                          <span className="text-sm bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full font-medium">4 ข้อ</span>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-1">วัดความยาว, แปลงหน่วย, เส้นรอบรูป</p>
+                      </div>
+
+                      <div className="bg-white p-4 rounded-lg border border-yellow-200">
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">🔷</span>
+                            <span className="font-semibold text-gray-800">6. Shapes</span>
+                          </div>
+                          <span className="text-sm bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full font-medium">3 ข้อ</span>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-1">รูปเรขาคณิต, สมมาตร</p>
+                      </div>
+
+                      <div className="bg-white p-4 rounded-lg border border-yellow-200">
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">📊</span>
+                            <span className="font-semibold text-gray-800">7. Data Presentation</span>
+                          </div>
+                          <span className="text-sm bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full font-medium">4 ข้อ</span>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-1">อ่านตาราง, กราฟ, แปลความหมาย</p>
+                      </div>
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-yellow-300">
+                      <p className="text-sm text-yellow-800 font-medium">รวมทั้งหมด: 30 ข้อ</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button 
+                      onClick={() => setShowTopicOutline(false)} 
+                      variant="outline"
+                      className="flex-1 py-6 text-lg"
+                      size="lg"
+                    >
+                      <ChevronLeft className="w-5 h-5 mr-2" />
+                      กลับ
+                    </Button>
+                    <Button 
+                      onClick={handleStartAssessment} 
+                      className="flex-1 py-6 text-lg bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600"
+                      size="lg"
+                    >
+                      <Trophy className="w-5 h-5 mr-2" />
+                      เริ่มทำข้อสอบ
+                    </Button>
+                  </div>
                 </>
               ) : !showTopicOutline ? (
                 <>
