@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Plus, Minus, X, Divide, Sigma, Table, Clock, Ruler, Scale, Zap, Eye, Hash, Shapes, Percent, ArrowLeftRight, Calculator, Link2, BarChart3, Layers, Brain, Grid3x3, Coins, GripVertical } from 'lucide-react';
+import { Plus, Minus, X, Divide, Sigma, Table, Clock, Ruler, Scale, Zap, Eye, Hash, Shapes, Percent, ArrowLeftRight, Calculator, Link2, BarChart3, Layers, Brain, Grid3x3, Coins, GripVertical, Pin } from 'lucide-react';
 import {
   DndContext,
   closestCenter,
@@ -273,12 +273,16 @@ const SkillCard: React.FC<{
   buttonText?: string;
   disableLinks?: boolean;
   isEditMode?: boolean;
+  isPinned?: boolean;
+  onTogglePin?: (skillId: string) => void;
 }> = ({
   skill,
   onPreview,
   buttonText = 'เริ่มทำแบบฝึกหัด',
   disableLinks = false,
-  isEditMode = false
+  isEditMode = false,
+  isPinned = false,
+  onTogglePin
 }) => {
   const handlePreviewClick = (e: React.MouseEvent) => {
     if (onPreview) {
@@ -287,10 +291,33 @@ const SkillCard: React.FC<{
     }
   };
 
+  const handlePinClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onTogglePin && skill.hrefPreview) {
+      onTogglePin(skill.hrefPreview);
+    }
+  };
+
   const cardContent = (
     <div 
-      className={`relative rounded-3xl shadow-xl ${!disableLinks && !isEditMode ? 'hover:-translate-y-2 hover:shadow-2xl' : ''} ${isEditMode ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'} transition-all duration-300 ${skill.backgroundGradient} overflow-hidden group`}
+      className={`relative rounded-3xl shadow-xl ${!disableLinks && !isEditMode ? 'hover:-translate-y-2 hover:shadow-2xl' : ''} ${isEditMode ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'} transition-all duration-300 ${skill.backgroundGradient} overflow-hidden group ${isPinned ? 'ring-2 ring-yellow-400 ring-offset-2' : ''}`}
     >
+      {/* Pin Button */}
+      {!isEditMode && onTogglePin && (
+        <button
+          onClick={handlePinClick}
+          className={`absolute top-2 left-2 rounded-full p-1.5 z-20 transition-all duration-200 ${
+            isPinned 
+              ? 'bg-yellow-400 hover:bg-yellow-500 shadow-lg' 
+              : 'bg-white/60 hover:bg-white/80'
+          }`}
+          title={isPinned ? 'ยกเลิกปักหมุด' : 'ปักหมุด'}
+        >
+          <Pin className={`w-4 h-4 ${isPinned ? 'fill-white text-white' : 'text-gray-700'}`} />
+        </button>
+      )}
+      
       {/* Edit Mode Indicator */}
       {isEditMode && (
         <div className="absolute top-2 right-2 bg-white/80 rounded-full p-1.5 z-20">
@@ -352,11 +379,13 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({
 
   const [orderedSkills, setOrderedSkills] = useState<Skill[]>(initialSkills);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [pinnedSkills, setPinnedSkills] = useState<string[]>([]);
 
-  // Load order from localStorage
+  // Load order and pinned skills from localStorage
   useEffect(() => {
     const userId = user?.id || 'guest';
     const savedOrder = localStorage.getItem(`skillsOrder_${userId}`);
+    const savedPinned = localStorage.getItem(`skillsPinned_${userId}`);
     
     if (savedOrder) {
       try {
@@ -372,6 +401,14 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({
         console.error('Error loading skill order:', e);
       }
     }
+    
+    if (savedPinned) {
+      try {
+        setPinnedSkills(JSON.parse(savedPinned));
+      } catch (e) {
+        console.error('Error loading pinned skills:', e);
+      }
+    }
   }, [user?.id, initialSkills]);
 
   // Save order to localStorage
@@ -380,6 +417,37 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({
     const orderIds = skills.map(s => s.hrefPreview);
     localStorage.setItem(`skillsOrder_${userId}`, JSON.stringify(orderIds));
   };
+
+  // Save pinned skills to localStorage
+  const savePinnedSkills = (pinned: string[]) => {
+    const userId = user?.id || 'guest';
+    localStorage.setItem(`skillsPinned_${userId}`, JSON.stringify(pinned));
+  };
+
+  // Toggle pin status
+  const handleTogglePin = (skillId: string) => {
+    setPinnedSkills((prev) => {
+      const newPinned = prev.includes(skillId)
+        ? prev.filter(id => id !== skillId)
+        : [...prev, skillId];
+      
+      savePinnedSkills(newPinned);
+      
+      toast({
+        title: prev.includes(skillId) ? t('unpinSuccess') : t('pinSuccess'),
+        duration: 1500,
+      });
+      
+      return newPinned;
+    });
+  };
+
+  // Sort skills: pinned first, then ordered
+  const sortedSkills = React.useMemo(() => {
+    const pinned = orderedSkills.filter(s => pinnedSkills.includes(s.hrefPreview || ''));
+    const unpinned = orderedSkills.filter(s => !pinnedSkills.includes(s.hrefPreview || ''));
+    return [...pinned, ...unpinned];
+  }, [orderedSkills, pinnedSkills]);
 
   // Setup sensors
   const sensors = useSensors(
@@ -399,7 +467,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({
     })
   );
 
-  // Handle drag end
+  // Handle drag end (respecting pinned groups)
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -407,18 +475,29 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({
       setOrderedSkills((items) => {
         const oldIndex = items.findIndex(s => s.hrefPreview === active.id);
         const newIndex = items.findIndex(s => s.hrefPreview === over.id);
-        const newOrder = arrayMove(items, oldIndex, newIndex);
-        saveOrder(newOrder);
-        return newOrder;
+        
+        // Check if both items are in same group (both pinned or both unpinned)
+        const activeIsPinned = pinnedSkills.includes(active.id as string);
+        const overIsPinned = pinnedSkills.includes(over.id as string);
+        
+        if (activeIsPinned === overIsPinned) {
+          const newOrder = arrayMove(items, oldIndex, newIndex);
+          saveOrder(newOrder);
+          return newOrder;
+        }
+        
+        return items; // Don't allow moving between pinned/unpinned groups
       });
     }
   };
 
-  // Reset to default order
+  // Reset to default order and clear pinned
   const handleReset = () => {
     const userId = user?.id || 'guest';
     setOrderedSkills(initialSkills);
+    setPinnedSkills([]);
     localStorage.removeItem(`skillsOrder_${userId}`);
+    localStorage.removeItem(`skillsPinned_${userId}`);
     toast({
       title: t('resetSuccess'),
       duration: 2000,
@@ -432,25 +511,33 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({
         <p className="text-white/80 text-lg max-w-2xl mx-auto">{t('sectionSubtitle')}</p>
         
         {/* Edit Mode Controls */}
-        <div className="flex justify-center gap-2 mt-4">
-          <Button
-            variant={isEditMode ? "default" : "outline"}
-            size="sm"
-            onClick={() => setIsEditMode(!isEditMode)}
-            className="bg-white/10 hover:bg-white/20 text-white border-white/20"
-          >
-            {isEditMode ? `✓ ${t('done')}` : `✏️ ${t('reorder')}`}
-          </Button>
-          {isEditMode && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={handleReset}
-              className="text-white hover:bg-white/20"
-            >
-              🔄 {t('reset')}
-            </Button>
+        <div className="flex flex-col items-center gap-2 mt-4">
+          {pinnedSkills.length > 0 && (
+            <div className="text-white/60 text-sm flex items-center gap-1">
+              <Pin className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+              {t('pinnedCount', { count: pinnedSkills.length })}
+            </div>
           )}
+          <div className="flex gap-2">
+            <Button
+              variant={isEditMode ? "default" : "outline"}
+              size="sm"
+              onClick={() => setIsEditMode(!isEditMode)}
+              className="bg-white/10 hover:bg-white/20 text-white border-white/20"
+            >
+              {isEditMode ? `✓ ${t('done')}` : `✏️ ${t('reorder')}`}
+            </Button>
+            {isEditMode && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleReset}
+                className="text-white hover:bg-white/20"
+              >
+                🔄 {t('reset')}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -461,11 +548,11 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({
           onDragEnd={handleDragEnd}
         >
           <SortableContext
-            items={orderedSkills.map(s => s.hrefPreview || '')}
+            items={sortedSkills.map(s => s.hrefPreview || '')}
             strategy={rectSortingStrategy}
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-              {orderedSkills.map((skill) => (
+              {sortedSkills.map((skill) => (
                 <DraggableSkillCard
                   key={skill.hrefPreview}
                   id={skill.hrefPreview || ''}
@@ -477,6 +564,8 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({
                     buttonText={displayButtonText} 
                     disableLinks={disableLinks || isEditMode}
                     isEditMode={isEditMode}
+                    isPinned={pinnedSkills.includes(skill.hrefPreview || '')}
+                    onTogglePin={handleTogglePin}
                   />
                 </DraggableSkillCard>
               ))}
