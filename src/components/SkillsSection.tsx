@@ -1,7 +1,27 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Plus, Minus, X, Divide, Sigma, Table, Clock, Ruler, Scale, Zap, Eye, Hash, Shapes, Percent, ArrowLeftRight, Calculator, Link2, BarChart3, Layers, Brain, Grid3x3, Coins } from 'lucide-react';
+import { Plus, Minus, X, Divide, Sigma, Table, Clock, Ruler, Scale, Zap, Eye, Hash, Shapes, Percent, ArrowLeftRight, Calculator, Link2, BarChart3, Layers, Brain, Grid3x3, Coins, GripVertical } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy
+} from '@dnd-kit/sortable';
+import { DraggableSkillCard } from './DraggableSkillCard';
+import { Button } from './ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 // Import mascot images
 import additionMascot from '../assets/mascot-addition.png';
@@ -252,11 +272,13 @@ const SkillCard: React.FC<{
   onPreview?: (skill: Skill) => void;
   buttonText?: string;
   disableLinks?: boolean;
+  isEditMode?: boolean;
 }> = ({
   skill,
   onPreview,
   buttonText = 'เริ่มทำแบบฝึกหัด',
-  disableLinks = false
+  disableLinks = false,
+  isEditMode = false
 }) => {
   const handlePreviewClick = (e: React.MouseEvent) => {
     if (onPreview) {
@@ -267,8 +289,15 @@ const SkillCard: React.FC<{
 
   const cardContent = (
     <div 
-      className={`relative rounded-3xl shadow-xl ${!disableLinks ? 'hover:-translate-y-2 hover:shadow-2xl cursor-pointer' : ''} transition-all duration-300 ${skill.backgroundGradient} overflow-hidden group`}
+      className={`relative rounded-3xl shadow-xl ${!disableLinks && !isEditMode ? 'hover:-translate-y-2 hover:shadow-2xl' : ''} ${isEditMode ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'} transition-all duration-300 ${skill.backgroundGradient} overflow-hidden group`}
     >
+      {/* Edit Mode Indicator */}
+      {isEditMode && (
+        <div className="absolute top-2 right-2 bg-white/80 rounded-full p-1.5 z-20">
+          <GripVertical className="w-4 h-4 text-gray-600" />
+        </div>
+      )}
+      
       {/* Mascot Image */}
       <div className="absolute top-3 right-3 w-14 h-14 z-10">
         {skill.mascotImage ? (
@@ -296,12 +325,12 @@ const SkillCard: React.FC<{
     </div>
   );
 
-  return skill.hrefPreview && !disableLinks ? (
+  return skill.hrefPreview && !disableLinks && !isEditMode ? (
     <Link to={skill.hrefPreview} onClick={handlePreviewClick}>
       {cardContent}
     </Link>
   ) : (
-    <div onClick={onPreview && !disableLinks ? handlePreviewClick : undefined}>
+    <div onClick={onPreview && !disableLinks && !isEditMode ? handlePreviewClick : undefined}>
       {cardContent}
     </div>
   );
@@ -314,22 +343,149 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({
   disableLinks = false
 }) => {
   const { t } = useTranslation('skills');
+  const { toast } = useToast();
+  const { user } = useAuth();
+  
   const defaultSkills = getDefaultSkills(t);
-  const displaySkills = skills || defaultSkills;
+  const initialSkills = skills || defaultSkills;
   const displayButtonText = buttonText || t('defaultButtonText');
 
-  return <section className="mb-12">
+  const [orderedSkills, setOrderedSkills] = useState<Skill[]>(initialSkills);
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  // Load order from localStorage
+  useEffect(() => {
+    const userId = user?.id || 'guest';
+    const savedOrder = localStorage.getItem(`skillsOrder_${userId}`);
+    
+    if (savedOrder) {
+      try {
+        const orderIds = JSON.parse(savedOrder);
+        const reordered = orderIds
+          .map((id: string) => initialSkills.find(s => s.hrefPreview === id))
+          .filter(Boolean);
+        
+        if (reordered.length === initialSkills.length) {
+          setOrderedSkills(reordered);
+        }
+      } catch (e) {
+        console.error('Error loading skill order:', e);
+      }
+    }
+  }, [user?.id, initialSkills]);
+
+  // Save order to localStorage
+  const saveOrder = (skills: Skill[]) => {
+    const userId = user?.id || 'guest';
+    const orderIds = skills.map(s => s.hrefPreview);
+    localStorage.setItem(`skillsOrder_${userId}`, JSON.stringify(orderIds));
+  };
+
+  // Setup sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Handle drag end
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      setOrderedSkills((items) => {
+        const oldIndex = items.findIndex(s => s.hrefPreview === active.id);
+        const newIndex = items.findIndex(s => s.hrefPreview === over.id);
+        const newOrder = arrayMove(items, oldIndex, newIndex);
+        saveOrder(newOrder);
+        return newOrder;
+      });
+    }
+  };
+
+  // Reset to default order
+  const handleReset = () => {
+    const userId = user?.id || 'guest';
+    setOrderedSkills(initialSkills);
+    localStorage.removeItem(`skillsOrder_${userId}`);
+    toast({
+      title: t('resetSuccess'),
+      duration: 2000,
+    });
+  };
+
+  return (
+    <section className="mb-12">
       <div className="text-center mb-8">
         <h2 className="text-2xl text-white mb-4 font-semibold md:text-4xl">{t('sectionTitle')}</h2>
         <p className="text-white/80 text-lg max-w-2xl mx-auto">{t('sectionSubtitle')}</p>
+        
+        {/* Edit Mode Controls */}
+        <div className="flex justify-center gap-2 mt-4">
+          <Button
+            variant={isEditMode ? "default" : "outline"}
+            size="sm"
+            onClick={() => setIsEditMode(!isEditMode)}
+            className="bg-white/10 hover:bg-white/20 text-white border-white/20"
+          >
+            {isEditMode ? `✓ ${t('done')}` : `✏️ ${t('reorder')}`}
+          </Button>
+          {isEditMode && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleReset}
+              className="text-white hover:bg-white/20"
+            >
+              🔄 {t('reset')}
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-          {displaySkills.map((skill, index) => <SkillCard key={index} skill={skill} onPreview={onPreview} buttonText={displayButtonText} disableLinks={disableLinks} />)}
-        </div>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={orderedSkills.map(s => s.hrefPreview || '')}
+            strategy={rectSortingStrategy}
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+              {orderedSkills.map((skill) => (
+                <DraggableSkillCard
+                  key={skill.hrefPreview}
+                  id={skill.hrefPreview || ''}
+                  isEditMode={isEditMode}
+                >
+                  <SkillCard 
+                    skill={skill} 
+                    onPreview={onPreview} 
+                    buttonText={displayButtonText} 
+                    disableLinks={disableLinks || isEditMode}
+                    isEditMode={isEditMode}
+                  />
+                </DraggableSkillCard>
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
       </div>
-    </section>;
+    </section>
+  );
 };
 
 export default SkillsSection;

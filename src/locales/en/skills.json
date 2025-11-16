@@ -2,6 +2,10 @@
   "sectionTitle": "🎯 Enhance Your Child's Knowledge and Skills",
   "sectionSubtitle": "— Choose a skill to practice —",
   "defaultButtonText": "Start Practice",
+  "reorder": "Reorder",
+  "done": "Done",
+  "reset": "Reset",
+  "resetSuccess": "Order reset successfully",
   "skills": {
     "placeValue": {
       "title": "Place Value",
