@@ -297,10 +297,7 @@ export const curriculumConfig: Record<string, Record<string, SkillConfig[]>> = {
 export const getGradeOptions = () => [
   { value: 1, label: 'ประถมศึกษาปีที่ 1' },
   { value: 2, label: 'ประถมศึกษาปีที่ 2' },
-  { value: 3, label: 'ประถมศึกษาปีที่ 3' },
-  { value: 4, label: 'ประถมศึกษาปีที่ 4' },
-  { value: 5, label: 'ประถมศึกษาปีที่ 5' },
-  { value: 6, label: 'ประถมศึกษาปีที่ 6' }
+  { value: 3, label: 'ประถมศึกษาปีที่ 3' }
 ];
 
 export const getSemesterOptions = () => [
