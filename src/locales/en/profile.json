@@ -8,6 +8,19 @@
   "basic": "Basic",
   "referralProgram": "Referral Program",
   
+  "installApp": {
+    "title": "Install App on Your Device",
+    "description": "Install KidFastAI on your tablet or smartphone for easy access, offline support, and native app experience",
+    "button": "📱 Install Now",
+    "installed": "✅ App Already Installed!",
+    "installedDescription": "You can open KidFastAI from your device's home screen",
+    "iosTitle": "How to Install on iPhone/iPad",
+    "iosStep1": "Tap the Share button (square with arrow) at the bottom menu",
+    "iosStep2": "Scroll down and find 'Add to Home Screen'",
+    "iosStep3": "Tap Add to confirm",
+    "iosStep4": "App icon will appear on your home screen ✅"
+  },
+  
   "memberInfo": {
     "registeredOn": "Registered On",
     "approvedOn": "Approved On",

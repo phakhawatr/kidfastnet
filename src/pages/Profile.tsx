@@ -95,6 +95,11 @@ const Profile = () => {
   const [isLinking, setIsLinking] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   
+  // PWA Install states
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstallable, setIsInstallable] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false);
+  
   // Get member ID from auth state
   const getMemberId = () => {
     try {
@@ -203,6 +208,41 @@ const Profile = () => {
     
     fetchRegistrationData();
   }, [isDemo, username]);
+
+  // PWA Install prompt handler
+  useEffect(() => {
+    // Check if already installed
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setIsInstalled(true);
+    }
+
+    // Listen for install prompt
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setIsInstallable(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+
+    if (outcome === 'accepted') {
+      setIsInstalled(true);
+      setIsInstallable(false);
+    }
+
+    setDeferredPrompt(null);
+  };
 
   // Calculate membership expiration (1 year from payment_date or approved_at)
   const getMembershipExpiration = () => {
@@ -643,6 +683,76 @@ const Profile = () => {
             </div>
           </div>
         </div>
+
+        {/* PWA Install Card - แสดงเมื่อ isInstallable */}
+        {isInstallable && !isInstalled && (
+          <Card className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white mb-6">
+            <CardContent className="p-6">
+              <div className="flex items-start gap-4">
+                <div className="bg-white/20 p-3 rounded-lg">
+                  <Sparkles className="w-6 h-6" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold mb-2">
+                    {t('installApp.title')}
+                  </h3>
+                  <p className="text-white/90 mb-4">
+                    {t('installApp.description')}
+                  </p>
+                  <Button 
+                    onClick={handleInstallClick}
+                    className="bg-white text-indigo-600 hover:bg-white/90 font-bold"
+                  >
+                    {t('installApp.button')}
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Already Installed Card */}
+        {isInstalled && (
+          <Card className="bg-gradient-to-r from-green-400 to-emerald-500 text-white mb-6">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="bg-white/20 p-3 rounded-lg">
+                  <Trophy className="w-6 h-6" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold">
+                    {t('installApp.installed')}
+                  </h3>
+                  <p className="text-white/90 text-sm">
+                    {t('installApp.installedDescription')}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* iOS Instructions - แสดงเฉพาะ iOS devices */}
+        {/iPad|iPhone|iPod/.test(navigator.userAgent) && !isInstalled && (
+          <Card className="bg-blue-50 border-blue-200 mb-6">
+            <CardContent className="p-6">
+              <div className="flex items-start gap-4">
+                <div className="text-4xl">🍎</div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-blue-900 mb-2">
+                    {t('installApp.iosTitle')}
+                  </h3>
+                  <ol className="text-blue-800 text-sm space-y-1 list-decimal list-inside">
+                    <li>{t('installApp.iosStep1')}</li>
+                    <li>{t('installApp.iosStep2')}</li>
+                    <li>{t('installApp.iosStep3')}</li>
+                    <li>{t('installApp.iosStep4')}</li>
+                  </ol>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Member Information */}
         {registrationData && (
