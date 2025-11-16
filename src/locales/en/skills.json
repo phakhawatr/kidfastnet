@@ -6,6 +6,9 @@
   "done": "Done",
   "reset": "Reset",
   "resetSuccess": "Order reset successfully",
+  "pinSuccess": "Pinned successfully",
+  "unpinSuccess": "Unpinned successfully",
+  "pinnedCount": "{{count}} pinned",
   "skills": {
     "placeValue": {
       "title": "Place Value",

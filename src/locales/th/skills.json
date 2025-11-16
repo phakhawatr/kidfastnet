@@ -6,6 +6,9 @@
   "done": "เสร็จสิ้น",
   "reset": "รีเซ็ต",
   "resetSuccess": "รีเซ็ตลำดับเรียบร้อยแล้ว",
+  "pinSuccess": "ปักหมุดเรียบร้อยแล้ว",
+  "unpinSuccess": "ยกเลิกปักหมุดแล้ว",
+  "pinnedCount": "ปักหมุดแล้ว {{count}} รายการ",
   "skills": {
     "placeValue": {
       "title": "ค่าประจำหลัก",
