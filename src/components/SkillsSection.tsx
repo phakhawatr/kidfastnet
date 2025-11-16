@@ -236,6 +236,15 @@ const getDefaultSkills = (t: any): Skill[] => [{
   sticker: '💰',
   hrefPreview: '/money',
   translationKey: 'money'
+}, {
+  icon: Calculator,
+  title: t('skills.wordProblems.title'),
+  desc: t('skills.wordProblems.desc'),
+  backgroundGradient: 'bg-gradient-to-br from-rose-400 via-red-500 to-orange-500',
+  textColor: 'text-white',
+  sticker: '📝',
+  hrefPreview: '/word-problems',
+  translationKey: 'wordProblems'
 }];
 
 const SkillCard: React.FC<{
