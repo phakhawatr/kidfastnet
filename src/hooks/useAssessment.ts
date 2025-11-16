@@ -9,6 +9,7 @@ export const useAssessment = (userId: string, grade: number, semesterOrType: num
   const [startTime, setStartTime] = useState<number>(Date.now());
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [timeTaken, setTimeTaken] = useState(0);
 
   useEffect(() => {
     if (grade && semesterOrType) {
@@ -27,9 +28,21 @@ export const useAssessment = (userId: string, grade: number, semesterOrType: num
       setCurrentIndex(0);
       setAnswers(new Map());
       setIsSubmitted(false);
+      setTimeTaken(0);
       setIsLoading(false);
     }
   }, [grade, semesterOrType]);
+
+  // Timer effect - update every second
+  useEffect(() => {
+    if (grade && semesterOrType && !isSubmitted) {
+      const interval = setInterval(() => {
+        setTimeTaken(Math.floor((Date.now() - startTime) / 1000));
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [startTime, grade, semesterOrType, isSubmitted]);
 
   const setAnswer = (questionIndex: number, answer: any) => {
     setAnswers(prev => new Map(prev).set(questionIndex, answer));
@@ -159,8 +172,6 @@ export const useAssessment = (userId: string, grade: number, semesterOrType: num
     }
   };
 
-  const currentTimeTaken = Math.floor((Date.now() - startTime) / 1000);
-
   return {
     questions,
     currentIndex,
@@ -173,6 +184,6 @@ export const useAssessment = (userId: string, grade: number, semesterOrType: num
     previousQuestion,
     submitAssessment,
     calculateCorrectAnswers,
-    timeTaken: currentTimeTaken
+    timeTaken
   };
 };

@@ -626,6 +626,14 @@ const Quiz = () => {
         <div className="container mx-auto px-4 py-8">
           <Card className="max-w-3xl mx-auto shadow-lg">
             <CardHeader>
+              {/* Exam title header */}
+              <div className="bg-gradient-to-r from-purple-100 to-blue-100 p-4 rounded-lg mb-4">
+                <h2 className="text-lg font-bold text-purple-900">
+                  ชั้น ประถมศึกษาปีที่ {selectedGrade} 
+                  {assessmentType === 'nt' ? ' สอบวัดระดับชาติ NT' : ` ภาคเรียนที่ ${selectedSemester}`}
+                </h2>
+              </div>
+
               <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-2 text-gray-600">
                   <Clock className="w-5 h-5" />
