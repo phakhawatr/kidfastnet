@@ -5,17 +5,21 @@
     "nt": "สอบวัดระดับชาติ (NT)"
   },
   "ntInfo": {
-    "title": "แบบทดสอบความสามารถด้านคณิตศาสตร์",
-    "subtitle": "ชั้นประถมศึกษาปีที่ 3",
-    "description": "ข้อสอบแบบเลือกตอบ 4 ตัวเลือก",
-    "questions": "30 ข้อ",
-    "totalScore": "100 คะแนน",
-    "timeLimit": "90 นาที",
-    "features": {
-      "multipleChoice": "แบบเลือกตอบทั้งหมด",
-      "visualContent": "พร้อมภาพประกอบสวยงาม",
-      "realWorld": "โจทย์จากชีวิตจริง",
-      "autoGrade": "ตรวจให้คะแนนอัตโนมัติ"
+    "title": "Mathematics Proficiency Test",
+    "subtitle": "Grade 3",
+    "description": "Multiple choice questions with 4 options",
+    "questions": "30 questions",
+    "totalScore": "100 points",
+    "timeLimit": "90 minutes",
+    "categoriesTitle": "30 questions divided into 7 categories:",
+    "categories": {
+      "counting": "📚 Counting & Patterns (5 questions): Decimals, patterns, sequences",
+      "fractions": "🧮 Fractions (6 questions): Fractions, addition-subtraction, word problems",
+      "money": "💰 Money (4 questions): Appreciation, change, shopping",
+      "time": "⏰ Time (4 questions): Reading clocks, duration, timetables",
+      "measurement": "📏 Measurement (4 questions): Length, unit conversion, perimeter",
+      "shapes": "🔷 Shapes (3 questions): Geometry, symmetry",
+      "data": "📊 Data Presentation (4 questions): Tables, graphs, interpretation"
     }
   },
   "title": "Level Assessment",
