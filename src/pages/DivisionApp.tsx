@@ -253,7 +253,7 @@ const DivisionApp: React.FC = () => {
   };
 
   // Handle option selection for remainder type
-  const handleOptionSelect = (problemIndex: number, remainder: number) => {
+  const handleOptionSelect = (problemIndex: number, quotient: number, remainder: number) => {
     if (results === 'checked') return;
     
     // Start timer on first selection
@@ -267,7 +267,8 @@ const DivisionApp: React.FC = () => {
     }
     
     const newAnswers = [...answers];
-    newAnswers[problemIndex] = [remainder.toString()];
+    // Store both quotient and remainder as "quotient-remainder" to ensure uniqueness
+    newAnswers[problemIndex] = [`${quotient}-${remainder}`];
     setAnswers(newAnswers);
   };
 
@@ -299,9 +300,10 @@ const DivisionApp: React.FC = () => {
       let isCorrect = false;
       
       if (divisionType === 'remainder') {
-        // For remainder type, check selected remainder
-        const selectedRemainder = parseInt(answers[index]?.[0]) || -1;
-        isCorrect = selectedRemainder === problem.remainder;
+        // Check if selected option matches correct quotient and remainder
+        const selectedAnswer = answers[index][0];
+        const correctAnswer = `${problem.quotient}-${problem.remainder}`;
+        isCorrect = selectedAnswer === correctAnswer;
       } else if (divisionType === 'decimal') {
         isCorrect = Math.abs(userAnswer - problem.quotient) < 0.01;
       } else {
@@ -791,14 +793,14 @@ const DivisionApp: React.FC = () => {
                 // Multiple choice for remainder type
                 <div className="mt-4 space-y-2">
                   {problem.options?.map((option, optIdx) => {
-                    const isSelected = parseInt(answers[problemIndex]?.[0]) === option.remainder;
-                    const isCorrect = option.remainder === problem.remainder;
+                    const isSelected = answers[problemIndex]?.[0] === `${option.quotient}-${option.remainder}`;
+                    const isCorrect = option.quotient === problem.quotient && option.remainder === problem.remainder;
                     const showFeedback = results === 'checked';
                     
                     return (
                       <button
                         key={optIdx}
-                        onClick={() => handleOptionSelect(problemIndex, option.remainder)}
+                        onClick={() => handleOptionSelect(problemIndex, option.quotient, option.remainder)}
                         disabled={results === 'checked'}
                         className={`w-full p-4 text-xl rounded-lg border-3 transition-all font-bold ${
                           showFeedback
