@@ -487,15 +487,18 @@ const Quiz = () => {
                           <span className="text-lg">⏰</span>
                           <b>{t('quiz:ntInfo.timeLimit')}</b>
                         </p>
-                        <div className="mt-3 pt-3 border-t border-yellow-300">
-                          <p className="font-semibold mb-2">✨ คุณสมบัติพิเศษ:</p>
-                          <ul className="space-y-1 pl-4">
-                            <li>• {t('quiz:ntInfo.features.multipleChoice')}</li>
-                            <li>• {t('quiz:ntInfo.features.visualContent')}</li>
-                            <li>• {t('quiz:ntInfo.features.realWorld')}</li>
-                            <li>• {t('quiz:ntInfo.features.autoGrade')}</li>
-                          </ul>
-                        </div>
+                <div className="mt-3 pt-3 border-t border-yellow-300">
+                  <p className="font-semibold mb-2">{t('quiz:ntInfo.categoriesTitle')}</p>
+                  <ul className="space-y-1.5 text-sm">
+                    <li>{t('quiz:ntInfo.categories.counting')}</li>
+                    <li>{t('quiz:ntInfo.categories.fractions')}</li>
+                    <li>{t('quiz:ntInfo.categories.money')}</li>
+                    <li>{t('quiz:ntInfo.categories.time')}</li>
+                    <li>{t('quiz:ntInfo.categories.measurement')}</li>
+                    <li>{t('quiz:ntInfo.categories.shapes')}</li>
+                    <li>{t('quiz:ntInfo.categories.data')}</li>
+                  </ul>
+                </div>
                       </div>
                     </CardContent>
                   </Card>
