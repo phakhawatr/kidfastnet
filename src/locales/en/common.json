@@ -16,5 +16,13 @@
   "reset": "Reset",
   "submitAll": "Submit All",
   "correct": "Correct",
-  "tryAgain": "Try Again"
+  "tryAgain": "Try Again",
+  "pwa": {
+    "updateAvailable": "New Version Available!",
+    "updateMessage": "A new version is available! Click below to refresh and use the latest version",
+    "updateNow": "Refresh Now",
+    "later": "Later",
+    "offlineReady": "Offline Ready",
+    "offlineMessage": "App is ready to work offline"
+  }
 }

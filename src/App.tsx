@@ -39,6 +39,7 @@ import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import { ToastContainer } from "./components/Toast";
+import { PWAUpdatePrompt } from "./components/PWAUpdatePrompt";
 
 const queryClient = new QueryClient();
 
@@ -289,6 +290,10 @@ const App = () => {
           <Route path="/background-remover" element={<BackgroundRemoverPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        
+        {/* PWA Update Prompt */}
+        <PWAUpdatePrompt />
+        
         <ToastContainer />
       </BrowserRouter>
     </QueryClientProvider>

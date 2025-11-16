@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
 import LanguageSwitcher from './LanguageSwitcher';
 import logoAIBrain from '../assets/logo-ai-final.png';
-import { FileQuestion, Rocket } from 'lucide-react';
+import { FileQuestion, Rocket, RefreshCw } from 'lucide-react';
 
 const Header = () => {
   const { isLoggedIn, logout } = useAuth();
@@ -23,6 +23,15 @@ const Header = () => {
           
           <div className="flex items-center gap-3">
             {!isAdminPage && <LanguageSwitcher />}
+            
+            {/* Manual Refresh Button */}
+            <button
+              onClick={() => window.location.reload()}
+              className="p-2 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200"
+              title={t('refresh')}
+            >
+              <RefreshCw className="w-5 h-5" />
+            </button>
             
             {isLoggedIn ? (
               <>
