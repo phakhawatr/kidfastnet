@@ -158,9 +158,9 @@
     "noAnswer": "ไม่ได้ตอบ"
   },
   "division": {
-    "title": "โจทย์หาร",
+    "title": "การหาร",
     "subtitle": "ฝึกหารเลข",
-    "withRemainder": "มีเศษ",
+    "withRemainder": "หารมีเศษ",
     "noRemainder": "ไม่มีเศษ",
     "anyRemainder": "ทั้งหมด",
     "worksheetTitle": "✏️ แบบฝึกหัดการหาร",
