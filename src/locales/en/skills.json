@@ -86,6 +86,10 @@
     "money": {
       "title": "Money",
       "desc": "Learn to count money, give change, and solve buying and selling problems"
+    },
+    "wordProblems": {
+      "title": "Word Problems",
+      "desc": "Practice solving real-life math word problems: length, weight, volume, and time"
     }
   }
 }

@@ -1,0 +1,95 @@
+{
+  "title": "Math Word Problems",
+  "subtitle": "Practice Problem-Solving Skills",
+  "categories": {
+    "title": "Select Category",
+    "length": "📏 Length Measurement",
+    "weight": "⚖️ Weight",
+    "volume": "🥤 Volume/Capacity",
+    "time": "⏰ Time"
+  },
+  "difficulty": {
+    "title": "Select Difficulty",
+    "easy": "😊 Easy",
+    "medium": "😐 Medium",
+    "hard": "😤 Hard"
+  },
+  "questionCount": {
+    "title": "Select Number of Questions",
+    "10": "10 Questions",
+    "15": "15 Questions",
+    "30": "30 Questions",
+    "40": "40 Questions"
+  },
+  "buttons": {
+    "start": "Start Quiz",
+    "next": "Next",
+    "submit": "Submit Answer",
+    "finish": "Finish",
+    "tryAgain": "Try Again",
+    "viewSolution": "View Solution",
+    "backToMenu": "Back to Menu",
+    "generateNew": "🤖 AI Generate New",
+    "hideAnswer": "Hide Solution"
+  },
+  "progress": {
+    "question": "Question",
+    "of": "of",
+    "timeElapsed": "Time Elapsed",
+    "timeRemaining": "Time Remaining"
+  },
+  "results": {
+    "title": "Your Score",
+    "score": "Score",
+    "correct": "Correct",
+    "incorrect": "Incorrect",
+    "percentage": "Percentage",
+    "timeUsed": "Time Used",
+    "excellent": "🎉 Excellent!",
+    "good": "👍 Great Job!",
+    "fair": "😊 Good, Try Again",
+    "needPractice": "💪 Keep Practicing"
+  },
+  "units": {
+    "centimeter": "Centimeter",
+    "meter": "Meter",
+    "kilometer": "Kilometer",
+    "kilogram": "Kilogram",
+    "gram": "Gram",
+    "khit": "Khit",
+    "liter": "Liter",
+    "milliliter": "Milliliter",
+    "hour": "Hour",
+    "minute": "Minute",
+    "second": "Second",
+    "cm": "cm",
+    "m": "m",
+    "km": "km",
+    "kg": "kg",
+    "g": "g",
+    "l": "l",
+    "ml": "ml"
+  },
+  "conversions": {
+    "khit_to_kg": "1 khit = 0.6 kilogram",
+    "ml_to_l": "1,000 milliliter = 1 liter",
+    "cm_to_m": "100 centimeter = 1 meter",
+    "m_to_km": "1,000 meter = 1 kilometer"
+  },
+  "feedback": {
+    "correct": "✓ Correct!",
+    "incorrect": "✗ Incorrect",
+    "tryAgain": "Try Again"
+  },
+  "loading": {
+    "generating": "Generating Problems...",
+    "aiGenerating": "AI is Generating New Problems..."
+  },
+  "errors": {
+    "noCategory": "Please select a category",
+    "noDifficulty": "Please select difficulty",
+    "noQuestionCount": "Please select number of questions",
+    "loadFailed": "Failed to load problems",
+    "selectAnswer": "Please select an answer"
+  }
+}

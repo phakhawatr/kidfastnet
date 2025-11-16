@@ -34,6 +34,7 @@ import MoneyApp from "./pages/MoneyApp";
 import PlaceValueApp from "./pages/PlaceValueApp";
 import MentalMathApp from "./pages/MentalMathApp";
 import AreaModelApp from "./pages/AreaModelApp";
+import WordProblemsApp from "./pages/WordProblemsApp";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
@@ -274,6 +275,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <MoneyApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/word-problems" 
+            element={
+              <ProtectedRoute>
+                <WordProblemsApp />
               </ProtectedRoute>
             } 
           />
