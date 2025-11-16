@@ -11,6 +11,8 @@ import { BackgroundMusic } from '../components/BackgroundMusic';
 import { supabase } from '@/integrations/supabase/client';
 
 // Types and interfaces
+type DivisionType = 'integer' | 'decimal' | 'remainder';
+
 interface Problem {
   dividend: number;
   divisor: number;
@@ -18,6 +20,7 @@ interface Problem {
   remainder: number;
   quotientDigits: string[];
   remainderDigits: string[];
+  options?: { quotient: number; remainder: number }[];
 }
 interface Stats {
   timestamp: number;
@@ -26,7 +29,8 @@ interface Stats {
   correct: number;
   total: number;
   timeMs: number;
-  allowDecimals?: boolean;
+  divisionType?: DivisionType;
+  allowDecimals?: boolean; // Keep for backward compatibility
 }
 type Level = 'easy' | 'medium' | 'hard';
 
@@ -57,7 +61,7 @@ const DivisionApp: React.FC = () => {
   // State management
   const [count, setCount] = useState<number>(10);
   const [level, setLevel] = useState<Level>('easy');
-  const [allowDecimals, setAllowDecimals] = useState<boolean>(false);
+  const [divisionType, setDivisionType] = useState<DivisionType>('integer');
   const [problems, setProblems] = useState<Problem[]>([]);
   const [answers, setAnswers] = useState<string[][]>([]);
   const [results, setResults] = useState<'pending' | 'checked'>('pending');
@@ -83,14 +87,59 @@ const DivisionApp: React.FC = () => {
   const [schoolLogo, setSchoolLogo] = useState('');
   const logoInputRef = useRef<HTMLInputElement>(null);
 
+  // Generate remainder options for multiple choice
+  const generateRemainderOptions = (problem: Problem): { quotient: number; remainder: number }[] => {
+    const correctQuotient = problem.quotient;
+    const correctRemainder = problem.remainder;
+    const options = [{ quotient: correctQuotient, remainder: correctRemainder }];
+    
+    // Generate 3 wrong options
+    while (options.length < 4) {
+      let wrongQuotient = correctQuotient;
+      let wrongRemainder = Math.floor(Math.random() * problem.divisor);
+      
+      // Sometimes vary the quotient slightly
+      if (Math.random() > 0.5 && correctQuotient > 1) {
+        wrongQuotient = correctQuotient + (Math.random() > 0.5 ? 1 : -1);
+      }
+      
+      // Don't duplicate
+      if (!options.some(opt => opt.quotient === wrongQuotient && opt.remainder === wrongRemainder) &&
+          wrongRemainder !== correctRemainder) {
+        options.push({ quotient: wrongQuotient, remainder: wrongRemainder });
+      }
+    }
+    
+    // Shuffle
+    return options.sort(() => Math.random() - 0.5);
+  };
+
   // Generate division problems based on level
-  const generateDivisionProblem = (level: Level, allowDecimals: boolean): Problem => {
+  const generateDivisionProblem = (level: Level, divType: DivisionType): Problem => {
     let divisor = 2;
     let quotient = 1;
     let dividend = 2;
     let remainder = 0;
 
-    if (!allowDecimals) {
+    if (divType === 'remainder') {
+      // Division with remainder mode
+      if (level === 'easy') {
+        divisor = Math.floor(Math.random() * 7) + 2; // 2-8
+        quotient = Math.floor(Math.random() * 8) + 1; // 1-8
+        remainder = Math.floor(Math.random() * (divisor - 1)) + 1; // 1 to (divisor-1)
+        dividend = divisor * quotient + remainder;
+      } else if (level === 'medium') {
+        divisor = Math.floor(Math.random() * 9) + 2; // 2-10
+        quotient = Math.floor(Math.random() * 20) + 5; // 5-24
+        remainder = Math.floor(Math.random() * (divisor - 1)) + 1;
+        dividend = divisor * quotient + remainder;
+      } else { // hard
+        divisor = Math.floor(Math.random() * 12) + 5; // 5-16
+        quotient = Math.floor(Math.random() * 50) + 10; // 10-59
+        remainder = Math.floor(Math.random() * (divisor - 1)) + 1;
+        dividend = divisor * quotient + remainder;
+      }
+    } else if (divType === 'decimal') {
       // Exact division mode (original logic)
       if (level === 'easy') {
         // 1-2 digit dividends, single-digit divisors, single-digit quotients
@@ -133,28 +182,41 @@ const DivisionApp: React.FC = () => {
       remainder = 0; // Not used in decimal mode
     }
 
-    return {
+    // Format digits
+    const quotientStr = quotient.toFixed(divType === 'decimal' ? 2 : 0);
+    const quotientDigits = quotientStr.split('');
+    const remainderStr = remainder.toString();
+    const remainderDigits = remainderStr.split('');
+
+    const problem: Problem = {
       dividend,
       divisor,
       quotient,
       remainder,
-      quotientDigits: quotient.toString().split(''),
-      remainderDigits: []
+      quotientDigits,
+      remainderDigits,
     };
+
+    // Generate options for remainder type
+    if (divType === 'remainder') {
+      problem.options = generateRemainderOptions(problem);
+    }
+
+    return problem;
   };
 
   // Generate division problems based on settings
-  const generateDivisionProblems = useCallback((count: number, level: Level, allowDecimals: boolean): Problem[] => {
+  const generateDivisionProblems = useCallback((count: number, level: Level, divType: DivisionType): Problem[] => {
     const generatedProblems: Problem[] = [];
     for (let i = 0; i < count; i++) {
-      generatedProblems.push(generateDivisionProblem(level, allowDecimals));
+      generatedProblems.push(generateDivisionProblem(level, divType));
     }
     return generatedProblems;
   }, []);
 
   // Initialize new problem set
   const generateNewSet = useCallback(() => {
-    const newProblems = generateDivisionProblems(count, level, allowDecimals);
+    const newProblems = generateDivisionProblems(count, level, divisionType);
     setProblems(newProblems);
     // Simple single answer input per problem
     setAnswers(Array.from({
@@ -172,7 +234,7 @@ const DivisionApp: React.FC = () => {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
-  }, [count, level, allowDecimals, generateDivisionProblems]);
+  }, [count, level, divisionType, generateDivisionProblems]);
 
   // Handle answer input
   const handleAnswerChange = (problemIndex: number, value: string) => {
@@ -187,6 +249,25 @@ const DivisionApp: React.FC = () => {
     }
     const newAnswers = [...answers];
     newAnswers[problemIndex] = [value];
+    setAnswers(newAnswers);
+  };
+
+  // Handle option selection for remainder type
+  const handleOptionSelect = (problemIndex: number, remainder: number) => {
+    if (results === 'checked') return;
+    
+    // Start timer on first selection
+    if (!startedAt) {
+      const now = Date.now();
+      setStartedAt(now);
+      backgroundMusic.play(); // Start background music
+      intervalRef.current = setInterval(() => {
+        setElapsedMs(Date.now() - now);
+      }, 100);
+    }
+    
+    const newAnswers = [...answers];
+    newAnswers[problemIndex] = [remainder.toString()];
     setAnswers(newAnswers);
   };
 
@@ -217,9 +298,14 @@ const DivisionApp: React.FC = () => {
       const userAnswer = parseFloat(answers[index][0]) || 0;
       let isCorrect = false;
       
-      if (allowDecimals) {
+      if (divisionType === 'remainder') {
+        // For remainder type, check selected remainder
+        const selectedRemainder = parseInt(answers[index]?.[0]) || -1;
+        isCorrect = selectedRemainder === problem.remainder;
+      } else if (divisionType === 'decimal') {
         isCorrect = Math.abs(userAnswer - problem.quotient) < 0.01;
       } else {
+        // integer type
         isCorrect = userAnswer === problem.quotient && problem.remainder === 0;
       }
       
@@ -240,7 +326,7 @@ const DivisionApp: React.FC = () => {
       correct,
       total: problems.length,
       timeMs: elapsedMs,
-      allowDecimals
+      divisionType
     };
     const updatedStats = [newStat, ...stats].slice(0, 10);
     setStats(updatedStats);
@@ -386,8 +472,8 @@ const DivisionApp: React.FC = () => {
               ${problem.dividend?.toLocaleString() || '0'} ÷ ${problem.divisor?.toLocaleString() || '0'} =
             </div>
             <div style="display: flex; justify-content: center; gap: 4px; margin-top: 14px;">
-              ${Array.from({ length: allowDecimals ? 5 : Math.max(2, problem.quotient.toString().length + 1) }).map(() => 
-                `<div style="width: ${allowDecimals ? '32px' : '36px'}; height: 42px; border: 2px solid #0066cc; border-radius: 6px; background: white;"></div>`
+              ${Array.from({ length: divisionType === 'decimal' ? 5 : Math.max(2, problem.quotient.toString().length + 1) }).map(() => 
+                `<div style="width: ${divisionType === 'decimal' ? '32px' : '36px'}; height: 42px; border: 2px solid #0066cc; border-radius: 6px; background: white;"></div>`
               ).join('')}
             </div>
           </div>
@@ -402,7 +488,7 @@ const DivisionApp: React.FC = () => {
               ${t('division.worksheetTitle')}
             </h1>
             <div style="font-size: 16px; color: #666; margin-top: 8px;">
-              ${problems.length} ${t('division.problems')} • ${t('division.level')}: ${levelMap[level] || level} • ${t('division.resultType')}: ${allowDecimals ? t('division.decimal') : t('division.integer')}
+              ${problems.length} ${t('division.problems')} • ${t('division.level')}: ${levelMap[level] || level} • ${t('division.resultType')}: ${divisionType === 'decimal' ? t('division.decimal') : divisionType === 'remainder' ? t('division.withRemainder') : t('division.integer')}
             </div>
           </div>
 
@@ -588,22 +674,30 @@ const DivisionApp: React.FC = () => {
             {/* Decimal Option */}
             <div>
               <label className="block text-sm font-medium mb-2">{t('division.resultType')}:</label>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 <Button
-                  variant={!allowDecimals ? "default" : "outline"}
+                  variant={divisionType === 'integer' ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setAllowDecimals(false)}
-                  className={`flex-1 ${!allowDecimals ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-100 hover:bg-gray-200'}`}
+                  onClick={() => setDivisionType('integer')}
+                  className={`${divisionType === 'integer' ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-100 hover:bg-gray-200'}`}
                 >
                   {t('division.integer')}
                 </Button>
                 <Button
-                  variant={allowDecimals ? "default" : "outline"}
+                  variant={divisionType === 'decimal' ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setAllowDecimals(true)}
-                  className={`flex-1 ${allowDecimals ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-100 hover:bg-gray-200'}`}
+                  onClick={() => setDivisionType('decimal')}
+                  className={`${divisionType === 'decimal' ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-100 hover:bg-gray-200'}`}
                 >
                   {t('division.decimal')}
+                </Button>
+                <Button
+                  variant={divisionType === 'remainder' ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setDivisionType('remainder')}
+                  className={`${divisionType === 'remainder' ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-100 hover:bg-gray-200'}`}
+                >
+                  {t('division.withRemainder')}
                 </Button>
               </div>
             </div>
@@ -692,27 +786,63 @@ const DivisionApp: React.FC = () => {
                 </div>
               </div>
               
-              {/* Answer input box - placed below the equation */}
-              <div className="flex justify-center mt-4">
-                <input 
-                  id={`answer-${problemIndex}`} 
-                  type="text" 
-                  inputMode="decimal"
-                  value={answers[problemIndex]?.[0] || ""} 
-                  onChange={e => handleAnswerChange(problemIndex, e.target.value)} 
-                  onKeyDown={e => handleKeyDown(e, problemIndex)} 
-                  disabled={showAnswers} 
-                  placeholder={allowDecimals ? "0.00" : ""} 
-                  className={`${allowDecimals ? 'w-24' : 'w-20'} h-12 text-center text-xl font-bold border-2 rounded-lg 
-                    ${results === "checked" ? 
-                      (allowDecimals ? 
-                        Math.abs(parseFloat(answers[problemIndex]?.[0]) - problem.quotient) < 0.01 : 
-                        parseInt(answers[problemIndex]?.[0]) === problem.quotient && problem.remainder === 0
-                      ) ? "border-green-500 bg-green-50" : "border-red-500 bg-red-50" 
-                      : "border-input bg-background focus:border-ring focus:ring-2 focus:ring-ring/30"} 
-                    transition-all duration-200 focus:outline-none`} 
-                />
-              </div>
+              {/* Answer input/options - placed below the equation */}
+              {divisionType === 'remainder' ? (
+                // Multiple choice for remainder type
+                <div className="mt-4 space-y-2">
+                  <div className="text-center text-sm text-muted-foreground mb-2">
+                    {problem.quotient} เศษเท่าไร?
+                  </div>
+                  {problem.options?.map((option, optIdx) => {
+                    const isSelected = parseInt(answers[problemIndex]?.[0]) === option.remainder;
+                    const isCorrect = option.remainder === problem.remainder;
+                    const showFeedback = results === 'checked';
+                    
+                    return (
+                      <button
+                        key={optIdx}
+                        onClick={() => handleOptionSelect(problemIndex, option.remainder)}
+                        disabled={results === 'checked'}
+                        className={`w-full p-3 text-lg rounded-lg border-2 transition-all font-medium ${
+                          showFeedback
+                            ? isCorrect
+                              ? 'bg-green-100 border-green-500 text-green-900'
+                              : isSelected
+                              ? 'bg-red-100 border-red-500 text-red-900'
+                              : 'bg-background border-border text-muted-foreground'
+                            : isSelected
+                            ? 'bg-primary/10 border-primary text-primary'
+                            : 'bg-background border-border hover:border-primary/50 hover:bg-accent'
+                        }`}
+                      >
+                        {option.quotient} เศษ {option.remainder}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                // Text input for integer and decimal types
+                <div className="flex justify-center mt-4">
+                  <input 
+                    id={`answer-${problemIndex}`} 
+                    type="text" 
+                    inputMode="decimal"
+                    value={answers[problemIndex]?.[0] || ""} 
+                    onChange={e => handleAnswerChange(problemIndex, e.target.value)} 
+                    onKeyDown={e => handleKeyDown(e, problemIndex)} 
+                    disabled={showAnswers} 
+                    placeholder={divisionType === 'decimal' ? "0.00" : ""} 
+                    className={`${divisionType === 'decimal' ? 'w-24' : 'w-20'} h-12 text-center text-xl font-bold border-2 rounded-lg 
+                      ${results === "checked" ? 
+                        (divisionType === 'decimal' ? 
+                          Math.abs(parseFloat(answers[problemIndex]?.[0]) - problem.quotient) < 0.01 : 
+                          parseInt(answers[problemIndex]?.[0]) === problem.quotient && problem.remainder === 0
+                        ) ? "border-green-500 bg-green-50" : "border-red-500 bg-red-50" 
+                        : "border-input bg-background focus:border-ring focus:ring-2 focus:ring-ring/30"} 
+                      transition-all duration-200 focus:outline-none`} 
+                  />
+                </div>
+              )}
             </div>)}
         </div>
 
@@ -819,10 +949,10 @@ const DivisionApp: React.FC = () => {
                         </span>
                       </div>
                        <div className="text-right">
-                        <div>{formatTime(stat.timeMs)}</div>
-                         <div className="text-xs text-muted-foreground">
-                           {stat.count}{t('division.problems')} {stat.level} {stat.allowDecimals ? `(${t('division.decimal')})` : ''}
-                         </div>
+                         <div>{formatTime(stat.timeMs)}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {stat.count}{t('division.problems')} {stat.level} {stat.divisionType === 'decimal' ? `(${t('division.decimal')})` : stat.divisionType === 'remainder' ? `(${t('division.withRemainder')})` : stat.allowDecimals ? `(${t('division.decimal')})` : ''}
+                          </div>
                        </div>
                     </div>
                    </div>)}
