@@ -652,10 +652,8 @@ const Quiz = () => {
                   </div>
 
                   <RadioGroup 
-                    {...(answers.get(currentIndex) !== undefined 
-                      ? { value: String(answers.get(currentIndex)) } 
-                      : {}
-                    )}
+                    key={`question-${currentIndex}-${answers.get(currentIndex) ?? 'none'}`}
+                    value={answers.get(currentIndex) !== undefined ? String(answers.get(currentIndex)) : undefined}
                     onValueChange={(v) => {
                       const choiceIndex = parseInt(v, 10);
                       console.log('📝 Answer selected:', { 
