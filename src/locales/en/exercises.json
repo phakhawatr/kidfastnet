@@ -558,15 +558,6 @@
     "groupsTimesItems": "groups × items = items",
     "noAnswer": "No answer"
   },
-  "division": {
-    "worksheetTitle": "Division Worksheet",
-    "problems": "problems",
-    "level": "Level",
-    "resultType": "Type",
-    "decimal": "Decimal",
-    "integer": "Integer",
-    "appName": "Division Practice App"
-  },
   "pdf": {
     "studentName": "Student Name:",
     "class": "Class:",

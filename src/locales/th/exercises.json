@@ -558,15 +558,6 @@
     "groupsTimesItems": "กลุ่ม × ชิ้น = ชิ้น",
     "noAnswer": "ไม่ได้ตอบ"
   },
-  "division": {
-    "worksheetTitle": "แบบฝึกหัดหาร",
-    "problems": "ข้อ",
-    "level": "ระดับ",
-    "resultType": "ประเภท",
-    "decimal": "ทศนิยม",
-    "integer": "จำนวนเต็ม",
-    "appName": "แอปฝึกหาร"
-  },
   "pdf": {
     "studentName": "ชื่อนักเรียน:",
     "class": "ชั้น:",
