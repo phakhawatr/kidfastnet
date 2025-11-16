@@ -829,16 +829,16 @@ const DivisionApp: React.FC = () => {
                         key={optIdx}
                         onClick={() => handleOptionSelect(problemIndex, option.quotient, option.remainder)}
                         disabled={results === 'checked'}
-                        className={`w-full p-4 text-xl rounded-lg border-3 transition-all font-bold ${
+                        className={`w-full p-4 text-xl rounded-lg border-2 transition-all font-bold ${
                           showFeedback
                             ? isCorrect
                               ? 'bg-green-100 border-green-500 text-green-900'
                               : isSelected
                               ? 'bg-red-100 border-red-500 text-red-900'
-                              : 'bg-background border-border text-muted-foreground'
+                              : 'bg-background border-muted text-muted-foreground'
                             : isSelected
                             ? 'bg-primary/10 border-primary text-primary'
-                            : 'bg-background border-border hover:border-primary/50 hover:bg-accent'
+                            : 'bg-background border-primary/30 hover:border-primary hover:bg-accent'
                         }`}
                       >
                         {option.quotient} เศษ {option.remainder}
