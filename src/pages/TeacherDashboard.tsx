@@ -122,17 +122,31 @@ const TeacherDashboard = () => {
   };
 
   const uploadLogoToStorage = async (): Promise<string | null> => {
-    if (!schoolLogoFile || !registrationId) return schoolLogoUrl || null;
+    // If no file selected, return null
+    if (!schoolLogoFile) {
+      console.log('No logo file selected');
+      return null;
+    }
+    
+    if (!registrationId) {
+      console.error('No registrationId available');
+      return null;
+    }
 
     setIsUploadingLogo(true);
     try {
+      console.log('Starting logo upload...', schoolLogoFile.name);
+      
       // Compress image
       const compressedBlob = await compressImage(schoolLogoFile, 400, 400, 0.8);
+      console.log('Image compressed successfully');
       
       // Generate unique filename
       const fileExt = schoolLogoFile.name.split('.').pop();
       const fileName = `${registrationId}-${Date.now()}.${fileExt}`;
       const filePath = `${fileName}`;
+
+      console.log('Uploading to path:', filePath);
 
       // Upload to Supabase Storage
       const { data, error } = await supabase.storage
@@ -142,12 +156,24 @@ const TeacherDashboard = () => {
           upsert: true
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Storage upload error:', error);
+        throw error;
+      }
+
+      console.log('Upload successful:', data);
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('school-logos')
         .getPublicUrl(filePath);
+
+      console.log('Public URL generated:', publicUrl);
+
+      toast({
+        title: 'สำเร็จ',
+        description: 'อัปโหลดโลโก้เรียบร้อยแล้ว',
+      });
 
       return publicUrl;
     } catch (error) {
