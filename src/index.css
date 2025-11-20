@@ -136,6 +136,39 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Mitr', sans-serif;
   }
+  
+  /* High Contrast Mode */
+  .high-contrast {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 60 100% 50%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 20%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 30%;
+    --muted-foreground: 0 0% 100%;
+    --accent: 60 100% 50%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 100%;
+    --input: 0 0% 100%;
+    --ring: 60 100% 50%;
+  }
+  
+  .high-contrast * {
+    border-color: hsl(var(--border)) !important;
+  }
+  
+  .high-contrast button,
+  .high-contrast a {
+    font-weight: 700 !important;
+    text-decoration: underline !important;
+  }
 }
 
 @layer components {
