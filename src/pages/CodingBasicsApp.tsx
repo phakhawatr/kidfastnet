@@ -637,6 +637,85 @@ const CodingBasicsApp = () => {
               </p>
             </div>
 
+            {/* Detailed Answer Review */}
+            <div className="mt-6 mb-6 space-y-3">
+              <h4 className="font-bold text-white text-xl mb-4 text-center">
+                📋 {t('results.answer_review')}
+              </h4>
+              {challenges.map((challenge, index) => {
+                const history = answerHistory[index];
+                const isCorrect = history?.isCorrect || false;
+                
+                // Format user answer
+                let userAnswerText = '';
+                if (gameMode === 'sequencing') {
+                  userAnswerText = history?.selectedAnswer.map((idx, pos) => 
+                    `${pos + 1}. ${challenge.options[idx]}`
+                  ).join(' → ') || '-';
+                } else {
+                  userAnswerText = history?.selectedAnswer.map(idx => challenge.options[idx]).join(', ') || '-';
+                }
+
+                // Format correct answer
+                let correctAnswerText = '';
+                if (gameMode === 'sequencing') {
+                  correctAnswerText = challenge.correctAnswer.map((idx, pos) => 
+                    `${pos + 1}. ${challenge.options[idx]}`
+                  ).join(' → ');
+                } else {
+                  correctAnswerText = challenge.correctAnswer.map(idx => challenge.options[idx]).join(', ');
+                }
+
+                return (
+                  <Card key={index} className="bg-white/5 border-white/10">
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3">
+                        <div className={`text-3xl flex-shrink-0 ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>
+                          {isCorrect ? '✅' : '❌'}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h5 className="font-bold text-white">
+                              {t('results.question')} {index + 1}:
+                            </h5>
+                            {challenge.emoji && (
+                              <span className="text-2xl">{challenge.emoji}</span>
+                            )}
+                          </div>
+                          <p className="text-white/90 mb-3">{challenge.question}</p>
+                          
+                          <div className="space-y-2">
+                            <div className="text-sm bg-white/5 p-2 rounded border border-white/10">
+                              <span className="font-semibold text-white/70">{t('results.your_answer')}:</span>
+                              <p className={`mt-1 ${isCorrect ? 'text-green-300' : 'text-red-300'}`}>
+                                {userAnswerText}
+                              </p>
+                            </div>
+                            
+                            {!isCorrect && (
+                              <div className="text-sm bg-green-500/10 p-2 rounded border border-green-400/30">
+                                <span className="font-semibold text-green-300">{t('results.correct_answer')}:</span>
+                                <p className="text-green-200 mt-1">
+                                  {correctAnswerText}
+                                </p>
+                              </div>
+                            )}
+                            
+                            <div className="text-sm bg-blue-500/10 p-3 rounded border border-blue-400/30">
+                              <span className="font-semibold text-blue-300">💡 {t('results.explanation')}:</span>
+                              <p className="text-white/80 mt-1">
+                                {challenge.explanation}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+
             {/* Actions */}
             <div className="flex gap-4">
               <Button
