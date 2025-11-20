@@ -47,6 +47,7 @@ import STEMProgressDashboard from "./pages/STEMProgressDashboard";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
+import TeacherProtectedRoute from "./components/TeacherProtectedRoute";
 import { ToastContainer } from "./components/Toast";
 import { PWAUpdatePrompt } from "./components/PWAUpdatePrompt";
 
