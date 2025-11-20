@@ -1,16 +1,36 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import LanguageSwitcher from './LanguageSwitcher';
 import logoAIBrain from '../assets/logo-ai-final.png';
-import { FileQuestion, Rocket, RefreshCw, Atom } from 'lucide-react';
+import { FileQuestion, Rocket, RefreshCw, Atom, GraduationCap } from 'lucide-react';
 
 const Header = () => {
-  const { isLoggedIn, logout } = useAuth();
+  const { isLoggedIn, logout, registrationId } = useAuth();
   const { t } = useTranslation('header');
   const location = useLocation();
+  const [isTeacher, setIsTeacher] = useState(false);
   
   const isAdminPage = location.pathname.startsWith('/admin');
+
+  useEffect(() => {
+    const checkTeacherRole = async () => {
+      if (!registrationId) return;
+      
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', registrationId)
+        .eq('role', 'teacher')
+        .maybeSingle();
+      
+      setIsTeacher(!!data);
+    };
+
+    checkTeacherRole();
+  }, [registrationId]);
   
   return (
     <header className="sticky top-0 z-50 backdrop-blur-md bg-white/20 border-b border-white/20">
@@ -59,6 +79,16 @@ const Header = () => {
                   <FileQuestion className="w-4 h-4" />
                   {t('quiz')}
                 </Link>
+
+                {isTeacher && (
+                  <Link 
+                    to="/teacher" 
+                    className="px-4 py-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-medium transition-all duration-300 hover:scale-105 text-sm flex items-center gap-2 shadow-md hover:shadow-lg"
+                  >
+                    <GraduationCap className="w-4 h-4" />
+                    {t('teacherDashboard', 'ครู')}
+                  </Link>
+                )}
                 <button 
                   onClick={logout} 
                   className="px-4 py-2 rounded-full text-white/80 hover:text-white transition-all duration-200 text-sm bg-red-600 hover:bg-red-500"

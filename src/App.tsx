@@ -44,6 +44,8 @@ import ChemistryLabApp from "./pages/ChemistryLabApp";
 import BiologyLabApp from "./pages/BiologyLabApp";
 import AstronomyLabApp from "./pages/AstronomyLabApp";
 import STEMProgressDashboard from "./pages/STEMProgressDashboard";
+import TeacherDashboard from "./pages/TeacherDashboard";
+import PublicExam from "./pages/PublicExam";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
@@ -369,6 +371,20 @@ const App = () => {
               </ProtectedRoute>
             } 
           />
+          
+          {/* Teacher Routes */}
+          <Route 
+            path="/teacher" 
+            element={
+              <TeacherProtectedRoute>
+                <TeacherDashboard />
+              </TeacherProtectedRoute>
+            } 
+          />
+          
+          {/* Public Exam Route - No authentication required */}
+          <Route path="/exam/:linkCode" element={<PublicExam />} />
+          
           <Route path="/background-remover" element={<BackgroundRemoverPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

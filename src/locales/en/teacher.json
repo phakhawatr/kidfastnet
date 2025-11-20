@@ -1,0 +1,94 @@
+{
+  "dashboard": {
+    "title": "Teacher Dashboard",
+    "subtitle": "Create and manage exam links for students"
+  },
+  "createLink": {
+    "title": "Create New Exam Link",
+    "grade": "Grade",
+    "type": "Type",
+    "semester": "Semester",
+    "semesterOption": "Semester",
+    "ntOption": "NT",
+    "maxStudents": "Maximum Students",
+    "createButton": "Create Exam Link",
+    "success": "Exam link created successfully",
+    "error": "Failed to create link"
+  },
+  "examLinks": {
+    "title": "All Exam Links",
+    "empty": "No exam links yet",
+    "emptyHint": "Create your first link to get started",
+    "status": {
+      "active": "🟢 Active",
+      "full": "🟠 Full",
+      "expired": "⚫ Expired"
+    },
+    "students": "students",
+    "createdAt": "Created",
+    "copyLink": "Copy Link",
+    "open": "Open",
+    "report": "Report",
+    "close": "Close",
+    "copiedSuccess": "Exam link copied to clipboard"
+  },
+  "report": {
+    "title": "Exam Results Report",
+    "backButton": "Back",
+    "empty": "No students have taken the exam yet",
+    "rank": "#",
+    "name": "Name",
+    "class": "Class",
+    "number": "No.",
+    "score": "Score",
+    "time": "Time (min)",
+    "status": "Status",
+    "excellent": "Excellent",
+    "pass": "Pass",
+    "fail": "Fail",
+    "avgScore": "Average Score",
+    "maxScore": "Highest Score",
+    "minScore": "Lowest Score"
+  },
+  "publicExam": {
+    "title": "Exam",
+    "loading": "Validating exam link...",
+    "invalidLink": "Cannot access exam",
+    "linkNotFound": "Exam link not found",
+    "linkFull": "This exam is full (maximum students reached)",
+    "linkExpired": "This exam link has expired",
+    "backToHome": "Back to Home",
+    "studentInfo": {
+      "title": "Please enter your information before starting",
+      "name": "Full Name",
+      "namePlaceholder": "e.g. John Doe",
+      "class": "Class",
+      "number": "Number",
+      "studentsCount": "Students completed",
+      "startButton": "Start Exam"
+    },
+    "questions": {
+      "questionNumber": "Question",
+      "previous": "Previous",
+      "next": "Next",
+      "submit": "Submit",
+      "submitting": "Submitting...",
+      "jumpTo": "Jump to:",
+      "loading": "Loading questions..."
+    },
+    "results": {
+      "title": "Exam Results",
+      "yourScore": "Your Score",
+      "timeUsed": "Time Used",
+      "minute": "minutes",
+      "second": "seconds",
+      "excellent": "🌟 Excellent!",
+      "excellentMsg": "Great job!",
+      "pass": "✅ Passed!",
+      "passMsg": "You passed the exam",
+      "fail": "💪 Keep trying!",
+      "failMsg": "Don't give up, try again",
+      "close": "Close Window"
+    }
+  }
+}
