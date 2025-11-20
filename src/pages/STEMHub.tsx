@@ -102,57 +102,66 @@ const STEMHub = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-7 gap-3">
               <Link to="/word-problems">
-                <Button className="w-full h-auto py-6 bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-                  <div className="flex flex-col items-center gap-2">
-                    <span className="text-2xl">🔬🏗️</span>
-                    <span className="font-bold text-xs">{t('quickAccess.stemProblems')}</span>
+                <Button className="w-full h-auto py-5 bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-xl">🔬🏗️</span>
+                    <span className="font-bold text-[10px]">STEM</span>
                   </div>
                 </Button>
               </Link>
               
               <Link to="/coding-basics">
-                <Button className="w-full h-auto py-6 bg-gradient-to-r from-indigo-500 to-purple-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-                  <div className="flex flex-col items-center gap-2">
-                    <span className="text-2xl">💻</span>
-                    <span className="font-bold text-xs">Coding</span>
+                <Button className="w-full h-auto py-5 bg-gradient-to-r from-indigo-500 to-purple-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-xl">💻</span>
+                    <span className="font-bold text-[10px]">Code</span>
                   </div>
                 </Button>
               </Link>
               
               <Link to="/science-lab">
-                <Button className="w-full h-auto py-6 bg-gradient-to-r from-teal-500 to-green-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-                  <div className="flex flex-col items-center gap-2">
-                    <span className="text-2xl">🧪</span>
-                    <span className="font-bold text-xs">Science</span>
+                <Button className="w-full h-auto py-5 bg-gradient-to-r from-teal-500 to-green-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-xl">🧪</span>
+                    <span className="font-bold text-[10px]">Lab</span>
                   </div>
                 </Button>
               </Link>
               
               <Link to="/engineering-challenges">
-                <Button className="w-full h-auto py-6 bg-gradient-to-r from-orange-500 to-red-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-                  <div className="flex flex-col items-center gap-2">
-                    <span className="text-2xl">🏗️</span>
-                    <span className="font-bold text-xs">Engineer</span>
+                <Button className="w-full h-auto py-5 bg-gradient-to-r from-orange-500 to-red-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-xl">🏗️</span>
+                    <span className="font-bold text-[10px]">Build</span>
+                  </div>
+                </Button>
+              </Link>
+              
+              <Link to="/physics-lab">
+                <Button className="w-full h-auto py-5 bg-gradient-to-r from-violet-500 to-purple-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-xl">⚡</span>
+                    <span className="font-bold text-[10px]">Physics</span>
                   </div>
                 </Button>
               </Link>
               
               <Link to="/ai-tutor">
-                <Button className="w-full h-auto py-6 bg-gradient-to-r from-blue-500 to-cyan-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-                  <div className="flex flex-col items-center gap-2">
-                    <span className="text-2xl">🤖</span>
-                    <span className="font-bold text-xs">{t('quickAccess.aiTutor')}</span>
+                <Button className="w-full h-auto py-5 bg-gradient-to-r from-blue-500 to-cyan-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-xl">🤖</span>
+                    <span className="font-bold text-[10px]">AI</span>
                   </div>
                 </Button>
               </Link>
               
               <Link to="/adaptive-learning">
-                <Button className="w-full h-auto py-6 bg-gradient-to-r from-purple-500 to-pink-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-                  <div className="flex flex-col items-center gap-2">
-                    <span className="text-2xl">🎯</span>
-                    <span className="font-bold text-xs">Adaptive</span>
+                <Button className="w-full h-auto py-5 bg-gradient-to-r from-purple-500 to-pink-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-xl">🎯</span>
+                    <span className="font-bold text-[10px]">Path</span>
                   </div>
                 </Button>
               </Link>
