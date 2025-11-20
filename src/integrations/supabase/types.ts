@@ -1146,6 +1146,10 @@ export type Database = {
         Args: { admin_id: string; registration_id: string }
         Returns: boolean
       }
+      assign_teacher_role: {
+        Args: { p_admin_email: string; p_user_id: string }
+        Returns: boolean
+      }
       authenticate_admin: {
         Args: { admin_email: string; admin_password: string }
         Returns: {
@@ -1322,6 +1326,10 @@ export type Database = {
       }
       reject_user_registration: {
         Args: { admin_id: string; registration_id: string }
+        Returns: boolean
+      }
+      remove_teacher_role: {
+        Args: { p_admin_email: string; p_user_id: string }
         Returns: boolean
       }
       reset_payment_status: {
