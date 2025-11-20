@@ -80,7 +80,8 @@
     "youngScientist": "Young Scientist",
     "techWizard": "Tech Wizard",
     "masterBuilder": "Master Builder",
-    "stemChampion": "STEM Champion"
+    "stemChampion": "STEM Champion",
+    "view_progress": "View My Progress"
   },
   "buttons": {
     "explore": "Explore",

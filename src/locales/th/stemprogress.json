@@ -1,0 +1,39 @@
+{
+  "title": "STEM Progress Dashboard",
+  "subtitle": "ติดตามความก้าวหน้าการเรียนรู้ STEM ทั้งหมดของคุณ",
+  "back_to_stem": "กลับไปที่ STEM Hub",
+  "loading": "กำลังโหลดความก้าวหน้าของคุณ...",
+  "stats": {
+    "total_activities": "กิจกรรมทั้งหมด",
+    "total_points": "คะแนนรวม",
+    "total_minutes": "นาที",
+    "badges_earned": "เหรียญรางวัล"
+  },
+  "categories": {
+    "science": "วิทยาศาสตร์",
+    "technology": "เทคโนโลยี",
+    "engineering": "วิศวกรรม",
+    "mathematics": "คณิตศาสตร์"
+  },
+  "charts": {
+    "activities_by_category": "กิจกรรมแบ่งตามหมวด",
+    "weekly_progress": "ความก้าวหน้ารายสัปดาห์ (7 วันล่าสุด)",
+    "points": "คะแนน",
+    "activities": "กิจกรรม",
+    "time": "เวลา (นาที)"
+  },
+  "category_progress": {
+    "title": "ความก้าวหน้าแต่ละหมวด",
+    "activities": "กิจกรรม",
+    "badges": "เหรียญ"
+  },
+  "badges": {
+    "title": "เหรียญรางวัลความสำเร็จ",
+    "empty": "ยังไม่มีเหรียญรางวัล ทำกิจกรรม STEM เพื่อรับเหรียญ!"
+  },
+  "recent_activities": {
+    "title": "กิจกรรมล่าสุด",
+    "empty": "ยังไม่มีกิจกรรม เริ่มต้นการเรียนรู้ STEM ของคุณเลย!",
+    "start_learning": "เริ่มเรียน"
+  }
+}

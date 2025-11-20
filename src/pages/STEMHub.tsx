@@ -1,13 +1,14 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { ArrowRight, Atom, Beaker, Cpu, Hammer, Calculator, FlaskConical } from 'lucide-react';
+import { ArrowRight, Atom, Beaker, Cpu, Hammer, Calculator, FlaskConical, TrendingUp } from 'lucide-react';
 
 const STEMHub = () => {
   const { t } = useTranslation('stem');
+  const navigate = useNavigate();
 
   const stemCategories = [
     {
