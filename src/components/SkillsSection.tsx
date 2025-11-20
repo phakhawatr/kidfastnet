@@ -409,7 +409,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({
         console.error('Error loading pinned skills:', e);
       }
     }
-  }, [user?.id, initialSkills]);
+  }, [user?.id]); // Remove initialSkills from dependency to prevent infinite loop
 
   // Save order to localStorage
   const saveOrder = (skills: Skill[]) => {
