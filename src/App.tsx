@@ -46,6 +46,7 @@ import AstronomyLabApp from "./pages/AstronomyLabApp";
 import STEMProgressDashboard from "./pages/STEMProgressDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import PublicExam from "./pages/PublicExam";
+import StudentExamResult from "./pages/StudentExamResult";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
@@ -384,6 +385,9 @@ const App = () => {
           
           {/* Public Exam Route - No authentication required */}
           <Route path="/exam/:linkCode" element={<PublicExam />} />
+          
+          {/* Exam Result Route - No authentication required */}
+          <Route path="/exam-result/:sessionId" element={<StudentExamResult />} />
           
           <Route path="/background-remover" element={<BackgroundRemoverPage />} />
           <Route path="*" element={<NotFound />} />

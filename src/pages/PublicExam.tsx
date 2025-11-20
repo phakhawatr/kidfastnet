@@ -164,29 +164,50 @@ const PublicExam = () => {
       // Convert answers Map to object for JSON storage
       const answersObject = Object.fromEntries(answers);
 
-      await supabase.from('exam_sessions').insert([{
-        exam_link_id: examLink.id,
-        student_name: studentName,
-        student_class: studentClass,
-        student_number: studentNumber,
-        grade: examLink.grade,
-        semester: examLink.semester,
-        assessment_type: examLink.assessment_type,
-        total_questions: questions.length,
-        correct_answers: correct,
-        score: parseFloat(score.toFixed(2)),
-        time_taken: timeTaken,
-        is_draft: false,
-        assessment_data: {
-          questions: questions,
-          answers: answersObject
-        } as any
-      }]);
+      const { data: sessionData, error } = await supabase
+        .from('exam_sessions')
+        .insert([{
+          exam_link_id: examLink.id,
+          student_name: studentName,
+          student_class: studentClass,
+          student_number: studentNumber,
+          grade: examLink.grade,
+          semester: examLink.semester,
+          assessment_type: examLink.assessment_type,
+          total_questions: activeQuestions.length,
+          correct_answers: correct,
+          score: parseFloat(score.toFixed(2)),
+          time_taken: timeTaken,
+          is_draft: false,
+          assessment_data: {
+            questions: activeQuestions.map((q, idx) => ({
+              question: q.question,
+              userAnswer: answersObject[idx],
+              correctAnswer: q.correctAnswer,
+              originalIndex: idx
+            }))
+          } as any
+        }])
+        .select()
+        .single();
 
-      setFinalScore(score);
-      setShowResults(true);
+      if (error) throw error;
+
+      // Update current students count
+      await supabase
+        .from('exam_links')
+        .update({ 
+          current_students: examLink.current_students + 1 
+        })
+        .eq('id', examLink.id);
+
+      // Redirect to detailed results page
+      if (sessionData) {
+        navigate(`/exam-result/${sessionData.id}`);
+      }
     } catch (error) {
-      alert('เกิดข้อผิดพลาด');
+      console.error('Error submitting exam:', error);
+      alert('เกิดข้อผิดพลาดในการบันทึกผลสอบ');
     } finally {
       setIsSubmitting(false);
     }

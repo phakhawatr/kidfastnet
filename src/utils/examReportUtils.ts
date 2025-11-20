@@ -32,7 +32,50 @@ export interface ItemAnalysis {
   totalCount: number;
   percentCorrect: number;
   difficulty: 'ง่าย' | 'ปานกลาง' | 'ยาก';
+  discriminationIndex?: number;
+  questionText?: string;
 }
+
+/**
+ * Calculate discrimination index (ความสามารถในการแยกแยะผู้เรียน)
+ * Higher values indicate better discrimination between high and low performers
+ */
+export const calculateDiscriminationIndex = (
+  sessions: ExamSession[],
+  questionIndex: number
+): number => {
+  if (sessions.length < 10) return 0; // Need sufficient sample size
+  
+  // Sort by total score
+  const sorted = [...sessions].sort((a, b) => b.score - a.score);
+  const topSize = Math.floor(sorted.length * 0.27); // Top 27%
+  const bottomSize = Math.floor(sorted.length * 0.27); // Bottom 27%
+  
+  const topGroup = sorted.slice(0, topSize);
+  const bottomGroup = sorted.slice(-bottomSize);
+  
+  let topCorrect = 0;
+  let bottomCorrect = 0;
+  
+  topGroup.forEach(session => {
+    const q = session.assessment_data?.questions?.[questionIndex];
+    if (q && (q.userAnswer === q.correctAnswer || String(q.userAnswer) === String(q.correctAnswer))) {
+      topCorrect++;
+    }
+  });
+  
+  bottomGroup.forEach(session => {
+    const q = session.assessment_data?.questions?.[questionIndex];
+    if (q && (q.userAnswer === q.correctAnswer || String(q.userAnswer) === String(q.correctAnswer))) {
+      bottomCorrect++;
+    }
+  });
+  
+  const topPercent = topCorrect / topSize;
+  const bottomPercent = bottomCorrect / bottomSize;
+  
+  return parseFloat((topPercent - bottomPercent).toFixed(2));
+};
 
 export const generateItemAnalysis = (sessions: ExamSession[]): ItemAnalysis[] => {
   if (sessions.length === 0) return [];
@@ -44,11 +87,15 @@ export const generateItemAnalysis = (sessions: ExamSession[]): ItemAnalysis[] =>
   for (let i = 0; i < totalQuestions; i++) {
     let correctCount = 0;
     let totalCount = 0;
+    let questionText = '';
     
     sessions.forEach(session => {
       if (session.assessment_data?.questions?.[i]) {
         totalCount++;
         const q = session.assessment_data.questions[i];
+        if (!questionText && q.question) {
+          questionText = q.question;
+        }
         // Check if user answer matches correct answer
         if (q.userAnswer === q.correctAnswer || String(q.userAnswer) === String(q.correctAnswer)) {
           correctCount++;
@@ -62,12 +109,16 @@ export const generateItemAnalysis = (sessions: ExamSession[]): ItemAnalysis[] =>
     if (percentCorrect >= 70) difficulty = 'ง่าย';
     else if (percentCorrect < 50) difficulty = 'ยาก';
     
+    const discriminationIndex = calculateDiscriminationIndex(sessions, i);
+    
     analysis.push({
       questionIndex: i + 1,
       correctCount,
       totalCount,
       percentCorrect: parseFloat(percentCorrect.toFixed(2)),
-      difficulty
+      difficulty,
+      discriminationIndex,
+      questionText: questionText.substring(0, 100) // Limit length
     });
   }
   
@@ -140,7 +191,7 @@ export const exportToCSV = (sessions: ExamSession[], linkCode: string) => {
 /**
  * Export report to PDF
  */
-export const exportToPDF = async (sessions: ExamSession[], linkCode: string) => {
+export const exportToPDF = async (sessions: ExamSession[], linkCode: string, itemAnalysisData?: ItemAnalysis[]) => {
   const doc = new jsPDF();
   
   // Load Thai font (using fallback for now)
@@ -175,9 +226,8 @@ export const exportToPDF = async (sessions: ExamSession[], linkCode: string) => 
   y += 6;
   doc.text(`Total Students: ${sessions.length}`, 20, y);
   
-  // Item Analysis
-  const itemAnalysis = generateItemAnalysis(sessions);
-  if (itemAnalysis.length > 0) {
+  // Item Analysis Section (if provided)
+  if (itemAnalysisData && itemAnalysisData.length > 0) {
     doc.addPage();
     doc.setFontSize(12);
     doc.text('Item Analysis', 20, 20);
@@ -191,7 +241,7 @@ export const exportToPDF = async (sessions: ExamSession[], linkCode: string) => 
     doc.text('Difficulty', 115, y);
     y += 6;
     
-    itemAnalysis.forEach((item) => {
+    itemAnalysisData.forEach((item) => {
       if (y > 280) {
         doc.addPage();
         y = 20;

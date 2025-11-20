@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Copy, Link as LinkIcon, Users, Clock, BarChart, ExternalLink, CheckCircle, QrCode, Download, FileText, Trash2, Eye, X } from 'lucide-react';
+import { Copy, Link as LinkIcon, Users, Clock, BarChart, ExternalLink, CheckCircle, QrCode, Download, FileText, Trash2, Eye, X, FileDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { exportToCSV, exportToPDF, generateReportSummary, generateItemAnalysis } from '@/utils/examReportUtils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -687,8 +687,26 @@ const TeacherDashboard = () => {
                   {/* Item Analysis */}
                   {generateItemAnalysis(viewingSessions.sessions).length > 0 && (
                     <Card className="mb-6 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20">
-                      <CardHeader>
+                      <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle className="text-lg">Item Analysis (การวิเคราะห์ข้อสอบ)</CardTitle>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => exportToCSV(viewingSessions.sessions, viewingSessions.linkCode)}
+                          >
+                            <FileDown className="w-4 h-4 mr-2" />
+                            Export CSV
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => exportToPDF(viewingSessions.sessions, viewingSessions.linkCode, generateItemAnalysis(viewingSessions.sessions))}
+                          >
+                            <FileText className="w-4 h-4 mr-2" />
+                            Export PDF
+                          </Button>
+                        </div>
                       </CardHeader>
                       <CardContent>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-10 gap-2">
@@ -702,11 +720,16 @@ const TeacherDashboard = () => {
                                   ? 'bg-red-50 dark:bg-red-950/20 border-red-500'
                                   : 'bg-yellow-50 dark:bg-yellow-950/20 border-yellow-500'
                               }`}
-                              title={`ข้อ ${item.questionIndex}: ${item.correctCount}/${item.totalCount} ตอบถูก (${item.percentCorrect}%) - ${item.difficulty}`}
+                              title={`ข้อ ${item.questionIndex}: ${item.correctCount}/${item.totalCount} ตอบถูก (${item.percentCorrect}%)\nค่าความแยกแยะ: ${item.discriminationIndex?.toFixed(2) || 'N/A'}\n${item.difficulty}`}
                             >
                               <div className="text-xs font-bold mb-1">ข้อ {item.questionIndex}</div>
                               <div className="text-lg font-bold">{item.percentCorrect}%</div>
                               <div className="text-xs text-muted-foreground">{item.difficulty}</div>
+                              {item.discriminationIndex !== undefined && (
+                                <div className="text-xs mt-1 font-medium">
+                                  DI: {item.discriminationIndex.toFixed(2)}
+                                </div>
+                              )}
                             </div>
                           ))}
                         </div>
