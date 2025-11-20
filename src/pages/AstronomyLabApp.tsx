@@ -162,6 +162,39 @@ function SunSphere() {
   );
 }
 
+// 3D Moon Phase Scene component
+interface MoonPhaseSceneProps {
+  currentPhase: number;
+  isPaused?: boolean;
+}
+
+const MoonPhaseScene: React.FC<MoonPhaseSceneProps> = ({ currentPhase, isPaused = false }) => {
+  const moonRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state) => {
+    if (moonRef.current && !isPaused) {
+      moonRef.current.rotation.y += 0.002;
+    }
+  });
+
+  // Moon phase shadow calculation
+  const moonPhaseAngle = (currentPhase / 8) * Math.PI * 2;
+
+  return (
+    <group>
+      <mesh ref={moonRef}>
+        <sphereGeometry args={[1.5, 32, 32]} />
+        <meshStandardMaterial color="#E0E0E0" />
+      </mesh>
+      {/* Shadow visualization for moon phase */}
+      <mesh position={[Math.cos(moonPhaseAngle) * 1.5, 0, Math.sin(moonPhaseAngle) * 0.5]}>
+        <sphereGeometry args={[0.1, 16, 16]} />
+        <meshBasicMaterial color="#FFD700" />
+      </mesh>
+    </group>
+  );
+};
+
 const AstronomyLabApp = () => {
   const { t } = useTranslation("astronomylab");
   const navigate = useNavigate();
@@ -1193,21 +1226,134 @@ const AstronomyLabApp = () => {
 
   const renderMoonPhases = () => {
     const currentPhase = moonPhases[moonPhase];
+
+    const moonPhasesDetailInfo = [
+      {
+        name: t("experiments.moon_phases.phases.new_moon"),
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/New_Moon.jpg/800px-New_Moon.jpg",
+        duration: "1 " + t("experiments.moon_phases.day"),
+        visibility: t("experiments.moon_phases.not_visible"),
+        description: t("experiments.moon_phases.new_moon.detail"),
+        features: [
+          t("experiments.moon_phases.new_moon.f1"),
+          t("experiments.moon_phases.new_moon.f2"),
+          t("experiments.moon_phases.new_moon.f3")
+        ]
+      },
+      {
+        name: t("experiments.moon_phases.phases.waxing_crescent"),
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Waxing_Crescent_Moon.jpg/800px-Waxing_Crescent_Moon.jpg",
+        duration: "6-7 " + t("experiments.moon_phases.days"),
+        visibility: t("experiments.moon_phases.evening"),
+        description: t("experiments.moon_phases.waxing_crescent.detail"),
+        features: [
+          t("experiments.moon_phases.waxing_crescent.f1"),
+          t("experiments.moon_phases.waxing_crescent.f2"),
+          t("experiments.moon_phases.waxing_crescent.f3")
+        ]
+      },
+      {
+        name: t("experiments.moon_phases.phases.first_quarter"),
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/First_Quarter_Moon_25_Oct_2007.jpg/800px-First_Quarter_Moon_25_Oct_2007.jpg",
+        duration: "1 " + t("experiments.moon_phases.day"),
+        visibility: t("experiments.moon_phases.afternoon_evening"),
+        description: t("experiments.moon_phases.first_quarter.detail"),
+        features: [
+          t("experiments.moon_phases.first_quarter.f1"),
+          t("experiments.moon_phases.first_quarter.f2"),
+          t("experiments.moon_phases.first_quarter.f3")
+        ]
+      },
+      {
+        name: t("experiments.moon_phases.phases.waxing_gibbous"),
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Waxing_gibbous_moon.jpg/800px-Waxing_gibbous_moon.jpg",
+        duration: "6-7 " + t("experiments.moon_phases.days"),
+        visibility: t("experiments.moon_phases.evening_night"),
+        description: t("experiments.moon_phases.waxing_gibbous.detail"),
+        features: [
+          t("experiments.moon_phases.waxing_gibbous.f1"),
+          t("experiments.moon_phases.waxing_gibbous.f2"),
+          t("experiments.moon_phases.waxing_gibbous.f3")
+        ]
+      },
+      {
+        name: t("experiments.moon_phases.phases.full_moon"),
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Full_Moon_Luc_Viatour.jpg/800px-Full_Moon_Luc_Viatour.jpg",
+        duration: "1 " + t("experiments.moon_phases.day"),
+        visibility: t("experiments.moon_phases.all_night"),
+        description: t("experiments.moon_phases.full_moon.detail"),
+        features: [
+          t("experiments.moon_phases.full_moon.f1"),
+          t("experiments.moon_phases.full_moon.f2"),
+          t("experiments.moon_phases.full_moon.f3")
+        ]
+      },
+      {
+        name: t("experiments.moon_phases.phases.waning_gibbous"),
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Waning_gibbous_moon.jpg/800px-Waning_gibbous_moon.jpg",
+        duration: "6-7 " + t("experiments.moon_phases.days"),
+        visibility: t("experiments.moon_phases.late_night_morning"),
+        description: t("experiments.moon_phases.waning_gibbous.detail"),
+        features: [
+          t("experiments.moon_phases.waning_gibbous.f1"),
+          t("experiments.moon_phases.waning_gibbous.f2"),
+          t("experiments.moon_phases.waning_gibbous.f3")
+        ]
+      },
+      {
+        name: t("experiments.moon_phases.phases.last_quarter"),
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Last_Quarter_Moon.jpg/800px-Last_Quarter_Moon.jpg",
+        duration: "1 " + t("experiments.moon_phases.day"),
+        visibility: t("experiments.moon_phases.late_night_morning"),
+        description: t("experiments.moon_phases.last_quarter.detail"),
+        features: [
+          t("experiments.moon_phases.last_quarter.f1"),
+          t("experiments.moon_phases.last_quarter.f2"),
+          t("experiments.moon_phases.last_quarter.f3")
+        ]
+      },
+      {
+        name: t("experiments.moon_phases.phases.waning_crescent"),
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Waning_Crescent_Moon.jpg/800px-Waning_Crescent_Moon.jpg",
+        duration: "6-7 " + t("experiments.moon_phases.days"),
+        visibility: t("experiments.moon_phases.early_morning"),
+        description: t("experiments.moon_phases.waning_crescent.detail"),
+        features: [
+          t("experiments.moon_phases.waning_crescent.f1"),
+          t("experiments.moon_phases.waning_crescent.f2"),
+          t("experiments.moon_phases.waning_crescent.f3")
+        ]
+      }
+    ];
     
     return (
       <div className="space-y-6">
         <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">{t("experiments.moon_phases.title")}</h3>
-          <div className="flex items-center justify-center mb-6">
-            <div className="text-9xl animate-pulse">
-              {currentPhase.emoji}
-            </div>
+          <h3 className="text-lg font-semibold mb-4">{t("experiments.moon_phases.visualization_title")}</h3>
+          <div ref={moonCanvasRef} className="relative w-full h-[400px] bg-gradient-to-b from-black via-blue-950 to-black rounded-lg overflow-hidden">
+            <Canvas camera={{ position: [0, 0, 5] }}>
+              <ambientLight intensity={0.5} />
+              <pointLight position={[5, 5, 5]} intensity={1} />
+              <MoonPhaseScene currentPhase={moonPhase} isPaused={isPausedMoon} />
+              <OrbitControls enableZoom={true} enablePan={true} />
+            </Canvas>
+            <button
+              onClick={toggleFullscreenMoon}
+              className="absolute top-4 right-4 p-2 bg-background/80 hover:bg-background rounded-lg backdrop-blur-sm transition-colors"
+              title={isFullscreenMoon ? t("experiments.moon_phases.exit_fullscreen") : t("experiments.moon_phases.enter_fullscreen")}
+            >
+              {isFullscreenMoon ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+            </button>
           </div>
-          <div className="text-center mb-4">
-            <h4 className="text-xl font-bold">{t(`experiments.moon_phases.phases.${currentPhase.name}.name`)}</h4>
-            <p className="text-sm text-muted-foreground mt-2">
-              {t(`experiments.moon_phases.phases.${currentPhase.name}.description`)}
-            </p>
+          <div className="mt-4 flex justify-center">
+            <Button
+              onClick={() => setIsPausedMoon(!isPausedMoon)}
+              variant="outline"
+              size="icon"
+              title={isPausedMoon ? t("experiments.moon_phases.play") : t("experiments.moon_phases.pause")}
+            >
+              {isPausedMoon ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+            </Button>
           </div>
         </Card>
 
@@ -1226,6 +1372,41 @@ const AstronomyLabApp = () => {
                   <span className="text-[10px]">{t(`experiments.moon_phases.phases.${phase.name}.name`)}</span>
                 </div>
               </Button>
+            ))}
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-xl font-bold mb-4">{t("experiments.moon_phases.details_title")}</h3>
+          <div className="space-y-6">
+            {moonPhasesDetailInfo.map((phase, index) => (
+              <div key={index} className="border-b border-border last:border-b-0 pb-6 last:pb-0">
+                <div className="flex flex-col md:flex-row gap-4">
+                  <img 
+                    src={phase.imageUrl} 
+                    alt={phase.name}
+                    className="w-full md:w-48 h-48 object-cover rounded-lg"
+                    loading="lazy"
+                    onError={(e) => {
+                      e.currentTarget.src = '/placeholder.svg';
+                      e.currentTarget.alt = `${phase.name} (image not available)`;
+                    }}
+                  />
+                  <div className="flex-1">
+                    <h4 className="text-lg font-semibold mb-2">{phase.name}</h4>
+                    <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
+                      <div><strong>{t("experiments.moon_phases.duration")}:</strong> {phase.duration}</div>
+                      <div><strong>{t("experiments.moon_phases.visibility")}:</strong> {phase.visibility}</div>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-3">{phase.description}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {phase.features.map((feature, idx) => (
+                        <Badge key={idx} variant="secondary">{feature}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </Card>
