@@ -255,7 +255,7 @@ const AdminDashboard = () => {
     };
   };
 
-  const handleApprove = async (registrationId: string) => {
+  const handleApprove = async (registrationId: string, role: 'user' | 'teacher' | 'parent' = 'user') => {
     try {
       const { error } = await supabase.rpc('approve_user_registration', {
         registration_id: registrationId,
@@ -264,10 +264,27 @@ const AdminDashboard = () => {
 
       if (error) throw error;
 
-      ToastManager.show({
-        message: 'อนุมัติสมาชิกเรียบร้อย!',
-        type: 'success'
-      });
+      // Assign role to the user
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .insert({ 
+          user_id: registrationId, 
+          role: role,
+          created_by: adminId 
+        });
+
+      if (roleError) {
+        console.error('Error assigning role:', roleError);
+        ToastManager.show({
+          message: 'อนุมัติสำเร็จแต่ไม่สามารถกำหนด Role ได้',
+          type: 'info'
+        });
+      } else {
+        ToastManager.show({
+          message: `อนุมัติสมาชิกเรียบร้อย! (Role: ${role})`,
+          type: 'success'
+        });
+      }
 
       fetchRegistrations();
     } catch (error) {
@@ -895,21 +912,39 @@ const AdminDashboard = () => {
                 </div>
 
                 {registration.status === 'pending' && (
-                  <div className="flex gap-3" role="group" aria-label="การดำเนินการอนุมัติ">
-                    <button
-                      onClick={() => handleApprove(registration.id)}
-                      className="min-h-[44px] px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:ring-4 focus:ring-green-300 focus:outline-none transition-colors text-sm font-medium"
-                      aria-label={`อนุมัติการสมัครของ ${registration.nickname}`}
-                    >
-                      <span aria-hidden="true">✅</span> อนุมัติ
-                    </button>
-                    <button
-                      onClick={() => handleReject(registration.id)}
-                      className="min-h-[44px] px-5 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:ring-4 focus:ring-red-300 focus:outline-none transition-colors text-sm font-medium"
-                      aria-label={`ปฏิเสธการสมัครของ ${registration.nickname}`}
-                    >
-                      <span aria-hidden="true">❌</span> ปฏิเสธ
-                    </button>
+                  <div className="space-y-3" role="group" aria-label="การดำเนินการอนุมัติ">
+                    <div className="flex gap-3 items-center">
+                      <label className="text-sm font-medium text-foreground">เลือก Role:</label>
+                      <select
+                        id={`role-select-${registration.id}`}
+                        className="px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                        defaultValue="user"
+                      >
+                        <option value="user">👤 นักเรียน (User)</option>
+                        <option value="teacher">👨‍🏫 ครู (Teacher)</option>
+                        <option value="parent">👨‍👩‍👧 ผู้ปกครอง (Parent)</option>
+                      </select>
+                    </div>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => {
+                          const select = document.getElementById(`role-select-${registration.id}`) as HTMLSelectElement;
+                          const role = select?.value as 'user' | 'teacher' | 'parent' || 'user';
+                          handleApprove(registration.id, role);
+                        }}
+                        className="min-h-[44px] px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:ring-4 focus:ring-green-300 focus:outline-none transition-colors text-sm font-medium"
+                        aria-label={`อนุมัติการสมัครของ ${registration.nickname}`}
+                      >
+                        <span aria-hidden="true">✅</span> อนุมัติ
+                      </button>
+                      <button
+                        onClick={() => handleReject(registration.id)}
+                        className="min-h-[44px] px-5 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:ring-4 focus:ring-red-300 focus:outline-none transition-colors text-sm font-medium"
+                        aria-label={`ปฏิเสธการสมัครของ ${registration.nickname}`}
+                      >
+                        <span aria-hidden="true">❌</span> ปฏิเสธ
+                      </button>
+                    </div>
                   </div>
                 )}
 
