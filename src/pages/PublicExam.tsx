@@ -113,8 +113,11 @@ const PublicExam = () => {
     try {
       const correct = calculateCorrectAnswers();
       const score = questions.length > 0 ? (correct / questions.length) * 100 : 0;
+      
+      // Convert answers Map to object for JSON storage
+      const answersObject = Object.fromEntries(answers);
 
-      await supabase.from('exam_sessions').insert({
+      await supabase.from('exam_sessions').insert([{
         exam_link_id: examLink.id,
         student_name: studentName,
         student_class: studentClass,
@@ -126,8 +129,12 @@ const PublicExam = () => {
         correct_answers: correct,
         score: parseFloat(score.toFixed(2)),
         time_taken: timeTaken,
-        is_draft: false
-      });
+        is_draft: false,
+        assessment_data: {
+          questions: questions,
+          answers: answersObject
+        } as any
+      }]);
 
       setFinalScore(score);
       setShowResults(true);
