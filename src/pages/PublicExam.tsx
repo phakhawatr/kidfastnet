@@ -56,21 +56,94 @@ const PublicExam = () => {
 
   const {
     questions,
-    currentIndex,
-    answers,
+    currentIndex: defaultCurrentIndex,
+    answers: defaultAnswers,
     isLoading,
-    setAnswer,
-    previousQuestion,
-    nextQuestion,
-    goToQuestion,
-    calculateCorrectAnswers,
-    timeTaken
+    setAnswer: defaultSetAnswer,
+    previousQuestion: defaultPreviousQuestion,
+    nextQuestion: defaultNextQuestion,
+    goToQuestion: defaultGoToQuestion,
+    calculateCorrectAnswers: defaultCalculateCorrectAnswers,
+    timeTaken: defaultTimeTaken
   } = useAssessment(
     sessionId,
     hasStarted && examLink && !examLink.has_custom_questions ? examLink.grade : 0,
     hasStarted && examLink && !examLink.has_custom_questions ? (examLink.assessment_type === 'nt' ? 'nt' : examLink.semester) : 0,
     hasStarted && examLink && !examLink.has_custom_questions ? examLink.total_questions : undefined
   );
+
+  // Custom question navigation state
+  const [customCurrentIndex, setCustomCurrentIndex] = useState(0);
+  const [customAnswers, setCustomAnswers] = useState<Map<number, number>>(new Map());
+  const [customTimeTaken, setCustomTimeTaken] = useState(0);
+
+  // Use custom state when has custom questions
+  const currentIndex = examLink?.has_custom_questions ? customCurrentIndex : defaultCurrentIndex;
+  const answers = examLink?.has_custom_questions ? customAnswers : defaultAnswers;
+  const timeTaken = examLink?.has_custom_questions ? customTimeTaken : defaultTimeTaken;
+
+  // Timer for custom questions
+  useEffect(() => {
+    if (!hasStarted || !examLink?.has_custom_questions) return;
+    
+    const timer = setInterval(() => {
+      setCustomTimeTaken(prev => prev + 1);
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, [hasStarted, examLink?.has_custom_questions]);
+
+  // Navigation functions
+  const setAnswer = (index: number, answer: number) => {
+    if (examLink?.has_custom_questions) {
+      setCustomAnswers(prev => new Map(prev).set(index, answer));
+    } else {
+      defaultSetAnswer(index, answer);
+    }
+  };
+
+  const nextQuestion = () => {
+    if (examLink?.has_custom_questions) {
+      if (customCurrentIndex < customQuestions.length - 1) {
+        setCustomCurrentIndex(prev => prev + 1);
+      }
+    } else {
+      defaultNextQuestion();
+    }
+  };
+
+  const previousQuestion = () => {
+    if (examLink?.has_custom_questions) {
+      if (customCurrentIndex > 0) {
+        setCustomCurrentIndex(prev => prev - 1);
+      }
+    } else {
+      defaultPreviousQuestion();
+    }
+  };
+
+  const goToQuestion = (index: number) => {
+    if (examLink?.has_custom_questions) {
+      setCustomCurrentIndex(index);
+    } else {
+      defaultGoToQuestion(index);
+    }
+  };
+
+  const calculateCorrectAnswers = () => {
+    if (examLink?.has_custom_questions) {
+      let correct = 0;
+      customQuestions.forEach((q, idx) => {
+        const userAnswer = customAnswers.get(idx);
+        if (userAnswer !== undefined && q.choices[userAnswer] === q.correctAnswer) {
+          correct++;
+        }
+      });
+      return correct;
+    } else {
+      return defaultCalculateCorrectAnswers();
+    }
+  };
 
   useEffect(() => {
     validateExamLink();
@@ -356,7 +429,10 @@ const PublicExam = () => {
           <Card>
             <CardHeader><CardTitle>{currentQuestion?.question}</CardTitle></CardHeader>
             <CardContent>
-              <RadioGroup value={answers.get(currentIndex)?.toString()} onValueChange={(v) => setAnswer(currentIndex, parseInt(v))}>
+              <RadioGroup 
+                value={answers.get(currentIndex)?.toString() ?? ''} 
+                onValueChange={(v) => setAnswer(currentIndex, parseInt(v))}
+              >
                 {currentQuestion?.choices.map((choice, idx) => (
                   <div key={idx} className="flex items-center space-x-2 p-3 rounded-lg hover:bg-accent/50">
                     <RadioGroupItem value={idx.toString()} id={`choice-${idx}`} />
