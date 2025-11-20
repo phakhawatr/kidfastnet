@@ -139,8 +139,12 @@ const PublicExam = () => {
       }
 
       setExamLink(data as ExamLinkData);
+      console.log('Exam Link Data:', data);
+      console.log('School Name:', data.school_name);
+      console.log('School Logo URL:', data.school_logo_url);
       setIsValidating(false);
     } catch (err) {
+      console.error('Validation error:', err);
       setError('เกิดข้อผิดพลาด');
       setIsValidating(false);
     }
