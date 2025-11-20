@@ -277,45 +277,57 @@ export type Database = {
       }
       exam_links: {
         Row: {
+          allow_retake: boolean | null
           assessment_type: string
           created_at: string
           current_students: number
+          exam_passcode: string | null
           expires_at: string | null
           grade: number
           id: string
           link_code: string
           max_students: number
           semester: number | null
+          start_time: string | null
           status: string
           teacher_id: string
+          time_limit_minutes: number | null
           updated_at: string
         }
         Insert: {
+          allow_retake?: boolean | null
           assessment_type?: string
           created_at?: string
           current_students?: number
+          exam_passcode?: string | null
           expires_at?: string | null
           grade: number
           id?: string
           link_code: string
           max_students?: number
           semester?: number | null
+          start_time?: string | null
           status?: string
           teacher_id: string
+          time_limit_minutes?: number | null
           updated_at?: string
         }
         Update: {
+          allow_retake?: boolean | null
           assessment_type?: string
           created_at?: string
           current_students?: number
+          exam_passcode?: string | null
           expires_at?: string | null
           grade?: number
           id?: string
           link_code?: string
           max_students?: number
           semester?: number | null
+          start_time?: string | null
           status?: string
           teacher_id?: string
+          time_limit_minutes?: number | null
           updated_at?: string
         }
         Relationships: [

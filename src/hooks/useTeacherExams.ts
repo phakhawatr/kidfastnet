@@ -69,7 +69,11 @@ export const useTeacherExams = (teacherId: string | null) => {
     grade: number,
     semester: number | null,
     assessmentType: 'semester' | 'nt',
-    maxStudents: number = 30
+    maxStudents: number = 30,
+    passcode?: string,
+    startTime?: Date | null,
+    timeLimitMinutes?: number | null,
+    allowRetake: boolean = false
   ) => {
     if (!teacherId) {
       toast({
@@ -93,7 +97,11 @@ export const useTeacherExams = (teacherId: string | null) => {
           semester,
           assessment_type: assessmentType,
           max_students: maxStudents,
-          status: 'active'
+          status: 'active',
+          exam_passcode: passcode || null,
+          start_time: startTime || null,
+          time_limit_minutes: timeLimitMinutes || null,
+          allow_retake: allowRetake
         })
         .select()
         .single();
@@ -174,9 +182,11 @@ export const useTeacherExams = (teacherId: string | null) => {
   };
 };
 
-// Helper function to generate unique exam link code
+// Helper function to generate unique secure exam link code (20+ characters)
 function generateLinkCode(grade: number, semester: number | null, type: 'semester' | 'nt'): string {
   const typePrefix = type === 'nt' ? 'NT' : `S${semester}`;
-  const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
-  return `G${grade}${typePrefix}${randomSuffix}`;
+  const timestamp = Date.now().toString(36);
+  const random1 = Math.random().toString(36).substring(2, 10);
+  const random2 = Math.random().toString(36).substring(2, 10);
+  return `G${grade}${typePrefix}-${timestamp}-${random1}${random2}`.toUpperCase();
 }
