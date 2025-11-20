@@ -654,7 +654,14 @@ const Profile = () => {
               )}
               <div>
                 <h1 className="text-2xl font-bold text-[hsl(var(--text-primary))] mb-2">
-                  {isDemo ? t('welcomeDemo') : t('welcome', { nickname: `${isTeacher ? 'คุณครู' : 'น้อง'}${nickname || username}` })}
+                  {isDemo ? t('welcomeDemo') : (
+                    <>
+                      {t('welcome').replace(` {{nickname}}`, '')}
+                      <span className="text-blue-600">
+                        {isTeacher ? `คุณครู ${nickname || username} !` : `น้อง${nickname || username}`}
+                      </span>
+                    </>
+                  )}
                   {!isDemo && memberId && (
                     <span className="text-lg font-normal text-[hsl(var(--text-secondary))] ml-2 bg-blue-50 px-3 py-1 rounded-full">
                       {t('memberCode', { code: memberId })}
