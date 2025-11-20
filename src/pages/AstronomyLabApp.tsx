@@ -741,7 +741,7 @@ const AstronomyLabApp = () => {
             {
               name: t("experiments.planets.list.mercury"),
               color: "#B8B8B8",
-              imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Mercury_in_color_-_Prockter07-edit.jpg/800px-Mercury_in_color_-_Prockter07-edit.jpg",
+              imageUrl: "https://png.pngtree.com/png-clipart/20240416/original/pngtree-beautiful-planet-mercury-png-image_14861433.png",
               diameter: "4,879 km",
               mass: "3.30 × 10²³ kg",
               distance: "57.9 " + t("experiments.planets.million_km"),
