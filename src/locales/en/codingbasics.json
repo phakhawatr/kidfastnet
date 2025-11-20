@@ -1,0 +1,143 @@
+{
+  "title": "Coding Basics",
+  "subtitle": "Learn Computational Thinking",
+  "description": "Learn to think like a programmer through fun activities about sequencing, patterns, loops, and conditionals",
+  "select_difficulty": "Select Difficulty",
+  "difficulty": {
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard"
+  },
+  "categories": {
+    "sequencing": {
+      "title": "Sequencing",
+      "description": "Learn to arrange steps in the correct order"
+    },
+    "patterns": {
+      "title": "Pattern Recognition",
+      "description": "Find and predict patterns in sequences"
+    },
+    "loops": {
+      "title": "Loops & Repetition",
+      "description": "Learn to repeat actions efficiently"
+    },
+    "conditionals": {
+      "title": "Conditionals",
+      "description": "Make decisions based on conditions"
+    }
+  },
+  "challenges": {
+    "sequencing": {
+      "wake_up": "Arrange the morning routine in the correct order",
+      "plant_tree": "Arrange the steps to plant a tree",
+      "make_sandwich": "Arrange the steps to make a sandwich",
+      "options": {
+        "wake_up": "Wake up",
+        "brush_teeth": "Brush teeth",
+        "eat_breakfast": "Eat breakfast",
+        "go_to_school": "Go to school",
+        "dig_hole": "Dig a hole",
+        "put_seed": "Put the seed",
+        "cover_soil": "Cover with soil",
+        "water": "Water the plant",
+        "get_bread": "Get bread",
+        "spread_butter": "Spread butter",
+        "put_filling": "Put filling",
+        "close_sandwich": "Close sandwich"
+      },
+      "explanation_wake_up": "Correct order: Wake up → Brush teeth → Eat breakfast → Go to school",
+      "explanation_plant": "Correct order: Dig hole → Put seed → Cover with soil → Water",
+      "explanation_sandwich": "Correct order: Get bread → Spread butter → Put filling → Close",
+      "hint_morning": "Think about what you do first when you wake up",
+      "hint_plant": "Start by preparing the ground",
+      "hint_sandwich": "Start with the bread"
+    },
+    "patterns": {
+      "number_pattern": "What comes next in this pattern",
+      "shape_pattern": "What shape comes next",
+      "color_pattern": "What color comes next",
+      "explanation_even": "This is a pattern of even numbers, adding 2 each time",
+      "explanation_alternate": "The pattern alternates between star and circle",
+      "explanation_two_one": "The pattern is: 2 red, 1 blue, repeat",
+      "hint_add_two": "Try adding 2 to the previous number",
+      "hint_repeat": "Look at what repeats",
+      "hint_group": "Count how many of each color appear together"
+    },
+    "loops": {
+      "jump_5_times": "To jump 5 times, which command should we use?",
+      "draw_3_stars": "To draw 3 stars, which command is best?",
+      "count_to_10": "To count from 1 to 10, what do we need?",
+      "options": {
+        "jump_once": "Jump once",
+        "repeat_5": "Repeat Jump 5 times",
+        "jump_twice": "Jump twice",
+        "stop": "Stop",
+        "draw_star": "Draw star",
+        "repeat_3": "Repeat Draw star 3 times",
+        "draw_circle": "Draw circle",
+        "color_red": "Color red",
+        "say_numbers": "Say number",
+        "repeat_10": "Repeat 10 times",
+        "add_one": "Add 1",
+        "start_at_1": "Start at 1"
+      },
+      "explanation_repeat": "Using 'Repeat' is more efficient than doing it one by one",
+      "explanation_three_times": "Loop allows us to repeat the same action multiple times",
+      "explanation_count": "Use loop to repeat counting action",
+      "hint_loop": "Think about repeating the same action",
+      "hint_same_action": "When doing the same thing many times, use a loop",
+      "hint_increment": "Loops help count by repeating addition"
+    },
+    "conditionals": {
+      "if_raining": "If it's raining, what should you do?",
+      "if_hungry": "If you're hungry, what should you do?",
+      "if_red_light": "If the traffic light is red, what should you do?",
+      "options": {
+        "take_umbrella": "Take an umbrella",
+        "wear_sunglasses": "Wear sunglasses",
+        "go_swimming": "Go swimming",
+        "play_outside": "Play outside",
+        "sleep": "Sleep",
+        "eat_food": "Eat food",
+        "play_game": "Play a game",
+        "read_book": "Read a book",
+        "stop": "Stop",
+        "go_fast": "Go fast",
+        "turn_left": "Turn left",
+        "honk": "Honk"
+      },
+      "explanation_umbrella": "When it rains, we need an umbrella to stay dry",
+      "explanation_eat": "When hungry, eating food is the right solution",
+      "explanation_traffic": "Red light means stop for safety",
+      "hint_weather": "Think about what protects you from rain",
+      "hint_feeling": "What solves the problem of being hungry?",
+      "hint_safety": "Traffic lights control safety"
+    }
+  },
+  "start": "Start",
+  "question": "Challenge",
+  "your_order": "Your order",
+  "reset": "Reset",
+  "show_hint": "Show Hint",
+  "hide_hint": "Hide Hint",
+  "check_answer": "Check Answer",
+  "next": "Next",
+  "see_results": "See Results",
+  "back_to_menu": "Back to Menu",
+  "back_to_stem": "Back to STEM Hub",
+  "play_again": "Play Again",
+  "feedback": {
+    "correct": "Correct! Well done! 🎉",
+    "incorrect": "Try again! You can do it! 💪"
+  },
+  "results": {
+    "title": "Challenge Complete!",
+    "correct_answers": "Correct Answers",
+    "percentage": "Score",
+    "time": "Time",
+    "excellent": "🌟 Excellent! You're a coding genius!",
+    "good": "👍 Good job! Keep it up!",
+    "fair": "💪 Not bad! Practice more!",
+    "keep_practicing": "🎯 Keep practicing! You'll get better!"
+  }
+}

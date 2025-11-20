@@ -102,12 +102,21 @@ const STEMHub = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Link to="/word-problems">
                 <Button className="w-full h-auto py-6 bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
                   <div className="flex flex-col items-center gap-2">
                     <span className="text-2xl">🔬🏗️</span>
                     <span className="font-bold">{t('quickAccess.stemProblems')}</span>
+                  </div>
+                </Button>
+              </Link>
+              
+              <Link to="/coding-basics">
+                <Button className="w-full h-auto py-6 bg-gradient-to-r from-indigo-500 to-purple-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+                  <div className="flex flex-col items-center gap-2">
+                    <span className="text-2xl">💻</span>
+                    <span className="font-bold">Coding Basics</span>
                   </div>
                 </Button>
               </Link>
