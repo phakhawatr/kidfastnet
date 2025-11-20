@@ -866,6 +866,15 @@ const TeacherDashboard = () => {
                         </div>
                       </CardHeader>
                       <CardContent>
+                        {viewingSessions.sessions.length < 10 && (
+                          <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-500 rounded-lg">
+                            <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                              ⚠️ <strong>หมายเหตุ:</strong> การคำนวณค่า Discrimination Index (DI) ต้องมีนักเรียนอย่างน้อย 10 คน 
+                              ปัจจุบันมี {viewingSessions.sessions.length} คน ค่า DI จึงแสดงเป็น N/A
+                            </p>
+                          </div>
+                        )}
+                        
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-10 gap-2">
                           {generateItemAnalysis(viewingSessions.sessions).map((item) => (
                             <div 
@@ -882,9 +891,13 @@ const TeacherDashboard = () => {
                               <div className="text-xs font-bold mb-1">ข้อ {item.questionIndex}</div>
                               <div className="text-lg font-bold">{item.percentCorrect}%</div>
                               <div className="text-xs text-muted-foreground">{item.difficulty}</div>
-                              {item.discriminationIndex !== undefined && (
+                              {item.discriminationIndex !== undefined && item.discriminationIndex !== null && item.discriminationIndex !== 0 ? (
                                 <div className="text-xs mt-1 font-medium">
                                   DI: {item.discriminationIndex.toFixed(2)}
+                                </div>
+                              ) : (
+                                <div className="text-xs mt-1 text-muted-foreground">
+                                  DI: N/A
                                 </div>
                               )}
                             </div>

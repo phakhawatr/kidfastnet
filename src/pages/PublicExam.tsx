@@ -137,7 +137,8 @@ const PublicExam = () => {
         const userAnswerIndex = customAnswers.get(idx);
         if (userAnswerIndex !== undefined) {
           const userAnswerValue = q.choices[userAnswerIndex];
-          if (userAnswerValue === q.correctAnswer) {
+          // Use String conversion for type-safe comparison
+          if (String(userAnswerValue) === String(q.correctAnswer)) {
             correct++;
           }
         }
@@ -299,20 +300,23 @@ const PublicExam = () => {
               const userAnswerIndex = answersObject[idx];
               const userAnswerValue = userAnswerIndex !== undefined ? q.choices[userAnswerIndex] : undefined;
               
-              // Debug log
+              // Debug log with type comparison
               console.log(`Question ${idx + 1}:`, {
                 questionText: q.question,
                 choices: q.choices,
                 userAnswerIndex,
                 userAnswerValue,
+                userAnswerType: typeof userAnswerValue,
                 correctAnswer: q.correctAnswer,
-                isCorrect: userAnswerValue === q.correctAnswer
+                correctAnswerType: typeof q.correctAnswer,
+                strictComparison: userAnswerValue === q.correctAnswer,
+                stringComparison: String(userAnswerValue) === String(q.correctAnswer)
               });
               
               return {
                 question: q.question,
-                userAnswer: userAnswerValue,
-                correctAnswer: q.correctAnswer,
+                userAnswer: userAnswerValue !== undefined ? String(userAnswerValue) : undefined,
+                correctAnswer: String(q.correctAnswer),
                 originalIndex: idx,
                 choices: q.choices  // Include choices for debugging and fallback
               };

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, XCircle, ArrowLeft, Trophy, Clock, Target } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { compareAnswers } from '@/utils/examReportUtils';
 
 interface QuestionResult {
   question: string;
@@ -33,7 +34,7 @@ const isAnswerCorrect = (userAnswer: any, correctAnswer: any, choices?: any[]): 
   if (userAnswer === undefined || userAnswer === null) return false;
   
   // If userAnswer is the actual value already (string/number)
-  if (userAnswer === correctAnswer || String(userAnswer) === String(correctAnswer)) {
+  if (compareAnswers(userAnswer, correctAnswer)) {
     return true;
   }
   
@@ -41,7 +42,7 @@ const isAnswerCorrect = (userAnswer: any, correctAnswer: any, choices?: any[]): 
   // Check if it's a small number (0-3) and we have choices array
   if (choices && typeof userAnswer === 'number' && userAnswer >= 0 && userAnswer < choices.length) {
     const actualValue = choices[userAnswer];
-    return actualValue === correctAnswer || String(actualValue) === String(correctAnswer);
+    return compareAnswers(actualValue, correctAnswer);
   }
   
   return false;
