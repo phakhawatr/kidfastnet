@@ -52,6 +52,7 @@ const PublicExam = () => {
   const [customQuestions, setCustomQuestions] = useState<any[]>([]);
   const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [hasLoadedQuestions, setHasLoadedQuestions] = useState(false);
 
   const {
     questions,
@@ -76,7 +77,7 @@ const PublicExam = () => {
   }, [linkCode]);
 
   const loadCustomQuestions = useCallback(async () => {
-    if (!examLink?.id) return;
+    if (!examLink?.id || hasLoadedQuestions) return;
     
     console.log('🔍 Loading custom questions for exam_link_id:', examLink.id);
     setLoadingQuestions(true);
@@ -99,7 +100,6 @@ const PublicExam = () => {
       if (!data || data.length === 0) {
         console.warn('⚠️ No questions found for exam_link_id:', examLink.id);
         setCustomQuestions([]);
-        setLoadingQuestions(false);
         setLoadError('ไม่พบโจทย์ข้อสอบ กรุณาติดต่อครูผู้สอน');
         return;
       }
@@ -117,14 +117,15 @@ const PublicExam = () => {
 
       console.log('✅ Custom questions loaded:', formattedQuestions.length, 'questions');
       setCustomQuestions(formattedQuestions);
+      setHasLoadedQuestions(true);
     } catch (error) {
       console.error('❌ Error loading custom questions:', error);
       setLoadError('ไม่สามารถโหลดข้อสอบได้ กรุณาลองใหม่อีกครั้ง');
     } finally {
       setLoadingQuestions(false);
-      console.log('✅ Loading complete');
+      console.log('✅ Loading complete, loadingQuestions set to false');
     }
-  }, [examLink?.id]);
+  }, [examLink?.id, hasLoadedQuestions]);
 
   useEffect(() => {
     console.log('🔄 useEffect triggered:', {
