@@ -37,6 +37,7 @@ import AreaModelApp from "./pages/AreaModelApp";
 import WordProblemsApp from "./pages/WordProblemsApp";
 import STEMHub from "./pages/STEMHub";
 import CodingBasicsApp from "./pages/CodingBasicsApp";
+import ScienceLabApp from "./pages/ScienceLabApp";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
@@ -302,6 +303,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <CodingBasicsApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/science-lab" 
+            element={
+              <ProtectedRoute>
+                <ScienceLabApp />
               </ProtectedRoute>
             } 
           />
