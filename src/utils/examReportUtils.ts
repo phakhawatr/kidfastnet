@@ -24,6 +24,16 @@ export const calculateStdDev = (sessions: ExamSession[], mean: number): number =
 };
 
 /**
+ * Type-safe comparison for answers
+ */
+export const compareAnswers = (answer1: any, answer2: any): boolean => {
+  if (answer1 === undefined || answer1 === null || answer2 === undefined || answer2 === null) {
+    return false;
+  }
+  return String(answer1).trim() === String(answer2).trim();
+};
+
+/**
  * Generate item analysis for each question
  */
 export interface ItemAnalysis {
@@ -32,7 +42,7 @@ export interface ItemAnalysis {
   totalCount: number;
   percentCorrect: number;
   difficulty: 'ง่าย' | 'ปานกลาง' | 'ยาก';
-  discriminationIndex?: number;
+  discriminationIndex?: number | null;
   questionText?: string;
 }
 
@@ -43,8 +53,8 @@ export interface ItemAnalysis {
 export const calculateDiscriminationIndex = (
   sessions: ExamSession[],
   questionIndex: number
-): number => {
-  if (sessions.length < 10) return 0; // Need sufficient sample size
+): number | null => {
+  if (sessions.length < 10) return null; // Need sufficient sample size (return null instead of 0)
   
   // Sort by total score
   const sorted = [...sessions].sort((a, b) => b.score - a.score);
@@ -59,14 +69,14 @@ export const calculateDiscriminationIndex = (
   
   topGroup.forEach(session => {
     const q = session.assessment_data?.questions?.[questionIndex];
-    if (q && (q.userAnswer === q.correctAnswer || String(q.userAnswer) === String(q.correctAnswer))) {
+    if (q && compareAnswers(q.userAnswer, q.correctAnswer)) {
       topCorrect++;
     }
   });
   
   bottomGroup.forEach(session => {
     const q = session.assessment_data?.questions?.[questionIndex];
-    if (q && (q.userAnswer === q.correctAnswer || String(q.userAnswer) === String(q.correctAnswer))) {
+    if (q && compareAnswers(q.userAnswer, q.correctAnswer)) {
       bottomCorrect++;
     }
   });
@@ -96,8 +106,8 @@ export const generateItemAnalysis = (sessions: ExamSession[]): ItemAnalysis[] =>
         if (!questionText && q.question) {
           questionText = q.question;
         }
-        // Check if user answer matches correct answer
-        if (q.userAnswer === q.correctAnswer || String(q.userAnswer) === String(q.correctAnswer)) {
+        // Check if user answer matches correct answer using type-safe comparison
+        if (compareAnswers(q.userAnswer, q.correctAnswer)) {
           correctCount++;
         }
       }
