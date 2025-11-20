@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { ArrowRight, Atom, Beaker, Cpu, Hammer, Calculator } from 'lucide-react';
+import { ArrowRight, Atom, Beaker, Cpu, Hammer, Calculator, FlaskConical } from 'lucide-react';
 
 const STEMHub = () => {
   const { t } = useTranslation('stem');
@@ -144,6 +144,15 @@ const STEMHub = () => {
                   <div className="flex flex-col items-center gap-1">
                     <span className="text-xl">⚡</span>
                     <span className="font-bold text-[10px]">Physics</span>
+                  </div>
+                </Button>
+              </Link>
+              
+              <Link to="/chemistry-lab">
+                <Button className="w-full h-auto py-5 bg-gradient-to-r from-purple-500 to-pink-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-xl">🧪</span>
+                    <span className="font-bold text-[10px]">Chemistry</span>
                   </div>
                 </Button>
               </Link>

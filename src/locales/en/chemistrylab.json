@@ -1,0 +1,67 @@
+{
+  "title": "Chemistry Lab",
+  "subtitle": "Virtual Chemistry Experiments",
+  "description": "Learn chemistry through fun virtual experiments. Test pH levels, observe solubility, and explore states of matter!",
+  "back_to_stem": "Back to STEM Hub",
+  "back": "Back to Menu",
+  "experiments": {
+    "acid_base": {
+      "title": "Acid-Base Reactions",
+      "description": "Test the pH of different substances",
+      "select_substance": "Select a substance to test:",
+      "substances": {
+        "lemon": "Lemon Juice",
+        "vinegar": "Vinegar",
+        "soda": "Soda",
+        "milk": "Milk",
+        "water": "Water",
+        "baking_soda": "Baking Soda",
+        "soap": "Soap",
+        "bleach": "Bleach"
+      },
+      "result": "pH Result",
+      "acidic": "Acidic",
+      "neutral": "Neutral",
+      "alkaline": "Alkaline",
+      "tip_title": "Chemistry Tip:",
+      "tip": "Acids have pH below 7, neutral is exactly 7, and bases (alkaline) have pH above 7"
+    },
+    "solubility": {
+      "title": "Solubility",
+      "description": "Observe how substances dissolve in water",
+      "select_solute": "Select a substance:",
+      "solutes": {
+        "salt": "Salt",
+        "sugar": "Sugar",
+        "sand": "Sand",
+        "oil": "Oil"
+      },
+      "amount": "Amount to add (grams):",
+      "dissolve": "Add to Water",
+      "result": "Observation",
+      "dissolved": "Dissolved",
+      "tip_title": "Chemistry Tip:",
+      "tip": "Some substances dissolve easily in water (like salt and sugar), while others don't dissolve at all (like sand and oil)"
+    },
+    "ph_scale": {
+      "title": "pH Scale",
+      "description": "Learn about the pH scale from 0 to 14",
+      "acidic": "Acidic",
+      "neutral": "Neutral",
+      "alkaline": "Alkaline/Basic",
+      "tip_title": "Chemistry Tip:",
+      "tip": "The pH scale measures how acidic or basic a substance is. Lower numbers are more acidic, 7 is neutral, and higher numbers are more basic"
+    },
+    "states_matter": {
+      "title": "States of Matter",
+      "description": "See how temperature affects the state of matter",
+      "temperature": "Temperature Control",
+      "current_state": "Current State",
+      "solid": "Solid",
+      "liquid": "Liquid",
+      "gas": "Gas",
+      "tip_title": "Chemistry Tip:",
+      "tip": "Matter changes state with temperature. Below 0°C water is solid (ice), between 0-100°C it's liquid (water), and above 100°C it's gas (steam)"
+    }
+  }
+}
