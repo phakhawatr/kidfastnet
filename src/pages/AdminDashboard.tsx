@@ -38,6 +38,7 @@ interface UserRegistration {
   ai_features_enabled: boolean;
   ai_monthly_quota: number;
   ai_usage_count: number;
+  is_teacher?: boolean;
 }
 
 interface UserPresence {
@@ -49,7 +50,7 @@ const AdminDashboard = () => {
   const { name, email, logout, adminId } = useAdmin();
   const [registrations, setRegistrations] = useState<UserRegistration[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'suspended' | 'online' | 'paid' | 'unpaid'>('pending');
+  const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'suspended' | 'online' | 'paid' | 'unpaid' | 'teacher' | 'student'>('pending');
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [paymentConfirmDialog, setPaymentConfirmDialog] = useState<{
@@ -204,7 +205,23 @@ const AdminDashboard = () => {
       }
       
       console.log('✅ Successfully fetched registrations:', data?.length || 0, 'records');
-      setRegistrations((data || []) as UserRegistration[]);
+      
+      // Fetch teacher roles for all users
+      const userIds = (data || []).map((d: any) => d.id);
+      const { data: rolesData } = await supabase
+        .from('user_roles')
+        .select('user_id, role')
+        .in('user_id', userIds)
+        .eq('role', 'teacher');
+      
+      const teacherIds = new Set(rolesData?.map(r => r.user_id) || []);
+      
+      const registrationsWithRoles = (data || []).map((reg: any) => ({
+        ...reg,
+        is_teacher: teacherIds.has(reg.id)
+      }));
+      
+      setRegistrations(registrationsWithRoles as UserRegistration[]);
       
       // Show toast for auto-refresh
       if (isAutoRefresh) {
@@ -523,6 +540,50 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleToggleTeacherRole = async (userId: string, nickname: string, isCurrentlyTeacher: boolean) => {
+    try {
+      if (isCurrentlyTeacher) {
+        // Remove teacher role
+        const { error } = await supabase
+          .from('user_roles')
+          .delete()
+          .eq('user_id', userId)
+          .eq('role', 'teacher');
+
+        if (error) throw error;
+
+        ToastManager.show({
+          message: `✅ เปลี่ยน "${nickname}" เป็นนักเรียนเรียบร้อย!`,
+          type: 'success'
+        });
+      } else {
+        // Add teacher role
+        const { error } = await supabase
+          .from('user_roles')
+          .insert({
+            user_id: userId,
+            role: 'teacher',
+            created_by: adminId
+          });
+
+        if (error) throw error;
+
+        ToastManager.show({
+          message: `🎓 มอบสิทธิ์ครูให้ "${nickname}" เรียบร้อย!`,
+          type: 'success'
+        });
+      }
+
+      fetchRegistrations();
+    } catch (error: any) {
+      console.error('Error toggling teacher role:', error);
+      ToastManager.show({
+        message: 'เกิดข้อผิดพลาดในการเปลี่ยน Role: ' + error.message,
+        type: 'error'
+      });
+    }
+  };
+
   const openPaymentConfirmDialog = (registrationId: string, nickname: string) => {
     setPaymentConfirmDialog({
       isOpen: true,
@@ -573,6 +634,10 @@ const AdminDashboard = () => {
       matchesFilter = reg.status === 'approved' && reg.payment_status === 'paid';
     } else if (filter === 'unpaid') {
       matchesFilter = reg.status === 'approved' && reg.payment_status === 'pending';
+    } else if (filter === 'teacher') {
+      matchesFilter = reg.status === 'approved' && reg.is_teacher === true;
+    } else if (filter === 'student') {
+      matchesFilter = reg.status === 'approved' && reg.is_teacher !== true;
     } else {
       matchesFilter = filter === 'all' || reg.status === filter;
     }
@@ -600,6 +665,8 @@ const AdminDashboard = () => {
     online: registrations.filter(r => isUserOnline(r.id, r.is_online)).length,
     paid: registrations.filter(r => r.status === 'approved' && r.payment_status === 'paid').length,
     unpaid: registrations.filter(r => r.status === 'approved' && r.payment_status === 'pending').length,
+    teacher: registrations.filter(r => r.status === 'approved' && r.is_teacher === true).length,
+    student: registrations.filter(r => r.status === 'approved' && r.is_teacher !== true).length,
   };
 
   if (isLoading) {
@@ -902,6 +969,18 @@ const AdminDashboard = () => {
                                       🤖 AI: {registration.ai_usage_count || 0}/{registration.ai_monthly_quota || 0}
                                     </span>
                                   )}
+                                  {/* Role Badge */}
+                                  {registration.status === 'approved' && (
+                                    registration.is_teacher ? (
+                                      <span className="px-2 py-1 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-full text-xs font-medium shadow-sm">
+                                        👨‍🏫 ครู
+                                      </span>
+                                    ) : (
+                                      <span className="px-2 py-1 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-full text-xs font-medium shadow-sm">
+                                        👨‍🎓 นักเรียน
+                                      </span>
+                                    )
+                                  )}
                                 </div>
                               </div>
                             </div>
@@ -988,6 +1067,66 @@ const AdminDashboard = () => {
                         <span aria-hidden="true">📉</span> ปรับเป็น Basic
                       </button>
                     )}
+                  </div>
+                )}
+
+                {/* Teacher Role Toggle Button - Only for approved members */}
+                {registration.status === 'approved' && (
+                  <div className="flex gap-3 flex-wrap" role="group" aria-label="การจัดการ Role">
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <button
+                          className={`min-h-[44px] px-5 py-2 text-white rounded-lg focus:ring-4 focus:outline-none transition-all text-sm font-medium shadow-md ${
+                            registration.is_teacher
+                              ? 'bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 focus:ring-blue-300'
+                              : 'bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 focus:ring-purple-300'
+                          }`}
+                          aria-label={registration.is_teacher ? `เปลี่ยน ${registration.nickname} เป็นนักเรียน` : `มอบสิทธิ์ครูให้ ${registration.nickname}`}
+                        >
+                          {registration.is_teacher ? (
+                            <><span aria-hidden="true">👨‍🎓</span> เปลี่ยนเป็นนักเรียน</>
+                          ) : (
+                            <><span aria-hidden="true">🎓</span> มอบสิทธิ์ครู</>
+                          )}
+                        </button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent className="bg-white border border-gray-200 shadow-lg">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle className="text-gray-900 text-lg font-semibold">
+                            {registration.is_teacher ? 'เปลี่ยนเป็นนักเรียน?' : 'มอบสิทธิ์ครู?'}
+                          </AlertDialogTitle>
+                          <AlertDialogDescription className="text-gray-700">
+                            {registration.is_teacher ? (
+                              <>
+                                คุณต้องการเปลี่ยน "{registration.nickname}" จาก <strong>ครู</strong> เป็น <strong>นักเรียน</strong> หรือไม่?
+                                <br /><br />
+                                สมาชิกจะไม่สามารถเข้าถึงหน้า Teacher Dashboard ได้อีกต่อไป
+                              </>
+                            ) : (
+                              <>
+                                คุณต้องการมอบสิทธิ์ <strong>ครู</strong> ให้ "{registration.nickname}" หรือไม่?
+                                <br /><br />
+                                สมาชิกจะสามารถเข้าถึงหน้า Teacher Dashboard และสร้างข้อสอบได้
+                              </>
+                            )}
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel className="bg-gray-200 text-gray-900 hover:bg-gray-300">
+                            ยกเลิก
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleToggleTeacherRole(registration.id, registration.nickname, registration.is_teacher || false)}
+                            className={registration.is_teacher 
+                              ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                              : 'bg-purple-600 hover:bg-purple-700 text-white'
+                            }
+                          >
+                            ยืนยัน
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 )}
 
