@@ -10,8 +10,6 @@ interface QuestionResult {
   question: string;
   userAnswer: any;
   correctAnswer: any;
-  isCorrect: boolean;
-  originalIndex: number;
 }
 
 interface SessionData {
@@ -29,7 +27,7 @@ interface SessionData {
   };
 }
 
-const StudentExamResult = () => {
+function StudentExamResult() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
   const [session, setSession] = useState<SessionData | null>(null);
@@ -37,34 +35,34 @@ const StudentExamResult = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const loadSessionData = async () => {
+      if (!sessionId) {
+        setError('ไม่พบรหัสผลสอบ');
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('exam_sessions')
+          .select('*')
+          .eq('id', sessionId)
+          .single();
+
+        if (error) throw error;
+        if (!data) throw new Error('ไม่พบข้อมูลผลสอบ');
+
+        setSession(data as any as SessionData);
+      } catch (err: any) {
+        console.error('Error loading session:', err);
+        setError('ไม่สามารถโหลดผลสอบได้');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     loadSessionData();
   }, [sessionId]);
-
-  const loadSessionData = async () => {
-    if (!sessionId) {
-      setError('ไม่พบรหัสผลสอบ');
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      const { data, error } = await supabase
-        .from('exam_sessions')
-        .select('*')
-        .eq('id', sessionId)
-        .single();
-
-      if (error) throw error;
-      if (!data) throw new Error('ไม่พบข้อมูลผลสอบ');
-
-      setSession(data as any as SessionData);
-    } catch (err: any) {
-      console.error('Error loading session:', err);
-      setError('ไม่สามารถโหลดผลสอบได้');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -110,7 +108,6 @@ const StudentExamResult = () => {
           กลับหน้าหลัก
         </Button>
 
-        {/* Score Summary Card */}
         <Card className="mb-6 bg-gradient-to-br from-primary/10 to-secondary/10 border-2">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
@@ -184,7 +181,6 @@ const StudentExamResult = () => {
           </CardContent>
         </Card>
 
-        {/* Detailed Question Results */}
         <Card>
           <CardHeader>
             <CardTitle>รายละเอียดแต่ละข้อ</CardTitle>
@@ -249,7 +245,6 @@ const StudentExamResult = () => {
           </CardContent>
         </Card>
 
-        {/* Encouragement Message */}
         <Card className="mt-6 bg-gradient-to-br from-primary/5 to-secondary/5">
           <CardContent className="pt-6 text-center">
             {session.score >= 80 ? (
@@ -279,6 +274,6 @@ const StudentExamResult = () => {
       </div>
     </div>
   );
-};
+}
 
 export default StudentExamResult;
