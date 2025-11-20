@@ -699,8 +699,13 @@ const AstronomyLabApp = () => {
         </div>
         
         <div className="mt-4 flex gap-2 justify-center">
-          <Button onClick={() => setIsPaused(!isPaused)} variant="outline" size="lg">
-            {isPaused ? <><Play className="mr-2 h-5 w-5" />{t("experiments.solar_system.play")}</> : <><Pause className="mr-2 h-5 w-5" />{t("experiments.solar_system.pause")}</>}
+          <Button 
+            onClick={() => setIsPaused(!isPaused)} 
+            variant="outline" 
+            size="icon"
+            title={isPaused ? t("experiments.solar_system.play") : t("experiments.solar_system.pause")}
+          >
+            {isPaused ? <Play className="h-5 w-5" /> : <Pause className="h-5 w-5" />}
           </Button>
         </div>
       </Card>
@@ -726,6 +731,141 @@ const AstronomyLabApp = () => {
             <li>{t("experiments.solar_system.composition_moons")}</li>
             <li>{t("experiments.solar_system.composition_asteroids")}</li>
           </ul>
+        </div>
+      </Card>
+
+      <Card className="p-6">
+        <h3 className="text-xl font-bold mb-6">{t("experiments.solar_system.planets_detail_title")}</h3>
+        <div className="space-y-6">
+          {[
+            {
+              name: t("experiments.planets.list.mercury"),
+              color: "#B8B8B8",
+              imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Mercury_in_color_-_Prockter07-edit.jpg/800px-Mercury_in_color_-_Prockter07-edit.jpg",
+              diameter: "4,879 km",
+              mass: "3.30 × 10²³ kg",
+              distance: "57.9 " + t("experiments.planets.million_km"),
+              orbitalPeriod: "88 " + t("experiments.solar_system.earth_days"),
+              description: t("experiments.planets.mercury.detail"),
+              features: [t("experiments.planets.mercury.f1"), t("experiments.planets.mercury.f2"), t("experiments.planets.mercury.f3")]
+            },
+            {
+              name: t("experiments.planets.list.venus"),
+              color: "#FFA500",
+              imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Venus-real_color.jpg/800px-Venus-real_color.jpg",
+              diameter: "12,104 km",
+              mass: "4.87 × 10²⁴ kg",
+              distance: "108.2 " + t("experiments.planets.million_km"),
+              orbitalPeriod: "225 " + t("experiments.solar_system.earth_days"),
+              description: t("experiments.planets.venus.detail"),
+              features: [t("experiments.planets.venus.f1"), t("experiments.planets.venus.f2"), t("experiments.planets.venus.f3")]
+            },
+            {
+              name: t("experiments.planets.list.earth"),
+              color: "#4169E1",
+              imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/The_Earth_seen_from_Apollo_17.jpg/800px-The_Earth_seen_from_Apollo_17.jpg",
+              diameter: "12,742 km",
+              mass: "5.97 × 10²⁴ kg",
+              distance: "149.6 " + t("experiments.planets.million_km"),
+              orbitalPeriod: "365.25 " + t("experiments.solar_system.earth_days"),
+              description: t("experiments.planets.earth.detail"),
+              features: [t("experiments.planets.earth.f1"), t("experiments.planets.earth.f2"), t("experiments.planets.earth.f3")]
+            },
+            {
+              name: t("experiments.planets.list.mars"),
+              color: "#DC143C",
+              imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/OSIRIS_Mars_true_color.jpg/800px-OSIRIS_Mars_true_color.jpg",
+              diameter: "6,779 km",
+              mass: "6.42 × 10²³ kg",
+              distance: "227.9 " + t("experiments.planets.million_km"),
+              orbitalPeriod: "687 " + t("experiments.solar_system.earth_days"),
+              description: t("experiments.planets.mars.detail"),
+              features: [t("experiments.planets.mars.f1"), t("experiments.planets.mars.f2"), t("experiments.planets.mars.f3")]
+            },
+            {
+              name: t("experiments.planets.list.jupiter"),
+              color: "#DAA520",
+              imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Jupiter_and_its_shrunken_Great_Red_Spot.jpg/800px-Jupiter_and_its_shrunken_Great_Red_Spot.jpg",
+              diameter: "139,820 km",
+              mass: "1.90 × 10²⁷ kg",
+              distance: "778.5 " + t("experiments.planets.million_km"),
+              orbitalPeriod: "11.9 " + t("experiments.solar_system.earth_years"),
+              description: t("experiments.planets.jupiter.detail"),
+              features: [t("experiments.planets.jupiter.f1"), t("experiments.planets.jupiter.f2"), t("experiments.planets.jupiter.f3")]
+            },
+            {
+              name: t("experiments.planets.list.saturn"),
+              color: "#F4A460",
+              imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Saturn_during_Equinox.jpg/800px-Saturn_during_Equinox.jpg",
+              diameter: "116,460 km",
+              mass: "5.68 × 10²⁶ kg",
+              distance: "1,434 " + t("experiments.planets.million_km"),
+              orbitalPeriod: "29.5 " + t("experiments.solar_system.earth_years"),
+              description: t("experiments.planets.saturn.detail"),
+              features: [t("experiments.planets.saturn.f1"), t("experiments.planets.saturn.f2"), t("experiments.planets.saturn.f3")]
+            },
+            {
+              name: t("experiments.planets.list.uranus"),
+              color: "#40E0D0",
+              imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Uranus2.jpg/800px-Uranus2.jpg",
+              diameter: "50,724 km",
+              mass: "8.68 × 10²⁵ kg",
+              distance: "2,871 " + t("experiments.planets.million_km"),
+              orbitalPeriod: "84 " + t("experiments.solar_system.earth_years"),
+              description: t("experiments.planets.uranus.detail"),
+              features: [t("experiments.planets.uranus.f1"), t("experiments.planets.uranus.f2"), t("experiments.planets.uranus.f3")]
+            },
+            {
+              name: t("experiments.planets.list.neptune"),
+              color: "#1E90FF",
+              imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Neptune_-_Voyager_2_%2829347980845%29_flatten_crop.jpg/800px-Neptune_-_Voyager_2_%2829347980845%29_flatten_crop.jpg",
+              diameter: "49,244 km",
+              mass: "1.02 × 10²⁶ kg",
+              distance: "4,495 " + t("experiments.planets.million_km"),
+              orbitalPeriod: "164.8 " + t("experiments.solar_system.earth_years"),
+              description: t("experiments.planets.neptune.detail"),
+              features: [t("experiments.planets.neptune.f1"), t("experiments.planets.neptune.f2"), t("experiments.planets.neptune.f3")]
+            }
+          ].map((planet) => (
+            <div key={planet.name} className="border-b last:border-b-0 pb-6 last:pb-0 animate-fade-in">
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-shrink-0">
+                  <img 
+                    src={planet.imageUrl} 
+                    alt={planet.name}
+                    className="w-full md:w-48 h-48 object-cover rounded-lg shadow-lg hover:scale-105 transition-transform duration-300"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-lg font-bold mb-2 flex items-center gap-2">
+                    <span style={{ color: planet.color }}>●</span>
+                    {planet.name}
+                  </h4>
+                  <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
+                    <div className="bg-muted p-2 rounded">
+                      <strong>{t("experiments.planets.diameter")}:</strong> {planet.diameter}
+                    </div>
+                    <div className="bg-muted p-2 rounded">
+                      <strong>{t("experiments.planets.mass")}:</strong> {planet.mass}
+                    </div>
+                    <div className="bg-muted p-2 rounded">
+                      <strong>{t("experiments.planets.distance")}:</strong> {planet.distance}
+                    </div>
+                    <div className="bg-muted p-2 rounded">
+                      <strong>{t("experiments.planets.orbital_period")}:</strong> {planet.orbitalPeriod}
+                    </div>
+                  </div>
+                  <p className="text-sm leading-relaxed mb-2">{planet.description}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {planet.features.map((feature, i) => (
+                      <Badge key={i} variant="secondary">{feature}</Badge>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
         <Button 
           onClick={() => {
