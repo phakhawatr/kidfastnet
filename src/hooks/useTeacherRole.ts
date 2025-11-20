@@ -6,6 +6,8 @@ export const useTeacherRole = (userId: string | null) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    console.log('🔍 useTeacherRole - userId:', userId);
+    
     const checkTeacherRole = async () => {
       if (!userId) {
         setIsTeacher(false);
@@ -22,6 +24,13 @@ export const useTeacherRole = (userId: string | null) => {
           .maybeSingle();
 
         if (error) throw error;
+        
+        console.log('✅ Teacher role check result:', {
+          userId,
+          hasData: !!data,
+          isTeacher: !!data
+        });
+        
         setIsTeacher(!!data);
       } catch (error) {
         console.error('Error checking teacher role:', error);
