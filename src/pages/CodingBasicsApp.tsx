@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 
 type GameMode = 'menu' | 'sequencing' | 'patterns' | 'loops' | 'conditionals' | 'results';
 type Difficulty = 'easy' | 'medium' | 'hard';
+type QuestionCount = 10 | 15 | 20 | 30;
 
 interface Challenge {
   id: string;
@@ -19,6 +20,14 @@ interface Challenge {
   correctAnswer: number[];
   explanation: string;
   hint: string;
+  emoji?: string;
+}
+
+interface AnswerHistory {
+  questionIndex: number;
+  selectedAnswer: number[];
+  isCorrect: boolean;
+  challenge: Challenge;
 }
 
 const CodingBasicsApp = () => {
@@ -27,6 +36,7 @@ const CodingBasicsApp = () => {
 
   const [gameMode, setGameMode] = useState<GameMode>('menu');
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
+  const [questionCount, setQuestionCount] = useState<QuestionCount>(10);
   const [currentChallenge, setCurrentChallenge] = useState(0);
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [selectedAnswer, setSelectedAnswer] = useState<number[]>([]);
@@ -36,6 +46,7 @@ const CodingBasicsApp = () => {
   const [attempts, setAttempts] = useState(0);
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
+  const [answerHistory, setAnswerHistory] = useState<AnswerHistory[]>([]);
 
   // Timer
   useEffect(() => {
@@ -57,52 +68,39 @@ const CodingBasicsApp = () => {
   // Generate Sequencing Challenges
   const generateSequencingChallenges = (): Challenge[] => {
     const allChallenges = [
-      {
-        id: 'seq-1',
-        question: t('challenges.sequencing.wake_up'),
-        options: [
-          t('challenges.sequencing.options.brush_teeth'),
-          t('challenges.sequencing.options.wake_up'),
-          t('challenges.sequencing.options.eat_breakfast'),
-          t('challenges.sequencing.options.go_to_school')
-        ],
-        correctAnswer: [1, 0, 2, 3],
-        explanation: t('challenges.sequencing.explanation_wake_up'),
-        hint: t('challenges.sequencing.hint_morning')
-      },
-      {
-        id: 'seq-2',
-        question: t('challenges.sequencing.plant_tree'),
-        options: [
-          t('challenges.sequencing.options.water'),
-          t('challenges.sequencing.options.dig_hole'),
-          t('challenges.sequencing.options.put_seed'),
-          t('challenges.sequencing.options.cover_soil')
-        ],
-        correctAnswer: [1, 2, 3, 0],
-        explanation: t('challenges.sequencing.explanation_plant'),
-        hint: t('challenges.sequencing.hint_plant')
-      },
-      {
-        id: 'seq-3',
-        question: t('challenges.sequencing.make_sandwich'),
-        options: [
-          t('challenges.sequencing.options.put_filling'),
-          t('challenges.sequencing.options.get_bread'),
-          t('challenges.sequencing.options.close_sandwich'),
-          t('challenges.sequencing.options.spread_butter')
-        ],
-        correctAnswer: [1, 3, 0, 2],
-        explanation: t('challenges.sequencing.explanation_sandwich'),
-        hint: t('challenges.sequencing.hint_sandwich')
-      }
+      { id: 'seq-1', question: t('challenges.sequencing.wake_up'), emoji: '🛏️',
+        options: [t('challenges.sequencing.options.wake_up'), t('challenges.sequencing.options.brush_teeth'), t('challenges.sequencing.options.eat_breakfast'), t('challenges.sequencing.options.go_to_school')],
+        correctAnswer: [0, 1, 2, 3], explanation: t('challenges.sequencing.explanation_wake_up'), hint: t('challenges.sequencing.hint_morning') },
+      { id: 'seq-2', question: t('challenges.sequencing.plant_tree'), emoji: '🌱',
+        options: [t('challenges.sequencing.options.dig_hole'), t('challenges.sequencing.options.put_seed'), t('challenges.sequencing.options.cover_soil'), t('challenges.sequencing.options.water')],
+        correctAnswer: [0, 1, 2, 3], explanation: t('challenges.sequencing.explanation_plant'), hint: t('challenges.sequencing.hint_plant') },
+      { id: 'seq-3', question: t('challenges.sequencing.make_sandwich'), emoji: '🥪',
+        options: [t('challenges.sequencing.options.get_bread'), t('challenges.sequencing.options.spread_butter'), t('challenges.sequencing.options.put_filling'), t('challenges.sequencing.options.close_sandwich')],
+        correctAnswer: [0, 1, 2, 3], explanation: t('challenges.sequencing.explanation_sandwich'), hint: t('challenges.sequencing.hint_sandwich') },
+      { id: 'seq-4', question: t('challenges.sequencing.wash_hands'), emoji: '🧼',
+        options: [t('challenges.sequencing.options.wet_hands'), t('challenges.sequencing.options.apply_soap'), t('challenges.sequencing.options.scrub'), t('challenges.sequencing.options.rinse'), t('challenges.sequencing.options.dry')],
+        correctAnswer: [0, 1, 2, 3, 4], explanation: t('challenges.sequencing.explanation_wash_hands'), hint: t('challenges.sequencing.hint_wash_hands') },
+      { id: 'seq-5', question: t('challenges.sequencing.bake_cookie'), emoji: '🍪',
+        options: [t('challenges.sequencing.options.mix_ingredients'), t('challenges.sequencing.options.preheat_oven'), t('challenges.sequencing.options.shape_dough'), t('challenges.sequencing.options.bake'), t('challenges.sequencing.options.cool')],
+        correctAnswer: [1, 0, 2, 3, 4], explanation: t('challenges.sequencing.explanation_bake_cookie'), hint: t('challenges.sequencing.hint_bake_cookie') },
+      { id: 'seq-6', question: t('challenges.sequencing.use_atm'), emoji: '💳',
+        options: [t('challenges.sequencing.options.insert_card'), t('challenges.sequencing.options.enter_pin'), t('challenges.sequencing.options.select_amount'), t('challenges.sequencing.options.take_cash'), t('challenges.sequencing.options.take_card')],
+        correctAnswer: [0, 1, 2, 3, 4], explanation: t('challenges.sequencing.explanation_use_atm'), hint: t('challenges.sequencing.hint_use_atm') },
+      { id: 'seq-7', question: t('challenges.sequencing.send_email'), emoji: '📧',
+        options: [t('challenges.sequencing.options.open_email'), t('challenges.sequencing.options.click_compose'), t('challenges.sequencing.options.type_message'), t('challenges.sequencing.options.add_recipient'), t('challenges.sequencing.options.click_send')],
+        correctAnswer: [0, 1, 3, 2, 4], explanation: t('challenges.sequencing.explanation_send_email'), hint: t('challenges.sequencing.hint_send_email') },
+      { id: 'seq-8', question: t('challenges.sequencing.do_homework'), emoji: '📚',
+        options: [t('challenges.sequencing.options.read_instructions'), t('challenges.sequencing.options.gather_materials'), t('challenges.sequencing.options.complete_work'), t('challenges.sequencing.options.check_answers')],
+        correctAnswer: [0, 1, 2, 3], explanation: t('challenges.sequencing.explanation_do_homework'), hint: t('challenges.sequencing.hint_do_homework') },
+      { id: 'seq-9', question: t('challenges.sequencing.wash_clothes'), emoji: '🧺',
+        options: [t('challenges.sequencing.options.sort_clothes'), t('challenges.sequencing.options.load_washer'), t('challenges.sequencing.options.add_detergent'), t('challenges.sequencing.options.start_wash'), t('challenges.sequencing.options.dry_clothes')],
+        correctAnswer: [0, 1, 2, 3, 4], explanation: t('challenges.sequencing.explanation_wash_clothes'), hint: t('challenges.sequencing.hint_wash_clothes') },
+      { id: 'seq-10', question: t('challenges.sequencing.make_ice'), emoji: '🧊',
+        options: [t('challenges.sequencing.options.fill_tray'), t('challenges.sequencing.options.place_in_freezer'), t('challenges.sequencing.options.wait_freeze'), t('challenges.sequencing.options.remove_ice')],
+        correctAnswer: [0, 1, 2, 3], explanation: t('challenges.sequencing.explanation_make_ice'), hint: t('challenges.sequencing.hint_make_ice') },
     ];
 
-    return difficulty === 'easy' 
-      ? allChallenges.slice(0, 2)
-      : difficulty === 'medium'
-      ? allChallenges
-      : allChallenges;
+    return allChallenges;
   };
 
   // Generate Pattern Challenges
@@ -144,124 +142,102 @@ const CodingBasicsApp = () => {
   // Generate Loop Challenges
   const generateLoopChallenges = (): Challenge[] => {
     const allChallenges = [
-      {
-        id: 'loop-1',
-        question: t('challenges.loops.jump_5_times'),
-        options: [
-          t('challenges.loops.options.jump_once'),
-          t('challenges.loops.options.repeat_5'),
-          t('challenges.loops.options.jump_twice'),
-          t('challenges.loops.options.stop')
-        ],
-        correctAnswer: [1],
-        explanation: t('challenges.loops.explanation_repeat'),
-        hint: t('challenges.loops.hint_loop')
-      },
-      {
-        id: 'loop-2',
-        question: t('challenges.loops.draw_3_stars'),
-        options: [
-          t('challenges.loops.options.draw_star'),
-          t('challenges.loops.options.repeat_3'),
-          t('challenges.loops.options.draw_circle'),
-          t('challenges.loops.options.color_red')
-        ],
-        correctAnswer: [1],
-        explanation: t('challenges.loops.explanation_three_times'),
-        hint: t('challenges.loops.hint_same_action')
-      },
-      {
-        id: 'loop-3',
-        question: t('challenges.loops.count_to_10'),
-        options: [
-          t('challenges.loops.options.say_numbers'),
-          t('challenges.loops.options.repeat_10'),
-          t('challenges.loops.options.add_one'),
-          t('challenges.loops.options.start_at_1')
-        ],
-        correctAnswer: [1],
-        explanation: t('challenges.loops.explanation_count'),
-        hint: t('challenges.loops.hint_increment')
-      }
+      { id: 'loop-1', question: t('challenges.loops.jump_5_times'), emoji: '🦘',
+        options: [t('challenges.loops.options.jump_once'), t('challenges.loops.options.repeat_5'), t('challenges.loops.options.jump_twice'), t('challenges.loops.options.stop')],
+        correctAnswer: [1], explanation: t('challenges.loops.explanation_repeat'), hint: t('challenges.loops.hint_loop') },
+      { id: 'loop-2', question: t('challenges.loops.draw_3_stars'), emoji: '⭐',
+        options: [t('challenges.loops.options.draw_star'), t('challenges.loops.options.repeat_3'), t('challenges.loops.options.draw_circle'), t('challenges.loops.options.color_red')],
+        correctAnswer: [1], explanation: t('challenges.loops.explanation_three_times'), hint: t('challenges.loops.hint_same_action') },
+      { id: 'loop-3', question: t('challenges.loops.count_to_10'), emoji: '🔢',
+        options: [t('challenges.loops.options.say_numbers'), t('challenges.loops.options.repeat_10'), t('challenges.loops.options.add_one'), t('challenges.loops.options.start_at_1')],
+        correctAnswer: [1], explanation: t('challenges.loops.explanation_count'), hint: t('challenges.loops.hint_increment') },
+      { id: 'loop-4', question: t('challenges.loops.draw_square'), emoji: '⬛',
+        options: [t('challenges.loops.options.draw_line'), t('challenges.loops.options.turn_90'), t('challenges.loops.options.repeat_4'), t('challenges.loops.options.stop')],
+        correctAnswer: [2], explanation: t('challenges.loops.explanation_square'), hint: t('challenges.loops.hint_square') },
+      { id: 'loop-5', question: t('challenges.loops.print_1_to_20'), emoji: '📝',
+        options: [t('challenges.loops.options.print_number'), t('challenges.loops.options.repeat_20'), t('challenges.loops.options.add_one'), t('challenges.loops.options.start_at_1')],
+        correctAnswer: [1], explanation: t('challenges.loops.explanation_print'), hint: t('challenges.loops.hint_print') },
+      { id: 'loop-6', question: t('challenges.loops.countdown'), emoji: '⏰',
+        options: [t('challenges.loops.options.print_number'), t('challenges.loops.options.repeat_10'), t('challenges.loops.options.subtract_one'), t('challenges.loops.options.start_at_10')],
+        correctAnswer: [1], explanation: t('challenges.loops.explanation_countdown'), hint: t('challenges.loops.hint_countdown') },
+      { id: 'loop-7', question: t('challenges.loops.clap_8_times'), emoji: '👏',
+        options: [t('challenges.loops.options.clap_once'), t('challenges.loops.options.repeat_8'), t('challenges.loops.options.clap_twice'), t('challenges.loops.options.stop')],
+        correctAnswer: [1], explanation: t('challenges.loops.explanation_clap'), hint: t('challenges.loops.hint_clap') },
+      { id: 'loop-8', question: t('challenges.loops.draw_star'), emoji: '⭐',
+        options: [t('challenges.loops.options.draw_line'), t('challenges.loops.options.turn_144'), t('challenges.loops.options.repeat_5'), t('challenges.loops.options.stop')],
+        correctAnswer: [2], explanation: t('challenges.loops.explanation_star'), hint: t('challenges.loops.hint_star') },
+      { id: 'loop-9', question: t('challenges.loops.deal_cards'), emoji: '🃏',
+        options: [t('challenges.loops.options.pick_card'), t('challenges.loops.options.give_player'), t('challenges.loops.options.repeat_4'), t('challenges.loops.options.shuffle')],
+        correctAnswer: [2], explanation: t('challenges.loops.explanation_cards'), hint: t('challenges.loops.hint_cards') },
+      { id: 'loop-10', question: t('challenges.loops.draw_circles'), emoji: '⭕',
+        options: [t('challenges.loops.options.draw_circle'), t('challenges.loops.options.move_position'), t('challenges.loops.options.repeat_6'), t('challenges.loops.options.stop')],
+        correctAnswer: [2], explanation: t('challenges.loops.explanation_circles'), hint: t('challenges.loops.hint_circles') },
     ];
 
-    return difficulty === 'easy' 
-      ? allChallenges.slice(0, 2)
-      : difficulty === 'medium'
-      ? allChallenges
-      : allChallenges;
+    return allChallenges;
   };
 
   // Generate Conditional Challenges
   const generateConditionalChallenges = (): Challenge[] => {
     const allChallenges = [
-      {
-        id: 'cond-1',
-        question: t('challenges.conditionals.if_raining'),
-        options: [
-          t('challenges.conditionals.options.take_umbrella'),
-          t('challenges.conditionals.options.wear_sunglasses'),
-          t('challenges.conditionals.options.go_swimming'),
-          t('challenges.conditionals.options.play_outside')
-        ],
-        correctAnswer: [0],
-        explanation: t('challenges.conditionals.explanation_umbrella'),
-        hint: t('challenges.conditionals.hint_weather')
-      },
-      {
-        id: 'cond-2',
-        question: t('challenges.conditionals.if_hungry'),
-        options: [
-          t('challenges.conditionals.options.sleep'),
-          t('challenges.conditionals.options.eat_food'),
-          t('challenges.conditionals.options.play_game'),
-          t('challenges.conditionals.options.read_book')
-        ],
-        correctAnswer: [1],
-        explanation: t('challenges.conditionals.explanation_eat'),
-        hint: t('challenges.conditionals.hint_feeling')
-      },
-      {
-        id: 'cond-3',
-        question: t('challenges.conditionals.if_red_light'),
-        options: [
-          t('challenges.conditionals.options.stop'),
-          t('challenges.conditionals.options.go_fast'),
-          t('challenges.conditionals.options.turn_left'),
-          t('challenges.conditionals.options.honk')
-        ],
-        correctAnswer: [0],
-        explanation: t('challenges.conditionals.explanation_traffic'),
-        hint: t('challenges.conditionals.hint_safety')
-      }
+      { id: 'cond-1', question: t('challenges.conditionals.if_raining'), emoji: '🌧️',
+        options: [t('challenges.conditionals.options.take_umbrella'), t('challenges.conditionals.options.wear_sunglasses'), t('challenges.conditionals.options.go_swimming'), t('challenges.conditionals.options.play_outside')],
+        correctAnswer: [0], explanation: t('challenges.conditionals.explanation_umbrella'), hint: t('challenges.conditionals.hint_weather') },
+      { id: 'cond-2', question: t('challenges.conditionals.if_hungry'), emoji: '🍔',
+        options: [t('challenges.conditionals.options.sleep'), t('challenges.conditionals.options.eat_food'), t('challenges.conditionals.options.play_game'), t('challenges.conditionals.options.read_book')],
+        correctAnswer: [1], explanation: t('challenges.conditionals.explanation_eat'), hint: t('challenges.conditionals.hint_feeling') },
+      { id: 'cond-3', question: t('challenges.conditionals.if_red_light'), emoji: '🚦',
+        options: [t('challenges.conditionals.options.stop'), t('challenges.conditionals.options.go_fast'), t('challenges.conditionals.options.turn_left'), t('challenges.conditionals.options.honk')],
+        correctAnswer: [0], explanation: t('challenges.conditionals.explanation_traffic'), hint: t('challenges.conditionals.hint_safety') },
+      { id: 'cond-4', question: t('challenges.conditionals.if_score_50'), emoji: '📊',
+        options: [t('challenges.conditionals.options.pass'), t('challenges.conditionals.options.fail'), t('challenges.conditionals.options.retry'), t('challenges.conditionals.options.celebrate')],
+        correctAnswer: [0], explanation: t('challenges.conditionals.explanation_score'), hint: t('challenges.conditionals.hint_score') },
+      { id: 'cond-5', question: t('challenges.conditionals.if_age_18'), emoji: '🗳️',
+        options: [t('challenges.conditionals.options.can_vote'), t('challenges.conditionals.options.cannot_vote'), t('challenges.conditionals.options.maybe'), t('challenges.conditionals.options.ask_parent')],
+        correctAnswer: [0], explanation: t('challenges.conditionals.explanation_age'), hint: t('challenges.conditionals.hint_age') },
+      { id: 'cond-6', question: t('challenges.conditionals.if_temp_37'), emoji: '🌡️',
+        options: [t('challenges.conditionals.options.sick'), t('challenges.conditionals.options.normal'), t('challenges.conditionals.options.cold'), t('challenges.conditionals.options.exercise')],
+        correctAnswer: [0], explanation: t('challenges.conditionals.explanation_temp'), hint: t('challenges.conditionals.hint_temp') },
+      { id: 'cond-7', question: t('challenges.conditionals.if_money_100'), emoji: '💰',
+        options: [t('challenges.conditionals.options.can_buy'), t('challenges.conditionals.options.cannot_buy'), t('challenges.conditionals.options.borrow'), t('challenges.conditionals.options.save')],
+        correctAnswer: [0], explanation: t('challenges.conditionals.explanation_money'), hint: t('challenges.conditionals.hint_money') },
+      { id: 'cond-8', question: t('challenges.conditionals.if_battery_20'), emoji: '🔋',
+        options: [t('challenges.conditionals.options.charge'), t('challenges.conditionals.options.use_more'), t('challenges.conditionals.options.turn_off'), t('challenges.conditionals.options.buy_new')],
+        correctAnswer: [0], explanation: t('challenges.conditionals.explanation_battery'), hint: t('challenges.conditionals.hint_battery') },
+      { id: 'cond-9', question: t('challenges.conditionals.if_sunny'), emoji: '☀️',
+        options: [t('challenges.conditionals.options.wear_hat'), t('challenges.conditionals.options.take_umbrella'), t('challenges.conditionals.options.wear_jacket'), t('challenges.conditionals.options.stay_inside')],
+        correctAnswer: [0], explanation: t('challenges.conditionals.explanation_sunny'), hint: t('challenges.conditionals.hint_sunny') },
+      { id: 'cond-10', question: t('challenges.conditionals.if_tired'), emoji: '😴',
+        options: [t('challenges.conditionals.options.sleep'), t('challenges.conditionals.options.run'), t('challenges.conditionals.options.study'), t('challenges.conditionals.options.play')],
+        correctAnswer: [0], explanation: t('challenges.conditionals.explanation_tired'), hint: t('challenges.conditionals.hint_tired') },
     ];
 
-    return difficulty === 'easy' 
-      ? allChallenges.slice(0, 2)
-      : difficulty === 'medium'
-      ? allChallenges
-      : allChallenges;
+    return allChallenges;
   };
 
   const startGame = (mode: 'sequencing' | 'patterns' | 'loops' | 'conditionals') => {
-    let newChallenges: Challenge[] = [];
+    let allChallenges: Challenge[] = [];
     
     switch (mode) {
       case 'sequencing':
-        newChallenges = generateSequencingChallenges();
+        allChallenges = generateSequencingChallenges();
         break;
       case 'patterns':
-        newChallenges = generatePatternChallenges();
+        allChallenges = generatePatternChallenges();
         break;
       case 'loops':
-        newChallenges = generateLoopChallenges();
+        allChallenges = generateLoopChallenges();
         break;
       case 'conditionals':
-        newChallenges = generateConditionalChallenges();
+        allChallenges = generateConditionalChallenges();
         break;
     }
 
-    setChallenges(newChallenges);
+    // Shuffle and select based on questionCount
+    const shuffled = [...allChallenges].sort(() => Math.random() - 0.5);
+    const selectedChallenges = shuffled.slice(0, Math.min(questionCount, allChallenges.length));
+
+    setChallenges(selectedChallenges);
     setGameMode(mode);
     setCurrentChallenge(0);
     setScore(0);
@@ -271,6 +247,7 @@ const CodingBasicsApp = () => {
     setShowExplanation(false);
     setShowHint(false);
     setIsRunning(true);
+    setAnswerHistory([]);
   };
 
   const handleAnswerSelect = (index: number) => {
@@ -288,6 +265,14 @@ const CodingBasicsApp = () => {
   const checkAnswer = () => {
     const challenge = challenges[currentChallenge];
     const isCorrect = JSON.stringify(selectedAnswer) === JSON.stringify(challenge.correctAnswer);
+
+    // Save to history
+    setAnswerHistory([...answerHistory, {
+      questionIndex: currentChallenge,
+      selectedAnswer: [...selectedAnswer],
+      isCorrect,
+      challenge
+    }]);
 
     if (isCorrect) {
       setScore(score + 1);
@@ -383,6 +368,27 @@ const CodingBasicsApp = () => {
                   className={difficulty === level ? 'bg-blue-600 text-white' : 'bg-white/20 text-white border-white/30'}
                 >
                   {t(`difficulty.${level}`)}
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Question Count Selection */}
+        <Card className="bg-white/10 backdrop-blur-md border-white/20 mb-8">
+          <CardHeader>
+            <CardTitle className="text-white text-center">{t('question_count')}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-4 justify-center">
+              {([10, 15, 20, 30] as QuestionCount[]).map((count) => (
+                <Button
+                  key={count}
+                  onClick={() => setQuestionCount(count)}
+                  variant={questionCount === count ? 'default' : 'outline'}
+                  className={questionCount === count ? 'bg-green-600 text-white' : 'bg-white/20 text-white border-white/30'}
+                >
+                  {count} {t('questions')}
                 </Button>
               ))}
             </div>
