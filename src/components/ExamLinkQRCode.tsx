@@ -54,10 +54,11 @@ const ExamLinkQRCode = ({ linkCode, onClose }: ExamLinkQRCodeProps) => {
           
           <div className="text-center">
             <p className="text-sm text-muted-foreground mb-1">รหัสข้อสอบ</p>
-            <p className="text-xl font-bold text-primary">{linkCode}</p>
+            <p className="text-xl font-bold text-primary font-mono tracking-wider select-all">{linkCode}</p>
+            <p className="text-xs text-amber-600 mt-1">⚠️ ตัวเลข 0 (ศูนย์) ไม่ใช่ตัวอักษร O</p>
           </div>
 
-          <div className="text-xs text-muted-foreground text-center break-all">
+          <div className="text-xs text-muted-foreground text-center break-all font-mono">
             {fullUrl}
           </div>
 
