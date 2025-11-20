@@ -620,44 +620,84 @@ const TeacherDashboard = () => {
                     const isCorrect = studentAnswer === q.correctAnswer;
                     
                     return (
-                      <div key={index} className={`p-4 rounded-lg border-2 ${isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`}>
+                      <div 
+                        key={index} 
+                        className={`p-4 rounded-lg border-2 transition-all ${
+                          isCorrect 
+                            ? 'border-green-500 bg-green-50 dark:bg-green-950/20 dark:border-green-600' 
+                            : 'border-red-500 bg-red-50 dark:bg-red-950/20 dark:border-red-600'
+                        }`}
+                      >
                         <div className="flex items-start gap-3">
-                          <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold ${isCorrect ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
+                          <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold ${
+                            isCorrect 
+                              ? 'bg-green-500 text-white dark:bg-green-600' 
+                              : 'bg-red-500 text-white dark:bg-red-600'
+                          }`}>
                             {index + 1}
                           </div>
-                          <div className="flex-1 space-y-2">
-                            <p className="font-medium">{q.question}</p>
-                            
-                            <div className="space-y-1">
-                              {q.choices?.map((choice: string, cIndex: number) => {
-                                const choiceLetter = String.fromCharCode(65 + cIndex);
-                                const isStudentChoice = studentAnswer === cIndex;
-                                const isCorrectChoice = q.correctAnswer === cIndex;
-                                
-                                return (
-                                  <div 
-                                    key={cIndex}
-                                    className={`p-2 rounded ${
-                                      isCorrectChoice 
-                                        ? 'bg-green-200 border-2 border-green-500 font-semibold' 
-                                        : isStudentChoice 
-                                        ? 'bg-red-200 border-2 border-red-500'
-                                        : 'bg-white'
-                                    }`}
-                                  >
-                                    <span className="font-medium">{choiceLetter}. </span>
-                                    {choice}
-                                    {isCorrectChoice && ' ✓ (คำตอบที่ถูก)'}
-                                    {isStudentChoice && !isCorrectChoice && ' ✗ (คำตอบที่เลือก)'}
-                                  </div>
-                                );
-                              })}
+                          <div className="flex-1 space-y-3">
+                            {/* Question Text */}
+                            <div className="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                              <p className="text-xs text-muted-foreground mb-1">โจทย์</p>
+                              <p className="font-medium text-base">{q.question}</p>
                             </div>
                             
+                            {/* Choices */}
+                            <div className="space-y-2">
+                              <p className="text-xs text-muted-foreground">ตัวเลือก</p>
+                              <div className="space-y-1.5">
+                                {q.choices?.map((choice: string, cIndex: number) => {
+                                  const choiceLetter = String.fromCharCode(65 + cIndex);
+                                  const isStudentChoice = studentAnswer === cIndex;
+                                  const isCorrectChoice = q.correctAnswer === cIndex;
+                                  
+                                  return (
+                                    <div 
+                                      key={cIndex}
+                                      className={`p-3 rounded-lg border-2 transition-all ${
+                                        isCorrectChoice 
+                                          ? 'bg-green-100 dark:bg-green-950/40 border-green-600 font-semibold shadow-sm' 
+                                          : isStudentChoice 
+                                          ? 'bg-red-100 dark:bg-red-950/40 border-red-600 shadow-sm'
+                                          : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'
+                                      }`}
+                                    >
+                                      <div className="flex items-center gap-2">
+                                        <span className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold ${
+                                          isCorrectChoice 
+                                            ? 'bg-green-600 text-white' 
+                                            : isStudentChoice 
+                                            ? 'bg-red-600 text-white'
+                                            : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+                                        }`}>
+                                          {choiceLetter}
+                                        </span>
+                                        <span className={isCorrectChoice || isStudentChoice ? 'font-medium' : ''}>
+                                          {choice}
+                                        </span>
+                                        {isCorrectChoice && (
+                                          <span className="ml-auto text-green-600 dark:text-green-400 font-bold flex items-center gap-1">
+                                            <CheckCircle className="w-4 h-4" /> คำตอบที่ถูก
+                                          </span>
+                                        )}
+                                        {isStudentChoice && !isCorrectChoice && (
+                                          <span className="ml-auto text-red-600 dark:text-red-400 font-bold flex items-center gap-1">
+                                            <X className="w-4 h-4" /> คำตอบที่เลือก
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                            
+                            {/* Explanation */}
                             {q.explanation && (
-                              <div className="mt-2 p-3 bg-blue-50 rounded border border-blue-200">
-                                <p className="text-sm font-medium text-blue-900">💡 คำอธิบาย:</p>
-                                <p className="text-sm text-blue-800">{q.explanation}</p>
+                              <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                <p className="text-sm font-medium text-blue-900 dark:text-blue-300">💡 คำอธิบาย:</p>
+                                <p className="text-sm text-blue-800 dark:text-blue-200 mt-1">{q.explanation}</p>
                               </div>
                             )}
                           </div>
