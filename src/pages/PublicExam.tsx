@@ -50,6 +50,7 @@ const PublicExam = () => {
     setAnswer,
     previousQuestion,
     nextQuestion,
+    goToQuestion,
     calculateCorrectAnswers,
     timeTaken
   } = useAssessment(
@@ -393,18 +394,7 @@ const PublicExam = () => {
                   key={idx}
                   variant={currentIndex === idx ? 'default' : answers.has(idx) ? 'secondary' : 'outline'}
                   size="sm"
-                  onClick={() => {
-                    if (idx >= 0 && idx < questions.length) {
-                      // Use the hook's internal method if available, otherwise navigate manually
-                      const goToQuestion = (index: number) => {
-                        if (index >= 0 && index < questions.length) {
-                          // This will be handled by clicking the button which changes currentIndex
-                        }
-                      };
-                      // Since we can't access goToQuestion directly, we use a workaround
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }
-                  }}
+                  onClick={() => goToQuestion(idx)}
                   className={`${answers.has(idx) ? 'bg-green-600/20 hover:bg-green-600/30' : ''}`}
                 >
                   {idx + 1}

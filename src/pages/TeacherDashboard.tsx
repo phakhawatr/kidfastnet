@@ -1,30 +1,48 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeacherExams, ExamSession } from '@/hooks/useTeacherExams';
+import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import ExamLinkQRCode from '@/components/ExamLinkQRCode';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Copy, Link as LinkIcon, Users, Clock, BarChart, ExternalLink, CheckCircle } from 'lucide-react';
+import { Copy, Link as LinkIcon, Users, Clock, BarChart, ExternalLink, CheckCircle, QrCode, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { exportToCSV, generateReportSummary } from '@/utils/examReportUtils';
 
 const TeacherDashboard = () => {
   const { registrationId } = useAuth();
-  const { examLinks, isLoading, createExamLink, fetchExamSessions, updateExamLinkStatus } = useTeacherExams(registrationId);
+  const { examLinks, isLoading, createExamLink, fetchExamSessions, updateExamLinkStatus, refreshExamLinks } = useTeacherExams(registrationId);
   const { toast } = useToast();
   
   const [selectedGrade, setSelectedGrade] = useState<number>(1);
   const [selectedType, setSelectedType] = useState<'semester' | 'nt'>('semester');
   const [selectedSemester, setSelectedSemester] = useState<number>(1);
   const [maxStudents, setMaxStudents] = useState<number>(30);
-  const [viewingSessions, setViewingSessions] = useState<{ linkId: string; sessions: ExamSession[] } | null>(null);
+  const [expiryDays, setExpiryDays] = useState<number>(7);
+  const [viewingSessions, setViewingSessions] = useState<{ linkId: string; linkCode: string; sessions: ExamSession[] } | null>(null);
+  const [showQRCode, setShowQRCode] = useState<string | null>(null);
 
   const handleCreateLink = async () => {
     const semester = selectedType === 'semester' ? selectedSemester : null;
-    await createExamLink(selectedGrade, semester, selectedType, maxStudents);
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + expiryDays);
+    
+    const link = await createExamLink(selectedGrade, semester, selectedType, maxStudents);
+    
+    if (link) {
+      // Update with expiry date
+      await supabase
+        .from('exam_links')
+        .update({ expires_at: expiresAt.toISOString() })
+        .eq('id', link.id);
+      
+      await refreshExamLinks();
+    }
   };
 
   const handleCopyLink = (linkCode: string) => {
@@ -36,9 +54,18 @@ const TeacherDashboard = () => {
     });
   };
 
-  const handleViewReport = async (linkId: string) => {
+  const handleViewReport = async (linkId: string, linkCode: string) => {
     const sessions = await fetchExamSessions(linkId);
-    setViewingSessions({ linkId, sessions });
+    setViewingSessions({ linkId, linkCode, sessions });
+  };
+
+  const handleExportCSV = () => {
+    if (!viewingSessions) return;
+    exportToCSV(viewingSessions.sessions, viewingSessions.linkCode);
+    toast({
+      title: 'สำเร็จ!',
+      description: 'ดาวน์โหลดรายงานเป็น CSV เรียบร้อยแล้ว',
+    });
   };
 
   const getStatusBadge = (status: string) => {
@@ -154,6 +181,18 @@ const TeacherDashboard = () => {
                   onChange={(e) => setMaxStudents(parseInt(e.target.value) || 30)}
                 />
               </div>
+
+              <div>
+                <Label htmlFor="expiryDays">หมดอายุภายใน (วัน)</Label>
+                <Input
+                  id="expiryDays"
+                  type="number"
+                  min="1"
+                  max="365"
+                  value={expiryDays}
+                  onChange={(e) => setExpiryDays(parseInt(e.target.value) || 7)}
+                />
+              </div>
             </div>
 
             <Button onClick={handleCreateLink} className="w-full md:w-auto">
@@ -196,6 +235,12 @@ const TeacherDashboard = () => {
                               <Clock className="w-4 h-4" />
                               สร้างเมื่อ: {new Date(link.created_at).toLocaleDateString('th-TH')}
                             </p>
+                            {link.expires_at && (
+                              <p className="flex items-center gap-2 text-orange-600">
+                                <Clock className="w-4 h-4" />
+                                หมดอายุ: {new Date(link.expires_at).toLocaleDateString('th-TH')}
+                              </p>
+                            )}
                           </div>
                         </div>
                         
@@ -207,6 +252,15 @@ const TeacherDashboard = () => {
                           >
                             <Copy className="w-4 h-4 mr-2" />
                             คัดลอก Link
+                          </Button>
+
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowQRCode(link.link_code)}
+                          >
+                            <QrCode className="w-4 h-4 mr-2" />
+                            QR Code
                           </Button>
                           
                           <Button
@@ -221,7 +275,7 @@ const TeacherDashboard = () => {
                           <Button
                             variant="default"
                             size="sm"
-                            onClick={() => handleViewReport(link.id)}
+                            onClick={() => handleViewReport(link.id, link.link_code)}
                             disabled={link.current_students === 0}
                           >
                             <BarChart className="w-4 h-4 mr-2" />
@@ -252,11 +306,17 @@ const TeacherDashboard = () => {
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
                   <BarChart className="w-5 h-5" />
-                  รายงานผลการสอบ
+                  รายงานผลการสอบ - {viewingSessions.linkCode}
                 </CardTitle>
-                <Button variant="outline" onClick={() => setViewingSessions(null)}>
-                  ← กลับ
-                </Button>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={handleExportCSV}>
+                    <Download className="w-4 h-4 mr-2" />
+                    Export CSV
+                  </Button>
+                  <Button variant="outline" onClick={() => setViewingSessions(null)}>
+                    ← กลับ
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent>
@@ -310,7 +370,7 @@ const TeacherDashboard = () => {
                     </tbody>
                   </table>
                   
-                  <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
                     <Card>
                       <CardContent className="pt-6">
                         <div className="text-center">
@@ -343,6 +403,17 @@ const TeacherDashboard = () => {
                         </div>
                       </CardContent>
                     </Card>
+
+                    <Card>
+                      <CardContent className="pt-6">
+                        <div className="text-center">
+                          <p className="text-sm text-muted-foreground mb-2">อัตราผ่าน</p>
+                          <p className="text-3xl font-bold text-blue-600">
+                            {((viewingSessions.sessions.filter(s => s.score >= 50).length / viewingSessions.sessions.length) * 100).toFixed(0)}%
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
                 </div>
               )}
@@ -350,6 +421,13 @@ const TeacherDashboard = () => {
           </Card>
         )}
       </main>
+
+      {showQRCode && (
+        <ExamLinkQRCode
+          linkCode={showQRCode}
+          onClose={() => setShowQRCode(null)}
+        />
+      )}
 
       <Footer />
     </div>
