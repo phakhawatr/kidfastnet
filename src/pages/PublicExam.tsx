@@ -227,25 +227,21 @@ const PublicExam = () => {
         {showResults && <><p className="text-6xl mb-4">{finalScore >= 80 ? '🎉' : '😊'}</p><p className="text-4xl font-bold">{finalScore.toFixed(2)}</p></>}
       {!hasStarted && !error && examLink && (
         <div className="space-y-4">
-          {/* School Logo and Name in Student Info Form */}
-          {(examLink.school_logo_url || examLink.school_name) && (
-            <div className="flex flex-col items-center gap-3 mb-6 pb-6 border-b border-border">
-              {examLink.school_logo_url && (
+          <div className="text-center mb-6">
+            {examLink.school_logo_url && (
+              <div className="flex justify-center mb-3">
                 <img 
                   src={examLink.school_logo_url} 
                   alt="School Logo" 
                   className="h-20 w-20 object-contain"
                 />
-              )}
-              {examLink.school_name && (
-                <h2 className="text-2xl font-bold text-foreground">
-                  {examLink.school_name}
-                </h2>
-              )}
-            </div>
-          )}
-          
-          <div className="text-center mb-4">
+              </div>
+            )}
+            {examLink.school_name && (
+              <p className="text-lg font-medium text-foreground mb-4">
+                {examLink.school_name}
+              </p>
+            )}
             <h3 className="text-lg font-semibold">
               {examLink.activity_name || `ข้อสอบ ป.${examLink.grade}`}
             </h3>
@@ -279,22 +275,22 @@ const PublicExam = () => {
         
         {/* School Logo and Name Header */}
         {(examLink?.school_logo_url || examLink?.school_name) && (
-          <Card className="mb-6">
-            <CardContent className="pt-6 flex items-center justify-center gap-4">
-              {examLink.school_logo_url && (
+          <div className="text-center mb-6">
+            {examLink.school_logo_url && (
+              <div className="flex justify-center mb-3">
                 <img 
                   src={examLink.school_logo_url} 
                   alt="School Logo" 
-                  className="h-16 w-16 object-contain"
+                  className="h-20 w-20 object-contain"
                 />
-              )}
-              {examLink.school_name && (
-                <h2 className="text-2xl font-bold text-foreground">
-                  {examLink.school_name}
-                </h2>
-              )}
-            </CardContent>
-          </Card>
+              </div>
+            )}
+            {examLink.school_name && (
+              <h2 className="text-xl font-semibold text-foreground">
+                {examLink.school_name}
+              </h2>
+            )}
+          </div>
         )}
         
         <Card className="mb-6">
