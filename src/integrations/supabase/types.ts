@@ -285,9 +285,11 @@ export type Database = {
           exam_passcode: string | null
           expires_at: string | null
           grade: number
+          has_custom_questions: boolean | null
           id: string
           link_code: string
           max_students: number
+          questions_finalized_at: string | null
           semester: number | null
           start_time: string | null
           status: string
@@ -305,9 +307,11 @@ export type Database = {
           exam_passcode?: string | null
           expires_at?: string | null
           grade: number
+          has_custom_questions?: boolean | null
           id?: string
           link_code: string
           max_students?: number
+          questions_finalized_at?: string | null
           semester?: number | null
           start_time?: string | null
           status?: string
@@ -325,9 +329,11 @@ export type Database = {
           exam_passcode?: string | null
           expires_at?: string | null
           grade?: number
+          has_custom_questions?: boolean | null
           id?: string
           link_code?: string
           max_students?: number
+          questions_finalized_at?: string | null
           semester?: number | null
           start_time?: string | null
           status?: string
@@ -342,6 +348,65 @@ export type Database = {
             columns: ["teacher_id"]
             isOneToOne: false
             referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exam_questions: {
+        Row: {
+          choices: Json
+          correct_answer: string
+          created_at: string | null
+          difficulty: string
+          exam_link_id: string
+          explanation: string | null
+          id: string
+          is_edited: boolean | null
+          original_question: Json | null
+          question_number: number
+          question_text: string
+          skill_name: string
+          updated_at: string | null
+          visual_elements: Json | null
+        }
+        Insert: {
+          choices: Json
+          correct_answer: string
+          created_at?: string | null
+          difficulty: string
+          exam_link_id: string
+          explanation?: string | null
+          id?: string
+          is_edited?: boolean | null
+          original_question?: Json | null
+          question_number: number
+          question_text: string
+          skill_name: string
+          updated_at?: string | null
+          visual_elements?: Json | null
+        }
+        Update: {
+          choices?: Json
+          correct_answer?: string
+          created_at?: string | null
+          difficulty?: string
+          exam_link_id?: string
+          explanation?: string | null
+          id?: string
+          is_edited?: boolean | null
+          original_question?: Json | null
+          question_number?: number
+          question_text?: string
+          skill_name?: string
+          updated_at?: string | null
+          visual_elements?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_questions_exam_link_id_fkey"
+            columns: ["exam_link_id"]
+            isOneToOne: false
+            referencedRelation: "exam_links"
             referencedColumns: ["id"]
           },
         ]

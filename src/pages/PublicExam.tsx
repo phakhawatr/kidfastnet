@@ -25,6 +25,8 @@ interface ExamLinkData {
   status: string;
   activity_name: string | null;
   total_questions: number;
+  has_custom_questions?: boolean;
+  questions_finalized_at?: string;
 }
 
 const PublicExam = () => {
@@ -45,6 +47,9 @@ const PublicExam = () => {
 
   const [sessionId] = useState(() => `public-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
 
+  const [customQuestions, setCustomQuestions] = useState<any[]>([]);
+  const [loadingQuestions, setLoadingQuestions] = useState(false);
+
   const {
     questions,
     currentIndex,
@@ -58,14 +63,52 @@ const PublicExam = () => {
     timeTaken
   } = useAssessment(
     sessionId,
-    hasStarted && examLink ? examLink.grade : 0,
-    hasStarted && examLink ? (examLink.assessment_type === 'nt' ? 'nt' : examLink.semester) : 0,
-    hasStarted && examLink ? examLink.total_questions : undefined
+    hasStarted && examLink && !examLink.has_custom_questions ? examLink.grade : 0,
+    hasStarted && examLink && !examLink.has_custom_questions ? (examLink.assessment_type === 'nt' ? 'nt' : examLink.semester) : 0,
+    hasStarted && examLink && !examLink.has_custom_questions ? examLink.total_questions : undefined
   );
 
   useEffect(() => {
     validateExamLink();
   }, [linkCode]);
+
+  useEffect(() => {
+    if (hasStarted && examLink?.has_custom_questions) {
+      loadCustomQuestions();
+    }
+  }, [hasStarted, examLink]);
+
+  const loadCustomQuestions = async () => {
+    if (!examLink) return;
+    setLoadingQuestions(true);
+
+    try {
+      const { data, error } = await supabase
+        .from('exam_questions')
+        .select('*')
+        .eq('exam_link_id', examLink.id)
+        .order('question_number');
+
+      if (error) throw error;
+
+      const formattedQuestions = data.map(q => ({
+        id: q.id,
+        skill: q.skill_name,
+        question: q.question_text,
+        correctAnswer: q.correct_answer,
+        choices: q.choices,
+        difficulty: q.difficulty,
+        explanation: q.explanation,
+        visualElements: q.visual_elements
+      }));
+
+      setCustomQuestions(formattedQuestions);
+    } catch (error) {
+      console.error('Error loading custom questions:', error);
+    } finally {
+      setLoadingQuestions(false);
+    }
+  };
 
   const validateExamLink = async () => {
     if (!linkCode) {
@@ -114,8 +157,9 @@ const PublicExam = () => {
     setIsSubmitting(true);
 
     try {
+      const activeQuestions = examLink.has_custom_questions ? customQuestions : questions;
       const correct = calculateCorrectAnswers();
-      const score = questions.length > 0 ? (correct / questions.length) * 100 : 0;
+      const score = activeQuestions.length > 0 ? (correct / activeQuestions.length) * 100 : 0;
       
       // Convert answers Map to object for JSON storage
       const answersObject = Object.fromEntries(answers);
@@ -148,6 +192,10 @@ const PublicExam = () => {
     }
   };
 
+  const activeQuestions = examLink?.has_custom_questions ? customQuestions : questions;
+  const currentQuestion = activeQuestions[currentIndex];
+  const isLoadingState = isLoading || (examLink?.has_custom_questions && loadingQuestions);
+
   if (isValidating || error || showResults || !hasStarted) {
     return <div className={`min-h-screen flex items-center justify-center ${fontSizeClass}`}>
       <Card className="w-full max-w-md"><CardContent className="pt-6 text-center">
@@ -170,8 +218,7 @@ const PublicExam = () => {
     </div>;
   }
 
-  const currentQuestion = questions[currentIndex];
-  const progress = ((currentIndex + 1) / questions.length) * 100;
+  const progress = ((currentIndex + 1) / activeQuestions.length) * 100;
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-background to-secondary/20 p-4 ${fontSizeClass}`}>
@@ -181,14 +228,14 @@ const PublicExam = () => {
         <Card className="mb-6">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between mb-2">
-              <span>ข้อ {currentIndex + 1} / {questions.length}</span>
+              <span>ข้อ {currentIndex + 1} / {activeQuestions.length}</span>
               <div className="flex items-center gap-2"><Clock className="w-4 h-4" />{Math.floor(timeTaken / 60)}:{(timeTaken % 60).toString().padStart(2, '0')}</div>
             </div>
             <Progress value={progress} className="h-2" />
           </CardContent>
         </Card>
 
-        {isLoading ? <Card><CardContent className="py-12 text-center">กำลังโหลด...</CardContent></Card> : (
+        {isLoadingState ? <Card><CardContent className="py-12 text-center">กำลังโหลด...</CardContent></Card> : (
           <Card>
             <CardHeader><CardTitle>{currentQuestion?.question}</CardTitle></CardHeader>
             <CardContent>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeacherExams, ExamSession } from '@/hooks/useTeacherExams';
 import { supabase } from '@/integrations/supabase/client';
+import { generateAssessmentQuestions, AssessmentQuestion } from '@/utils/assessmentUtils';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ExamLinkQRCode from '@/components/ExamLinkQRCode';
@@ -9,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Copy, Link as LinkIcon, Users, Clock, BarChart, ExternalLink, CheckCircle, QrCode, Download, FileText, Trash2, Eye, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -30,6 +32,115 @@ const TeacherDashboard = () => {
   const [viewingSessions, setViewingSessions] = useState<{ linkId: string; linkCode: string; sessions: ExamSession[] } | null>(null);
   const [showQRCode, setShowQRCode] = useState<string | null>(null);
   const [viewingSessionDetail, setViewingSessionDetail] = useState<ExamSession | null>(null);
+  
+  // Preview mode states
+  const [previewMode, setPreviewMode] = useState<{
+    questions: AssessmentQuestion[];
+    metadata: {
+      activityName: string;
+      grade: number;
+      semester: number | null;
+      assessmentType: 'semester' | 'nt';
+      totalQuestions: number;
+    };
+  } | null>(null);
+  
+  const [editingQuestion, setEditingQuestion] = useState<{
+    index: number;
+    question: AssessmentQuestion;
+  } | null>(null);
+
+  const handlePreviewQuestions = () => {
+    const questions = generateAssessmentQuestions(
+      selectedGrade,
+      selectedType === 'semester' ? selectedSemester : 'nt',
+      totalQuestions
+    );
+    
+    setPreviewMode({
+      questions,
+      metadata: {
+        activityName: activityName || `ข้อสอบ ป.${selectedGrade} ${getAssessmentTypeName(selectedType, selectedSemester)}`,
+        grade: selectedGrade,
+        semester: selectedType === 'semester' ? selectedSemester : null,
+        assessmentType: selectedType,
+        totalQuestions
+      }
+    });
+  };
+
+  const handleFinalizeAndCreateLink = async () => {
+    if (!previewMode || !registrationId) return;
+    
+    try {
+      const semester = previewMode.metadata.semester;
+      const link = await createExamLink(
+        previewMode.metadata.grade,
+        semester,
+        previewMode.metadata.assessmentType,
+        maxStudents,
+        undefined,
+        null,
+        null,
+        false,
+        previewMode.metadata.activityName,
+        previewMode.metadata.totalQuestions
+      );
+      
+      if (!link) throw new Error('Failed to create exam link');
+      
+      // Save all questions to exam_questions table
+      const questionsData = previewMode.questions.map((q, idx) => ({
+        exam_link_id: link.id,
+        question_number: idx + 1,
+        question_text: q.question,
+        choices: q.choices,
+        correct_answer: String(q.correctAnswer),
+        difficulty: q.difficulty,
+        skill_name: q.skill,
+        is_edited: false,
+        explanation: q.explanation,
+        visual_elements: q.visualElements
+      }));
+      
+      const { error: questionsError } = await supabase
+        .from('exam_questions')
+        .insert(questionsData);
+      
+      if (questionsError) throw questionsError;
+      
+      // Update exam_link with custom questions flag
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + expiryDays);
+      
+      await supabase
+        .from('exam_links')
+        .update({
+          has_custom_questions: true,
+          questions_finalized_at: new Date().toISOString(),
+          expires_at: expiresAt.toISOString()
+        })
+        .eq('id', link.id);
+      
+      setPreviewMode(null);
+      setActivityName('');
+      setTotalQuestions(20);
+      await refreshExamLinks();
+      
+      toast({
+        title: 'สำเร็จ!',
+        description: `สร้าง Link ข้อสอบเรียบร้อยแล้ว (${link.link_code})`,
+      });
+      
+    } catch (error) {
+      console.error('Error finalizing exam:', error);
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: 'ไม่สามารถสร้าง Link ข้อสอบได้',
+        variant: 'destructive'
+      });
+    }
+  };
 
   const handleCreateLink = async () => {
     const semester = selectedType === 'semester' ? selectedSemester : null;
@@ -274,9 +385,9 @@ const TeacherDashboard = () => {
               </div>
             </div>
 
-            <Button onClick={handleCreateLink} className="w-full md:w-auto">
-              <LinkIcon className="w-4 h-4 mr-2" />
-              สร้าง Link ข้อสอบ
+            <Button onClick={handlePreviewQuestions} className="w-full md:w-auto">
+              <Eye className="w-4 h-4 mr-2" />
+              ตรวจสอบโจทย์
             </Button>
           </CardContent>
         </Card>
@@ -769,6 +880,187 @@ const TeacherDashboard = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Preview Questions Dialog */}
+      {previewMode && (
+        <Dialog open={!!previewMode} onOpenChange={() => setPreviewMode(null)}>
+          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">
+                ตรวจสอบโจทย์: {previewMode.metadata.activityName}
+              </DialogTitle>
+              <p className="text-sm text-muted-foreground">
+                ชั้น {previewMode.metadata.grade} • {previewMode.metadata.totalQuestions} ข้อ • 
+                คลิกแต่ละข้อเพื่อดูและแก้ไขโจทย์
+              </p>
+            </DialogHeader>
+            
+            {/* Grid of Questions */}
+            <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-3 my-6">
+              {previewMode.questions.map((question, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => setEditingQuestion({ index: idx, question })}
+                  className={`
+                    p-4 rounded-lg border-2 cursor-pointer hover:scale-105 transition-all
+                    ${question.difficulty === 'easy' 
+                      ? 'bg-green-50 dark:bg-green-950/20 border-green-500' 
+                      : question.difficulty === 'hard'
+                      ? 'bg-red-50 dark:bg-red-950/20 border-red-500'
+                      : 'bg-yellow-50 dark:bg-yellow-950/20 border-yellow-500'
+                    }
+                  `}
+                >
+                  <div className="text-center">
+                    <div className="text-xl font-bold">{idx + 1}</div>
+                    <div className="text-xs mt-1">
+                      {question.difficulty === 'easy' ? 'ง่าย' : 
+                       question.difficulty === 'hard' ? 'ยาก' : 'ปานกลาง'}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex gap-3 mt-6">
+              <Button variant="outline" onClick={() => setPreviewMode(null)} className="flex-1">
+                ยกเลิก
+              </Button>
+              <Button onClick={handleFinalizeAndCreateLink} className="flex-1" size="lg">
+                ✅ สร้าง Link ข้อสอบ
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Edit Question Dialog */}
+      {editingQuestion && previewMode && (
+        <Dialog open={!!editingQuestion} onOpenChange={() => setEditingQuestion(null)}>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>
+                แก้ไขข้อ {editingQuestion.index + 1}
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              {/* Question Text */}
+              <div>
+                <Label>โจทย์</Label>
+                <Textarea
+                  value={editingQuestion.question.question}
+                  onChange={(e) => {
+                    const updated = { ...editingQuestion };
+                    updated.question.question = e.target.value;
+                    setEditingQuestion(updated);
+                  }}
+                  rows={4}
+                  className="mt-2"
+                />
+              </div>
+              
+              {/* Choices */}
+              <div>
+                <Label>ตัวเลือก</Label>
+                <div className="space-y-2 mt-2">
+                  {editingQuestion.question.choices.map((choice, choiceIdx) => (
+                    <div key={choiceIdx} className="flex items-center gap-2">
+                      <Input
+                        value={String(choice)}
+                        onChange={(e) => {
+                          const updated = { ...editingQuestion };
+                          updated.question.choices[choiceIdx] = e.target.value;
+                          setEditingQuestion(updated);
+                        }}
+                        className={`flex-1 ${
+                          String(choice) === String(editingQuestion.question.correctAnswer)
+                            ? 'border-green-500 bg-green-50 dark:bg-green-950/20'
+                            : ''
+                        }`}
+                      />
+                      <Button
+                        variant={String(choice) === String(editingQuestion.question.correctAnswer) ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => {
+                          const updated = { ...editingQuestion };
+                          updated.question.correctAnswer = choice;
+                          setEditingQuestion(updated);
+                        }}
+                      >
+                        {String(choice) === String(editingQuestion.question.correctAnswer) ? '✓ ถูก' : 'ตั้งเป็นคำตอบ'}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Difficulty */}
+              <div>
+                <Label>ระดับความยาก</Label>
+                <Select
+                  value={editingQuestion.question.difficulty}
+                  onValueChange={(value: 'easy' | 'medium' | 'hard') => {
+                    const updated = { ...editingQuestion };
+                    updated.question.difficulty = value;
+                    setEditingQuestion(updated);
+                  }}
+                >
+                  <SelectTrigger className="mt-2">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="easy">ง่าย</SelectItem>
+                    <SelectItem value="medium">ปานกลาง</SelectItem>
+                    <SelectItem value="hard">ยาก</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {/* Explanation */}
+              <div>
+                <Label>คำอธิบาย (ถ้ามี)</Label>
+                <Textarea
+                  value={editingQuestion.question.explanation || ''}
+                  onChange={(e) => {
+                    const updated = { ...editingQuestion };
+                    updated.question.explanation = e.target.value;
+                    setEditingQuestion(updated);
+                  }}
+                  rows={3}
+                  className="mt-2"
+                  placeholder="คำอธิบายเพิ่มเติมสำหรับนักเรียน..."
+                />
+              </div>
+            </div>
+            
+            {/* Save Button */}
+            <div className="flex gap-3 mt-6">
+              <Button variant="outline" onClick={() => setEditingQuestion(null)} className="flex-1">
+                ยกเลิก
+              </Button>
+              <Button 
+                onClick={() => {
+                  if (previewMode) {
+                    const updated = { ...previewMode };
+                    updated.questions[editingQuestion.index] = editingQuestion.question;
+                    setPreviewMode(updated);
+                  }
+                  setEditingQuestion(null);
+                  toast({
+                    title: 'บันทึกสำเร็จ',
+                    description: `แก้ไขข้อ ${editingQuestion.index + 1} เรียบร้อยแล้ว`
+                  });
+                }} 
+                className="flex-1"
+              >
+                💾 บันทึก
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
 
       <Footer />
     </div>
