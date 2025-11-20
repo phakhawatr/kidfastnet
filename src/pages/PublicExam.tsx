@@ -75,26 +75,8 @@ const PublicExam = () => {
     validateExamLink();
   }, [linkCode]);
 
-  useEffect(() => {
-    console.log('🔄 useEffect triggered:', {
-      hasStarted,
-      has_custom_questions: examLink?.has_custom_questions,
-      examLink_id: examLink?.id
-    });
-    
-    if (hasStarted && examLink?.has_custom_questions) {
-      console.log('✅ Calling loadCustomQuestions...');
-      loadCustomQuestions();
-    } else {
-      console.log('❌ Not loading custom questions:', {
-        hasStarted,
-        has_custom_questions: examLink?.has_custom_questions
-      });
-    }
-  }, [hasStarted, examLink]);
-
-  const loadCustomQuestions = async () => {
-    if (!examLink) return;
+  const loadCustomQuestions = useCallback(async () => {
+    if (!examLink?.id) return;
     
     console.log('🔍 Loading custom questions for exam_link_id:', examLink.id);
     setLoadingQuestions(true);
@@ -142,7 +124,25 @@ const PublicExam = () => {
       setLoadingQuestions(false);
       console.log('✅ Loading complete');
     }
-  };
+  }, [examLink?.id]);
+
+  useEffect(() => {
+    console.log('🔄 useEffect triggered:', {
+      hasStarted,
+      has_custom_questions: examLink?.has_custom_questions,
+      examLink_id: examLink?.id
+    });
+    
+    if (hasStarted && examLink?.has_custom_questions) {
+      console.log('✅ Calling loadCustomQuestions...');
+      loadCustomQuestions();
+    } else {
+      console.log('❌ Not loading custom questions:', {
+        hasStarted,
+        has_custom_questions: examLink?.has_custom_questions
+      });
+    }
+  }, [hasStarted, examLink?.has_custom_questions, examLink?.id, loadCustomQuestions]);
 
   const validateExamLink = async () => {
     if (!linkCode) {
