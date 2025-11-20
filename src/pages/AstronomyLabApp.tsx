@@ -834,6 +834,10 @@ const AstronomyLabApp = () => {
                     src={planet.imageUrl} 
                     alt={planet.name}
                     className="w-full md:w-48 h-48 object-cover rounded-lg shadow-lg hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      e.currentTarget.src = "/placeholder.svg";
+                      e.currentTarget.alt = `${planet.name} - รูปภาพไม่สามารถแสดงได้`;
+                    }}
                     loading="lazy"
                   />
                 </div>
