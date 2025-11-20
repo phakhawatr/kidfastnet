@@ -1,0 +1,145 @@
+{
+  "title": "Astronomy Lab",
+  "subtitle": "Explore the Universe",
+  "description": "Journey through space! Explore planets, stars, galaxies, and the solar system in 3D!",
+  "back_to_stem": "Back to STEM Hub",
+  "back": "Back to Menu",
+  "experiments": {
+    "solar_system": {
+      "title": "Solar System 3D",
+      "description": "Interactive 3D model of our solar system",
+      "interactive": "3D Interactive Solar System",
+      "controls": "🖱️ Click and drag to rotate • Scroll to zoom • Hover over planets to highlight",
+      "tip_title": "Astronomy Tip:",
+      "tip": "Our solar system has 8 planets that orbit around the Sun. Each planet takes a different amount of time to complete one orbit!"
+    },
+    "planets": {
+      "title": "Planets",
+      "description": "Learn about the 8 planets in our solar system",
+      "select": "Select a planet to explore:",
+      "size": "Size",
+      "distance": "Distance from Sun",
+      "facts": "Interesting Facts",
+      "million_km": "million km",
+      "list": {
+        "mercury": "Mercury",
+        "venus": "Venus",
+        "earth": "Earth",
+        "mars": "Mars",
+        "jupiter": "Jupiter",
+        "saturn": "Saturn",
+        "uranus": "Uranus",
+        "neptune": "Neptune"
+      },
+      "mercury": {
+        "size": "Smallest planet",
+        "facts": "Closest to the Sun. Has the most extreme temperature differences (-173°C to 427°C). No atmosphere or moons."
+      },
+      "venus": {
+        "size": "Similar to Earth",
+        "facts": "Hottest planet (462°C). Rotates backwards compared to other planets. Thick atmosphere of carbon dioxide."
+      },
+      "earth": {
+        "size": "Medium planet",
+        "facts": "The only planet with life! 71% water. Has 1 moon. Perfect distance from the Sun for liquid water."
+      },
+      "mars": {
+        "size": "Small planet",
+        "facts": "The Red Planet. Has 2 small moons. Has the largest volcano in the solar system (Olympus Mons)."
+      },
+      "jupiter": {
+        "size": "Largest planet",
+        "facts": "Gas giant with 79+ moons. Has the Great Red Spot (a giant storm). Could fit 1,300 Earths inside!"
+      },
+      "saturn": {
+        "size": "Second largest",
+        "facts": "Famous for its beautiful rings made of ice and rock. Has 82+ moons. Could float in water!"
+      },
+      "uranus": {
+        "size": "Ice giant",
+        "facts": "Rotates on its side. Coldest planet (-224°C). Has faint rings and 27 moons."
+      },
+      "neptune": {
+        "size": "Ice giant",
+        "facts": "Farthest from the Sun. Strongest winds in the solar system (2,100 km/h). Beautiful blue color."
+      }
+    },
+    "stars": {
+      "title": "Stars & Galaxies",
+      "description": "Discover different types of stars and stellar objects",
+      "select": "Select a stellar object:",
+      "description": "Description:",
+      "characteristics": "Characteristics:",
+      "types": {
+        "sun": {
+          "name": "Sun (Yellow Dwarf)",
+          "description": "Our Sun is a medium-sized star called a yellow dwarf. It's about 4.6 billion years old and will last another 5 billion years.",
+          "characteristics": "Temperature: 5,500°C • Contains 99.86% of solar system's mass • Produces energy through nuclear fusion"
+        },
+        "red_giant": {
+          "name": "Red Giant",
+          "description": "A large, cool star in its late stage of life. Our Sun will become a red giant in about 5 billion years.",
+          "characteristics": "Very large size • Cooler surface (3,000°C) • Red/orange color • Eventually becomes white dwarf"
+        },
+        "white_dwarf": {
+          "name": "White Dwarf",
+          "description": "The remnant core of a dead star. Very dense - a teaspoon would weigh several tons!",
+          "characteristics": "Very small but dense • Very hot surface • No nuclear fusion • Slowly cools over billions of years"
+        },
+        "neutron_star": {
+          "name": "Neutron Star",
+          "description": "Created when a massive star explodes. Extremely dense - a sugar cube would weigh as much as all humanity!",
+          "characteristics": "Extremely dense • Rotates very fast • Strong magnetic field • Only 20 km across"
+        },
+        "black_hole": {
+          "name": "Black Hole",
+          "description": "The most mysterious object in space! Gravity so strong that not even light can escape.",
+          "characteristics": "Infinite density at center • Warps space and time • Has event horizon • Can't be seen directly"
+        }
+      },
+      "tip_title": "Astronomy Tip:",
+      "tip": "Stars are born in nebulae (clouds of gas and dust) and can live for billions of years!"
+    },
+    "moon_phases": {
+      "title": "Moon Phases",
+      "description": "Understand the phases of the Moon",
+      "select_phase": "Select a moon phase:",
+      "phases": {
+        "new_moon": {
+          "name": "New Moon",
+          "description": "The Moon is between Earth and Sun. We can't see it because the dark side faces us."
+        },
+        "waxing_crescent": {
+          "name": "Waxing Crescent",
+          "description": "A thin crescent of the Moon becomes visible. It's getting bigger (waxing)."
+        },
+        "first_quarter": {
+          "name": "First Quarter",
+          "description": "Half of the Moon is visible. It's called 'quarter' because the Moon is 1/4 way through its cycle."
+        },
+        "waxing_gibbous": {
+          "name": "Waxing Gibbous",
+          "description": "More than half is visible. Getting closer to full moon."
+        },
+        "full_moon": {
+          "name": "Full Moon",
+          "description": "The entire face of the Moon is illuminated. Earth is between the Sun and Moon."
+        },
+        "waning_gibbous": {
+          "name": "Waning Gibbous",
+          "description": "More than half is visible but getting smaller (waning)."
+        },
+        "last_quarter": {
+          "name": "Last Quarter",
+          "description": "Half of the Moon is visible. The opposite half from first quarter."
+        },
+        "waning_crescent": {
+          "name": "Waning Crescent",
+          "description": "A thin crescent is visible. Almost back to new moon."
+        }
+      },
+      "tip_title": "Astronomy Tip:",
+      "tip": "The Moon doesn't produce its own light! It reflects light from the Sun. The phases happen because we see different amounts of the sunlit side."
+    }
+  }
+}

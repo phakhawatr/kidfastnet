@@ -61,6 +61,10 @@
       "title": "Biology Lab",
       "desc": "Explore cells, body systems & living organisms"
     },
+    "astronomy": {
+      "title": "Astronomy",
+      "desc": "Discover planets, stars & 3D solar system"
+    },
     "ai": {
       "title": "AI Tutor",
       "desc": "Get personalized help from AI math tutor"
