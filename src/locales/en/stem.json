@@ -57,6 +57,10 @@
       "title": "Chemistry",
       "desc": "Discover reactions, pH levels & states of matter"
     },
+    "biology": {
+      "title": "Biology Lab",
+      "desc": "Explore cells, body systems & living organisms"
+    },
     "ai": {
       "title": "AI Tutor",
       "desc": "Get personalized help from AI math tutor"
