@@ -8,6 +8,13 @@
   "basic": "Basic",
   "referralProgram": "โปรแกรมแนะนำเพื่อน",
   
+  "teacherMode": {
+    "title": "โหมดครู",
+    "badge": "ครู",
+    "description": "เข้าถึงแดชบอร์ดครูเพื่อสร้างข้อสอบ ดูผลสอบของนักเรียน และจัดการการประเมินผล",
+    "enterButton": "เข้าสู่โหมดครู"
+  },
+  
   "installApp": {
     "title": "ติดตั้ง App บนอุปกรณ์",
     "description": "ติดตั้ง KidFastAI บน tablet หรือ smartphone ของคุณเพื่อเข้าถึงได้ง่ายขึ้น ทำงานแบบ offline และเหมือนกับ app จริงๆ",

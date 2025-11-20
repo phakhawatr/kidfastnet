@@ -7,6 +7,7 @@ import SkillsSection from '../components/SkillsSection';
 import AchievementBadge from '../components/AchievementBadge';
 import { useAuth } from '../hooks/useAuth';
 import { useAchievements } from '../hooks/useAchievements';
+import { useTeacherRole } from '../hooks/useTeacherRole';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -14,7 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Users, Sparkles, Edit, Upload, X, Trophy } from 'lucide-react';
+import { Users, Sparkles, Edit, Upload, X, Trophy, GraduationCap, ChevronRight } from 'lucide-react';
 import { SubscriptionTab } from '../components/SubscriptionTab';
 
 // Import mascot images
@@ -73,6 +74,7 @@ const Profile = () => {
     logout,
     registrationId
   } = useAuth();
+  const { isTeacher, isLoading: teacherLoading } = useTeacherRole(registrationId);
   
   const { userAchievements, getAchievementProgress } = useAchievements(registrationId || null);
   
@@ -962,6 +964,41 @@ const Profile = () => {
                 </Link>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Teacher Mode Card */}
+        {!isDemo && isTeacher && !teacherLoading && (
+          <div className="card-glass p-6 mb-6 border-l-4 border-orange-400">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center shadow-lg">
+                  <GraduationCap className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-xl font-bold text-[hsl(var(--text-primary))]">
+                      {t('teacherMode.title')}
+                    </h3>
+                    <span className="px-3 py-1 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white text-sm font-semibold shadow-md">
+                      👨‍🏫 {t('teacherMode.badge')}
+                    </span>
+                  </div>
+                  <p className="text-[hsl(var(--text-secondary))] text-sm">
+                    {t('teacherMode.description')}
+                  </p>
+                </div>
+              </div>
+              <Link to="/teacher">
+                <Button 
+                  size="lg"
+                  className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center gap-2"
+                >
+                  {t('teacherMode.enterButton')}
+                  <ChevronRight className="w-5 h-5" />
+                </Button>
+              </Link>
+            </div>
           </div>
         )}
 
