@@ -20,9 +20,11 @@ const TeacherDashboard = () => {
   const { examLinks, isLoading, createExamLink, fetchExamSessions, updateExamLinkStatus, refreshExamLinks, deleteExamSession } = useTeacherExams(registrationId);
   const { toast } = useToast();
   
+  const [activityName, setActivityName] = useState<string>('');
   const [selectedGrade, setSelectedGrade] = useState<number>(1);
   const [selectedType, setSelectedType] = useState<'semester' | 'nt'>('semester');
   const [selectedSemester, setSelectedSemester] = useState<number>(1);
+  const [totalQuestions, setTotalQuestions] = useState<number>(20);
   const [maxStudents, setMaxStudents] = useState<number>(30);
   const [expiryDays, setExpiryDays] = useState<number>(7);
   const [viewingSessions, setViewingSessions] = useState<{ linkId: string; linkCode: string; sessions: ExamSession[] } | null>(null);
@@ -34,7 +36,18 @@ const TeacherDashboard = () => {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + expiryDays);
     
-    const link = await createExamLink(selectedGrade, semester, selectedType, maxStudents);
+    const link = await createExamLink(
+      selectedGrade, 
+      semester, 
+      selectedType, 
+      maxStudents,
+      undefined, // passcode
+      null, // startTime
+      null, // timeLimitMinutes
+      false, // allowRetake
+      activityName || undefined,
+      totalQuestions
+    );
     
     if (link) {
       // Update with expiry date
@@ -44,6 +57,10 @@ const TeacherDashboard = () => {
         .eq('id', link.id);
       
       await refreshExamLinks();
+      
+      // Reset form
+      setActivityName('');
+      setTotalQuestions(20);
     }
   };
 
@@ -158,7 +175,18 @@ const TeacherDashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+              <div>
+                <Label htmlFor="activityName">ชื่อกิจกรรม</Label>
+                <Input
+                  id="activityName"
+                  type="text"
+                  placeholder="เช่น ทดสอบกลางภาค"
+                  value={activityName}
+                  onChange={(e) => setActivityName(e.target.value)}
+                />
+              </div>
+
               <div>
                 <Label htmlFor="grade">ชั้นเรียน</Label>
                 <Select value={selectedGrade.toString()} onValueChange={(v) => setSelectedGrade(parseInt(v))}>
@@ -202,6 +230,24 @@ const TeacherDashboard = () => {
                   </Select>
                 </div>
               )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+              <div>
+                <Label htmlFor="totalQuestions">จำนวนข้อ</Label>
+                <Select value={totalQuestions.toString()} onValueChange={(v) => setTotalQuestions(parseInt(v))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10 ข้อ</SelectItem>
+                    <SelectItem value="20">20 ข้อ</SelectItem>
+                    <SelectItem value="30">30 ข้อ</SelectItem>
+                    <SelectItem value="40">40 ข้อ</SelectItem>
+                    <SelectItem value="50">50 ข้อ</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
               <div>
                 <Label htmlFor="maxStudents">จำนวนนักเรียนสูงสุด</Label>
@@ -209,7 +255,7 @@ const TeacherDashboard = () => {
                   id="maxStudents"
                   type="number"
                   min="1"
-                  max="100"
+                  max="500"
                   value={maxStudents}
                   onChange={(e) => setMaxStudents(parseInt(e.target.value) || 30)}
                 />
@@ -253,29 +299,35 @@ const TeacherDashboard = () => {
                   {examLinks.map((link) => (
                     <div key={link.id} className="p-4 border border-border rounded-lg bg-card/50">
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="font-mono text-lg font-bold text-primary">{link.link_code}</span>
-                            {getStatusBadge(link.status)}
-                          </div>
-                          <div className="text-sm text-muted-foreground space-y-1">
-                            <p>📚 ชั้น ป.{link.grade} - {getAssessmentTypeName(link.assessment_type, link.semester)}</p>
-                            <p className="flex items-center gap-2">
-                              <Users className="w-4 h-4" />
-                              {link.current_students} / {link.max_students} คน
-                            </p>
-                            <p className="flex items-center gap-2">
-                              <Clock className="w-4 h-4" />
-                              สร้างเมื่อ: {new Date(link.created_at).toLocaleDateString('th-TH')}
-                            </p>
-                            {link.expires_at && (
-                              <p className="flex items-center gap-2 text-orange-600">
-                                <Clock className="w-4 h-4" />
-                                หมดอายุ: {new Date(link.expires_at).toLocaleDateString('th-TH')}
+          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="font-mono text-lg font-bold text-primary">{link.link_code}</span>
+                              {getStatusBadge(link.status)}
+                            </div>
+                            <div className="text-sm text-muted-foreground space-y-1">
+                              {link.activity_name && (
+                                <p className="flex items-center gap-2 font-medium text-base text-foreground">
+                                  <FileText className="w-4 h-4" />
+                                  {link.activity_name}
+                                </p>
+                              )}
+                              <p>📚 ชั้น ป.{link.grade} - {getAssessmentTypeName(link.assessment_type, link.semester)} ({link.total_questions} ข้อ)</p>
+                              <p className="flex items-center gap-2">
+                                <Users className="w-4 h-4" />
+                                {link.current_students} / {link.max_students} คน
                               </p>
-                            )}
+                              <p className="flex items-center gap-2">
+                                <Clock className="w-4 h-4" />
+                                สร้างเมื่อ: {new Date(link.created_at).toLocaleDateString('th-TH')}
+                              </p>
+                              {link.expires_at && (
+                                <p className="flex items-center gap-2 text-orange-600">
+                                  <Clock className="w-4 h-4" />
+                                  หมดอายุ: {new Date(link.expires_at).toLocaleDateString('th-TH')}
+                                </p>
+                              )}
+                            </div>
                           </div>
-                        </div>
                         
                         <div className="flex flex-wrap gap-2">
                           <Button
