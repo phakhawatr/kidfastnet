@@ -1,0 +1,55 @@
+{
+  "title": "Physics Lab",
+  "subtitle": "Interactive Physics Experiments",
+  "description": "Learn physics through fun interactive simulations. Explore gravity, magnetism, electricity, light, and sound!",
+  "start_experiment": "Start Experiment",
+  "back_to_stem": "Back to STEM Hub",
+  "back": "Back to Menu",
+  "play": "Play",
+  "pause": "Pause",
+  "reset": "Reset",
+  "experiments": {
+    "gravity": {
+      "title": "Gravity & Motion",
+      "description": "See how gravity affects falling objects",
+      "gravity_value": "Gravity",
+      "height": "Height",
+      "speed": "Speed",
+      "info_title": "About Gravity:",
+      "info": "Gravity is the force that attracts objects toward each other. On Earth, gravity accelerates objects at 9.8 m/s²."
+    },
+    "magnetism": {
+      "title": "Magnetism",
+      "description": "Explore magnetic fields and attraction",
+      "strength": "Magnet Strength",
+      "distance": "Object Distance",
+      "info_title": "About Magnetism:",
+      "info": "Magnets have two poles (North and South) that create magnetic fields. Opposite poles attract, while like poles repel."
+    },
+    "electricity": {
+      "title": "Electricity",
+      "description": "Learn about voltage, current, and resistance",
+      "voltage": "Voltage (V)",
+      "resistance": "Resistance (Ω)",
+      "current": "Current",
+      "info_title": "About Electricity:",
+      "info": "Ohm's Law states that Current (I) = Voltage (V) / Resistance (R). Higher voltage or lower resistance increases current flow."
+    },
+    "light": {
+      "title": "Light & Shadow",
+      "description": "See how light creates shadows",
+      "angle": "Light Angle",
+      "object_height": "Object Height",
+      "info_title": "About Light:",
+      "info": "Light travels in straight lines. When blocked by an object, it creates a shadow. The angle of light affects shadow length."
+    },
+    "sound": {
+      "title": "Sound Waves",
+      "description": "Visualize sound waves and frequency",
+      "frequency": "Frequency",
+      "amplitude": "Volume",
+      "info_title": "About Sound:",
+      "info": "Sound travels in waves. Frequency (measured in Hz) determines pitch, while amplitude determines volume."
+    }
+  }
+}
