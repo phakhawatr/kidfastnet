@@ -118,6 +118,17 @@ const Profile = () => {
   
   const memberId = getMemberId();
   
+  // Debug logs (after all state declarations)
+  useEffect(() => {
+    console.log('🔍 Profile Debug:', {
+      registrationId,
+      isTeacher,
+      teacherLoading,
+      nickname,
+      username
+    });
+  }, [registrationId, isTeacher, teacherLoading, nickname, username]);
+  
   const [selectedGrade, setSelectedGrade] = useState('1');
   const [registrationData, setRegistrationData] = useState<{
     created_at: string | null;
