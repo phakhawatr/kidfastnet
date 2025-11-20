@@ -36,6 +36,7 @@ import MentalMathApp from "./pages/MentalMathApp";
 import AreaModelApp from "./pages/AreaModelApp";
 import WordProblemsApp from "./pages/WordProblemsApp";
 import STEMHub from "./pages/STEMHub";
+import CodingBasicsApp from "./pages/CodingBasicsApp";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
@@ -293,6 +294,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <WordProblemsApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/coding-basics" 
+            element={
+              <ProtectedRoute>
+                <CodingBasicsApp />
               </ProtectedRoute>
             } 
           />
