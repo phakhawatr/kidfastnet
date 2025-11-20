@@ -28,6 +28,7 @@ const TeacherDashboard = () => {
     updateExamLinkStatus, 
     refreshExamLinks, 
     deleteExamSession,
+    deleteExamLink,
     fetchExamQuestions,
     updateExamQuestion,
     saveToQuestionBank,
@@ -426,6 +427,18 @@ const TeacherDashboard = () => {
     }
   };
 
+  const handleDeleteExamLink = async (linkId: string, linkCode: string) => {
+    if (!confirm(
+      `⚠️ คำเตือน: การลบข้อสอบนี้จะลบข้อมูลทั้งหมด:\n\n` +
+      `• โจทย์ทั้งหมด\n` +
+      `• ข้อมูลนักเรียนที่สอบแล้ว\n` +
+      `• Link ข้อสอบ ${linkCode}\n\n` +
+      `ต้องการลบข้อสอบนี้หรือไม่?`
+    )) return;
+    
+    await deleteExamLink(linkId);
+  };
+
   const getStatusBadge = (status: string) => {
     const badges = {
       active: 'bg-green-500 text-white',
@@ -733,6 +746,15 @@ const TeacherDashboard = () => {
                               ปิด
                             </Button>
                           )}
+                          
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDeleteExamLink(link.id, link.link_code)}
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            ลบ
+                          </Button>
                         </div>
                       </div>
                     </div>

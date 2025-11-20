@@ -387,6 +387,50 @@ export const useTeacherExams = (teacherId: string | null) => {
     }
   };
 
+  const deleteExamLink = async (linkId: string) => {
+    try {
+      // Delete related exam sessions first
+      const { error: sessionsError } = await supabase
+        .from('exam_sessions')
+        .delete()
+        .eq('exam_link_id', linkId);
+
+      if (sessionsError) throw sessionsError;
+
+      // Delete related exam questions
+      const { error: questionsError } = await supabase
+        .from('exam_questions')
+        .delete()
+        .eq('exam_link_id', linkId);
+
+      if (questionsError) throw questionsError;
+
+      // Delete the exam link
+      const { error } = await supabase
+        .from('exam_links')
+        .delete()
+        .eq('id', linkId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'สำเร็จ',
+        description: 'ลบข้อสอบเรียบร้อยแล้ว',
+      });
+
+      await fetchExamLinks();
+      return true;
+    } catch (error: any) {
+      console.error('Error deleting exam link:', error);
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: 'ไม่สามารถลบข้อสอบได้',
+        variant: 'destructive'
+      });
+      return false;
+    }
+  };
+
   return {
     examLinks,
     isLoading,
@@ -395,6 +439,7 @@ export const useTeacherExams = (teacherId: string | null) => {
     updateExamLinkStatus,
     refreshExamLinks: fetchExamLinks,
     deleteExamSession,
+    deleteExamLink,
     fetchExamQuestions,
     updateExamQuestion,
     saveToQuestionBank,
