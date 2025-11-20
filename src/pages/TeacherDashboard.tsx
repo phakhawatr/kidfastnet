@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useTeacherExams, ExamSession } from '@/hooks/useTeacherExams';
 import { supabase } from '@/integrations/supabase/client';
 import { generateAssessmentQuestions, AssessmentQuestion } from '@/utils/assessmentUtils';
+import { compressImage } from '@/utils/imageCompression';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ExamLinkQRCode from '@/components/ExamLinkQRCode';
@@ -12,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Copy, Link as LinkIcon, Users, Clock, BarChart, ExternalLink, CheckCircle, QrCode, Download, FileText, Trash2, Eye, X, FileDown } from 'lucide-react';
+import { Copy, Link as LinkIcon, Users, Clock, BarChart, ExternalLink, CheckCircle, QrCode, Download, FileText, Trash2, Eye, X, FileDown, Upload, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { exportToCSV, exportToPDF, generateReportSummary, generateItemAnalysis } from '@/utils/examReportUtils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -44,6 +45,8 @@ const TeacherDashboard = () => {
   const [expiryDays, setExpiryDays] = useState<number>(7);
   const [schoolName, setSchoolName] = useState<string>('');
   const [schoolLogoUrl, setSchoolLogoUrl] = useState<string>('');
+  const [schoolLogoFile, setSchoolLogoFile] = useState<File | null>(null);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [viewingSessions, setViewingSessions] = useState<{ linkId: string; linkCode: string; sessions: ExamSession[] } | null>(null);
   const [showQRCode, setShowQRCode] = useState<string | null>(null);
   const [viewingSessionDetail, setViewingSessionDetail] = useState<ExamSession | null>(null);
@@ -82,6 +85,84 @@ const TeacherDashboard = () => {
   const [questionBank, setQuestionBank] = useState<any[]>([]);
   const [selectedBankQuestions, setSelectedBankQuestions] = useState<Set<string>>(new Set());
 
+  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: 'ข้อผิดพลาด',
+        description: 'กรุณาเลือกไฟล์รูปภาพเท่านั้น',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB before compression)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: 'ข้อผิดพลาด',
+        description: 'ไฟล์รูปภาพมีขนาดใหญ่เกิน 5MB',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setSchoolLogoFile(file);
+    
+    // Create preview URL
+    const previewUrl = URL.createObjectURL(file);
+    setSchoolLogoUrl(previewUrl);
+    
+    toast({
+      title: 'สำเร็จ',
+      description: 'เลือกรูปภาพเรียบร้อยแล้ว',
+    });
+  };
+
+  const uploadLogoToStorage = async (): Promise<string | null> => {
+    if (!schoolLogoFile || !registrationId) return schoolLogoUrl || null;
+
+    setIsUploadingLogo(true);
+    try {
+      // Compress image
+      const compressedBlob = await compressImage(schoolLogoFile, 400, 400, 0.8);
+      
+      // Generate unique filename
+      const fileExt = schoolLogoFile.name.split('.').pop();
+      const fileName = `${registrationId}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      // Upload to Supabase Storage
+      const { data, error } = await supabase.storage
+        .from('school-logos')
+        .upload(filePath, compressedBlob, {
+          contentType: 'image/jpeg',
+          upsert: true
+        });
+
+      if (error) throw error;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('school-logos')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: 'ไม่สามารถอัปโหลดรูปภาพได้',
+        variant: 'destructive'
+      });
+      return null;
+    } finally {
+      setIsUploadingLogo(false);
+    }
+  };
+
   const handlePreviewQuestions = () => {
     const questions = generateAssessmentQuestions(
       selectedGrade,
@@ -105,6 +186,9 @@ const TeacherDashboard = () => {
     if (!previewMode || !registrationId) return;
     
     try {
+      // Upload logo if file is selected
+      const uploadedLogoUrl = await uploadLogoToStorage();
+      
       const semester = previewMode.metadata.semester;
       const link = await createExamLink(
         previewMode.metadata.grade,
@@ -118,7 +202,7 @@ const TeacherDashboard = () => {
         previewMode.metadata.activityName,
         previewMode.metadata.totalQuestions,
         schoolName,
-        schoolLogoUrl
+        uploadedLogoUrl || undefined
       );
       
       if (!link) throw new Error('Failed to create exam link');
@@ -229,6 +313,9 @@ const TeacherDashboard = () => {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + expiryDays);
     
+    // Upload logo if file is selected
+    const uploadedLogoUrl = await uploadLogoToStorage();
+    
     const link = await createExamLink(
       selectedGrade, 
       semester, 
@@ -241,7 +328,7 @@ const TeacherDashboard = () => {
       activityName || undefined,
       totalQuestions,
       schoolName || undefined,
-      schoolLogoUrl || undefined
+      uploadedLogoUrl || undefined
     );
     
     if (link) {
@@ -482,20 +569,34 @@ const TeacherDashboard = () => {
               </div>
 
               <div>
-                <Label htmlFor="schoolLogoUrl">URL โลโก้โรงเรียน</Label>
-                <Input
-                  id="schoolLogoUrl"
-                  type="url"
-                  placeholder="https://example.com/logo.png"
-                  value={schoolLogoUrl}
-                  onChange={(e) => setSchoolLogoUrl(e.target.value)}
-                />
+                <Label htmlFor="schoolLogo">โลโก้โรงเรียน</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="schoolLogo"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                    className="flex-1"
+                  />
+                  {schoolLogoUrl && (
+                    <div className="relative w-16 h-16 border rounded overflow-hidden flex-shrink-0">
+                      <img 
+                        src={schoolLogoUrl} 
+                        alt="Logo Preview" 
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  รองรับไฟล์ JPG, PNG (สูงสุด 5MB) จะถูกบีบอัดให้เหมาะสมอัตโนมัติ
+                </p>
               </div>
             </div>
 
-            <Button onClick={handlePreviewQuestions} className="w-full md:w-auto">
+            <Button onClick={handlePreviewQuestions} className="w-full md:w-auto" disabled={isUploadingLogo}>
               <Eye className="w-4 h-4 mr-2" />
-              ตรวจสอบโจทย์
+              {isUploadingLogo ? 'กำลังอัปโหลด...' : 'ตรวจสอบโจทย์'}
             </Button>
           </CardContent>
         </Card>
