@@ -298,11 +298,23 @@ const PublicExam = () => {
             questions: activeQuestions.map((q, idx) => {
               const userAnswerIndex = answersObject[idx];
               const userAnswerValue = userAnswerIndex !== undefined ? q.choices[userAnswerIndex] : undefined;
+              
+              // Debug log
+              console.log(`Question ${idx + 1}:`, {
+                questionText: q.question,
+                choices: q.choices,
+                userAnswerIndex,
+                userAnswerValue,
+                correctAnswer: q.correctAnswer,
+                isCorrect: userAnswerValue === q.correctAnswer
+              });
+              
               return {
                 question: q.question,
                 userAnswer: userAnswerValue,
                 correctAnswer: q.correctAnswer,
-                originalIndex: idx
+                originalIndex: idx,
+                choices: q.choices  // Include choices for debugging and fallback
               };
             })
           } as any
