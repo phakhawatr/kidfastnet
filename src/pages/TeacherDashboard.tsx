@@ -10,13 +10,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Copy, Link as LinkIcon, Users, Clock, BarChart, ExternalLink, CheckCircle, QrCode, Download } from 'lucide-react';
+import { Copy, Link as LinkIcon, Users, Clock, BarChart, ExternalLink, CheckCircle, QrCode, Download, FileText, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { exportToCSV, generateReportSummary } from '@/utils/examReportUtils';
+import { exportToCSV, exportToPDF, generateReportSummary, generateItemAnalysis } from '@/utils/examReportUtils';
 
 const TeacherDashboard = () => {
   const { registrationId } = useAuth();
-  const { examLinks, isLoading, createExamLink, fetchExamSessions, updateExamLinkStatus, refreshExamLinks } = useTeacherExams(registrationId);
+  const { examLinks, isLoading, createExamLink, fetchExamSessions, updateExamLinkStatus, refreshExamLinks, deleteExamSession } = useTeacherExams(registrationId);
   const { toast } = useToast();
   
   const [selectedGrade, setSelectedGrade] = useState<number>(1);
@@ -66,6 +66,37 @@ const TeacherDashboard = () => {
       title: 'สำเร็จ!',
       description: 'ดาวน์โหลดรายงานเป็น CSV เรียบร้อยแล้ว',
     });
+  };
+
+  const handleExportPDF = async () => {
+    if (!viewingSessions) return;
+    try {
+      await exportToPDF(viewingSessions.sessions, viewingSessions.linkCode);
+      toast({
+        title: 'สำเร็จ!',
+        description: 'ดาวน์โหลดรายงานเป็น PDF เรียบร้อยแล้ว',
+      });
+    } catch (error) {
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: 'ไม่สามารถสร้าง PDF ได้',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleDeleteSession = async (sessionId: string) => {
+    if (!confirm('ต้องการลบข้อมูลการสอบนี้หรือไม่?')) return;
+    
+    const success = await deleteExamSession(sessionId);
+    if (success && viewingSessions) {
+      // Refresh sessions list
+      const updatedSessions = await fetchExamSessions(viewingSessions.linkId);
+      setViewingSessions({
+        ...viewingSessions,
+        sessions: updatedSessions
+      });
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -309,6 +340,10 @@ const TeacherDashboard = () => {
                   รายงานผลการสอบ - {viewingSessions.linkCode}
                 </CardTitle>
                 <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={handleExportPDF}>
+                    <FileText className="w-4 h-4 mr-2" />
+                    Export PDF
+                  </Button>
                   <Button variant="outline" size="sm" onClick={handleExportCSV}>
                     <Download className="w-4 h-4 mr-2" />
                     Export CSV
@@ -325,97 +360,195 @@ const TeacherDashboard = () => {
                   <p className="text-muted-foreground">ยังไม่มีนักเรียนทำข้อสอบ</p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-border">
-                        <th className="text-left p-3">#</th>
-                        <th className="text-left p-3">ชื่อ-สกุล</th>
-                        <th className="text-left p-3">ชั้น</th>
-                        <th className="text-left p-3">เลขที่</th>
-                        <th className="text-right p-3">คะแนน</th>
-                        <th className="text-right p-3">เวลา (นาที)</th>
-                        <th className="text-left p-3">สถานะ</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {viewingSessions.sessions.map((session, index) => (
-                        <tr key={session.id} className="border-b border-border/50 hover:bg-accent/50">
-                          <td className="p-3 font-medium">{index + 1}</td>
-                          <td className="p-3">{session.student_name}</td>
-                          <td className="p-3">{session.student_class}</td>
-                          <td className="p-3 text-center">{session.student_number}</td>
-                          <td className="p-3 text-right">
-                            <span className={`font-bold ${session.score >= 80 ? 'text-green-600' : session.score >= 50 ? 'text-orange-600' : 'text-red-600'}`}>
-                              {session.score.toFixed(2)}%
-                            </span>
-                            <span className="text-sm text-muted-foreground ml-2">
-                              ({session.correct_answers}/{session.total_questions})
-                            </span>
-                          </td>
-                          <td className="p-3 text-right">{Math.floor(session.time_taken / 60)}:{(session.time_taken % 60).toString().padStart(2, '0')}</td>
-                          <td className="p-3">
-                            {session.score >= 80 ? (
-                              <span className="flex items-center gap-1 text-green-600">
-                                <CheckCircle className="w-4 h-4" /> ดีมาก
-                              </span>
-                            ) : session.score >= 50 ? (
-                              <span className="text-orange-600">ผ่าน</span>
-                            ) : (
-                              <span className="text-red-600">ไม่ผ่าน</span>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  
-                  <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <Card>
+                <>
+                  {/* Summary Statistics */}
+                  <div className="mb-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <Card className="bg-primary/5">
                       <CardContent className="pt-6">
                         <div className="text-center">
-                          <p className="text-sm text-muted-foreground mb-2">คะแนนเฉลี่ย</p>
-                          <p className="text-3xl font-bold text-primary">
-                            {(viewingSessions.sessions.reduce((sum, s) => sum + s.score, 0) / viewingSessions.sessions.length).toFixed(2)}%
+                          <p className="text-xs text-muted-foreground mb-1">คะแนนเฉลี่ย</p>
+                          <p className="text-2xl font-bold text-primary">
+                            {generateReportSummary(viewingSessions.sessions).avgScore.toFixed(2)}%
                           </p>
                         </div>
                       </CardContent>
                     </Card>
                     
-                    <Card>
+                    <Card className="bg-purple-500/5">
                       <CardContent className="pt-6">
                         <div className="text-center">
-                          <p className="text-sm text-muted-foreground mb-2">คะแนนสูงสุด</p>
-                          <p className="text-3xl font-bold text-green-600">
-                            {Math.max(...viewingSessions.sessions.map(s => s.score)).toFixed(2)}%
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="text-center">
-                          <p className="text-sm text-muted-foreground mb-2">คะแนนต่ำสุด</p>
-                          <p className="text-3xl font-bold text-red-600">
-                            {Math.min(...viewingSessions.sessions.map(s => s.score)).toFixed(2)}%
+                          <p className="text-xs text-muted-foreground mb-1">ค่ามัธยฐาน</p>
+                          <p className="text-2xl font-bold text-purple-600">
+                            {generateReportSummary(viewingSessions.sessions).median.toFixed(2)}%
                           </p>
                         </div>
                       </CardContent>
                     </Card>
 
-                    <Card>
+                    <Card className="bg-blue-500/5">
                       <CardContent className="pt-6">
                         <div className="text-center">
-                          <p className="text-sm text-muted-foreground mb-2">อัตราผ่าน</p>
-                          <p className="text-3xl font-bold text-blue-600">
-                            {((viewingSessions.sessions.filter(s => s.score >= 50).length / viewingSessions.sessions.length) * 100).toFixed(0)}%
+                          <p className="text-xs text-muted-foreground mb-1">ส่วนเบี่ยงเบน</p>
+                          <p className="text-2xl font-bold text-blue-600">
+                            {generateReportSummary(viewingSessions.sessions).stdDev.toFixed(2)}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="bg-green-500/5">
+                      <CardContent className="pt-6">
+                        <div className="text-center">
+                          <p className="text-xs text-muted-foreground mb-1">คะแนนสูงสุด</p>
+                          <p className="text-2xl font-bold text-green-600">
+                            {generateReportSummary(viewingSessions.sessions).maxScore.toFixed(2)}%
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="bg-red-500/5">
+                      <CardContent className="pt-6">
+                        <div className="text-center">
+                          <p className="text-xs text-muted-foreground mb-1">คะแนนต่ำสุด</p>
+                          <p className="text-2xl font-bold text-red-600">
+                            {generateReportSummary(viewingSessions.sessions).minScore.toFixed(2)}%
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="bg-orange-500/5">
+                      <CardContent className="pt-6">
+                        <div className="text-center">
+                          <p className="text-xs text-muted-foreground mb-1">อัตราผ่าน</p>
+                          <p className="text-2xl font-bold text-orange-600">
+                            {generateReportSummary(viewingSessions.sessions).passRate.toFixed(0)}%
                           </p>
                         </div>
                       </CardContent>
                     </Card>
                   </div>
-                </div>
+
+                  {/* Item Analysis */}
+                  {generateItemAnalysis(viewingSessions.sessions).length > 0 && (
+                    <Card className="mb-6 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20">
+                      <CardHeader>
+                        <CardTitle className="text-lg">Item Analysis (การวิเคราะห์ข้อสอบ)</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-10 gap-2">
+                          {generateItemAnalysis(viewingSessions.sessions).map((item) => (
+                            <div 
+                              key={item.questionIndex}
+                              className={`p-3 rounded-lg text-center border-2 ${
+                                item.difficulty === 'ง่าย' 
+                                  ? 'bg-green-50 dark:bg-green-950/20 border-green-500' 
+                                  : item.difficulty === 'ยาก' 
+                                  ? 'bg-red-50 dark:bg-red-950/20 border-red-500'
+                                  : 'bg-yellow-50 dark:bg-yellow-950/20 border-yellow-500'
+                              }`}
+                              title={`ข้อ ${item.questionIndex}: ${item.correctCount}/${item.totalCount} ตอบถูก (${item.percentCorrect}%) - ${item.difficulty}`}
+                            >
+                              <div className="text-xs font-bold mb-1">ข้อ {item.questionIndex}</div>
+                              <div className="text-lg font-bold">{item.percentCorrect}%</div>
+                              <div className="text-xs text-muted-foreground">{item.difficulty}</div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="mt-4 flex items-center justify-center gap-6 text-sm">
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 rounded bg-green-500"></div>
+                            <span>ง่าย (≥70%)</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 rounded bg-yellow-500"></div>
+                            <span>ปานกลาง (50-69%)</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 rounded bg-red-500"></div>
+                            <span>ยาก (&lt;50%)</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Student Results Table */}
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-border">
+                          <th className="text-left p-3">#</th>
+                          <th className="text-left p-3">ชื่อ-สกุล</th>
+                          <th className="text-left p-3">ชั้น</th>
+                          <th className="text-left p-3">เลขที่</th>
+                          <th className="text-center p-3">ครั้งที่</th>
+                          <th className="text-right p-3">คะแนน</th>
+                          <th className="text-right p-3">เวลา</th>
+                          <th className="text-left p-3">วันที่ทำ</th>
+                          <th className="text-left p-3">สถานะ</th>
+                          <th className="text-center p-3">จัดการ</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {viewingSessions.sessions.map((session, index) => (
+                          <tr key={session.id} className="border-b border-border/50 hover:bg-accent/50">
+                            <td className="p-3 font-medium">{index + 1}</td>
+                            <td className="p-3">{session.student_name}</td>
+                            <td className="p-3">{session.student_class}</td>
+                            <td className="p-3 text-center">{session.student_number}</td>
+                            <td className="p-3 text-center">
+                              <span className="px-2 py-1 rounded-full bg-muted text-xs">
+                                {session.attempt_number || 1}
+                              </span>
+                            </td>
+                            <td className="p-3 text-right">
+                              <span className={`font-bold ${session.score >= 80 ? 'text-green-600' : session.score >= 50 ? 'text-orange-600' : 'text-red-600'}`}>
+                                {session.score.toFixed(2)}%
+                              </span>
+                              <span className="text-sm text-muted-foreground ml-2">
+                                ({session.correct_answers}/{session.total_questions})
+                              </span>
+                            </td>
+                            <td className="p-3 text-right">
+                              {Math.floor(session.time_taken / 60)}:{(session.time_taken % 60).toString().padStart(2, '0')}
+                            </td>
+                            <td className="p-3 text-sm text-muted-foreground">
+                              {new Date(session.completed_at).toLocaleDateString('th-TH', { 
+                                day: '2-digit', 
+                                month: 'short', 
+                                hour: '2-digit', 
+                                minute: '2-digit' 
+                              })}
+                            </td>
+                            <td className="p-3">
+                              {session.score >= 80 ? (
+                                <span className="flex items-center gap-1 text-green-600">
+                                  <CheckCircle className="w-4 h-4" /> ดีมาก
+                                </span>
+                              ) : session.score >= 50 ? (
+                                <span className="text-orange-600">ผ่าน</span>
+                              ) : (
+                                <span className="text-red-600">ไม่ผ่าน</span>
+                              )}
+                            </td>
+                            <td className="p-3 text-center">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteSession(session.id)}
+                                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
               )}
             </CardContent>
           </Card>
