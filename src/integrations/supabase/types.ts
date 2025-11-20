@@ -344,12 +344,17 @@ export type Database = {
         Row: {
           assessment_data: Json | null
           assessment_type: string
+          auto_saved_at: string | null
+          choices_order: Json | null
           completed_at: string
           correct_answers: number
           created_at: string
+          draft_answers: Json | null
           exam_link_id: string
           grade: number
           id: string
+          is_draft: boolean | null
+          question_order: Json | null
           score: number
           semester: number | null
           started_at: string
@@ -362,12 +367,17 @@ export type Database = {
         Insert: {
           assessment_data?: Json | null
           assessment_type?: string
+          auto_saved_at?: string | null
+          choices_order?: Json | null
           completed_at?: string
           correct_answers: number
           created_at?: string
+          draft_answers?: Json | null
           exam_link_id: string
           grade: number
           id?: string
+          is_draft?: boolean | null
+          question_order?: Json | null
           score: number
           semester?: number | null
           started_at?: string
@@ -380,12 +390,17 @@ export type Database = {
         Update: {
           assessment_data?: Json | null
           assessment_type?: string
+          auto_saved_at?: string | null
+          choices_order?: Json | null
           completed_at?: string
           correct_answers?: number
           created_at?: string
+          draft_answers?: Json | null
           exam_link_id?: string
           grade?: number
           id?: string
+          is_draft?: boolean | null
+          question_order?: Json | null
           score?: number
           semester?: number | null
           started_at?: string
