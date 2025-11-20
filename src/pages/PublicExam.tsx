@@ -76,8 +76,20 @@ const PublicExam = () => {
   }, [linkCode]);
 
   useEffect(() => {
+    console.log('🔄 useEffect triggered:', {
+      hasStarted,
+      has_custom_questions: examLink?.has_custom_questions,
+      examLink_id: examLink?.id
+    });
+    
     if (hasStarted && examLink?.has_custom_questions) {
+      console.log('✅ Calling loadCustomQuestions...');
       loadCustomQuestions();
+    } else {
+      console.log('❌ Not loading custom questions:', {
+        hasStarted,
+        has_custom_questions: examLink?.has_custom_questions
+      });
     }
   }, [hasStarted, examLink]);
 
