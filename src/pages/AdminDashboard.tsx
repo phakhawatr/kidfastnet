@@ -542,36 +542,40 @@ const AdminDashboard = () => {
 
   const handleToggleTeacherRole = async (userId: string, nickname: string, isCurrentlyTeacher: boolean) => {
     try {
+      if (!email) {
+        throw new Error('Admin email not available');
+      }
+
       if (isCurrentlyTeacher) {
-        // Remove teacher role
-        const { error } = await supabase
-          .from('user_roles')
-          .delete()
-          .eq('user_id', userId)
-          .eq('role', 'teacher');
+        // Remove teacher role using RPC function
+        const { data, error } = await supabase.rpc('remove_teacher_role', {
+          p_user_id: userId,
+          p_admin_email: email
+        });
 
         if (error) throw error;
 
-        ToastManager.show({
-          message: `✅ เปลี่ยน "${nickname}" เป็นนักเรียนเรียบร้อย!`,
-          type: 'success'
-        });
-      } else {
-        // Add teacher role
-        const { error } = await supabase
-          .from('user_roles')
-          .insert({
-            user_id: userId,
-            role: 'teacher',
-            created_by: adminId
+        if (data) {
+          ToastManager.show({
+            message: `✅ เปลี่ยน "${nickname}" เป็นนักเรียนเรียบร้อย!`,
+            type: 'success'
           });
+        }
+      } else {
+        // Add teacher role using RPC function
+        const { data, error } = await supabase.rpc('assign_teacher_role', {
+          p_user_id: userId,
+          p_admin_email: email
+        });
 
         if (error) throw error;
 
-        ToastManager.show({
-          message: `🎓 มอบสิทธิ์ครูให้ "${nickname}" เรียบร้อย!`,
-          type: 'success'
-        });
+        if (data) {
+          ToastManager.show({
+            message: `🎓 มอบสิทธิ์ครูให้ "${nickname}" เรียบร้อย!`,
+            type: 'success'
+          });
+        }
       }
 
       fetchRegistrations();
