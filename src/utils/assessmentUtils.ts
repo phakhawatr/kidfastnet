@@ -3765,7 +3765,8 @@ const generateGraphReadingQuestions = (config: SkillConfig): AssessmentQuestion[
 
 export const generateAssessmentQuestions = (
   grade: number,
-  semesterOrType: number | string
+  semesterOrType: number | string,
+  totalQuestions?: number
 ): AssessmentQuestion[] => {
   let config;
   
@@ -3921,8 +3922,16 @@ export const generateAssessmentQuestions = (
     allQuestions.push(...shuffleArray(questions));
   }
   
+  // Shuffle all questions for varied order
+  const shuffledQuestions = shuffleArray(allQuestions);
+  
+  // If totalQuestions is specified, limit the number of questions returned
+  if (totalQuestions && totalQuestions > 0 && totalQuestions < shuffledQuestions.length) {
+    return shuffledQuestions.slice(0, totalQuestions);
+  }
+  
   // Return questions grouped by skill (no shuffling between skills)
-  return allQuestions;
+  return shuffledQuestions;
 };
 
 export const evaluateAssessment = (score: number): {

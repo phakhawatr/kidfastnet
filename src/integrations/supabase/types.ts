@@ -277,6 +277,7 @@ export type Database = {
       }
       exam_links: {
         Row: {
+          activity_name: string | null
           allow_retake: boolean | null
           assessment_type: string
           created_at: string
@@ -292,9 +293,11 @@ export type Database = {
           status: string
           teacher_id: string
           time_limit_minutes: number | null
+          total_questions: number
           updated_at: string
         }
         Insert: {
+          activity_name?: string | null
           allow_retake?: boolean | null
           assessment_type?: string
           created_at?: string
@@ -310,9 +313,11 @@ export type Database = {
           status?: string
           teacher_id: string
           time_limit_minutes?: number | null
+          total_questions?: number
           updated_at?: string
         }
         Update: {
+          activity_name?: string | null
           allow_retake?: boolean | null
           assessment_type?: string
           created_at?: string
@@ -328,6 +333,7 @@ export type Database = {
           status?: string
           teacher_id?: string
           time_limit_minutes?: number | null
+          total_questions?: number
           updated_at?: string
         }
         Relationships: [

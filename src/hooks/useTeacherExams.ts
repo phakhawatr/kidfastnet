@@ -14,6 +14,8 @@ export interface ExamLink {
   expires_at: string | null;
   created_at: string;
   updated_at: string;
+  activity_name: string | null;
+  total_questions: number;
 }
 
 export interface ExamSession {
@@ -82,7 +84,9 @@ export const useTeacherExams = (teacherId: string | null) => {
     passcode?: string,
     startTime?: Date | null,
     timeLimitMinutes?: number | null,
-    allowRetake: boolean = false
+    allowRetake: boolean = false,
+    activityName?: string,
+    totalQuestions: number = 20
   ) => {
     if (!teacherId) {
       toast({
@@ -110,7 +114,9 @@ export const useTeacherExams = (teacherId: string | null) => {
           exam_passcode: passcode || null,
           start_time: startTime ? startTime.toISOString() : null,
           time_limit_minutes: timeLimitMinutes || null,
-          allow_retake: allowRetake
+          allow_retake: allowRetake,
+          activity_name: activityName || null,
+          total_questions: totalQuestions
         })
         .select()
         .single();

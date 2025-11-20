@@ -23,6 +23,8 @@ interface ExamLinkData {
   max_students: number;
   current_students: number;
   status: string;
+  activity_name: string | null;
+  total_questions: number;
 }
 
 const PublicExam = () => {
@@ -57,7 +59,8 @@ const PublicExam = () => {
   } = useAssessment(
     sessionId,
     hasStarted && examLink ? examLink.grade : 0,
-    hasStarted && examLink ? (examLink.assessment_type === 'nt' ? 'nt' : examLink.semester) : 0
+    hasStarted && examLink ? (examLink.assessment_type === 'nt' ? 'nt' : examLink.semester) : 0,
+    hasStarted && examLink ? examLink.total_questions : undefined
   );
 
   useEffect(() => {
