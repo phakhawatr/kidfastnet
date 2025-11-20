@@ -19,7 +19,20 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 
 const TeacherDashboard = () => {
   const { registrationId } = useAuth();
-  const { examLinks, isLoading, createExamLink, fetchExamSessions, updateExamLinkStatus, refreshExamLinks, deleteExamSession } = useTeacherExams(registrationId);
+  const { 
+    examLinks, 
+    isLoading, 
+    createExamLink, 
+    fetchExamSessions, 
+    updateExamLinkStatus, 
+    refreshExamLinks, 
+    deleteExamSession,
+    fetchExamQuestions,
+    updateExamQuestion,
+    saveToQuestionBank,
+    fetchQuestionBank,
+    deleteFromQuestionBank,
+  } = useTeacherExams(registrationId);
   const { toast } = useToast();
   
   const [activityName, setActivityName] = useState<string>('');
@@ -49,6 +62,23 @@ const TeacherDashboard = () => {
     index: number;
     question: AssessmentQuestion;
   } | null>(null);
+
+  // Edit existing exam states
+  const [editingExamLink, setEditingExamLink] = useState<{
+    linkId: string;
+    linkCode: string;
+    questions: any[];
+  } | null>(null);
+
+  const [editingExamQuestion, setEditingExamQuestion] = useState<{
+    question: any;
+    index: number;
+  } | null>(null);
+
+  // Question Bank states
+  const [showQuestionBank, setShowQuestionBank] = useState(false);
+  const [questionBank, setQuestionBank] = useState<any[]>([]);
+  const [selectedBankQuestions, setSelectedBankQuestions] = useState<Set<string>>(new Set());
 
   const handlePreviewQuestions = () => {
     const questions = generateAssessmentQuestions(
@@ -140,6 +170,54 @@ const TeacherDashboard = () => {
         variant: 'destructive'
       });
     }
+  };
+
+  const handleEditExamLink = async (linkId: string, linkCode: string) => {
+    const questions = await fetchExamQuestions(linkId);
+    setEditingExamLink({ linkId, linkCode, questions });
+  };
+
+  const handleSaveExamQuestion = async () => {
+    if (!editingExamQuestion || !editingExamLink) return;
+
+    const success = await updateExamQuestion(editingExamQuestion.question.id, {
+      question_text: editingExamQuestion.question.question_text,
+      choices: editingExamQuestion.question.choices,
+      correct_answer: editingExamQuestion.question.correct_answer,
+      difficulty: editingExamQuestion.question.difficulty,
+      explanation: editingExamQuestion.question.explanation,
+      is_edited: true
+    });
+
+    if (success) {
+      // Refresh the questions list
+      const updatedQuestions = await fetchExamQuestions(editingExamLink.linkId);
+      setEditingExamLink({ ...editingExamLink, questions: updatedQuestions });
+      setEditingExamQuestion(null);
+    }
+  };
+
+  const handleSaveToBank = async (question: any) => {
+    if (!question) return;
+
+    await saveToQuestionBank({
+      question_text: question.question_text || question.question,
+      choices: question.choices,
+      correct_answer: question.correct_answer || String(question.correctAnswer),
+      difficulty: question.difficulty,
+      skill_name: question.skill_name || question.skill,
+      grade: selectedGrade,
+      explanation: question.explanation,
+      visual_elements: question.visual_elements || question.visualElements,
+      tags: [],
+      times_used: 0
+    });
+  };
+
+  const handleLoadQuestionBank = async () => {
+    const bank = await fetchQuestionBank({ grade: selectedGrade });
+    setQuestionBank(bank);
+    setShowQuestionBank(true);
   };
 
   const handleCreateLink = async () => {
@@ -477,6 +555,17 @@ const TeacherDashboard = () => {
                             <BarChart className="w-4 h-4 mr-2" />
                             รายงาน ({link.current_students})
                           </Button>
+
+                          {link.has_custom_questions && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEditExamLink(link.id, link.link_code)}
+                            >
+                              <Eye className="w-4 h-4 mr-2" />
+                              แก้ไขโจทย์
+                            </Button>
+                          )}
                           
                           {link.status === 'active' && (
                             <Button
@@ -1041,12 +1130,16 @@ const TeacherDashboard = () => {
                 ยกเลิก
               </Button>
               <Button 
-                onClick={() => {
+                onClick={async () => {
                   if (previewMode) {
                     const updated = { ...previewMode };
                     updated.questions[editingQuestion.index] = editingQuestion.question;
                     setPreviewMode(updated);
                   }
+                  
+                  // Save to Question Bank option
+                  await handleSaveToBank(editingQuestion.question);
+                  
                   setEditingQuestion(null);
                   toast({
                     title: 'บันทึกสำเร็จ',
@@ -1056,6 +1149,182 @@ const TeacherDashboard = () => {
                 className="flex-1"
               >
                 💾 บันทึก
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Edit Existing Exam Dialog */}
+      {editingExamLink && (
+        <Dialog open={!!editingExamLink} onOpenChange={() => setEditingExamLink(null)}>
+          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">
+                แก้ไขโจทย์: {editingExamLink.linkCode}
+              </DialogTitle>
+              <p className="text-sm text-muted-foreground">
+                {editingExamLink.questions.length} ข้อ • คลิกแต่ละข้อเพื่อแก้ไข
+              </p>
+            </DialogHeader>
+            
+            {/* Grid of Questions */}
+            <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-3 my-6">
+              {editingExamLink.questions.map((question, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => setEditingExamQuestion({ question, index: idx })}
+                  className={`
+                    p-4 rounded-lg border-2 cursor-pointer hover:scale-105 transition-all
+                    ${question.difficulty === 'easy' 
+                      ? 'bg-green-50 dark:bg-green-950/20 border-green-500' 
+                      : question.difficulty === 'hard'
+                      ? 'bg-red-50 dark:bg-red-950/20 border-red-500'
+                      : 'bg-yellow-50 dark:bg-yellow-950/20 border-yellow-500'
+                    }
+                  `}
+                >
+                  <div className="text-center">
+                    <div className="text-xl font-bold">{question.question_number}</div>
+                    <div className="text-xs mt-1">
+                      {question.difficulty === 'easy' ? 'ง่าย' : 
+                       question.difficulty === 'hard' ? 'ยาก' : 'ปานกลาง'}
+                    </div>
+                    {question.is_edited && (
+                      <div className="text-xs text-blue-600 mt-1">✏️</div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="flex gap-3 mt-6">
+              <Button variant="outline" onClick={() => setEditingExamLink(null)} className="flex-1">
+                ปิด
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Edit Exam Question Dialog */}
+      {editingExamQuestion && (
+        <Dialog open={!!editingExamQuestion} onOpenChange={() => setEditingExamQuestion(null)}>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>
+                แก้ไขข้อ {editingExamQuestion.question.question_number}
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              {/* Question Text */}
+              <div>
+                <Label>โจทย์</Label>
+                <Textarea
+                  value={editingExamQuestion.question.question_text}
+                  onChange={(e) => {
+                    const updated = { ...editingExamQuestion };
+                    updated.question.question_text = e.target.value;
+                    setEditingExamQuestion(updated);
+                  }}
+                  rows={4}
+                  className="mt-2"
+                />
+              </div>
+              
+              {/* Choices */}
+              <div>
+                <Label>ตัวเลือก</Label>
+                <div className="space-y-2 mt-2">
+                  {editingExamQuestion.question.choices.map((choice: any, choiceIdx: number) => (
+                    <div key={choiceIdx} className="flex items-center gap-2">
+                      <Input
+                        value={String(choice)}
+                        onChange={(e) => {
+                          const updated = { ...editingExamQuestion };
+                          updated.question.choices[choiceIdx] = e.target.value;
+                          setEditingExamQuestion(updated);
+                        }}
+                        className={`flex-1 ${
+                          String(choice) === String(editingExamQuestion.question.correct_answer)
+                            ? 'border-green-500 bg-green-50 dark:bg-green-950/20'
+                            : ''
+                        }`}
+                      />
+                      <Button
+                        variant={String(choice) === String(editingExamQuestion.question.correct_answer) ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => {
+                          const updated = { ...editingExamQuestion };
+                          updated.question.correct_answer = String(choice);
+                          setEditingExamQuestion(updated);
+                        }}
+                      >
+                        {String(choice) === String(editingExamQuestion.question.correct_answer) ? '✓ ถูก' : 'ตั้งเป็นคำตอบ'}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Difficulty */}
+              <div>
+                <Label>ระดับความยาก</Label>
+                <Select
+                  value={editingExamQuestion.question.difficulty}
+                  onValueChange={(value: 'easy' | 'medium' | 'hard') => {
+                    const updated = { ...editingExamQuestion };
+                    updated.question.difficulty = value;
+                    setEditingExamQuestion(updated);
+                  }}
+                >
+                  <SelectTrigger className="mt-2">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="easy">ง่าย</SelectItem>
+                    <SelectItem value="medium">ปานกลาง</SelectItem>
+                    <SelectItem value="hard">ยาก</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {/* Explanation */}
+              <div>
+                <Label>คำอธิบาย</Label>
+                <Textarea
+                  value={editingExamQuestion.question.explanation || ''}
+                  onChange={(e) => {
+                    const updated = { ...editingExamQuestion };
+                    updated.question.explanation = e.target.value;
+                    setEditingExamQuestion(updated);
+                  }}
+                  rows={3}
+                  className="mt-2"
+                  placeholder="คำอธิบายเพิ่มเติม..."
+                />
+              </div>
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex gap-3 mt-6">
+              <Button 
+                variant="outline" 
+                onClick={async () => {
+                  await handleSaveToBank(editingExamQuestion.question);
+                }}
+              >
+                💾 บันทึกลง Question Bank
+              </Button>
+              <div className="flex-1"></div>
+              <Button variant="outline" onClick={() => setEditingExamQuestion(null)}>
+                ยกเลิก
+              </Button>
+              <Button 
+                onClick={handleSaveExamQuestion}
+              >
+                ✅ บันทึกการแก้ไข
               </Button>
             </div>
           </DialogContent>

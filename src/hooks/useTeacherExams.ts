@@ -32,6 +32,26 @@ export interface ExamQuestion {
   is_edited: boolean;
   explanation?: string;
   visual_elements?: any;
+  is_from_bank?: boolean;
+  question_bank_id?: string;
+}
+
+export interface QuestionBankItem {
+  id: string;
+  teacher_id: string;
+  question_text: string;
+  choices: any[];
+  correct_answer: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  skill_name: string;
+  grade: number;
+  subject: string;
+  explanation?: string;
+  visual_elements?: any;
+  tags: string[];
+  times_used: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ExamSession {
@@ -248,6 +268,121 @@ export const useTeacherExams = (teacherId: string | null) => {
     return (data || []) as ExamQuestion[];
   };
 
+  const updateExamQuestion = async (questionId: string, updates: Partial<ExamQuestion>) => {
+    try {
+      const { error } = await supabase
+        .from('exam_questions')
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', questionId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'สำเร็จ',
+        description: 'อัพเดทโจทย์เรียบร้อยแล้ว',
+      });
+      
+      return true;
+    } catch (error: any) {
+      console.error('Error updating exam question:', error);
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: 'ไม่สามารถอัพเดทโจทย์ได้',
+        variant: 'destructive'
+      });
+      return false;
+    }
+  };
+
+  const saveToQuestionBank = async (question: Partial<QuestionBankItem>) => {
+    if (!teacherId) return null;
+
+    try {
+      const { data, error } = await supabase
+        .from('question_bank')
+        .insert([{
+          teacher_id: teacherId,
+          ...question
+        } as any])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: 'สำเร็จ!',
+        description: 'บันทึกโจทย์ลง Question Bank แล้ว',
+      });
+
+      return data;
+    } catch (error: any) {
+      console.error('Error saving to question bank:', error);
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: 'ไม่สามารถบันทึกโจทย์ได้',
+        variant: 'destructive'
+      });
+      return null;
+    }
+  };
+
+  const fetchQuestionBank = async (filters?: { grade?: number; difficulty?: string }) => {
+    if (!teacherId) return [];
+
+    try {
+      let query = supabase
+        .from('question_bank')
+        .select('*')
+        .eq('teacher_id', teacherId)
+        .order('created_at', { ascending: false });
+
+      if (filters?.grade) {
+        query = query.eq('grade', filters.grade);
+      }
+
+      if (filters?.difficulty) {
+        query = query.eq('difficulty', filters.difficulty);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      return (data || []) as QuestionBankItem[];
+    } catch (error: any) {
+      console.error('Error fetching question bank:', error);
+      return [];
+    }
+  };
+
+  const deleteFromQuestionBank = async (questionId: string) => {
+    try {
+      const { error } = await supabase
+        .from('question_bank')
+        .delete()
+        .eq('id', questionId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'สำเร็จ',
+        description: 'ลบโจทย์จาก Question Bank แล้ว',
+      });
+
+      return true;
+    } catch (error: any) {
+      console.error('Error deleting from question bank:', error);
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: 'ไม่สามารถลบโจทย์ได้',
+        variant: 'destructive'
+      });
+      return false;
+    }
+  };
+
   return {
     examLinks,
     isLoading,
@@ -256,7 +391,11 @@ export const useTeacherExams = (teacherId: string | null) => {
     updateExamLinkStatus,
     refreshExamLinks: fetchExamLinks,
     deleteExamSession,
-    fetchExamQuestions
+    fetchExamQuestions,
+    updateExamQuestion,
+    saveToQuestionBank,
+    fetchQuestionBank,
+    deleteFromQuestionBank,
   };
 };
 
