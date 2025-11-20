@@ -134,9 +134,12 @@ const PublicExam = () => {
     if (examLink?.has_custom_questions) {
       let correct = 0;
       customQuestions.forEach((q, idx) => {
-        const userAnswer = customAnswers.get(idx);
-        if (userAnswer !== undefined && q.choices[userAnswer] === q.correctAnswer) {
-          correct++;
+        const userAnswerIndex = customAnswers.get(idx);
+        if (userAnswerIndex !== undefined) {
+          const userAnswerValue = q.choices[userAnswerIndex];
+          if (userAnswerValue === q.correctAnswer) {
+            correct++;
+          }
         }
       });
       return correct;
@@ -292,12 +295,16 @@ const PublicExam = () => {
           time_taken: timeTaken,
           is_draft: false,
           assessment_data: {
-            questions: activeQuestions.map((q, idx) => ({
-              question: q.question,
-              userAnswer: answersObject[idx],
-              correctAnswer: q.correctAnswer,
-              originalIndex: idx
-            }))
+            questions: activeQuestions.map((q, idx) => {
+              const userAnswerIndex = answersObject[idx];
+              const userAnswerValue = userAnswerIndex !== undefined ? q.choices[userAnswerIndex] : undefined;
+              return {
+                question: q.question,
+                userAnswer: userAnswerValue,
+                correctAnswer: q.correctAnswer,
+                originalIndex: idx
+              };
+            })
           } as any
         }])
         .select()
