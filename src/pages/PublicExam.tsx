@@ -51,6 +51,7 @@ const PublicExam = () => {
 
   const [customQuestions, setCustomQuestions] = useState<any[]>([]);
   const [loadingQuestions, setLoadingQuestions] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const {
     questions,
@@ -82,7 +83,10 @@ const PublicExam = () => {
 
   const loadCustomQuestions = async () => {
     if (!examLink) return;
+    
+    console.log('🔍 Loading custom questions for exam_link_id:', examLink.id);
     setLoadingQuestions(true);
+    setLoadError(null);
 
     try {
       const { data, error } = await supabase
@@ -91,7 +95,20 @@ const PublicExam = () => {
         .eq('exam_link_id', examLink.id)
         .order('question_number');
 
-      if (error) throw error;
+      console.log('📊 Query result:', { data, error, count: data?.length });
+
+      if (error) {
+        console.error('❌ Error loading questions:', error);
+        throw error;
+      }
+
+      if (!data || data.length === 0) {
+        console.warn('⚠️ No questions found for exam_link_id:', examLink.id);
+        setCustomQuestions([]);
+        setLoadingQuestions(false);
+        setLoadError('ไม่พบโจทย์ข้อสอบ กรุณาติดต่อครูผู้สอน');
+        return;
+      }
 
       const formattedQuestions = data.map(q => ({
         id: q.id,
@@ -104,11 +121,14 @@ const PublicExam = () => {
         visualElements: q.visual_elements
       }));
 
+      console.log('✅ Custom questions loaded:', formattedQuestions.length, 'questions');
       setCustomQuestions(formattedQuestions);
     } catch (error) {
-      console.error('Error loading custom questions:', error);
+      console.error('❌ Error loading custom questions:', error);
+      setLoadError('ไม่สามารถโหลดข้อสอบได้ กรุณาลองใหม่อีกครั้ง');
     } finally {
       setLoadingQuestions(false);
+      console.log('✅ Loading complete');
     }
   };
 
@@ -221,13 +241,25 @@ const PublicExam = () => {
 
   const activeQuestions = examLink?.has_custom_questions ? customQuestions : questions;
   const currentQuestion = activeQuestions[currentIndex];
-  const isLoadingState = isLoading || (examLink?.has_custom_questions && (loadingQuestions || customQuestions.length === 0));
+  const isLoadingState = isLoading || (examLink?.has_custom_questions && loadingQuestions);
 
-  if (isValidating || error || showResults || !hasStarted) {
+  // Debug log
+  console.log('📋 Active questions state:', {
+    hasCustomQuestions: examLink?.has_custom_questions,
+    customQuestionsCount: customQuestions.length,
+    questionsCount: questions.length,
+    activeQuestionsCount: activeQuestions.length,
+    isLoadingState,
+    loadingQuestions,
+    loadError
+  });
+
+  if (isValidating || error || showResults || !hasStarted || loadError) {
     return <div className={`min-h-screen flex items-center justify-center ${fontSizeClass}`}>
       <Card className="w-full max-w-md"><CardContent className="pt-6 text-center">
         {isValidating && <p>กำลังตรวจสอบ...</p>}
         {error && <><AlertCircle className="w-16 h-16 mx-auto mb-4 text-destructive" /><p>{error}</p></>}
+        {loadError && <><AlertCircle className="w-16 h-16 mx-auto mb-4 text-destructive" /><p>{loadError}</p><Button onClick={() => window.location.reload()} className="mt-4">โหลดใหม่</Button></>}
         {showResults && <><p className="text-6xl mb-4">{finalScore >= 80 ? '🎉' : '😊'}</p><p className="text-4xl font-bold">{finalScore.toFixed(2)}</p></>}
       {!hasStarted && !error && examLink && (
         <div className="space-y-4">
