@@ -107,19 +107,21 @@ function Star3D({
   color, 
   size, 
   position,
-  animate = false
+  animate = false,
+  isPaused = false
 }: { 
   type: string; 
   color: string; 
   size: number; 
   position: [number, number, number];
   animate?: boolean;
+  isPaused?: boolean;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const [scale, setScale] = useState(1);
 
   useFrame(({ clock }) => {
-    if (meshRef.current && animate) {
+    if (meshRef.current && animate && !isPaused) {
       // Pulsing animation for stars
       const pulse = Math.sin(clock.getElapsedTime() * 2) * 0.1 + 1;
       meshRef.current.scale.setScalar(pulse);
@@ -182,6 +184,12 @@ const AstronomyLabApp = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
+  const [isPausedStars, setIsPausedStars] = useState(false);
+  const [isFullscreenStars, setIsFullscreenStars] = useState(false);
+  const starsCanvasRef = useRef<HTMLDivElement>(null);
+  const [isPausedMoon, setIsPausedMoon] = useState(false);
+  const [isFullscreenMoon, setIsFullscreenMoon] = useState(false);
+  const moonCanvasRef = useRef<HTMLDivElement>(null);
 
   const toggleFullscreen = () => {
     if (!canvasContainerRef.current) return;
@@ -196,6 +204,38 @@ const AstronomyLabApp = () => {
         document.exitFullscreen();
       }
       setIsFullscreen(false);
+    }
+  };
+
+  const toggleFullscreenStars = () => {
+    if (!starsCanvasRef.current) return;
+    
+    if (!isFullscreenStars) {
+      if (starsCanvasRef.current.requestFullscreen) {
+        starsCanvasRef.current.requestFullscreen();
+      }
+      setIsFullscreenStars(true);
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+      setIsFullscreenStars(false);
+    }
+  };
+
+  const toggleFullscreenMoon = () => {
+    if (!moonCanvasRef.current) return;
+    
+    if (!isFullscreenMoon) {
+      if (moonCanvasRef.current.requestFullscreen) {
+        moonCanvasRef.current.requestFullscreen();
+      }
+      setIsFullscreenMoon(true);
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+      setIsFullscreenMoon(false);
     }
   };
 
@@ -949,12 +989,85 @@ const AstronomyLabApp = () => {
 
   const renderStars = () => {
     const star = stars.find(s => s.id === selectedStar);
+
+    const starsDetailInfo = [
+      {
+        name: t("experiments.stars.types.sun"),
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/The_Sun_by_the_Atmospheric_Imaging_Assembly_of_NASA%27s_Solar_Dynamics_Observatory_-_20100819.jpg/800px-The_Sun_by_the_Atmospheric_Imaging_Assembly_of_NASA%27s_Solar_Dynamics_Observatory_-_20100819.jpg",
+        size: "1,392,700 km",
+        temperature: "5,778 K",
+        mass: "1.989 × 10³⁰ kg",
+        age: "4.6 " + t("experiments.stars.billion_years"),
+        description: t("experiments.stars.sun.detail"),
+        features: [
+          t("experiments.stars.sun.f1"),
+          t("experiments.stars.sun.f2"),
+          t("experiments.stars.sun.f3")
+        ]
+      },
+      {
+        name: t("experiments.stars.types.red_giant"),
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Artist%27s_impression_of_the_red_supergiant_star_Antares.jpg/800px-Artist%27s_impression_of_the_red_supergiant_star_Antares.jpg",
+        size: "100-1,000 × " + t("experiments.stars.sun_size"),
+        temperature: "3,000-4,000 K",
+        mass: "0.3-8 × " + t("experiments.stars.sun_mass"),
+        age: "1-10 " + t("experiments.stars.billion_years"),
+        description: t("experiments.stars.red_giant.detail"),
+        features: [
+          t("experiments.stars.red_giant.f1"),
+          t("experiments.stars.red_giant.f2"),
+          t("experiments.stars.red_giant.f3")
+        ]
+      },
+      {
+        name: t("experiments.stars.types.white_dwarf"),
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Sirius_A_and_B_artwork.jpg/800px-Sirius_A_and_B_artwork.jpg",
+        size: "~" + t("experiments.stars.earth_size"),
+        temperature: "8,000-40,000 K",
+        mass: "~0.6 × " + t("experiments.stars.sun_mass"),
+        age: ">1 " + t("experiments.stars.billion_years"),
+        description: t("experiments.stars.white_dwarf.detail"),
+        features: [
+          t("experiments.stars.white_dwarf.f1"),
+          t("experiments.stars.white_dwarf.f2"),
+          t("experiments.stars.white_dwarf.f3")
+        ]
+      },
+      {
+        name: t("experiments.stars.types.neutron_star"),
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Artist%27s_impression_of_a_magnetar.jpg/800px-Artist%27s_impression_of_a_magnetar.jpg",
+        size: "20-30 km",
+        temperature: "600,000 K",
+        mass: "1.4 × " + t("experiments.stars.sun_mass"),
+        age: t("experiments.stars.varies"),
+        description: t("experiments.stars.neutron_star.detail"),
+        features: [
+          t("experiments.stars.neutron_star.f1"),
+          t("experiments.stars.neutron_star.f2"),
+          t("experiments.stars.neutron_star.f3")
+        ]
+      },
+      {
+        name: t("experiments.stars.types.black_hole"),
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Black_hole_-_Messier_87_crop_max_res.jpg/800px-Black_hole_-_Messier_87_crop_max_res.jpg",
+        size: t("experiments.stars.schwarzschild_radius"),
+        temperature: t("experiments.stars.near_zero"),
+        mass: ">3 × " + t("experiments.stars.sun_mass"),
+        age: t("experiments.stars.varies"),
+        description: t("experiments.stars.black_hole.detail"),
+        features: [
+          t("experiments.stars.black_hole.f1"),
+          t("experiments.stars.black_hole.f2"),
+          t("experiments.stars.black_hole.f3")
+        ]
+      }
+    ];
     
     return (
       <div className="space-y-6">
         <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">{t("experiments.stars.interactive")}</h3>
-          <div className="w-full h-[400px] bg-gradient-to-b from-black via-purple-950 to-black rounded-lg overflow-hidden">
+          <h3 className="text-lg font-semibold mb-4">{t("experiments.stars.visualization_title")}</h3>
+          <div ref={starsCanvasRef} className="relative w-full h-[400px] bg-gradient-to-b from-black via-purple-950 to-black rounded-lg overflow-hidden">
             <Canvas camera={{ position: [0, 0, 8], fov: 60 }}>
               <ambientLight intensity={0.1} />
               
@@ -965,6 +1078,7 @@ const AstronomyLabApp = () => {
                 size={0.8} 
                 position={[-6, 1, 0]} 
                 animate={selectedStar === "sun"}
+                isPaused={isPausedStars}
               />
               <Star3D 
                 type="red_giant" 
@@ -972,6 +1086,7 @@ const AstronomyLabApp = () => {
                 size={1.5} 
                 position={[-3, 1, 0]} 
                 animate={selectedStar === "red_giant"}
+                isPaused={isPausedStars}
               />
               <Star3D 
                 type="white_dwarf" 
@@ -979,6 +1094,7 @@ const AstronomyLabApp = () => {
                 size={0.4} 
                 position={[0, 1, 0]} 
                 animate={selectedStar === "white_dwarf"}
+                isPaused={isPausedStars}
               />
               <Star3D 
                 type="neutron_star" 
@@ -986,6 +1102,7 @@ const AstronomyLabApp = () => {
                 size={0.25} 
                 position={[3, 1, 0]} 
                 animate={selectedStar === "neutron_star"}
+                isPaused={isPausedStars}
               />
               <Star3D 
                 type="black_hole" 
@@ -993,6 +1110,7 @@ const AstronomyLabApp = () => {
                 size={0.5} 
                 position={[6, 1, 0]} 
                 animate={selectedStar === "black_hole"}
+                isPaused={isPausedStars}
               />
               
               <OrbitControls enableZoom={true} enablePan={true} />
