@@ -1,0 +1,39 @@
+{
+  "title": "STEM Progress Dashboard",
+  "subtitle": "Track your learning journey across all STEM activities",
+  "back_to_stem": "Back to STEM Hub",
+  "loading": "Loading your progress...",
+  "stats": {
+    "total_activities": "Total Activities",
+    "total_points": "Total Points",
+    "total_minutes": "Minutes",
+    "badges_earned": "Badges"
+  },
+  "categories": {
+    "science": "Science",
+    "technology": "Technology",
+    "engineering": "Engineering",
+    "mathematics": "Mathematics"
+  },
+  "charts": {
+    "activities_by_category": "Activities by Category",
+    "weekly_progress": "Weekly Progress (Last 7 Days)",
+    "points": "Points",
+    "activities": "Activities",
+    "time": "Time (min)"
+  },
+  "category_progress": {
+    "title": "Progress by Category",
+    "activities": "activities",
+    "badges": "Badges"
+  },
+  "badges": {
+    "title": "Achievement Badges",
+    "empty": "No badges earned yet. Complete STEM activities to earn badges!"
+  },
+  "recent_activities": {
+    "title": "Recent Activities",
+    "empty": "No activities yet. Start your STEM learning journey!",
+    "start_learning": "Start Learning"
+  }
+}

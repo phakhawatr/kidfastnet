@@ -43,6 +43,7 @@ import PhysicsLabApp from "./pages/PhysicsLabApp";
 import ChemistryLabApp from "./pages/ChemistryLabApp";
 import BiologyLabApp from "./pages/BiologyLabApp";
 import AstronomyLabApp from "./pages/AstronomyLabApp";
+import STEMProgressDashboard from "./pages/STEMProgressDashboard";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
@@ -356,6 +357,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <AstronomyLabApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/stem-progress" 
+            element={
+              <ProtectedRoute>
+                <STEMProgressDashboard />
               </ProtectedRoute>
             } 
           />

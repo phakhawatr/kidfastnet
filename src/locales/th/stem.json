@@ -80,7 +80,8 @@
     "youngScientist": "นักวิทยาศาสตร์น้อย",
     "techWizard": "ผู้เชี่ยวชาญเทคโนโลยี",
     "masterBuilder": "ช่างก่อสร้างมือฉมัง",
-    "stemChampion": "แชมป์ STEM"
+    "stemChampion": "แชมป์ STEM",
+    "view_progress": "ดูความก้าวหน้าของฉัน"
   },
   "buttons": {
     "explore": "สำรวจ",
