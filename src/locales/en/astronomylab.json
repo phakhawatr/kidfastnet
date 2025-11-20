@@ -11,7 +11,103 @@
       "interactive": "3D Interactive Solar System",
       "controls": "🖱️ Click and drag to rotate • Scroll to zoom • Hover over planets to highlight",
       "tip_title": "Astronomy Tip:",
-      "tip": "Our solar system has 8 planets that orbit around the Sun. Each planet takes a different amount of time to complete one orbit!"
+      "tip": "Our solar system has 8 planets that orbit around the Sun. Each planet takes a different amount of time to complete one orbit!",
+      "about_title": "About the Solar System",
+      "about_paragraph_1": "The Solar System is the gravitationally bound system of the Sun and the objects that orbit it. It formed about 4.6 billion years ago from the gravitational collapse of a giant interstellar molecular cloud.",
+      "about_paragraph_2": "The Sun is the Solar System's star and by far its most massive component, containing 99.86% of the system's total mass. The Sun's gravity holds the Solar System together, keeping everything from the biggest planets to the smallest particles of debris in its orbit.",
+      "about_paragraph_3": "The Solar System contains 8 planets: 4 terrestrial planets (Mercury, Venus, Earth, Mars) in the inner solar system, and 4 gas giants (Jupiter, Saturn, Uranus, Neptune) in the outer solar system. All planets orbit the Sun in the same direction following nearly circular paths.",
+      "about_paragraph_4": "Beyond the planets lies the asteroid belt between Mars and Jupiter, the Kuiper Belt containing Pluto and other dwarf planets, and the distant Oort Cloud, which marks the edge of the Sun's gravitational influence extending nearly halfway to the nearest star.",
+      "composition_title": "What's in the Solar System?",
+      "composition_sun": "1 Star (Sun) - 99.86% of total mass",
+      "composition_planets": "8 Planets - Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune",
+      "composition_moons": "200+ Moons - Natural satellites orbiting planets",
+      "composition_asteroids": "Millions of Asteroids, Comets, and smaller objects",
+      "start_quiz": "🚀 Start Solar System Quiz",
+      "question": "Question",
+      "score_label": "Score",
+      "your_score": "Your Score",
+      "correct": "Correct!",
+      "incorrect": "Incorrect",
+      "next_question": "Next Question",
+      "finish_quiz": "Finish Quiz",
+      "quiz_completed": "Quiz Completed!",
+      "score_excellent": "Excellent! You're a space expert! 🌟",
+      "score_good": "Good job! Keep learning! ⭐",
+      "score_try_again": "Keep studying and try again! 🌙",
+      "close_quiz": "Close Quiz",
+      "retry_quiz": "Try Again",
+      "quiz": {
+        "q1": {
+          "question": "How many planets are in our Solar System?",
+          "a": "7 planets",
+          "b": "8 planets",
+          "c": "9 planets",
+          "d": "10 planets"
+        },
+        "q2": {
+          "question": "Which is the largest planet in the Solar System?",
+          "a": "Saturn",
+          "b": "Jupiter",
+          "c": "Neptune",
+          "d": "Uranus"
+        },
+        "q3": {
+          "question": "Which planet is closest to the Sun?",
+          "a": "Mercury",
+          "b": "Venus",
+          "c": "Earth",
+          "d": "Mars"
+        },
+        "q4": {
+          "question": "What percentage of the Solar System's mass does the Sun contain?",
+          "a": "50%",
+          "b": "75%",
+          "c": "99.86%",
+          "d": "100%"
+        },
+        "q5": {
+          "question": "Which planets are classified as terrestrial planets?",
+          "a": "Mercury, Venus, Earth, Mars",
+          "b": "Jupiter, Saturn, Uranus, Neptune",
+          "c": "Earth, Mars, Jupiter, Saturn",
+          "d": "Venus, Earth, Jupiter, Saturn"
+        },
+        "q6": {
+          "question": "How old is the Solar System?",
+          "a": "1 billion years",
+          "b": "2.5 billion years",
+          "c": "3.8 billion years",
+          "d": "4.6 billion years"
+        },
+        "q7": {
+          "question": "Which dwarf planet was once considered the 9th planet?",
+          "a": "Ceres",
+          "b": "Pluto",
+          "c": "Eris",
+          "d": "Makemake"
+        },
+        "q8": {
+          "question": "Where is the asteroid belt located?",
+          "a": "Between Earth and Mars",
+          "b": "Between Mars and Jupiter",
+          "c": "Between Jupiter and Saturn",
+          "d": "Beyond Neptune"
+        },
+        "q9": {
+          "question": "How many natural satellites (moons) does Earth have?",
+          "a": "1 moon",
+          "b": "2 moons",
+          "c": "3 moons",
+          "d": "No moons"
+        },
+        "q10": {
+          "question": "What is the Kuiper Belt?",
+          "a": "A belt of asteroids near Mars",
+          "b": "Saturn's ring system",
+          "c": "A region of icy objects beyond Neptune",
+          "d": "The Sun's outer atmosphere"
+        }
+      }
     },
     "planets": {
       "title": "Planets",
