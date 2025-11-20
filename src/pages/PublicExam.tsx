@@ -221,7 +221,7 @@ const PublicExam = () => {
 
   const activeQuestions = examLink?.has_custom_questions ? customQuestions : questions;
   const currentQuestion = activeQuestions[currentIndex];
-  const isLoadingState = isLoading || (examLink?.has_custom_questions && loadingQuestions);
+  const isLoadingState = isLoading || (examLink?.has_custom_questions && (loadingQuestions || customQuestions.length === 0));
 
   if (isValidating || error || showResults || !hasStarted) {
     return <div className={`min-h-screen flex items-center justify-center ${fontSizeClass}`}>
@@ -325,7 +325,7 @@ const PublicExam = () => {
 
         <div className="flex justify-between mt-6">
           <Button onClick={previousQuestion} disabled={currentIndex === 0} variant="outline">← ข้อก่อนหน้า</Button>
-          {currentIndex === questions.length - 1 ? (
+          {currentIndex === activeQuestions.length - 1 ? (
             <Button onClick={handleSubmitExam} disabled={isSubmitting}>✓ ส่งคำตอบ</Button>
           ) : (
             <Button onClick={nextQuestion}>ข้อถัดไป →</Button>
@@ -336,7 +336,7 @@ const PublicExam = () => {
           <CardHeader><CardTitle className="text-lg">ข้อสอบทั้งหมด</CardTitle></CardHeader>
           <CardContent>
             <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
-              {questions.map((_, idx) => (
+              {activeQuestions.map((_, idx) => (
                 <Button key={idx} variant={idx === currentIndex ? "default" : answers.has(idx) ? "secondary" : "outline"} size="sm" onClick={() => goToQuestion(idx)} className="aspect-square">{idx + 1}</Button>
               ))}
             </div>
