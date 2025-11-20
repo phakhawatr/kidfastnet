@@ -254,7 +254,7 @@ const PublicExam = () => {
 
   const activeQuestions = examLink?.has_custom_questions ? customQuestions : questions;
   const currentQuestion = activeQuestions[currentIndex];
-  const isLoadingState = isLoading || (examLink?.has_custom_questions && loadingQuestions);
+  const isLoadingState = examLink?.has_custom_questions ? loadingQuestions : isLoading;
 
   // Debug log
   console.log('📋 Active questions state:', {
