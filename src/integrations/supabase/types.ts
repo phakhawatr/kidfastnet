@@ -344,6 +344,7 @@ export type Database = {
         Row: {
           assessment_data: Json | null
           assessment_type: string
+          attempt_number: number | null
           auto_saved_at: string | null
           choices_order: Json | null
           completed_at: string
@@ -367,6 +368,7 @@ export type Database = {
         Insert: {
           assessment_data?: Json | null
           assessment_type?: string
+          attempt_number?: number | null
           auto_saved_at?: string | null
           choices_order?: Json | null
           completed_at?: string
@@ -390,6 +392,7 @@ export type Database = {
         Update: {
           assessment_data?: Json | null
           assessment_type?: string
+          attempt_number?: number | null
           auto_saved_at?: string | null
           choices_order?: Json | null
           completed_at?: string

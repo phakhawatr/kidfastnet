@@ -30,6 +30,15 @@ export interface ExamSession {
   score: number;
   time_taken: number;
   completed_at: string;
+  attempt_number?: number;
+  assessment_data?: {
+    questions: Array<{
+      question: string;
+      userAnswer: any;
+      correctAnswer: any;
+      originalIndex?: number;
+    }>;
+  };
 }
 
 export const useTeacherExams = (teacherId: string | null) => {
@@ -132,10 +141,14 @@ export const useTeacherExams = (teacherId: string | null) => {
         .from('exam_sessions')
         .select('*')
         .eq('exam_link_id', examLinkId)
+        .eq('is_draft', false)
         .order('score', { ascending: false });
 
       if (error) throw error;
-      return data || [];
+      return (data as any[])?.map(session => ({
+        ...session,
+        assessment_data: session.assessment_data as ExamSession['assessment_data']
+      })) || [];
     } catch (error: any) {
       console.error('Error fetching exam sessions:', error);
       toast({
@@ -144,6 +157,32 @@ export const useTeacherExams = (teacherId: string | null) => {
         variant: 'destructive'
       });
       return [];
+    }
+  };
+
+  const deleteExamSession = async (sessionId: string) => {
+    try {
+      const { error } = await supabase
+        .from('exam_sessions')
+        .delete()
+        .eq('id', sessionId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'สำเร็จ',
+        description: 'ลบข้อมูลการสอบเรียบร้อยแล้ว',
+      });
+
+      return true;
+    } catch (error: any) {
+      console.error('Error deleting exam session:', error);
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: 'ไม่สามารถลบข้อมูลได้',
+        variant: 'destructive'
+      });
+      return false;
     }
   };
 
@@ -178,7 +217,8 @@ export const useTeacherExams = (teacherId: string | null) => {
     createExamLink,
     fetchExamSessions,
     updateExamLinkStatus,
-    refreshExamLinks: fetchExamLinks
+    refreshExamLinks: fetchExamLinks,
+    deleteExamSession
   };
 };
 
