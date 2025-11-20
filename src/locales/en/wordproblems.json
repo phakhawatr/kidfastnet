@@ -6,7 +6,9 @@
     "length": "📏 Length Measurement",
     "weight": "⚖️ Weight",
     "volume": "🥤 Volume/Capacity",
-    "time": "⏰ Time"
+    "time": "⏰ Time",
+    "science": "🔬 Science",
+    "engineering": "🏗️ Engineering"
   },
   "difficulty": {
     "title": "Select Difficulty",

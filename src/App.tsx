@@ -35,6 +35,7 @@ import PlaceValueApp from "./pages/PlaceValueApp";
 import MentalMathApp from "./pages/MentalMathApp";
 import AreaModelApp from "./pages/AreaModelApp";
 import WordProblemsApp from "./pages/WordProblemsApp";
+import STEMHub from "./pages/STEMHub";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
@@ -81,6 +82,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <AnalyticsDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route
+            path="/stem" 
+            element={
+              <ProtectedRoute>
+                <STEMHub />
               </ProtectedRoute>
             } 
           />

@@ -1,4 +1,4 @@
-export type ProblemCategory = 'length' | 'weight' | 'volume' | 'time';
+export type ProblemCategory = 'length' | 'weight' | 'volume' | 'time' | 'science' | 'engineering';
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
 export interface WordProblem {
