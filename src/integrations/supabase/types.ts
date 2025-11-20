@@ -362,7 +362,9 @@ export type Database = {
           explanation: string | null
           id: string
           is_edited: boolean | null
+          is_from_bank: boolean | null
           original_question: Json | null
+          question_bank_id: string | null
           question_number: number
           question_text: string
           skill_name: string
@@ -378,7 +380,9 @@ export type Database = {
           explanation?: string | null
           id?: string
           is_edited?: boolean | null
+          is_from_bank?: boolean | null
           original_question?: Json | null
+          question_bank_id?: string | null
           question_number: number
           question_text: string
           skill_name: string
@@ -394,7 +398,9 @@ export type Database = {
           explanation?: string | null
           id?: string
           is_edited?: boolean | null
+          is_from_bank?: boolean | null
           original_question?: Json | null
+          question_bank_id?: string | null
           question_number?: number
           question_text?: string
           skill_name?: string
@@ -407,6 +413,13 @@ export type Database = {
             columns: ["exam_link_id"]
             isOneToOne: false
             referencedRelation: "exam_links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_questions_question_bank_id_fkey"
+            columns: ["question_bank_id"]
+            isOneToOne: false
+            referencedRelation: "question_bank"
             referencedColumns: ["id"]
           },
         ]
@@ -768,6 +781,68 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      question_bank: {
+        Row: {
+          choices: Json
+          correct_answer: string
+          created_at: string | null
+          difficulty: string
+          explanation: string | null
+          grade: number
+          id: string
+          question_text: string
+          skill_name: string
+          subject: string
+          tags: string[] | null
+          teacher_id: string
+          times_used: number | null
+          updated_at: string | null
+          visual_elements: Json | null
+        }
+        Insert: {
+          choices: Json
+          correct_answer: string
+          created_at?: string | null
+          difficulty: string
+          explanation?: string | null
+          grade: number
+          id?: string
+          question_text: string
+          skill_name: string
+          subject?: string
+          tags?: string[] | null
+          teacher_id: string
+          times_used?: number | null
+          updated_at?: string | null
+          visual_elements?: Json | null
+        }
+        Update: {
+          choices?: Json
+          correct_answer?: string
+          created_at?: string | null
+          difficulty?: string
+          explanation?: string | null
+          grade?: number
+          id?: string
+          question_text?: string
+          skill_name?: string
+          subject?: string
+          tags?: string[] | null
+          teacher_id?: string
+          times_used?: number | null
+          updated_at?: string | null
+          visual_elements?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_bank_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       security_audit_log: {
         Row: {
