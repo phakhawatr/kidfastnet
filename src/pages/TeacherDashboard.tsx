@@ -42,6 +42,8 @@ const TeacherDashboard = () => {
   const [totalQuestions, setTotalQuestions] = useState<number>(20);
   const [maxStudents, setMaxStudents] = useState<number>(30);
   const [expiryDays, setExpiryDays] = useState<number>(7);
+  const [schoolName, setSchoolName] = useState<string>('');
+  const [schoolLogoUrl, setSchoolLogoUrl] = useState<string>('');
   const [viewingSessions, setViewingSessions] = useState<{ linkId: string; linkCode: string; sessions: ExamSession[] } | null>(null);
   const [showQRCode, setShowQRCode] = useState<string | null>(null);
   const [viewingSessionDetail, setViewingSessionDetail] = useState<ExamSession | null>(null);
@@ -114,7 +116,9 @@ const TeacherDashboard = () => {
         null,
         false,
         previewMode.metadata.activityName,
-        previewMode.metadata.totalQuestions
+        previewMode.metadata.totalQuestions,
+        schoolName,
+        schoolLogoUrl
       );
       
       if (!link) throw new Error('Failed to create exam link');
@@ -235,7 +239,9 @@ const TeacherDashboard = () => {
       null, // timeLimitMinutes
       false, // allowRetake
       activityName || undefined,
-      totalQuestions
+      totalQuestions,
+      schoolName || undefined,
+      schoolLogoUrl || undefined
     );
     
     if (link) {
@@ -459,6 +465,30 @@ const TeacherDashboard = () => {
                   max="365"
                   value={expiryDays}
                   onChange={(e) => setExpiryDays(parseInt(e.target.value) || 7)}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <Label htmlFor="schoolName">ชื่อโรงเรียน</Label>
+                <Input
+                  id="schoolName"
+                  type="text"
+                  placeholder="เช่น โรงเรียนอนุบาลสายรุ้ง"
+                  value={schoolName}
+                  onChange={(e) => setSchoolName(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="schoolLogoUrl">URL โลโก้โรงเรียน</Label>
+                <Input
+                  id="schoolLogoUrl"
+                  type="url"
+                  placeholder="https://example.com/logo.png"
+                  value={schoolLogoUrl}
+                  onChange={(e) => setSchoolLogoUrl(e.target.value)}
                 />
               </div>
             </div>

@@ -290,6 +290,8 @@ export type Database = {
           link_code: string
           max_students: number
           questions_finalized_at: string | null
+          school_logo_url: string | null
+          school_name: string | null
           semester: number | null
           start_time: string | null
           status: string
@@ -312,6 +314,8 @@ export type Database = {
           link_code: string
           max_students?: number
           questions_finalized_at?: string | null
+          school_logo_url?: string | null
+          school_name?: string | null
           semester?: number | null
           start_time?: string | null
           status?: string
@@ -334,6 +338,8 @@ export type Database = {
           link_code?: string
           max_students?: number
           questions_finalized_at?: string | null
+          school_logo_url?: string | null
+          school_name?: string | null
           semester?: number | null
           start_time?: string | null
           status?: string
