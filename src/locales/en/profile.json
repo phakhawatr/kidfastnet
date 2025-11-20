@@ -8,6 +8,13 @@
   "basic": "Basic",
   "referralProgram": "Referral Program",
   
+  "teacherMode": {
+    "title": "Teacher Mode",
+    "badge": "Teacher",
+    "description": "Access teacher dashboard to create exams, view student results, and manage assessments",
+    "enterButton": "Enter Teacher Mode"
+  },
+  
   "installApp": {
     "title": "Install App on Your Device",
     "description": "Install KidFastAI on your tablet or smartphone for easy access, offline support, and native app experience",
