@@ -15,7 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Copy, Link as LinkIcon, Users, Clock, BarChart, ExternalLink, CheckCircle, QrCode, Download, FileText, Trash2, Eye, X, FileDown, Upload, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { exportToCSV, exportToPDF, generateReportSummary, generateItemAnalysis } from '@/utils/examReportUtils';
+import { exportToCSV, exportToPDF, generateReportSummary, generateItemAnalysis, compareAnswers } from '@/utils/examReportUtils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const TeacherDashboard = () => {
@@ -1083,8 +1083,8 @@ const TeacherDashboard = () => {
                 
                 {viewingSessionDetail.assessment_data && Array.isArray((viewingSessionDetail.assessment_data as any).questions) && 
                   ((viewingSessionDetail.assessment_data as any).questions as any[]).map((q, index) => {
-                    const studentAnswer = (viewingSessionDetail.assessment_data as any).answers?.[index];
-                    const isCorrect = studentAnswer === q.correctAnswer;
+                    const studentAnswer = q.userAnswer;
+                    const isCorrect = compareAnswers(studentAnswer, q.correctAnswer);
                     
                     return (
                       <div 
@@ -1116,8 +1116,8 @@ const TeacherDashboard = () => {
                               <div className="space-y-1.5">
                                 {q.choices?.map((choice: string, cIndex: number) => {
                                   const choiceLetter = String.fromCharCode(65 + cIndex);
-                                  const isStudentChoice = studentAnswer === cIndex;
-                                  const isCorrectChoice = q.correctAnswer === cIndex;
+                                  const isStudentChoice = compareAnswers(studentAnswer, choice);
+                                  const isCorrectChoice = compareAnswers(q.correctAnswer, choice);
                                   
                                   return (
                                     <div 
