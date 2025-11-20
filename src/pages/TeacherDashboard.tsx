@@ -10,9 +10,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Copy, Link as LinkIcon, Users, Clock, BarChart, ExternalLink, CheckCircle, QrCode, Download, FileText, Trash2 } from 'lucide-react';
+import { Copy, Link as LinkIcon, Users, Clock, BarChart, ExternalLink, CheckCircle, QrCode, Download, FileText, Trash2, Eye, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { exportToCSV, exportToPDF, generateReportSummary, generateItemAnalysis } from '@/utils/examReportUtils';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const TeacherDashboard = () => {
   const { registrationId } = useAuth();
@@ -26,6 +27,7 @@ const TeacherDashboard = () => {
   const [expiryDays, setExpiryDays] = useState<number>(7);
   const [viewingSessions, setViewingSessions] = useState<{ linkId: string; linkCode: string; sessions: ExamSession[] } | null>(null);
   const [showQRCode, setShowQRCode] = useState<string | null>(null);
+  const [viewingSessionDetail, setViewingSessionDetail] = useState<ExamSession | null>(null);
 
   const handleCreateLink = async () => {
     const semester = selectedType === 'semester' ? selectedSemester : null;
@@ -534,14 +536,24 @@ const TeacherDashboard = () => {
                               )}
                             </td>
                             <td className="p-3 text-center">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleDeleteSession(session.id)}
-                                className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
+                              <div className="flex gap-1 justify-center">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setViewingSessionDetail(session)}
+                                  className="text-primary hover:text-primary hover:bg-primary/10"
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDeleteSession(session.id)}
+                                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -561,6 +573,110 @@ const TeacherDashboard = () => {
           onClose={() => setShowQRCode(null)}
         />
       )}
+
+      {/* Session Detail Dialog */}
+      <Dialog open={!!viewingSessionDetail} onOpenChange={() => setViewingSessionDetail(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="w-5 h-5" />
+              ผลการสอบ - {viewingSessionDetail?.student_name}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {viewingSessionDetail && (
+            <div className="space-y-6">
+              {/* Summary */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-muted/50 rounded-lg">
+                <div>
+                  <p className="text-sm text-muted-foreground">ชั้น</p>
+                  <p className="font-semibold">{viewingSessionDetail.student_class}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">เลขที่</p>
+                  <p className="font-semibold">{viewingSessionDetail.student_number}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">คะแนน</p>
+                  <p className={`font-bold text-lg ${viewingSessionDetail.score >= 80 ? 'text-green-600' : viewingSessionDetail.score >= 50 ? 'text-orange-600' : 'text-red-600'}`}>
+                    {viewingSessionDetail.score.toFixed(2)}%
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">เวลาที่ใช้</p>
+                  <p className="font-semibold">
+                    {Math.floor(viewingSessionDetail.time_taken / 60)}:{(viewingSessionDetail.time_taken % 60).toString().padStart(2, '0')} นาที
+                  </p>
+                </div>
+              </div>
+
+              {/* Questions and Answers */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg">รายละเอียดคำตอบ ({viewingSessionDetail.correct_answers}/{viewingSessionDetail.total_questions})</h3>
+                
+                {viewingSessionDetail.assessment_data && Array.isArray((viewingSessionDetail.assessment_data as any).questions) && 
+                  ((viewingSessionDetail.assessment_data as any).questions as any[]).map((q, index) => {
+                    const studentAnswer = (viewingSessionDetail.assessment_data as any).answers?.[index];
+                    const isCorrect = studentAnswer === q.correctAnswer;
+                    
+                    return (
+                      <div key={index} className={`p-4 rounded-lg border-2 ${isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`}>
+                        <div className="flex items-start gap-3">
+                          <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold ${isCorrect ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
+                            {index + 1}
+                          </div>
+                          <div className="flex-1 space-y-2">
+                            <p className="font-medium">{q.question}</p>
+                            
+                            <div className="space-y-1">
+                              {q.choices?.map((choice: string, cIndex: number) => {
+                                const choiceLetter = String.fromCharCode(65 + cIndex);
+                                const isStudentChoice = studentAnswer === cIndex;
+                                const isCorrectChoice = q.correctAnswer === cIndex;
+                                
+                                return (
+                                  <div 
+                                    key={cIndex}
+                                    className={`p-2 rounded ${
+                                      isCorrectChoice 
+                                        ? 'bg-green-200 border-2 border-green-500 font-semibold' 
+                                        : isStudentChoice 
+                                        ? 'bg-red-200 border-2 border-red-500'
+                                        : 'bg-white'
+                                    }`}
+                                  >
+                                    <span className="font-medium">{choiceLetter}. </span>
+                                    {choice}
+                                    {isCorrectChoice && ' ✓ (คำตอบที่ถูก)'}
+                                    {isStudentChoice && !isCorrectChoice && ' ✗ (คำตอบที่เลือก)'}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            
+                            {q.explanation && (
+                              <div className="mt-2 p-3 bg-blue-50 rounded border border-blue-200">
+                                <p className="text-sm font-medium text-blue-900">💡 คำอธิบาย:</p>
+                                <p className="text-sm text-blue-800">{q.explanation}</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+
+              <div className="flex justify-end pt-4">
+                <Button onClick={() => setViewingSessionDetail(null)}>
+                  <X className="w-4 h-4 mr-2" />
+                  ปิด
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>
