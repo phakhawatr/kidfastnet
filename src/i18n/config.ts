@@ -18,6 +18,7 @@ import wordproblemsTh from '../locales/th/wordproblems.json';
 import stemTh from '../locales/th/stem.json';
 import codingbasicsTh from '../locales/th/codingbasics.json';
 import sciencelabTh from '../locales/th/sciencelab.json';
+import engineeringTh from '../locales/th/engineering.json';
 
 import commonEn from '../locales/en/common.json';
 import headerEn from '../locales/en/header.json';
@@ -34,6 +35,7 @@ import wordproblemsEn from '../locales/en/wordproblems.json';
 import stemEn from '../locales/en/stem.json';
 import codingbasicsEn from '../locales/en/codingbasics.json';
 import sciencelabEn from '../locales/en/sciencelab.json';
+import engineeringEn from '../locales/en/engineering.json';
 
 const resources = {
   th: {
@@ -52,6 +54,7 @@ const resources = {
     stem: stemTh,
     codingbasics: codingbasicsTh,
     sciencelab: sciencelabTh,
+    engineering: engineeringTh,
   },
   en: {
     common: commonEn,
@@ -69,6 +72,7 @@ const resources = {
     stem: stemEn,
     codingbasics: codingbasicsEn,
     sciencelab: sciencelabEn,
+    engineering: engineeringEn,
   }
 };
 
