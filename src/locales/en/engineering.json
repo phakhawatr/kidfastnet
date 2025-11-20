@@ -1,0 +1,66 @@
+{
+  "title": "Engineering Challenges",
+  "subtitle": "Design and Build Structures",
+  "description": "Learn engineering by designing bridges, towers, and vehicles. Calculate materials and test strength!",
+  "start_design": "Start Design",
+  "view_designs": "My Designs",
+  "back_to_stem": "Back to STEM Hub",
+  "back": "Back to Menu",
+  "reset": "Reset",
+  "save_design": "Save Design",
+  "challenges": {
+    "bridge": {
+      "title": "Bridge Design",
+      "description": "Design a strong bridge that can support heavy loads"
+    },
+    "tower": {
+      "title": "Tower Design",
+      "description": "Build a tall tower that can stand firmly"
+    },
+    "vehicle": {
+      "title": "Vehicle Design",
+      "description": "Create a vehicle that can carry heavy cargo"
+    }
+  },
+  "select_material": "Select Material",
+  "materials": {
+    "wood": "Wood",
+    "steel": "Steel",
+    "concrete": "Concrete"
+  },
+  "cost": "Cost",
+  "strength": "Strength",
+  "length": "Length",
+  "height": "Height",
+  "size": "Size",
+  "units": "m",
+  "parts": "Parts",
+  "pieces": "pcs",
+  "total_cost": "Total Cost",
+  "max_load": "Max Load",
+  "material": "Material",
+  "test": {
+    "title": "Strength Test",
+    "load": "Test Load",
+    "run": "Run Test",
+    "testing": "Testing...",
+    "pass": "✅ Structure is strong enough!",
+    "collapse": "❌ Structure collapsed!",
+    "success": "Test passed! Structure is strong!",
+    "fail": "Test failed! Structure collapsed!"
+  },
+  "tips": {
+    "title": "Engineering Tips:",
+    "tip1": "Steel is stronger but more expensive than wood",
+    "tip2": "More parts = stronger structure but higher cost",
+    "tip3": "Longer/taller structures need more support"
+  },
+  "designs": {
+    "title": "My Designs",
+    "empty": "No designs saved yet. Start designing and save your creations!",
+    "saved": "Design saved successfully!",
+    "clear": "Clear All",
+    "tested_success": "Tested ✓",
+    "tested_fail": "Failed Test"
+  }
+}

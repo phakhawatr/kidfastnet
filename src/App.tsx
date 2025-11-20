@@ -38,6 +38,7 @@ import WordProblemsApp from "./pages/WordProblemsApp";
 import STEMHub from "./pages/STEMHub";
 import CodingBasicsApp from "./pages/CodingBasicsApp";
 import ScienceLabApp from "./pages/ScienceLabApp";
+import EngineeringChallengesApp from "./pages/EngineeringChallengesApp";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
@@ -311,6 +312,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <ScienceLabApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/engineering-challenges" 
+            element={
+              <ProtectedRoute>
+                <EngineeringChallengesApp />
               </ProtectedRoute>
             } 
           />
