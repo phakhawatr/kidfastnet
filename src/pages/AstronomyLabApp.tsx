@@ -1,9 +1,9 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Sun, Moon, Star, Orbit } from "lucide-react";
+import { ArrowLeft, Sun, Moon, Star, Orbit, Play, Pause, Maximize2, Minimize2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, Sphere, Text, Html } from "@react-three/drei";
@@ -14,12 +14,17 @@ type ExperimentType = "menu" | "solar-system" | "planets" | "stars" | "moon-phas
 // Orbit path component
 function OrbitPath({ radius }: { radius: number }) {
   const points = [];
-  for (let i = 0; i <= 64; i++) {
-    const angle = (i / 64) * Math.PI * 2;
+  for (let i = 0; i <= 128; i++) {
+    const angle = (i / 128) * Math.PI * 2;
     points.push(new THREE.Vector3(Math.cos(angle) * radius, 0, Math.sin(angle) * radius));
   }
   const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
-  const lineMaterial = new THREE.LineBasicMaterial({ color: "#ffffff", opacity: 0.2, transparent: true });
+  const lineMaterial = new THREE.LineBasicMaterial({ 
+    color: "#4A90E2", 
+    opacity: 0.6, 
+    transparent: true,
+    linewidth: 2
+  });
   const line = new THREE.LineLoop(lineGeometry, lineMaterial);
   
   return <primitive object={line} />;
@@ -34,7 +39,8 @@ function Planet({
   name,
   size,
   distanceFromSun,
-  facts
+  facts,
+  isPaused
 }: { 
   radius: number; 
   distance: number; 
@@ -44,18 +50,19 @@ function Planet({
   size: string;
   distanceFromSun: string;
   facts: string;
+  isPaused: boolean;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const groupRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
 
   useFrame(({ clock }) => {
-    if (groupRef.current) {
+    if (groupRef.current && !isPaused) {
       const time = clock.getElapsedTime();
       groupRef.current.position.x = Math.cos(time * speed) * distance;
       groupRef.current.position.z = Math.sin(time * speed) * distance;
     }
-    if (meshRef.current) {
+    if (meshRef.current && !isPaused) {
       meshRef.current.rotation.y += 0.01;
     }
   });
@@ -172,6 +179,34 @@ const AstronomyLabApp = () => {
   const [starsScore, setStarsScore] = useState(0);
   const [starsQuizCompleted, setStarsQuizCompleted] = useState(false);
   const [starsAnsweredCorrectly, setStarsAnsweredCorrectly] = useState<boolean | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const canvasContainerRef = useRef<HTMLDivElement>(null);
+
+  const toggleFullscreen = () => {
+    if (!canvasContainerRef.current) return;
+    
+    if (!isFullscreen) {
+      if (canvasContainerRef.current.requestFullscreen) {
+        canvasContainerRef.current.requestFullscreen();
+      }
+      setIsFullscreen(true);
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+      setIsFullscreen(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   const planets = [
     { 
@@ -541,10 +576,12 @@ const AstronomyLabApp = () => {
     <div className="space-y-6">
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">{t("experiments.solar_system.interactive")}</h3>
-        <div className="w-full h-[500px] bg-gradient-to-b from-black to-indigo-950 rounded-lg overflow-hidden">
+        <p className="text-sm text-muted-foreground mb-4">{t("experiments.solar_system.controls")}</p>
+        <div ref={canvasContainerRef} className="relative w-full h-[500px] bg-gradient-to-b from-black to-indigo-950 rounded-lg overflow-hidden">
           <Canvas camera={{ position: [0, 10, 20], fov: 60 }}>
             <ambientLight intensity={0.3} />
             <pointLight position={[0, 0, 0]} intensity={2} />
+            <OrbitControls enableZoom={true} enablePan={true} />
             
             {/* Sun */}
             <SunSphere />
@@ -569,6 +606,7 @@ const AstronomyLabApp = () => {
               size={planets[0].size}
               distanceFromSun={planets[0].distance}
               facts={planets[0].facts}
+              isPaused={isPaused}
             />
             <Planet 
               radius={0.3} 
@@ -579,6 +617,7 @@ const AstronomyLabApp = () => {
               size={planets[1].size}
               distanceFromSun={planets[1].distance}
               facts={planets[1].facts}
+              isPaused={isPaused}
             />
             <Planet 
               radius={0.35} 
@@ -589,6 +628,7 @@ const AstronomyLabApp = () => {
               size={planets[2].size}
               distanceFromSun={planets[2].distance}
               facts={planets[2].facts}
+              isPaused={isPaused}
             />
             <Planet 
               radius={0.25} 
@@ -599,6 +639,7 @@ const AstronomyLabApp = () => {
               size={planets[3].size}
               distanceFromSun={planets[3].distance}
               facts={planets[3].facts}
+              isPaused={isPaused}
             />
             <Planet 
               radius={0.8} 
@@ -609,6 +650,7 @@ const AstronomyLabApp = () => {
               size={planets[4].size}
               distanceFromSun={planets[4].distance}
               facts={planets[4].facts}
+              isPaused={isPaused}
             />
             <Planet 
               radius={0.7} 
@@ -619,6 +661,7 @@ const AstronomyLabApp = () => {
               size={planets[5].size}
               distanceFromSun={planets[5].distance}
               facts={planets[5].facts}
+              isPaused={isPaused}
             />
             <Planet 
               radius={0.5} 
@@ -629,6 +672,7 @@ const AstronomyLabApp = () => {
               size={planets[6].size}
               distanceFromSun={planets[6].distance}
               facts={planets[6].facts}
+              isPaused={isPaused}
             />
             <Planet 
               radius={0.48} 
@@ -639,13 +683,25 @@ const AstronomyLabApp = () => {
               size={planets[7].size}
               distanceFromSun={planets[7].distance}
               facts={planets[7].facts}
+              isPaused={isPaused}
             />
             
             <OrbitControls enableZoom={true} enablePan={true} />
           </Canvas>
+          
+          <button
+            onClick={toggleFullscreen}
+            className="absolute top-4 right-4 bg-background/80 hover:bg-background backdrop-blur-sm p-2 rounded-lg transition-all z-10"
+            title={isFullscreen ? t("experiments.solar_system.exit_fullscreen") : t("experiments.solar_system.enter_fullscreen")}
+          >
+            {isFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+          </button>
         </div>
-        <div className="mt-4 p-4 bg-muted rounded-lg">
-          <p className="text-sm">{t("experiments.solar_system.controls")}</p>
+        
+        <div className="mt-4 flex gap-2 justify-center">
+          <Button onClick={() => setIsPaused(!isPaused)} variant="outline" size="lg">
+            {isPaused ? <><Play className="mr-2 h-5 w-5" />{t("experiments.solar_system.play")}</> : <><Pause className="mr-2 h-5 w-5" />{t("experiments.solar_system.pause")}</>}
+          </Button>
         </div>
       </Card>
 

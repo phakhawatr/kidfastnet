@@ -10,6 +10,13 @@
       "description": "Interactive 3D model of our solar system",
       "interactive": "3D Interactive Solar System",
       "controls": "🖱️ Click and drag to rotate • Scroll to zoom • Hover over planets to highlight",
+      "play": "Play",
+      "pause": "Pause",
+      "enter_fullscreen": "Enter Fullscreen",
+      "exit_fullscreen": "Exit Fullscreen",
+      "earth_days": "Earth days",
+      "earth_years": "Earth years",
+      "planets_detail_title": "Details of All 8 Planets",
       "tip_title": "Astronomy Tip:",
       "tip": "Our solar system has 8 planets that orbit around the Sun. Each planet takes a different amount of time to complete one orbit!",
       "about_title": "About the Solar System",
@@ -116,6 +123,9 @@
       "size": "Size",
       "distance": "Distance from Sun",
       "facts": "Interesting Facts",
+      "diameter": "Diameter",
+      "mass": "Mass",
+      "orbital_period": "Orbital Period",
       "million_km": "million km",
       "list": {
         "mercury": "Mercury",
@@ -129,35 +139,67 @@
       },
       "mercury": {
         "size": "Smallest planet",
-        "facts": "Closest to the Sun. Has the most extreme temperature differences (-173°C to 427°C). No atmosphere or moons."
+        "facts": "Closest to the Sun. Has the most extreme temperature differences (-173°C to 427°C). No atmosphere or moons.",
+        "detail": "Mercury is the smallest and closest planet to the Sun in our solar system. Its surface is covered with craters similar to Earth's Moon, as it has no atmosphere to protect it from impacts. The temperature varies dramatically - reaching 427°C during the day but dropping to -173°C at night, making it the planet with the most extreme temperature range in the solar system. One day on Mercury lasts 176 Earth days, but a year is only 88 Earth days, meaning Mercury orbits the Sun faster than it rotates!",
+        "f1": "No atmosphere",
+        "f2": "Hottest daytime 427°C",
+        "f3": "Heavily cratered surface"
       },
       "venus": {
         "size": "Similar to Earth",
-        "facts": "Hottest planet (462°C). Rotates backwards compared to other planets. Thick atmosphere of carbon dioxide."
+        "facts": "Hottest planet (462°C). Rotates backwards compared to other planets. Thick atmosphere of carbon dioxide.",
+        "detail": "Venus is the hottest planet in the solar system despite not being closest to the Sun, due to its thick carbon dioxide atmosphere creating an extreme greenhouse effect that raises surface temperatures to 462°C. Venus is similar in size and mass to Earth, earning it the nickname 'Earth's twin.' Fascinatingly, Venus rotates very slowly and in the opposite direction to most planets (retrograde rotation), causing the Sun to rise in the west and set in the east on Venus. The atmospheric pressure on Venus is 92 times greater than Earth's - equivalent to being 900 meters underwater!",
+        "f1": "Hottest planet 462°C",
+        "f2": "Retrograde rotation",
+        "f3": "Thick CO₂ atmosphere"
       },
       "earth": {
         "size": "Medium planet",
-        "facts": "The only planet with life! 71% water. Has 1 moon. Perfect distance from the Sun for liquid water."
+        "facts": "The only planet with life! 71% water. Has 1 moon. Perfect distance from the Sun for liquid water.",
+        "detail": "Earth is the only planet in the known universe that harbors life. Its surface consists of 71% water and 29% land. Earth has an atmosphere composed of 78% nitrogen and 21% oxygen, perfect for life to breathe. Our planet sits in the 'Goldilocks Zone' - the perfect distance from the Sun where temperatures allow liquid water to exist. Earth's magnetic field protects life from dangerous solar radiation. The planet has one large moon that stabilizes Earth's axial tilt and creates ocean tides. Earth is the densest planet in the solar system and the only one not named after a Roman or Greek deity.",
+        "f1": "Only planet with life",
+        "f2": "71% water surface",
+        "f3": "In the Goldilocks Zone"
       },
       "mars": {
         "size": "Small planet",
-        "facts": "The Red Planet. Has 2 small moons. Has the largest volcano in the solar system (Olympus Mons)."
+        "facts": "The Red Planet. Has 2 small moons. Has the largest volcano in the solar system (Olympus Mons).",
+        "detail": "Mars, known as the 'Red Planet,' gets its distinctive color from iron oxide (rust) covering its surface. Mars hosts Olympus Mons, a volcano standing 21 kilometers high - the tallest mountain in the solar system, nearly three times the height of Mount Everest! Evidence shows that Mars once had flowing water and a thicker atmosphere, possibly making it habitable billions of years ago. Mars has two small moons named Phobos and Deimos. A day on Mars is remarkably similar to Earth (24.6 hours), but a year lasts 687 Earth days. Mars is currently being explored by rovers searching for signs of ancient microbial life.",
+        "f1": "Tallest volcano Olympus Mons",
+        "f2": "Once had flowing water",
+        "f3": "Has 2 small moons"
       },
       "jupiter": {
         "size": "Largest planet",
-        "facts": "Gas giant with 79+ moons. Has the Great Red Spot (a giant storm). Could fit 1,300 Earths inside!"
+        "facts": "Gas giant with 79+ moons. Has the Great Red Spot (a giant storm). Could fit 1,300 Earths inside!",
+        "detail": "Jupiter is the largest planet in the solar system, containing more mass than all other planets combined. This gas giant is primarily composed of hydrogen and helium. The Great Red Spot, a massive storm larger than Earth that has been raging for over 350 years, is Jupiter's most famous feature. Jupiter has more than 79 moons, including the four large Galilean moons discovered by Galileo: Io (the most volcanically active body in the solar system), Europa (which may have an ocean beneath its icy surface), Ganymede (the largest moon in the solar system), and Callisto. Jupiter's strong magnetic field is 20,000 times stronger than Earth's.",
+        "f1": "Largest in solar system",
+        "f2": "Great Red Spot storm",
+        "f3": "79+ moons including 4 Galilean"
       },
       "saturn": {
         "size": "Second largest",
-        "facts": "Famous for its beautiful rings made of ice and rock. Has 82+ moons. Could float in water!"
+        "facts": "Famous for its beautiful rings made of ice and rock. Has 82+ moons. Could float in water!",
+        "detail": "Saturn is famous for its spectacular rings, composed of countless pieces of ice and rock ranging from tiny grains to mountain-sized chunks. Saturn is a gas giant with such low density that if there were an ocean large enough, Saturn would actually float! The planet has more than 82 moons, with Titan being the largest - bigger than Mercury and having a thick atmosphere. Saturn's winds can reach speeds of 1,800 kilometers per hour. The rings extend up to 282,000 kilometers from the planet but are surprisingly thin - only about 10 meters thick in some places. Each ring particle orbits Saturn at its own speed.",
+        "f1": "Beautiful ring system",
+        "f2": "Low density - could float",
+        "f3": "82+ moons including Titan"
       },
       "uranus": {
         "size": "Ice giant",
-        "facts": "Rotates on its side. Coldest planet (-224°C). Has faint rings and 27 moons."
+        "facts": "Rotates on its side. Coldest planet (-224°C). Has faint rings and 27 moons.",
+        "detail": "Uranus is unique because it rotates on its side, with its axis tilted 98 degrees, essentially rolling along its orbital path like a ball. This extreme tilt means its poles take turns facing the Sun, creating seasons lasting 21 years each! Uranus appears blue-green due to methane in its atmosphere. Despite not being farthest from the Sun, Uranus is the coldest planet with temperatures reaching -224°C. The planet has 13 faint rings and 27 known moons. The five largest moons are Miranda, Ariel, Umbriel, Titania, and Oberon. Uranus was the first planet discovered with a telescope by William Herschel in 1781.",
+        "f1": "Rotates sideways 98° tilt",
+        "f2": "Coldest planet -224°C",
+        "f3": "13 rings and 27 moons"
       },
       "neptune": {
         "size": "Ice giant",
-        "facts": "Farthest from the Sun. Strongest winds in the solar system (2,100 km/h). Beautiful blue color."
+        "facts": "Farthest from the Sun. Strongest winds in the solar system (2,100 km/h). Beautiful blue color.",
+        "detail": "Neptune is the farthest planet from the Sun in our solar system, orbiting at a distance of 4.5 billion kilometers. It has a vivid deep blue color caused by methane in its atmosphere. Despite being so far from the Sun, Neptune has the strongest winds in the solar system, reaching speeds of 2,100 kilometers per hour - faster than the speed of sound on Earth! Neptune has a Great Dark Spot similar to Jupiter's Great Red Spot, though this storm appears and disappears over time. The planet has 14 known moons, with Triton being the largest and unique for orbiting Neptune in the opposite direction (retrograde orbit). Neptune takes 165 Earth years to complete one orbit around the Sun!",
+        "f1": "Farthest 4.5 billion km",
+        "f2": "Fastest winds 2,100 km/h",
+        "f3": "Vivid deep blue color"
       }
     },
     "stars": {
