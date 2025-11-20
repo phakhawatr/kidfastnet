@@ -102,77 +102,101 @@ const STEMHub = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-7 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Link to="/word-problems">
-                <Button className="w-full h-auto py-5 bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-xl">🔬🏗️</span>
-                    <span className="font-bold text-[10px]">STEM</span>
-                  </div>
-                </Button>
+                <Card className="group h-full bg-gradient-to-br from-green-500 via-blue-500 to-purple-500 border-0 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-2xl cursor-pointer">
+                  <CardContent className="p-6 flex flex-col items-center text-center gap-3">
+                    <div className="text-5xl group-hover:scale-110 transition-transform">🔬</div>
+                    <div>
+                      <h3 className="font-bold text-white text-lg mb-1">{t('quickAccess.stem.title')}</h3>
+                      <p className="text-white/90 text-xs leading-relaxed">{t('quickAccess.stem.desc')}</p>
+                    </div>
+                  </CardContent>
+                </Card>
               </Link>
               
               <Link to="/coding-basics">
-                <Button className="w-full h-auto py-5 bg-gradient-to-r from-indigo-500 to-purple-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-xl">💻</span>
-                    <span className="font-bold text-[10px]">Code</span>
-                  </div>
-                </Button>
+                <Card className="group h-full bg-gradient-to-br from-indigo-500 to-purple-500 border-0 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-2xl cursor-pointer">
+                  <CardContent className="p-6 flex flex-col items-center text-center gap-3">
+                    <div className="text-5xl group-hover:scale-110 transition-transform">💻</div>
+                    <div>
+                      <h3 className="font-bold text-white text-lg mb-1">{t('quickAccess.code.title')}</h3>
+                      <p className="text-white/90 text-xs leading-relaxed">{t('quickAccess.code.desc')}</p>
+                    </div>
+                  </CardContent>
+                </Card>
               </Link>
               
               <Link to="/science-lab">
-                <Button className="w-full h-auto py-5 bg-gradient-to-r from-teal-500 to-green-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-xl">🧪</span>
-                    <span className="font-bold text-[10px]">Lab</span>
-                  </div>
-                </Button>
+                <Card className="group h-full bg-gradient-to-br from-teal-500 to-green-500 border-0 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-2xl cursor-pointer">
+                  <CardContent className="p-6 flex flex-col items-center text-center gap-3">
+                    <div className="text-5xl group-hover:scale-110 transition-transform">🧪</div>
+                    <div>
+                      <h3 className="font-bold text-white text-lg mb-1">{t('quickAccess.lab.title')}</h3>
+                      <p className="text-white/90 text-xs leading-relaxed">{t('quickAccess.lab.desc')}</p>
+                    </div>
+                  </CardContent>
+                </Card>
               </Link>
               
               <Link to="/engineering-challenges">
-                <Button className="w-full h-auto py-5 bg-gradient-to-r from-orange-500 to-red-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-xl">🏗️</span>
-                    <span className="font-bold text-[10px]">Build</span>
-                  </div>
-                </Button>
+                <Card className="group h-full bg-gradient-to-br from-orange-500 to-red-500 border-0 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-2xl cursor-pointer">
+                  <CardContent className="p-6 flex flex-col items-center text-center gap-3">
+                    <div className="text-5xl group-hover:scale-110 transition-transform">🏗️</div>
+                    <div>
+                      <h3 className="font-bold text-white text-lg mb-1">{t('quickAccess.build.title')}</h3>
+                      <p className="text-white/90 text-xs leading-relaxed">{t('quickAccess.build.desc')}</p>
+                    </div>
+                  </CardContent>
+                </Card>
               </Link>
               
               <Link to="/physics-lab">
-                <Button className="w-full h-auto py-5 bg-gradient-to-r from-violet-500 to-purple-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-xl">⚡</span>
-                    <span className="font-bold text-[10px]">Physics</span>
-                  </div>
-                </Button>
+                <Card className="group h-full bg-gradient-to-br from-violet-500 to-purple-500 border-0 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-2xl cursor-pointer">
+                  <CardContent className="p-6 flex flex-col items-center text-center gap-3">
+                    <div className="text-5xl group-hover:scale-110 transition-transform">⚡</div>
+                    <div>
+                      <h3 className="font-bold text-white text-lg mb-1">{t('quickAccess.physics.title')}</h3>
+                      <p className="text-white/90 text-xs leading-relaxed">{t('quickAccess.physics.desc')}</p>
+                    </div>
+                  </CardContent>
+                </Card>
               </Link>
               
               <Link to="/chemistry-lab">
-                <Button className="w-full h-auto py-5 bg-gradient-to-r from-purple-500 to-pink-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-xl">🧪</span>
-                    <span className="font-bold text-[10px]">Chemistry</span>
-                  </div>
-                </Button>
+                <Card className="group h-full bg-gradient-to-br from-purple-500 to-pink-500 border-0 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-2xl cursor-pointer">
+                  <CardContent className="p-6 flex flex-col items-center text-center gap-3">
+                    <div className="text-5xl group-hover:scale-110 transition-transform">🧬</div>
+                    <div>
+                      <h3 className="font-bold text-white text-lg mb-1">{t('quickAccess.chemistry.title')}</h3>
+                      <p className="text-white/90 text-xs leading-relaxed">{t('quickAccess.chemistry.desc')}</p>
+                    </div>
+                  </CardContent>
+                </Card>
               </Link>
               
               <Link to="/ai-tutor">
-                <Button className="w-full h-auto py-5 bg-gradient-to-r from-blue-500 to-cyan-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-xl">🤖</span>
-                    <span className="font-bold text-[10px]">AI</span>
-                  </div>
-                </Button>
+                <Card className="group h-full bg-gradient-to-br from-blue-500 to-cyan-500 border-0 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-2xl cursor-pointer">
+                  <CardContent className="p-6 flex flex-col items-center text-center gap-3">
+                    <div className="text-5xl group-hover:scale-110 transition-transform">🤖</div>
+                    <div>
+                      <h3 className="font-bold text-white text-lg mb-1">{t('quickAccess.ai.title')}</h3>
+                      <p className="text-white/90 text-xs leading-relaxed">{t('quickAccess.ai.desc')}</p>
+                    </div>
+                  </CardContent>
+                </Card>
               </Link>
               
               <Link to="/adaptive-learning">
-                <Button className="w-full h-auto py-5 bg-gradient-to-r from-purple-500 to-pink-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-xl">🎯</span>
-                    <span className="font-bold text-[10px]">Path</span>
-                  </div>
-                </Button>
+                <Card className="group h-full bg-gradient-to-br from-pink-500 to-rose-500 border-0 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-2xl cursor-pointer">
+                  <CardContent className="p-6 flex flex-col items-center text-center gap-3">
+                    <div className="text-5xl group-hover:scale-110 transition-transform">🎯</div>
+                    <div>
+                      <h3 className="font-bold text-white text-lg mb-1">{t('quickAccess.path.title')}</h3>
+                      <p className="text-white/90 text-xs leading-relaxed">{t('quickAccess.path.desc')}</p>
+                    </div>
+                  </CardContent>
+                </Card>
               </Link>
             </div>
           </CardContent>

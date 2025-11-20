@@ -33,9 +33,38 @@
   },
   "quickAccess": {
     "title": "🎯 Start Learning STEM Now!",
-    "stemProblems": "STEM Word Problems",
-    "aiTutor": "AI Math Tutor",
-    "adaptiveLearning": "Adaptive Learning"
+    "stem": {
+      "title": "STEM Problems",
+      "desc": "Real-world problems combining science, math & engineering"
+    },
+    "code": {
+      "title": "Coding Basics",
+      "desc": "Learn programming concepts through fun activities"
+    },
+    "lab": {
+      "title": "Science Lab",
+      "desc": "Virtual experiments with colors, temperature & plants"
+    },
+    "build": {
+      "title": "Engineering",
+      "desc": "Design and build structures like bridges & towers"
+    },
+    "physics": {
+      "title": "Physics Lab",
+      "desc": "Explore gravity, magnetism, light & sound"
+    },
+    "chemistry": {
+      "title": "Chemistry",
+      "desc": "Discover reactions, pH levels & states of matter"
+    },
+    "ai": {
+      "title": "AI Tutor",
+      "desc": "Get personalized help from AI math tutor"
+    },
+    "path": {
+      "title": "Learning Path",
+      "desc": "Adaptive learning journey tailored for you"
+    }
   },
   "achievements": {
     "title": "🏆 STEM Achievements",
