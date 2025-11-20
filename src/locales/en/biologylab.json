@@ -1,0 +1,126 @@
+{
+  "title": "Biology Lab",
+  "subtitle": "Interactive Biology Experiments",
+  "description": "Learn biology through interactive experiments. Explore cells, body systems, photosynthesis, and food chains!",
+  "back_to_stem": "Back to STEM Hub",
+  "back": "Back to Menu",
+  "experiments": {
+    "cell_structure": {
+      "title": "Cell Structure",
+      "description": "Explore the parts of a cell and their functions",
+      "click_parts": "Click on different cell parts to learn more:",
+      "parts": {
+        "nucleus": {
+          "name": "Nucleus",
+          "emoji": "🧬",
+          "function": "The control center of the cell. Contains DNA and controls all cell activities."
+        },
+        "mitochondria": {
+          "name": "Mitochondria",
+          "emoji": "⚡",
+          "function": "The powerhouse of the cell. Produces energy (ATP) through cellular respiration."
+        },
+        "ribosome": {
+          "name": "Ribosome",
+          "emoji": "🏭",
+          "function": "Protein factory. Reads mRNA and builds proteins for the cell."
+        },
+        "membrane": {
+          "name": "Cell Membrane",
+          "emoji": "🛡️",
+          "function": "Protective barrier that controls what enters and exits the cell."
+        },
+        "cytoplasm": {
+          "name": "Cytoplasm",
+          "emoji": "💧",
+          "function": "Gel-like substance that fills the cell and holds all organelles in place."
+        }
+      },
+      "tip_title": "Biology Tip:",
+      "tip": "All living things are made of cells! Cells are the basic building blocks of life."
+    },
+    "body_systems": {
+      "title": "Body Systems",
+      "description": "Learn about different systems in the human body",
+      "select_system": "Select a body system to explore:",
+      "organs": "Main Organs:",
+      "systems": {
+        "circulatory": {
+          "name": "Circulatory System",
+          "function": "Transports blood, oxygen, and nutrients throughout the body",
+          "organs": "Heart, Blood Vessels, Blood"
+        },
+        "respiratory": {
+          "name": "Respiratory System",
+          "function": "Brings oxygen into the body and removes carbon dioxide",
+          "organs": "Lungs, Trachea, Diaphragm"
+        },
+        "digestive": {
+          "name": "Digestive System",
+          "function": "Breaks down food and absorbs nutrients",
+          "organs": "Stomach, Intestines, Liver, Pancreas"
+        },
+        "nervous": {
+          "name": "Nervous System",
+          "function": "Controls and coordinates all body activities",
+          "organs": "Brain, Spinal Cord, Nerves"
+        },
+        "skeletal": {
+          "name": "Skeletal System",
+          "function": "Supports the body, protects organs, and allows movement",
+          "organs": "Bones, Joints, Cartilage"
+        }
+      },
+      "tip_title": "Biology Tip:",
+      "tip": "All body systems work together to keep us healthy and alive!"
+    },
+    "photosynthesis": {
+      "title": "Photosynthesis",
+      "description": "See how plants make food from sunlight",
+      "adjust_factors": "Adjust the factors needed for photosynthesis:",
+      "sunlight": "Sunlight",
+      "water": "Water",
+      "co2": "Carbon Dioxide (CO₂)",
+      "result": "Photosynthesis Result:",
+      "excellent": "Excellent Growth! 🌳",
+      "good": "Good Growth 🌿",
+      "poor": "Poor Growth 🌱",
+      "tip_title": "Biology Tip:",
+      "tip": "Plants need sunlight, water, and CO₂ to make their own food (glucose) and produce oxygen for us!"
+    },
+    "food_chain": {
+      "title": "Food Chain",
+      "description": "Understand the flow of energy in ecosystems",
+      "click_organisms": "Click on organisms to learn their role:",
+      "organisms": {
+        "sun": {
+          "name": "Sun",
+          "role": "The ultimate source of energy for all life on Earth",
+          "level": "Energy Source"
+        },
+        "plant": {
+          "name": "Producer (Plant)",
+          "role": "Makes its own food through photosynthesis using sunlight",
+          "level": "Level 1: Producer"
+        },
+        "herbivore": {
+          "name": "Primary Consumer (Herbivore)",
+          "role": "Eats plants to get energy. Examples: Deer, Rabbit, Cow",
+          "level": "Level 2: Primary Consumer"
+        },
+        "carnivore": {
+          "name": "Secondary Consumer (Carnivore)",
+          "role": "Eats herbivores to get energy. Examples: Lion, Wolf, Fox",
+          "level": "Level 3: Secondary Consumer"
+        },
+        "decomposer": {
+          "name": "Decomposer",
+          "role": "Breaks down dead organisms and returns nutrients to the soil",
+          "level": "Recycler"
+        }
+      },
+      "tip_title": "Biology Tip:",
+      "tip": "Energy flows from the sun through plants to animals. Decomposers recycle nutrients back to the soil!"
+    }
+  }
+}
