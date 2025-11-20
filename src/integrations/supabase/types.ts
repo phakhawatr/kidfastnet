@@ -630,6 +630,108 @@ export type Database = {
           },
         ]
       }
+      stem_activities: {
+        Row: {
+          accuracy: number | null
+          activity_name: string
+          activity_type: string
+          category: string
+          completed: boolean
+          created_at: string
+          id: string
+          points_earned: number
+          time_spent: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accuracy?: number | null
+          activity_name: string
+          activity_type: string
+          category: string
+          completed?: boolean
+          created_at?: string
+          id?: string
+          points_earned?: number
+          time_spent?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accuracy?: number | null
+          activity_name?: string
+          activity_type?: string
+          category?: string
+          completed?: boolean
+          created_at?: string
+          id?: string
+          points_earned?: number
+          time_spent?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      stem_badges: {
+        Row: {
+          badge_category: string
+          badge_code: string
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_category: string
+          badge_code: string
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_category?: string
+          badge_code?: string
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      stem_daily_stats: {
+        Row: {
+          activities_completed: number
+          category: string
+          created_at: string
+          date: string
+          id: string
+          total_points: number
+          total_time_spent: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activities_completed?: number
+          category: string
+          created_at?: string
+          date?: string
+          id?: string
+          total_points?: number
+          total_time_spent?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activities_completed?: number
+          category?: string
+          created_at?: string
+          date?: string
+          id?: string
+          total_points?: number
+          total_time_spent?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscription_plans: {
         Row: {
           ai_features_enabled: boolean | null
