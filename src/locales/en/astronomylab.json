@@ -163,9 +163,101 @@
     "stars": {
       "title": "Stars & Galaxies",
       "description": "Discover different types of stars and stellar objects",
+      "interactive": "3D Star Life Cycle",
+      "controls": "🖱️ Click and drag to rotate • Scroll to zoom • Click a star to highlight",
       "select": "Select a stellar object:",
       "description": "Description:",
       "characteristics": "Characteristics:",
+      "lifecycle_title": "Stellar Life Cycle",
+      "lifecycle_paragraph_1": "Stars are born in nebulae - giant clouds of gas and dust. When enough material clumps together, gravity causes it to collapse, creating extreme heat and pressure that ignites nuclear fusion.",
+      "lifecycle_paragraph_2": "A star spends most of its life fusing hydrogen into helium in its core. Our Sun has been doing this for 4.6 billion years and will continue for another 5 billion years. Stars like the Sun eventually expand into red giants, then shed their outer layers to become white dwarfs.",
+      "lifecycle_paragraph_3": "Massive stars (more than 8 times the Sun's mass) have shorter but more dramatic lives. They end in spectacular supernova explosions, leaving behind either neutron stars (incredibly dense stellar remnants) or black holes (regions where gravity is so strong that nothing can escape).",
+      "start_quiz": "⭐ Start Stars Quiz",
+      "question": "Question",
+      "score_label": "Score",
+      "your_score": "Your Score",
+      "correct": "Correct!",
+      "incorrect": "Incorrect",
+      "next_question": "Next Question",
+      "finish_quiz": "Finish Quiz",
+      "quiz_completed": "Quiz Completed!",
+      "score_excellent": "Excellent! You're a stellar expert! 🌟",
+      "score_good": "Good job! Keep learning! ⭐",
+      "score_try_again": "Keep studying and try again! 🌙",
+      "close_quiz": "Close Quiz",
+      "retry_quiz": "Try Again",
+      "quiz": {
+        "q1": {
+          "question": "What is our Sun classified as?",
+          "a": "Red Giant",
+          "b": "Yellow Dwarf",
+          "c": "White Dwarf",
+          "d": "Neutron Star"
+        },
+        "q2": {
+          "question": "Where are stars born?",
+          "a": "In nebulae (clouds of gas and dust)",
+          "b": "Inside black holes",
+          "c": "Near white dwarfs",
+          "d": "In asteroid belts"
+        },
+        "q3": {
+          "question": "What happens to stars like our Sun at the end of their life?",
+          "a": "They explode as supernovas",
+          "b": "They become black holes",
+          "c": "They expand into red giants, then become white dwarfs",
+          "d": "They disappear completely"
+        },
+        "q4": {
+          "question": "What is a neutron star?",
+          "a": "A newly formed star",
+          "b": "A star made of neutrons",
+          "c": "A dying red giant",
+          "d": "An extremely dense remnant of a massive star after a supernova"
+        },
+        "q5": {
+          "question": "What powers a star and makes it shine?",
+          "a": "Burning coal",
+          "b": "Nuclear fusion - combining hydrogen into helium",
+          "c": "Electricity",
+          "d": "Chemical reactions"
+        },
+        "q6": {
+          "question": "What is a black hole?",
+          "a": "A hole in space",
+          "b": "A very dark star",
+          "c": "A region where gravity is so strong nothing can escape",
+          "d": "An empty area between stars"
+        },
+        "q7": {
+          "question": "How old is our Sun?",
+          "a": "1 billion years",
+          "b": "4.6 billion years",
+          "c": "10 billion years",
+          "d": "13.8 billion years"
+        },
+        "q8": {
+          "question": "What determines how a star will end its life?",
+          "a": "Its mass (how heavy it is)",
+          "b": "Its color",
+          "c": "Its age",
+          "d": "Its distance from Earth"
+        },
+        "q9": {
+          "question": "What is a supernova?",
+          "a": "A star being born",
+          "b": "A star shrinking",
+          "c": "A collision between two stars",
+          "d": "A massive star explosion at the end of its life"
+        },
+        "q10": {
+          "question": "What does a white dwarf become over billions of years?",
+          "a": "A red giant",
+          "b": "A black dwarf (a cooled white dwarf)",
+          "c": "A black hole",
+          "d": "A neutron star"
+        }
+      },
       "types": {
         "sun": {
           "name": "Sun (Yellow Dwarf)",

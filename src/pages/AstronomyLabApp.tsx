@@ -5,25 +5,45 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Sun, Moon, Star, Orbit } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Sphere, Text } from "@react-three/drei";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { OrbitControls, Sphere, Text, Html } from "@react-three/drei";
 import * as THREE from "three";
 
 type ExperimentType = "menu" | "solar-system" | "planets" | "stars" | "moon-phases";
 
-// Planet component for 3D solar system
+// Orbit path component
+function OrbitPath({ radius }: { radius: number }) {
+  const points = [];
+  for (let i = 0; i <= 64; i++) {
+    const angle = (i / 64) * Math.PI * 2;
+    points.push(new THREE.Vector3(Math.cos(angle) * radius, 0, Math.sin(angle) * radius));
+  }
+  const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+  const lineMaterial = new THREE.LineBasicMaterial({ color: "#ffffff", opacity: 0.2, transparent: true });
+  const line = new THREE.LineLoop(lineGeometry, lineMaterial);
+  
+  return <primitive object={line} />;
+}
+
+// Planet component for 3D solar system with info tooltip
 function Planet({ 
   radius, 
   distance, 
   color, 
   speed, 
-  name 
+  name,
+  size,
+  distanceFromSun,
+  facts
 }: { 
   radius: number; 
   distance: number; 
   color: string; 
   speed: number; 
   name: string;
+  size: string;
+  distanceFromSun: string;
+  facts: string;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const groupRef = useRef<THREE.Group>(null);
@@ -46,10 +66,10 @@ function Planet({
         ref={meshRef}
         onPointerOver={() => setHovered(true)}
         onPointerOut={() => setHovered(false)}
-        scale={hovered ? 1.2 : 1}
+        scale={hovered ? 1.3 : 1}
       >
         <sphereGeometry args={[radius, 32, 32]} />
-        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.3} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={hovered ? 0.5 : 0.3} />
       </mesh>
       <Text
         position={[0, radius + 0.5, 0]}
@@ -60,7 +80,57 @@ function Planet({
       >
         {name}
       </Text>
+      {hovered && (
+        <Html distanceFactor={10} position={[0, radius + 1.2, 0]}>
+          <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg p-3 shadow-lg min-w-[200px] animate-scale-in">
+            <h4 className="font-bold text-sm mb-1">{name}</h4>
+            <p className="text-xs text-muted-foreground mb-1">Size: {size}</p>
+            <p className="text-xs text-muted-foreground mb-1">Distance: {distanceFromSun} million km</p>
+            <p className="text-xs text-muted-foreground">{facts}</p>
+          </div>
+        </Html>
+      )}
     </group>
+  );
+}
+
+// Star component for Stars & Galaxies 3D visualization
+function Star3D({ 
+  type, 
+  color, 
+  size, 
+  position,
+  animate = false
+}: { 
+  type: string; 
+  color: string; 
+  size: number; 
+  position: [number, number, number];
+  animate?: boolean;
+}) {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const [scale, setScale] = useState(1);
+
+  useFrame(({ clock }) => {
+    if (meshRef.current && animate) {
+      // Pulsing animation for stars
+      const pulse = Math.sin(clock.getElapsedTime() * 2) * 0.1 + 1;
+      meshRef.current.scale.setScalar(pulse);
+    }
+  });
+
+  return (
+    <mesh ref={meshRef} position={position}>
+      <sphereGeometry args={[size, 32, 32]} />
+      <meshStandardMaterial 
+        color={color} 
+        emissive={color} 
+        emissiveIntensity={0.8}
+        toneMapped={false}
+      />
+      {/* Glow effect */}
+      <pointLight color={color} intensity={2} distance={size * 5} />
+    </mesh>
   );
 }
 
@@ -96,16 +166,86 @@ const AstronomyLabApp = () => {
   const [score, setScore] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [answeredCorrectly, setAnsweredCorrectly] = useState<boolean | null>(null);
+  const [showStarsQuiz, setShowStarsQuiz] = useState(false);
+  const [starsCurrentQuestion, setStarsCurrentQuestion] = useState(0);
+  const [starsSelectedAnswer, setStarsSelectedAnswer] = useState<number | null>(null);
+  const [starsScore, setStarsScore] = useState(0);
+  const [starsQuizCompleted, setStarsQuizCompleted] = useState(false);
+  const [starsAnsweredCorrectly, setStarsAnsweredCorrectly] = useState<boolean | null>(null);
 
   const planets = [
-    { id: "mercury", name: t("experiments.planets.list.mercury"), size: "small", distance: "57.9", color: "#B8B8B8", emoji: "☿️" },
-    { id: "venus", name: t("experiments.planets.list.venus"), size: "small", distance: "108.2", color: "#FFD700", emoji: "♀️" },
-    { id: "earth", name: t("experiments.planets.list.earth"), size: "medium", distance: "149.6", color: "#1E90FF", emoji: "🌍" },
-    { id: "mars", name: t("experiments.planets.list.mars"), size: "small", distance: "227.9", color: "#FF4500", emoji: "♂️" },
-    { id: "jupiter", name: t("experiments.planets.list.jupiter"), size: "large", distance: "778.5", color: "#FFA500", emoji: "♃" },
-    { id: "saturn", name: t("experiments.planets.list.saturn"), size: "large", distance: "1434", color: "#F4E4C1", emoji: "♄" },
-    { id: "uranus", name: t("experiments.planets.list.uranus"), size: "medium", distance: "2871", color: "#00CED1", emoji: "♅" },
-    { id: "neptune", name: t("experiments.planets.list.neptune"), size: "medium", distance: "4495", color: "#4169E1", emoji: "♆" },
+    { 
+      id: "mercury", 
+      name: t("experiments.planets.list.mercury"), 
+      size: t("experiments.planets.mercury.size"),
+      distance: "57.9", 
+      color: "#B8B8B8", 
+      emoji: "☿️",
+      facts: t("experiments.planets.mercury.facts")
+    },
+    { 
+      id: "venus", 
+      name: t("experiments.planets.list.venus"), 
+      size: t("experiments.planets.venus.size"),
+      distance: "108.2", 
+      color: "#FFD700", 
+      emoji: "♀️",
+      facts: t("experiments.planets.venus.facts")
+    },
+    { 
+      id: "earth", 
+      name: t("experiments.planets.list.earth"), 
+      size: t("experiments.planets.earth.size"),
+      distance: "149.6", 
+      color: "#1E90FF", 
+      emoji: "🌍",
+      facts: t("experiments.planets.earth.facts")
+    },
+    { 
+      id: "mars", 
+      name: t("experiments.planets.list.mars"), 
+      size: t("experiments.planets.mars.size"),
+      distance: "227.9", 
+      color: "#FF4500", 
+      emoji: "♂️",
+      facts: t("experiments.planets.mars.facts")
+    },
+    { 
+      id: "jupiter", 
+      name: t("experiments.planets.list.jupiter"), 
+      size: t("experiments.planets.jupiter.size"),
+      distance: "778.5", 
+      color: "#FFA500", 
+      emoji: "♃",
+      facts: t("experiments.planets.jupiter.facts")
+    },
+    { 
+      id: "saturn", 
+      name: t("experiments.planets.list.saturn"), 
+      size: t("experiments.planets.saturn.size"),
+      distance: "1434", 
+      color: "#F4E4C1", 
+      emoji: "♄",
+      facts: t("experiments.planets.saturn.facts")
+    },
+    { 
+      id: "uranus", 
+      name: t("experiments.planets.list.uranus"), 
+      size: t("experiments.planets.uranus.size"),
+      distance: "2871", 
+      color: "#00CED1", 
+      emoji: "♅",
+      facts: t("experiments.planets.uranus.facts")
+    },
+    { 
+      id: "neptune", 
+      name: t("experiments.planets.list.neptune"), 
+      size: t("experiments.planets.neptune.size"),
+      distance: "4495", 
+      color: "#4169E1", 
+      emoji: "♆",
+      facts: t("experiments.planets.neptune.facts")
+    },
   ];
 
   const quizQuestions = [
@@ -212,11 +352,114 @@ const AstronomyLabApp = () => {
   ];
 
   const stars = [
-    { id: "sun", type: "yellow_dwarf", emoji: "☀️" },
-    { id: "red_giant", type: "red_giant", emoji: "🔴" },
-    { id: "white_dwarf", type: "white_dwarf", emoji: "⚪" },
-    { id: "neutron_star", type: "neutron_star", emoji: "💫" },
-    { id: "black_hole", type: "black_hole", emoji: "⚫" },
+    { id: "sun", type: "yellow_dwarf", emoji: "☀️", color: "#FFD700", size: 1.5, lifeStage: 0 },
+    { id: "red_giant", type: "red_giant", emoji: "🔴", color: "#FF4500", size: 3, lifeStage: 1 },
+    { id: "white_dwarf", type: "white_dwarf", emoji: "⚪", color: "#FFFFFF", size: 0.8, lifeStage: 2 },
+    { id: "neutron_star", type: "neutron_star", emoji: "💫", color: "#00BFFF", size: 0.5, lifeStage: 3 },
+    { id: "black_hole", type: "black_hole", emoji: "⚫", color: "#000000", size: 1, lifeStage: 4 },
+  ];
+
+  const starsQuizQuestions = [
+    { 
+      question: t("experiments.stars.quiz.q1.question"), 
+      options: [
+        t("experiments.stars.quiz.q1.a"),
+        t("experiments.stars.quiz.q1.b"),
+        t("experiments.stars.quiz.q1.c"),
+        t("experiments.stars.quiz.q1.d")
+      ], 
+      correct: 1 
+    },
+    { 
+      question: t("experiments.stars.quiz.q2.question"), 
+      options: [
+        t("experiments.stars.quiz.q2.a"),
+        t("experiments.stars.quiz.q2.b"),
+        t("experiments.stars.quiz.q2.c"),
+        t("experiments.stars.quiz.q2.d")
+      ], 
+      correct: 0 
+    },
+    { 
+      question: t("experiments.stars.quiz.q3.question"), 
+      options: [
+        t("experiments.stars.quiz.q3.a"),
+        t("experiments.stars.quiz.q3.b"),
+        t("experiments.stars.quiz.q3.c"),
+        t("experiments.stars.quiz.q3.d")
+      ], 
+      correct: 2 
+    },
+    { 
+      question: t("experiments.stars.quiz.q4.question"), 
+      options: [
+        t("experiments.stars.quiz.q4.a"),
+        t("experiments.stars.quiz.q4.b"),
+        t("experiments.stars.quiz.q4.c"),
+        t("experiments.stars.quiz.q4.d")
+      ], 
+      correct: 3 
+    },
+    { 
+      question: t("experiments.stars.quiz.q5.question"), 
+      options: [
+        t("experiments.stars.quiz.q5.a"),
+        t("experiments.stars.quiz.q5.b"),
+        t("experiments.stars.quiz.q5.c"),
+        t("experiments.stars.quiz.q5.d")
+      ], 
+      correct: 1 
+    },
+    { 
+      question: t("experiments.stars.quiz.q6.question"), 
+      options: [
+        t("experiments.stars.quiz.q6.a"),
+        t("experiments.stars.quiz.q6.b"),
+        t("experiments.stars.quiz.q6.c"),
+        t("experiments.stars.quiz.q6.d")
+      ], 
+      correct: 2 
+    },
+    { 
+      question: t("experiments.stars.quiz.q7.question"), 
+      options: [
+        t("experiments.stars.quiz.q7.a"),
+        t("experiments.stars.quiz.q7.b"),
+        t("experiments.stars.quiz.q7.c"),
+        t("experiments.stars.quiz.q7.d")
+      ], 
+      correct: 1 
+    },
+    { 
+      question: t("experiments.stars.quiz.q8.question"), 
+      options: [
+        t("experiments.stars.quiz.q8.a"),
+        t("experiments.stars.quiz.q8.b"),
+        t("experiments.stars.quiz.q8.c"),
+        t("experiments.stars.quiz.q8.d")
+      ], 
+      correct: 0 
+    },
+    { 
+      question: t("experiments.stars.quiz.q9.question"), 
+      options: [
+        t("experiments.stars.quiz.q9.a"),
+        t("experiments.stars.quiz.q9.b"),
+        t("experiments.stars.quiz.q9.c"),
+        t("experiments.stars.quiz.q9.d")
+      ], 
+      correct: 3 
+    },
+    { 
+      question: t("experiments.stars.quiz.q10.question"), 
+      options: [
+        t("experiments.stars.quiz.q10.a"),
+        t("experiments.stars.quiz.q10.b"),
+        t("experiments.stars.quiz.q10.c"),
+        t("experiments.stars.quiz.q10.d")
+      ], 
+      correct: 1 
+    }
   ];
 
   const moonPhases = [
@@ -306,15 +549,97 @@ const AstronomyLabApp = () => {
             {/* Sun */}
             <SunSphere />
             
+            {/* Orbit Paths */}
+            <OrbitPath radius={3} />
+            <OrbitPath radius={4.5} />
+            <OrbitPath radius={6} />
+            <OrbitPath radius={7.5} />
+            <OrbitPath radius={10} />
+            <OrbitPath radius={13} />
+            <OrbitPath radius={16} />
+            <OrbitPath radius={18} />
+            
             {/* Planets */}
-            <Planet radius={0.2} distance={3} color="#B8B8B8" speed={0.4} name="Mercury" />
-            <Planet radius={0.3} distance={4.5} color="#FFD700" speed={0.3} name="Venus" />
-            <Planet radius={0.35} distance={6} color="#1E90FF" speed={0.25} name="Earth" />
-            <Planet radius={0.25} distance={7.5} color="#FF4500" speed={0.2} name="Mars" />
-            <Planet radius={0.8} distance={10} color="#FFA500" speed={0.1} name="Jupiter" />
-            <Planet radius={0.7} distance={13} color="#F4E4C1" speed={0.08} name="Saturn" />
-            <Planet radius={0.5} distance={16} color="#00CED1" speed={0.06} name="Uranus" />
-            <Planet radius={0.48} distance={18} color="#4169E1" speed={0.05} name="Neptune" />
+            <Planet 
+              radius={0.2} 
+              distance={3} 
+              color="#B8B8B8" 
+              speed={0.4} 
+              name="Mercury"
+              size={planets[0].size}
+              distanceFromSun={planets[0].distance}
+              facts={planets[0].facts}
+            />
+            <Planet 
+              radius={0.3} 
+              distance={4.5} 
+              color="#FFD700" 
+              speed={0.3} 
+              name="Venus"
+              size={planets[1].size}
+              distanceFromSun={planets[1].distance}
+              facts={planets[1].facts}
+            />
+            <Planet 
+              radius={0.35} 
+              distance={6} 
+              color="#1E90FF" 
+              speed={0.25} 
+              name="Earth"
+              size={planets[2].size}
+              distanceFromSun={planets[2].distance}
+              facts={planets[2].facts}
+            />
+            <Planet 
+              radius={0.25} 
+              distance={7.5} 
+              color="#FF4500" 
+              speed={0.2} 
+              name="Mars"
+              size={planets[3].size}
+              distanceFromSun={planets[3].distance}
+              facts={planets[3].facts}
+            />
+            <Planet 
+              radius={0.8} 
+              distance={10} 
+              color="#FFA500" 
+              speed={0.1} 
+              name="Jupiter"
+              size={planets[4].size}
+              distanceFromSun={planets[4].distance}
+              facts={planets[4].facts}
+            />
+            <Planet 
+              radius={0.7} 
+              distance={13} 
+              color="#F4E4C1" 
+              speed={0.08} 
+              name="Saturn"
+              size={planets[5].size}
+              distanceFromSun={planets[5].distance}
+              facts={planets[5].facts}
+            />
+            <Planet 
+              radius={0.5} 
+              distance={16} 
+              color="#00CED1" 
+              speed={0.06} 
+              name="Uranus"
+              size={planets[6].size}
+              distanceFromSun={planets[6].distance}
+              facts={planets[6].facts}
+            />
+            <Planet 
+              radius={0.48} 
+              distance={18} 
+              color="#4169E1" 
+              speed={0.05} 
+              name="Neptune"
+              size={planets[7].size}
+              distanceFromSun={planets[7].distance}
+              facts={planets[7].facts}
+            />
             
             <OrbitControls enableZoom={true} enablePan={true} />
           </Canvas>
@@ -428,6 +753,57 @@ const AstronomyLabApp = () => {
     return (
       <div className="space-y-6">
         <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">{t("experiments.stars.interactive")}</h3>
+          <div className="w-full h-[400px] bg-gradient-to-b from-black via-purple-950 to-black rounded-lg overflow-hidden">
+            <Canvas camera={{ position: [0, 0, 8], fov: 60 }}>
+              <ambientLight intensity={0.1} />
+              
+              {/* Star life cycle visualization */}
+              <Star3D 
+                type="sun" 
+                color="#FFD700" 
+                size={0.8} 
+                position={[-6, 1, 0]} 
+                animate={selectedStar === "sun"}
+              />
+              <Star3D 
+                type="red_giant" 
+                color="#FF4500" 
+                size={1.5} 
+                position={[-3, 1, 0]} 
+                animate={selectedStar === "red_giant"}
+              />
+              <Star3D 
+                type="white_dwarf" 
+                color="#FFFFFF" 
+                size={0.4} 
+                position={[0, 1, 0]} 
+                animate={selectedStar === "white_dwarf"}
+              />
+              <Star3D 
+                type="neutron_star" 
+                color="#00BFFF" 
+                size={0.25} 
+                position={[3, 1, 0]} 
+                animate={selectedStar === "neutron_star"}
+              />
+              <Star3D 
+                type="black_hole" 
+                color="#000000" 
+                size={0.5} 
+                position={[6, 1, 0]} 
+                animate={selectedStar === "black_hole"}
+              />
+              
+              <OrbitControls enableZoom={true} enablePan={true} />
+            </Canvas>
+          </div>
+          <div className="mt-4 p-4 bg-muted rounded-lg">
+            <p className="text-sm">{t("experiments.stars.controls")}</p>
+          </div>
+        </Card>
+
+        <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4">{t("experiments.stars.select")}</h3>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             {stars.map((s) => (
@@ -447,7 +823,7 @@ const AstronomyLabApp = () => {
         </Card>
 
         {star && (
-          <Card className="p-6 animate-fade-in">
+          <Card className="p-6 animate-scale-in">
             <div className="text-center mb-4">
               <span className="text-8xl inline-block animate-pulse">{star.emoji}</span>
             </div>
@@ -469,6 +845,30 @@ const AstronomyLabApp = () => {
           <p className="font-semibold">{t("experiments.stars.tip_title")}</p>
           <p className="text-sm">{t("experiments.stars.tip")}</p>
         </Card>
+
+        <Card className="p-6">
+          <h3 className="text-xl font-bold mb-4">{t("experiments.stars.lifecycle_title")}</h3>
+          <div className="space-y-3 text-sm leading-relaxed">
+            <p>{t("experiments.stars.lifecycle_paragraph_1")}</p>
+            <p>{t("experiments.stars.lifecycle_paragraph_2")}</p>
+            <p>{t("experiments.stars.lifecycle_paragraph_3")}</p>
+          </div>
+          <Button 
+            onClick={() => {
+              setShowStarsQuiz(true);
+              setStarsCurrentQuestion(0);
+              setStarsScore(0);
+              setStarsQuizCompleted(false);
+              setStarsSelectedAnswer(null);
+              setStarsAnsweredCorrectly(null);
+            }} 
+            className="mt-6 w-full"
+          >
+            {t("experiments.stars.start_quiz")}
+          </Button>
+        </Card>
+
+        {showStarsQuiz && renderStarsQuiz()}
       </div>
     );
   };
@@ -536,6 +936,25 @@ const AstronomyLabApp = () => {
       setAnsweredCorrectly(null);
     } else {
       setQuizCompleted(true);
+    }
+  };
+
+  const handleStarsAnswerSelect = (answerIndex: number) => {
+    setStarsSelectedAnswer(answerIndex);
+    const isCorrect = answerIndex === starsQuizQuestions[starsCurrentQuestion].correct;
+    setStarsAnsweredCorrectly(isCorrect);
+    if (isCorrect) {
+      setStarsScore(starsScore + 1);
+    }
+  };
+
+  const handleStarsNextQuestion = () => {
+    if (starsCurrentQuestion < starsQuizQuestions.length - 1) {
+      setStarsCurrentQuestion(starsCurrentQuestion + 1);
+      setStarsSelectedAnswer(null);
+      setStarsAnsweredCorrectly(null);
+    } else {
+      setStarsQuizCompleted(true);
     }
   };
 
@@ -640,6 +1059,114 @@ const AstronomyLabApp = () => {
               {currentQuestion < quizQuestions.length - 1 
                 ? t("experiments.solar_system.next_question") 
                 : t("experiments.solar_system.finish_quiz")}
+            </Button>
+          </div>
+        )}
+      </Card>
+    );
+  };
+
+  const renderStarsQuiz = () => {
+    if (starsQuizCompleted) {
+      return (
+        <Card className="p-6 mt-6 animate-scale-in">
+          <div className="text-center">
+            <h3 className="text-2xl font-bold mb-4">{t("experiments.stars.quiz_completed")}</h3>
+            <div className="text-6xl mb-4">
+              {starsScore >= 8 ? "🌟" : starsScore >= 6 ? "⭐" : "🌙"}
+            </div>
+            <p className="text-xl mb-2">
+              {t("experiments.stars.your_score")}: {starsScore}/{starsQuizQuestions.length}
+            </p>
+            <p className="text-muted-foreground mb-6">
+              {starsScore >= 8 && t("experiments.stars.score_excellent")}
+              {starsScore >= 6 && starsScore < 8 && t("experiments.stars.score_good")}
+              {starsScore < 6 && t("experiments.stars.score_try_again")}
+            </p>
+            <div className="flex gap-3 justify-center">
+              <Button onClick={() => {
+                setShowStarsQuiz(false);
+                setStarsCurrentQuestion(0);
+                setStarsScore(0);
+                setStarsQuizCompleted(false);
+                setStarsSelectedAnswer(null);
+                setStarsAnsweredCorrectly(null);
+              }}>
+                {t("experiments.stars.close_quiz")}
+              </Button>
+              <Button variant="outline" onClick={() => {
+                setStarsCurrentQuestion(0);
+                setStarsScore(0);
+                setStarsQuizCompleted(false);
+                setStarsSelectedAnswer(null);
+                setStarsAnsweredCorrectly(null);
+              }}>
+                {t("experiments.stars.retry_quiz")}
+              </Button>
+            </div>
+          </div>
+        </Card>
+      );
+    }
+
+    return (
+      <Card className="p-6 mt-6 animate-scale-in">
+        <div className="mb-4">
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="text-lg font-semibold">
+              {t("experiments.stars.question")} {starsCurrentQuestion + 1}/{starsQuizQuestions.length}
+            </h3>
+            <Badge variant="secondary">
+              {t("experiments.stars.score_label")}: {starsScore}/{starsQuizQuestions.length}
+            </Badge>
+          </div>
+          <div className="w-full bg-muted rounded-full h-2">
+            <div 
+              className="bg-primary h-2 rounded-full transition-all duration-300"
+              style={{ width: `${((starsCurrentQuestion + 1) / starsQuizQuestions.length) * 100}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <p className="text-lg font-medium mb-4">{starsQuizQuestions[starsCurrentQuestion].question}</p>
+          <div className="space-y-3">
+            {starsQuizQuestions[starsCurrentQuestion].options.map((option, index) => (
+              <Button
+                key={index}
+                variant={
+                  starsSelectedAnswer === null 
+                    ? "outline" 
+                    : starsSelectedAnswer === index 
+                      ? starsAnsweredCorrectly 
+                        ? "default" 
+                        : "destructive"
+                      : index === starsQuizQuestions[starsCurrentQuestion].correct && starsSelectedAnswer !== null
+                        ? "default"
+                        : "outline"
+                }
+                className="w-full justify-start text-left h-auto py-3"
+                onClick={() => starsSelectedAnswer === null && handleStarsAnswerSelect(index)}
+                disabled={starsSelectedAnswer !== null}
+              >
+                <span className="mr-2">{String.fromCharCode(65 + index)}.</span>
+                {option}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {starsSelectedAnswer !== null && (
+          <div className="space-y-4">
+            <div className={`p-4 rounded-lg ${starsAnsweredCorrectly ? 'bg-green-100 dark:bg-green-900/20' : 'bg-red-100 dark:bg-red-900/20'}`}>
+              <p className="font-semibold">
+                {starsAnsweredCorrectly ? "✅ " + t("experiments.stars.correct") : "❌ " + t("experiments.stars.incorrect")}
+              </p>
+            </div>
+            <Button onClick={handleStarsNextQuestion} className="w-full">
+              {starsCurrentQuestion < starsQuizQuestions.length - 1 
+                ? t("experiments.stars.next_question") 
+                : t("experiments.stars.finish_quiz")}
             </Button>
           </div>
         )}
