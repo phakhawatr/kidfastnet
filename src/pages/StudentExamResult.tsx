@@ -27,6 +27,39 @@ interface SessionData {
   };
 }
 
+// Helper function to check if answer is correct
+const isAnswerCorrect = (userAnswer: any, correctAnswer: any, choices?: any[]): boolean => {
+  // If userAnswer is undefined or null
+  if (userAnswer === undefined || userAnswer === null) return false;
+  
+  // If userAnswer is the actual value already (string/number)
+  if (userAnswer === correctAnswer || String(userAnswer) === String(correctAnswer)) {
+    return true;
+  }
+  
+  // If userAnswer is an index (for old data)
+  // Check if it's a small number (0-3) and we have choices array
+  if (choices && typeof userAnswer === 'number' && userAnswer >= 0 && userAnswer < choices.length) {
+    const actualValue = choices[userAnswer];
+    return actualValue === correctAnswer || String(actualValue) === String(correctAnswer);
+  }
+  
+  return false;
+};
+
+// Helper function to display user's answer
+const getUserAnswerDisplay = (userAnswer: any, choices?: any[]): string => {
+  if (userAnswer === undefined || userAnswer === null) return '-';
+  
+  // If userAnswer is an index (0-3) and we have choices
+  if (choices && typeof userAnswer === 'number' && userAnswer >= 0 && userAnswer < 10) {
+    // Try to convert to actual value
+    return choices[userAnswer] !== undefined ? String(choices[userAnswer]) : String(userAnswer);
+  }
+  
+  return String(userAnswer);
+};
+
 function StudentExamResult() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
@@ -187,8 +220,14 @@ function StudentExamResult() {
           </CardHeader>
           <CardContent className="space-y-4">
             {session.assessment_data?.questions?.map((q, index) => {
-              const isCorrect = q.userAnswer === q.correctAnswer || 
-                               String(q.userAnswer) === String(q.correctAnswer);
+              // Extract choices from question if available (for old data)
+              const choices = (q as any).choices;
+              
+              // Check if answer is correct
+              const isCorrect = isAnswerCorrect(q.userAnswer, q.correctAnswer, choices);
+              
+              // Display user's answer
+              const displayUserAnswer = getUserAnswerDisplay(q.userAnswer, choices);
               
               return (
                 <div
@@ -224,7 +263,7 @@ function StudentExamResult() {
                         <div className="flex items-start gap-2">
                           <span className="text-muted-foreground whitespace-nowrap">คำตอบของคุณ:</span>
                           <span className={`font-medium ${isCorrect ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
-                            {q.userAnswer !== undefined ? q.userAnswer : '-'}
+                            {displayUserAnswer}
                           </span>
                         </div>
                         
