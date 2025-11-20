@@ -91,7 +91,7 @@ export const useTeacherExams = (teacherId: string | null) => {
       const { data, error } = await supabase
         .from('exam_links')
         .insert({
-          teacher_id: teacherId,
+          teacher_id: teacherId as string,
           link_code: linkCode,
           grade,
           semester,
@@ -99,7 +99,7 @@ export const useTeacherExams = (teacherId: string | null) => {
           max_students: maxStudents,
           status: 'active',
           exam_passcode: passcode || null,
-          start_time: startTime || null,
+          start_time: startTime ? startTime.toISOString() : null,
           time_limit_minutes: timeLimitMinutes || null,
           allow_retake: allowRetake
         })
