@@ -27,6 +27,8 @@ interface ExamLinkData {
   total_questions: number;
   has_custom_questions?: boolean;
   questions_finalized_at?: string;
+  school_name?: string | null;
+  school_logo_url?: string | null;
 }
 
 const PublicExam = () => {
@@ -223,18 +225,47 @@ const PublicExam = () => {
         {isValidating && <p>กำลังตรวจสอบ...</p>}
         {error && <><AlertCircle className="w-16 h-16 mx-auto mb-4 text-destructive" /><p>{error}</p></>}
         {showResults && <><p className="text-6xl mb-4">{finalScore >= 80 ? '🎉' : '😊'}</p><p className="text-4xl font-bold">{finalScore.toFixed(2)}</p></>}
-        {!hasStarted && !error && <div className="space-y-4">
+      {!hasStarted && !error && examLink && (
+        <div className="space-y-4">
+          {/* School Logo and Name in Student Info Form */}
+          {(examLink.school_logo_url || examLink.school_name) && (
+            <div className="flex flex-col items-center gap-3 mb-6 pb-6 border-b border-border">
+              {examLink.school_logo_url && (
+                <img 
+                  src={examLink.school_logo_url} 
+                  alt="School Logo" 
+                  className="h-20 w-20 object-contain"
+                />
+              )}
+              {examLink.school_name && (
+                <h2 className="text-2xl font-bold text-foreground">
+                  {examLink.school_name}
+                </h2>
+              )}
+            </div>
+          )}
+          
+          <div className="text-center mb-4">
+            <h3 className="text-lg font-semibold">
+              {examLink.activity_name || `ข้อสอบ ป.${examLink.grade}`}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              จำนวน {examLink.total_questions} ข้อ
+            </p>
+          </div>
+          
           <Label>ชื่อ-สกุล</Label>
-          <Input value={studentName} onChange={(e) => setStudentName(e.target.value)} />
+          <Input value={studentName} onChange={(e) => setStudentName(e.target.value)} placeholder="กรอกชื่อ-สกุล" />
           <Label>ชั้นเรียน</Label>
           <Select value={studentClass} onValueChange={setStudentClass}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>{[1,2,3,4,5,6].map(g => [...Array(10)].map((_,r) => <SelectItem key={`${g}-${r+1}`} value={`ป.${g}/${r+1}`}>ป.{g}/{r+1}</SelectItem>))}</SelectContent>
           </Select>
           <Label>เลขที่</Label>
-          <Input type="number" value={studentNumber} onChange={(e) => setStudentNumber(parseInt(e.target.value) || 1)} />
+          <Input type="number" value={studentNumber} onChange={(e) => setStudentNumber(parseInt(e.target.value) || 1)} min="1" />
           <Button onClick={handleStartExam} className="w-full">เริ่มทำข้อสอบ</Button>
-        </div>}
+        </div>
+      )}
       </CardContent></Card>
     </div>;
   }
@@ -245,6 +276,26 @@ const PublicExam = () => {
     <div className={`min-h-screen bg-gradient-to-br from-background to-secondary/20 p-4 ${fontSizeClass}`}>
       <div className="container mx-auto max-w-4xl py-8">
         <AccessibilityToolbar showKeyboardShortcuts={true} />
+        
+        {/* School Logo and Name Header */}
+        {(examLink?.school_logo_url || examLink?.school_name) && (
+          <Card className="mb-6">
+            <CardContent className="pt-6 flex items-center justify-center gap-4">
+              {examLink.school_logo_url && (
+                <img 
+                  src={examLink.school_logo_url} 
+                  alt="School Logo" 
+                  className="h-16 w-16 object-contain"
+                />
+              )}
+              {examLink.school_name && (
+                <h2 className="text-2xl font-bold text-foreground">
+                  {examLink.school_name}
+                </h2>
+              )}
+            </CardContent>
+          </Card>
+        )}
         
         <Card className="mb-6">
           <CardContent className="pt-6">

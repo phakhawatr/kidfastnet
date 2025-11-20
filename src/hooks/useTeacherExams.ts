@@ -122,7 +122,9 @@ export const useTeacherExams = (teacherId: string | null) => {
     timeLimitMinutes?: number | null,
     allowRetake: boolean = false,
     activityName?: string,
-    totalQuestions: number = 20
+    totalQuestions: number = 20,
+    schoolName?: string,
+    schoolLogoUrl?: string
   ) => {
     if (!teacherId) {
       toast({
@@ -152,7 +154,9 @@ export const useTeacherExams = (teacherId: string | null) => {
           time_limit_minutes: timeLimitMinutes || null,
           allow_retake: allowRetake,
           activity_name: activityName || null,
-          total_questions: totalQuestions
+          total_questions: totalQuestions,
+          school_name: schoolName || null,
+          school_logo_url: schoolLogoUrl || null
         })
         .select()
         .single();
