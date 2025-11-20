@@ -275,6 +275,124 @@ export type Database = {
           },
         ]
       }
+      exam_links: {
+        Row: {
+          assessment_type: string
+          created_at: string
+          current_students: number
+          expires_at: string | null
+          grade: number
+          id: string
+          link_code: string
+          max_students: number
+          semester: number | null
+          status: string
+          teacher_id: string
+          updated_at: string
+        }
+        Insert: {
+          assessment_type?: string
+          created_at?: string
+          current_students?: number
+          expires_at?: string | null
+          grade: number
+          id?: string
+          link_code: string
+          max_students?: number
+          semester?: number | null
+          status?: string
+          teacher_id: string
+          updated_at?: string
+        }
+        Update: {
+          assessment_type?: string
+          created_at?: string
+          current_students?: number
+          expires_at?: string | null
+          grade?: number
+          id?: string
+          link_code?: string
+          max_students?: number
+          semester?: number | null
+          status?: string
+          teacher_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_links_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exam_sessions: {
+        Row: {
+          assessment_data: Json | null
+          assessment_type: string
+          completed_at: string
+          correct_answers: number
+          created_at: string
+          exam_link_id: string
+          grade: number
+          id: string
+          score: number
+          semester: number | null
+          started_at: string
+          student_class: string
+          student_name: string
+          student_number: number
+          time_taken: number
+          total_questions: number
+        }
+        Insert: {
+          assessment_data?: Json | null
+          assessment_type?: string
+          completed_at?: string
+          correct_answers: number
+          created_at?: string
+          exam_link_id: string
+          grade: number
+          id?: string
+          score: number
+          semester?: number | null
+          started_at?: string
+          student_class: string
+          student_name: string
+          student_number: number
+          time_taken: number
+          total_questions: number
+        }
+        Update: {
+          assessment_data?: Json | null
+          assessment_type?: string
+          completed_at?: string
+          correct_answers?: number
+          created_at?: string
+          exam_link_id?: string
+          grade?: number
+          id?: string
+          score?: number
+          semester?: number | null
+          started_at?: string
+          student_class?: string
+          student_name?: string
+          student_number?: number
+          time_taken?: number
+          total_questions?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_sessions_exam_link_id_fkey"
+            columns: ["exam_link_id"]
+            isOneToOne: false
+            referencedRelation: "exam_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       learning_paths: {
         Row: {
           ai_reasoning: string | null
@@ -1215,7 +1333,7 @@ export type Database = {
       verify_admin_session: { Args: { admin_email: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "parent" | "user"
+      app_role: "admin" | "parent" | "user" | "teacher"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1343,7 +1461,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "parent", "user"],
+      app_role: ["admin", "parent", "user", "teacher"],
     },
   },
 } as const
