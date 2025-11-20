@@ -289,6 +289,232 @@ export function generateTimeProblems(count: number, difficulty: Difficulty): Wor
   return problems;
 }
 
+// โจทย์วิทยาศาสตร์ (Science)
+export function generateScienceProblems(count: number, difficulty: Difficulty): WordProblem[] {
+  const problems: WordProblem[] = [];
+  const templates = [
+    // การทดลองและการวัด
+    {
+      question: (a: number, b: number) => 
+        `ต้นถั่วงอกสูง ${a} เซนติเมตร หลังจาก 1 สัปดาห์สูงขึ้น ${b} เซนติเมตร ต้นถั่วงอกสูงเท่าไร`,
+      answer: (a: number, b: number) => a + b,
+      explanation: (a: number, b: number, ans: number) => 
+        `วิธีทำ: ${a} + ${b} = ${ans} เซนติเมตร (ความสูงเดิม + ความสูงที่เพิ่ม)`,
+      symbolHint: (a: number, b: number) => `${a} + ${b} = ?`,
+      conceptHint: () => "การเจริญเติบโตของพืช = ความสูงเดิม + ส่วนที่งอกเพิ่ม",
+      unit: "เซนติเมตร"
+    },
+    {
+      question: (a: number, b: number) => 
+        `น้ำในบีกเกอร์มี ${a} มิลลิลิตร เอาน้ำออกไป ${b} มิลลิลิตร น้ำเหลือกี่มิลลิลิตร`,
+      answer: (a: number, b: number) => a - b,
+      explanation: (a: number, b: number, ans: number) => 
+        `วิธีทำ: ${a} - ${b} = ${ans} มิลลิลิตร (น้ำเดิม - น้ำที่เทออก)`,
+      symbolHint: (a: number, b: number) => `${a} - ${b} = ?`,
+      conceptHint: () => "การวัดปริมาตรของเหลว ใช้การลบ",
+      unit: "มิลลิลิตร"
+    },
+    {
+      question: (a: number, b: number) => 
+        `อุณหภูมิตอนเช้า ${a} องศา ตอนบ่ายร้อนขึ้น ${b} องศา อุณหภูมิตอนบ่ายเท่าไร`,
+      answer: (a: number, b: number) => a + b,
+      explanation: (a: number, b: number, ans: number) => 
+        `วิธีทำ: ${a} + ${b} = ${ans} องศา (อุณหภูมิเช้า + ที่เพิ่มขึ้น)`,
+      symbolHint: (a: number, b: number) => `${a} + ${b} = ?`,
+      conceptHint: () => "การวัดอุณหภูมิ เมื่อร้อนขึ้นใช้การบวก",
+      unit: "องศา"
+    },
+    // พลังงานและการเคลื่อนที่
+    {
+      question: (a: number, b: number) => 
+        `รถของเล่นวิ่งได้ ${a} เมตร แล้วเดินต่อไปอีก ${b} เมตร รถวิ่งไปรวมกี่เมตร`,
+      answer: (a: number, b: number) => a + b,
+      explanation: (a: number, b: number, ans: number) => 
+        `วิธีทำ: ${a} + ${b} = ${ans} เมตร (ระยะทางรวม)`,
+      symbolHint: (a: number, b: number) => `${a} + ${b} = ?`,
+      conceptHint: () => "การเคลื่อนที่ ระยะทางรวม = ระยะทาง 1 + ระยะทาง 2",
+      unit: "เมตร"
+    },
+    {
+      question: (a: number, b: number) => 
+        `ทดลองดันลูกบอล ${a} ครั้ง วันต่อมาดันเพิ่มอีก ${b} ครั้ง ดันรวมกี่ครั้ง`,
+      answer: (a: number, b: number) => a + b,
+      explanation: (a: number, b: number, ans: number) => 
+        `วิธีทำ: ${a} + ${b} = ${ans} ครั้ง (จำนวนรวม)`,
+      symbolHint: (a: number, b: number) => `${a} + ${b} = ?`,
+      conceptHint: () => "แรงและการเคลื่อนที่ นับจำนวนครั้งรวม",
+      unit: "ครั้ง"
+    },
+    // วงจรชีวิตและธรรมชาติ
+    {
+      question: (a: number, b: number) => 
+        `มีเมล็ดพันธุ์ ${a} เมล็ด งอกแล้ว ${b} เมล็ด เหลือเมล็ดที่ยังไม่งอกกี่เมล็ด`,
+      answer: (a: number, b: number) => a - b,
+      explanation: (a: number, b: number, ans: number) => 
+        `วิธีทำ: ${a} - ${b} = ${ans} เมล็ด (เมล็ดทั้งหมด - ที่งอกแล้ว)`,
+      symbolHint: (a: number, b: number) => `${a} - ${b} = ?`,
+      conceptHint: () => "วงจรชีวิตพืช นำเมล็ดทั้งหมดลบด้วยที่งอกแล้ว",
+      unit: "เมล็ด"
+    },
+    {
+      question: (a: number, b: number) => 
+        `สังเกตผีเสื้อ ${a} ตัว มีผีเสื้อบินมาเพิ่มอีก ${b} ตัว มีผีเสื้อทั้งหมดกี่ตัว`,
+      answer: (a: number, b: number) => a + b,
+      explanation: (a: number, b: number, ans: number) => 
+        `วิธีทำ: ${a} + ${b} = ${ans} ตัว (จำนวนรวม)`,
+      symbolHint: (a: number, b: number) => `${a} + ${b} = ?`,
+      conceptHint: () => "การสังเกตสิ่งมีชีวิต นับจำนวนรวมกัน",
+      unit: "ตัว"
+    }
+  ];
+
+  const maxValue = difficulty === 'easy' ? 50 : difficulty === 'medium' ? 100 : 200;
+
+  for (let i = 0; i < count; i++) {
+    const template = templates[Math.floor(Math.random() * templates.length)];
+    const a = Math.floor(Math.random() * maxValue) + 10;
+    const b = Math.floor(Math.random() * (a / 2)) + 5;
+    const correctAnswer = template.answer(a, b);
+    
+    problems.push({
+      id: `science-${i}`,
+      category: 'science',
+      difficulty,
+      question: template.question(a, b),
+      correctAnswer,
+      unit: template.unit,
+      choices: generateChoices(correctAnswer, difficulty),
+      explanation: template.explanation(a, b, correctAnswer),
+      symbolHint: template.symbolHint(a, b),
+      conceptHint: template.conceptHint(),
+    });
+  }
+
+  return problems;
+}
+
+// โจทย์วิศวกรรม (Engineering)
+export function generateEngineeringProblems(count: number, difficulty: Difficulty): WordProblem[] {
+  const problems: WordProblem[] = [];
+  const templates = [
+    // การออกแบบและสร้าง
+    {
+      question: (a: number, b: number) => 
+        `สร้างสะพานใช้ไม้ ${a} แท่ง สร้างต่อเติมใช้ไม้เพิ่มอีก ${b} แท่ง ใช้ไม้ทั้งหมดกี่แท่ง`,
+      answer: (a: number, b: number) => a + b,
+      explanation: (a: number, b: number, ans: number) => 
+        `วิธีทำ: ${a} + ${b} = ${ans} แท่ง (วัสดุรวม)`,
+      symbolHint: (a: number, b: number) => `${a} + ${b} = ?`,
+      conceptHint: () => "การออกแบบสะพาน คำนวณวัสดุรวม",
+      unit: "แท่ง"
+    },
+    {
+      question: (a: number, b: number) => 
+        `มีอิฐก้อน ${a} ก้อน นำไปสร้างกำแพงใช้ ${b} ก้อน เหลืออิฐกี่ก้อน`,
+      answer: (a: number, b: number) => a - b,
+      explanation: (a: number, b: number, ans: number) => 
+        `วิธีทำ: ${a} - ${b} = ${ans} ก้อน (อิฐคงเหลือ)`,
+      symbolHint: (a: number, b: number) => `${a} - ${b} = ?`,
+      conceptHint: () => "การสร้างโครงสร้าง คำนวณวัสดุคงเหลือ",
+      unit: "ก้อน"
+    },
+    // การคำนวณขนาดและพื้นที่
+    {
+      question: (a: number, b: number) => 
+        `กล่องยาว ${a} เซนติเมตร กว้าง ${b} เซนติเมตร ความยาวรอบกล่องเท่าไร`,
+      answer: (a: number, b: number) => (a + b) * 2,
+      explanation: (a: number, b: number, ans: number) => 
+        `วิธีทำ: (${a} + ${b}) × 2 = ${ans} เซนติเมตร (เส้นรอบรูป)`,
+      symbolHint: (a: number, b: number) => `(${a} + ${b}) × 2 = ?`,
+      conceptHint: () => "เส้นรอบรูปสี่เหลี่ยม = (ยาว + กว้าง) × 2",
+      unit: "เซนติเมตร"
+    },
+    {
+      question: (a: number, b: number) => 
+        `ต้องการเชือกยาว ${a} เมตร มีเชือกอยู่แล้ว ${b} เมตร ต้องซื้อเพิ่มกี่เมตร`,
+      answer: (a: number, b: number) => a - b,
+      explanation: (a: number, b: number, ans: number) => 
+        `วิธีทำ: ${a} - ${b} = ${ans} เมตร (ที่ต้องซื้อเพิ่ม)`,
+      symbolHint: (a: number, b: number) => `${a} - ${b} = ?`,
+      conceptHint: () => "การวางแผนวัสดุ = ที่ต้องการ - ที่มีอยู่",
+      unit: "เมตร"
+    },
+    // เครื่องจักรอย่างง่ายและกลไก
+    {
+      question: (a: number, b: number) => 
+        `รถเข็นมีล้อ ${a} ล้อ มีรถเข็น ${b} คัน มีล้อทั้งหมดกี่ล้อ`,
+      answer: (a: number, b: number) => a * b,
+      explanation: (a: number, b: number, ans: number) => 
+        `วิธีทำ: ${a} × ${b} = ${ans} ล้อ (ล้อต่อคัน × จำนวนคัน)`,
+      symbolHint: (a: number, b: number) => `${a} × ${b} = ?`,
+      conceptHint: () => "เครื่องจักรอย่างง่าย คำนวณชิ้นส่วนทั้งหมด",
+      unit: "ล้อ"
+    },
+    {
+      question: (a: number, b: number) => 
+        `เฟืองใหญ่หมุนได้ ${a} รอบ เฟืองเล็กหมุนมากกว่า ${b} รอบ เฟืองเล็กหมุนกี่รอบ`,
+      answer: (a: number, b: number) => a + b,
+      explanation: (a: number, b: number, ans: number) => 
+        `วิธีทำ: ${a} + ${b} = ${ans} รอบ (การหมุนของเฟืองเล็ก)`,
+      symbolHint: (a: number, b: number) => `${a} + ${b} = ?`,
+      conceptHint: () => "กลไกเฟือง เฟืองเล็กหมุนเร็วกว่า",
+      unit: "รอบ"
+    },
+    // โครงสร้างและความแข็งแรง
+    {
+      question: (a: number, b: number) => 
+        `หอสูง ${a} เมตร ต้องการสร้างให้สูงขึ้นอีก ${b} เมตร หอจะสูงเท่าไร`,
+      answer: (a: number, b: number) => a + b,
+      explanation: (a: number, b: number, ans: number) => 
+        `วิธีทำ: ${a} + ${b} = ${ans} เมตร (ความสูงรวม)`,
+      symbolHint: (a: number, b: number) => `${a} + ${b} = ?`,
+      conceptHint: () => "โครงสร้างแนวตั้ง คำนวณความสูงรวม",
+      unit: "เมตร"
+    },
+    {
+      question: (a: number, b: number) => 
+        `เสารับน้ำหนักได้ ${a} กิโลกรัม วางของหนัก ${b} กิโลกรัม รับน้ำหนักได้อีกกี่กิโลกรัม`,
+      answer: (a: number, b: number) => a - b,
+      explanation: (a: number, b: number, ans: number) => 
+        `วิธีทำ: ${a} - ${b} = ${ans} กิโลกรัม (น้ำหนักที่รับได้อีก)`,
+      symbolHint: (a: number, b: number) => `${a} - ${b} = ?`,
+      conceptHint: () => "ความแข็งแรงโครงสร้าง = รับได้ - ใช้ไปแล้ว",
+      unit: "กิโลกรัม"
+    }
+  ];
+
+  const maxValue = difficulty === 'easy' ? 30 : difficulty === 'medium' ? 80 : 150;
+
+  for (let i = 0; i < count; i++) {
+    const template = templates[Math.floor(Math.random() * templates.length)];
+    let a = Math.floor(Math.random() * maxValue) + 10;
+    let b = Math.floor(Math.random() * (a / 2)) + 5;
+    
+    // สำหรับโจทย์คูณ ใช้ตัวเลขเล็กลง
+    if (template.symbolHint(1, 1).includes('×')) {
+      a = Math.floor(Math.random() * 6) + 2;
+      b = Math.floor(Math.random() * 6) + 2;
+    }
+    
+    const correctAnswer = template.answer(a, b);
+    
+    problems.push({
+      id: `engineering-${i}`,
+      category: 'engineering',
+      difficulty,
+      question: template.question(a, b),
+      correctAnswer,
+      unit: template.unit,
+      choices: generateChoices(correctAnswer, difficulty),
+      explanation: template.explanation(a, b, correctAnswer),
+      symbolHint: template.symbolHint(a, b),
+      conceptHint: template.conceptHint(),
+    });
+  }
+
+  return problems;
+}
+
 // ฟังก์ชันสร้างโจทย์ตามหมวดและระดับ
 export function generateWordProblems(
   category: ProblemCategory,
@@ -304,6 +530,10 @@ export function generateWordProblems(
       return generateVolumeProblems(count, difficulty);
     case 'time':
       return generateTimeProblems(count, difficulty);
+    case 'science':
+      return generateScienceProblems(count, difficulty);
+    case 'engineering':
+      return generateEngineeringProblems(count, difficulty);
     default:
       return [];
   }
