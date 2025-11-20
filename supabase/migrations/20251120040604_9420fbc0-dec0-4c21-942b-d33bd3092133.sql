@@ -1,0 +1,8 @@
+-- Add STEM achievement definitions
+INSERT INTO public.achievements (code, name_th, name_en, description_th, description_en, icon, color, criteria) VALUES
+('young_scientist', 'นักวิทยาศาสตร์น้อย', 'Young Scientist', 'ทำโจทย์วิทยาศาสตร์ครบ 10 ข้อ', 'Complete 10 science problems', '🔬', 'green', '{"type": "category_count", "category": "science", "value": 10}'),
+('tech_wizard', 'ผู้เชี่ยวชาญเทคโนโลยี', 'Tech Wizard', 'ใช้ AI Tutor ครบ 20 ครั้ง', 'Use AI Tutor 20 times', '💻', 'blue', '{"type": "ai_usage", "value": 20}'),
+('master_builder', 'ช่างก่อสร้างมือฉมัง', 'Master Builder', 'ทำโจทย์วิศวกรรมครบ 10 ข้อ', 'Complete 10 engineering problems', '🏗️', 'orange', '{"type": "category_count", "category": "engineering", "value": 10}'),
+('stem_champion', 'แชมป์ STEM', 'STEM Champion', 'ทำโจทย์ทั้ง 4 หมวด STEM', 'Complete problems in all 4 STEM categories', '🏆', 'rainbow', '{"type": "all_categories", "value": 4}'),
+('problem_solver', 'นักแก้ปัญหา', 'Problem Solver', 'ทำโจทย์คำนวณครบ 50 ข้อ', 'Complete 50 word problems', '🧩', 'purple', '{"type": "total_problems", "value": 50}')
+ON CONFLICT (code) DO NOTHING;
