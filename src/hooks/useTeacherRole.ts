@@ -32,6 +32,40 @@ export const useTeacherRole = (userId: string | null) => {
     };
 
     checkTeacherRole();
+
+    // Set up realtime subscription for teacher role changes
+    if (!userId) return;
+
+    const channel = supabase
+      .channel(`teacher_role_${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_roles',
+          filter: `user_id=eq.${userId}`
+        },
+        (payload) => {
+          console.log('Teacher role change detected:', payload);
+          
+          // Check if teacher role exists after any change
+          if (payload.eventType === 'INSERT' && payload.new.role === 'teacher') {
+            setIsTeacher(true);
+          } else if (payload.eventType === 'DELETE' && payload.old.role === 'teacher') {
+            setIsTeacher(false);
+          } else {
+            // For UPDATE, re-check the role
+            checkTeacherRole();
+          }
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription on unmount
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [userId]);
 
   return { isTeacher, isLoading };
