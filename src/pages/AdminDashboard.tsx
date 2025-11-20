@@ -206,22 +206,8 @@ const AdminDashboard = () => {
       
       console.log('✅ Successfully fetched registrations:', data?.length || 0, 'records');
       
-      // Fetch teacher roles for all users
-      const userIds = (data || []).map((d: any) => d.id);
-      const { data: rolesData } = await supabase
-        .from('user_roles')
-        .select('user_id, role')
-        .in('user_id', userIds)
-        .eq('role', 'teacher');
-      
-      const teacherIds = new Set(rolesData?.map(r => r.user_id) || []);
-      
-      const registrationsWithRoles = (data || []).map((reg: any) => ({
-        ...reg,
-        is_teacher: teacherIds.has(reg.id)
-      }));
-      
-      setRegistrations(registrationsWithRoles as UserRegistration[]);
+      // is_teacher is now included in the RPC response, no need to query separately
+      setRegistrations(data as UserRegistration[]);
       
       // Show toast for auto-refresh
       if (isAutoRefresh) {

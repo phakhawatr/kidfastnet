@@ -1129,6 +1129,7 @@ export type Database = {
           created_at: string
           grade: string
           id: string
+          is_teacher: boolean
           last_login_at: string
           learning_style: string
           login_count: number
