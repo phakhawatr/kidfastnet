@@ -22,6 +22,7 @@ import engineeringTh from '../locales/th/engineering.json';
 import physicslabTh from '../locales/th/physicslab.json';
 import chemistrylabTh from '../locales/th/chemistrylab.json';
 import biologylabTh from '../locales/th/biologylab.json';
+import astronomylabTh from '../locales/th/astronomylab.json';
 
 import commonEn from '../locales/en/common.json';
 import headerEn from '../locales/en/header.json';
@@ -42,6 +43,7 @@ import engineeringEn from '../locales/en/engineering.json';
 import physicslabEn from '../locales/en/physicslab.json';
 import chemistrylabEn from '../locales/en/chemistrylab.json';
 import biologylabEn from '../locales/en/biologylab.json';
+import astronomylabEn from '../locales/en/astronomylab.json';
 
 const resources = {
   th: {
@@ -64,6 +66,7 @@ const resources = {
     physicslab: physicslabTh,
     chemistrylab: chemistrylabTh,
     biologylab: biologylabTh,
+    astronomylab: astronomylabTh,
   },
   en: {
     common: commonEn,
@@ -85,6 +88,7 @@ const resources = {
     physicslab: physicslabEn,
     chemistrylab: chemistrylabEn,
     biologylab: biologylabEn,
+    astronomylab: astronomylabEn,
   }
 };
 

@@ -42,6 +42,7 @@ import EngineeringChallengesApp from "./pages/EngineeringChallengesApp";
 import PhysicsLabApp from "./pages/PhysicsLabApp";
 import ChemistryLabApp from "./pages/ChemistryLabApp";
 import BiologyLabApp from "./pages/BiologyLabApp";
+import AstronomyLabApp from "./pages/AstronomyLabApp";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
@@ -347,6 +348,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <BiologyLabApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/astronomy-lab" 
+            element={
+              <ProtectedRoute>
+                <AstronomyLabApp />
               </ProtectedRoute>
             } 
           />

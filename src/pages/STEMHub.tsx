@@ -187,6 +187,18 @@ const STEMHub = () => {
                 </Card>
               </Link>
               
+              <Link to="/astronomy-lab">
+                <Card className="group h-full bg-gradient-to-br from-indigo-600 to-purple-600 border-0 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-2xl cursor-pointer">
+                  <CardContent className="p-6 flex flex-col items-center text-center gap-3">
+                    <div className="text-5xl group-hover:scale-110 transition-transform">🌌</div>
+                    <div>
+                      <h3 className="font-bold text-white text-lg mb-1">{t('quickAccess.astronomy.title')}</h3>
+                      <p className="text-white/90 text-xs leading-relaxed">{t('quickAccess.astronomy.desc')}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+              
               <Link to="/ai-tutor">
                 <Card className="group h-full bg-gradient-to-br from-blue-500 to-cyan-500 border-0 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-2xl cursor-pointer">
                   <CardContent className="p-6 flex flex-col items-center text-center gap-3">
