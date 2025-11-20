@@ -72,8 +72,27 @@ const Profile = () => {
     username,
     isDemo,
     logout,
-    registrationId
+    registrationId: authRegistrationId
   } = useAuth();
+  
+  // Get registrationId from localStorage as backup
+  const getRegistrationId = () => {
+    try {
+      const stored = localStorage.getItem('kidfast_auth');
+      if (stored) {
+        const authState = JSON.parse(stored);
+        return authState.registrationId || authState.userId;
+      }
+    } catch (e) {
+      console.error('Error getting registrationId:', e);
+    }
+    return null;
+  };
+  
+  const registrationId = authRegistrationId || getRegistrationId();
+  
+  console.log('🔍 Profile - registrationId:', registrationId);
+  
   const { isTeacher, isLoading: teacherLoading } = useTeacherRole(registrationId);
   
   const { userAchievements, getAchievementProgress } = useAchievements(registrationId || null);
