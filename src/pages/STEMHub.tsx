@@ -102,12 +102,12 @@ const STEMHub = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <Link to="/word-problems">
                 <Button className="w-full h-auto py-6 bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
                   <div className="flex flex-col items-center gap-2">
                     <span className="text-2xl">🔬🏗️</span>
-                    <span className="font-bold">{t('quickAccess.stemProblems')}</span>
+                    <span className="font-bold text-xs">{t('quickAccess.stemProblems')}</span>
                   </div>
                 </Button>
               </Link>
@@ -116,7 +116,16 @@ const STEMHub = () => {
                 <Button className="w-full h-auto py-6 bg-gradient-to-r from-indigo-500 to-purple-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
                   <div className="flex flex-col items-center gap-2">
                     <span className="text-2xl">💻</span>
-                    <span className="font-bold">Coding Basics</span>
+                    <span className="font-bold text-xs">Coding Basics</span>
+                  </div>
+                </Button>
+              </Link>
+              
+              <Link to="/science-lab">
+                <Button className="w-full h-auto py-6 bg-gradient-to-r from-teal-500 to-green-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+                  <div className="flex flex-col items-center gap-2">
+                    <span className="text-2xl">🧪</span>
+                    <span className="font-bold text-xs">Science Lab</span>
                   </div>
                 </Button>
               </Link>
@@ -125,7 +134,7 @@ const STEMHub = () => {
                 <Button className="w-full h-auto py-6 bg-gradient-to-r from-blue-500 to-cyan-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
                   <div className="flex flex-col items-center gap-2">
                     <span className="text-2xl">🤖</span>
-                    <span className="font-bold">{t('quickAccess.aiTutor')}</span>
+                    <span className="font-bold text-xs">{t('quickAccess.aiTutor')}</span>
                   </div>
                 </Button>
               </Link>
@@ -134,7 +143,7 @@ const STEMHub = () => {
                 <Button className="w-full h-auto py-6 bg-gradient-to-r from-purple-500 to-pink-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
                   <div className="flex flex-col items-center gap-2">
                     <span className="text-2xl">🎯</span>
-                    <span className="font-bold">{t('quickAccess.adaptiveLearning')}</span>
+                    <span className="font-bold text-xs">{t('quickAccess.adaptiveLearning')}</span>
                   </div>
                 </Button>
               </Link>

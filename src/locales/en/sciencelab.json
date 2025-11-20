@@ -1,0 +1,79 @@
+{
+  "title": "Science Lab",
+  "subtitle": "Virtual Science Experiments",
+  "description": "Learn science through fun virtual experiments. Mix colors, measure temperature, and observe plant growth!",
+  "start_experiment": "Start Experiment",
+  "view_log": "Experiment Log",
+  "back_to_stem": "Back to STEM Hub",
+  "back": "Back to Menu",
+  "reset": "Reset",
+  "save_result": "Save Result",
+  "experiments": {
+    "color_mixing": {
+      "title": "Color Mixing",
+      "description": "Mix primary colors to create new colors",
+      "red": "Red",
+      "blue": "Blue",
+      "yellow": "Yellow",
+      "result": "Result",
+      "tip_title": "Science Tip:",
+      "tip": "Red + Blue = Purple, Red + Yellow = Orange, Blue + Yellow = Green"
+    },
+    "temperature": {
+      "title": "Temperature Measurement",
+      "description": "Measure the temperature of different items",
+      "select_item": "Select an item to measure:",
+      "items": {
+        "ice": "Ice",
+        "cold_water": "Cold Water",
+        "room_temp": "Room Temp",
+        "warm_water": "Warm Water",
+        "hot_water": "Hot Water",
+        "boiling_water": "Boiling"
+      },
+      "freezing": "Freezing Cold",
+      "cold": "Cold",
+      "cool": "Cool",
+      "warm": "Warm",
+      "hot": "Hot",
+      "very_hot": "Very Hot",
+      "tip_title": "Science Tip:",
+      "tip": "Water freezes at 0°C and boils at 100°C"
+    },
+    "plant_growth": {
+      "title": "Plant Growth Observation",
+      "description": "Observe how plants grow with different conditions",
+      "day": "Day",
+      "days": "days",
+      "height": "Height",
+      "time_control": "Time Control",
+      "water": "Water",
+      "sunlight": "Sunlight",
+      "dry": "Dry",
+      "wet": "Wet",
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "result": "Growth",
+      "tip_title": "Science Tip:",
+      "tip": "Plants need water, sunlight, and time to grow well!"
+    }
+  },
+  "colors": {
+    "white": "White",
+    "red": "Red",
+    "blue": "Blue",
+    "yellow": "Yellow",
+    "orange": "Orange",
+    "purple": "Purple",
+    "green": "Green",
+    "brown": "Brown",
+    "mixed": "Mixed Color"
+  },
+  "log": {
+    "title": "Experiment Log",
+    "empty": "No experiments recorded yet. Start an experiment and save your results!",
+    "saved": "Experiment saved to log!",
+    "clear": "Clear All"
+  }
+}
