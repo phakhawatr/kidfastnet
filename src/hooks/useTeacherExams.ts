@@ -16,6 +16,22 @@ export interface ExamLink {
   updated_at: string;
   activity_name: string | null;
   total_questions: number;
+  has_custom_questions?: boolean;
+  questions_finalized_at?: string;
+}
+
+export interface ExamQuestion {
+  id: string;
+  exam_link_id: string;
+  question_number: number;
+  question_text: string;
+  choices: any[];
+  correct_answer: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  skill_name: string;
+  is_edited: boolean;
+  explanation?: string;
+  visual_elements?: any;
 }
 
 export interface ExamSession {
@@ -217,6 +233,21 @@ export const useTeacherExams = (teacherId: string | null) => {
     }
   };
 
+  const fetchExamQuestions = async (examLinkId: string): Promise<ExamQuestion[]> => {
+    const { data, error } = await supabase
+      .from('exam_questions')
+      .select('*')
+      .eq('exam_link_id', examLinkId)
+      .order('question_number');
+    
+    if (error) {
+      console.error('Error fetching exam questions:', error);
+      return [];
+    }
+    
+    return (data || []) as ExamQuestion[];
+  };
+
   return {
     examLinks,
     isLoading,
@@ -224,7 +255,8 @@ export const useTeacherExams = (teacherId: string | null) => {
     fetchExamSessions,
     updateExamLinkStatus,
     refreshExamLinks: fetchExamLinks,
-    deleteExamSession
+    deleteExamSession,
+    fetchExamQuestions
   };
 };
 
