@@ -15,6 +15,7 @@ import parentdashboardTh from '../locales/th/parentdashboard.json';
 import aiTh from '../locales/th/ai.json';
 import exercisesTh from '../locales/th/exercises.json';
 import wordproblemsTh from '../locales/th/wordproblems.json';
+import stemTh from '../locales/th/stem.json';
 
 import commonEn from '../locales/en/common.json';
 import headerEn from '../locales/en/header.json';
@@ -28,6 +29,7 @@ import parentdashboardEn from '../locales/en/parentdashboard.json';
 import aiEn from '../locales/en/ai.json';
 import exercisesEn from '../locales/en/exercises.json';
 import wordproblemsEn from '../locales/en/wordproblems.json';
+import stemEn from '../locales/en/stem.json';
 
 const resources = {
   th: {
@@ -43,6 +45,7 @@ const resources = {
     ai: aiTh,
     exercises: exercisesTh,
     wordproblems: wordproblemsTh,
+    stem: stemTh,
   },
   en: {
     common: commonEn,
@@ -57,6 +60,7 @@ const resources = {
     ai: aiEn,
     exercises: exercisesEn,
     wordproblems: wordproblemsEn,
+    stem: stemEn,
   }
 };
 

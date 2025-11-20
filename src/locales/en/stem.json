@@ -1,0 +1,53 @@
+{
+  "title": "STEMxAI - Learn Through STEM",
+  "subtitle": "Science • Technology • Engineering • Mathematics",
+  "hero": {
+    "tagline": "🚀 Learn STEM Through Fun & AI",
+    "description": "Learn STEM in a fun way with AI that helps children understand math and science through exciting problems and games"
+  },
+  "categories": {
+    "science": {
+      "title": "Science",
+      "emoji": "🔬",
+      "description": "Learn through experiments, measurements, nature, and life cycles",
+      "topics": "Experiments • Measurements • Nature • Life Cycles"
+    },
+    "technology": {
+      "title": "Technology",
+      "emoji": "💻",
+      "description": "Learn about AI, coding, and technology in daily life",
+      "topics": "AI Tutor • Coding • Digital Tools • Gamification"
+    },
+    "engineering": {
+      "title": "Engineering",
+      "emoji": "🏗️",
+      "description": "Design, build, and solve real-world problems with math",
+      "topics": "Design • Build • Problem Solving • Machines"
+    },
+    "mathematics": {
+      "title": "Mathematics",
+      "emoji": "🔢",
+      "description": "Foundation of everything! Learn math in a fun and easy way",
+      "topics": "Addition • Subtraction • Multiplication • Division • Fractions • Decimals"
+    }
+  },
+  "quickAccess": {
+    "title": "🎯 Start Learning STEM Now!",
+    "stemProblems": "STEM Word Problems",
+    "aiTutor": "AI Math Tutor",
+    "adaptiveLearning": "Adaptive Learning"
+  },
+  "achievements": {
+    "title": "🏆 STEM Achievements",
+    "subtitle": "Collect special badges from STEM learning",
+    "youngScientist": "Young Scientist",
+    "techWizard": "Tech Wizard",
+    "masterBuilder": "Master Builder",
+    "stemChampion": "STEM Champion"
+  },
+  "buttons": {
+    "explore": "Explore",
+    "start": "Start",
+    "learnMore": "Learn More"
+  }
+}
