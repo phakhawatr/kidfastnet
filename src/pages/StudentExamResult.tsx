@@ -1,0 +1,284 @@
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { CheckCircle2, XCircle, ArrowLeft, Trophy, Clock, Target } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+
+interface QuestionResult {
+  question: string;
+  userAnswer: any;
+  correctAnswer: any;
+  isCorrect: boolean;
+  originalIndex: number;
+}
+
+interface SessionData {
+  id: string;
+  student_name: string;
+  student_class: string;
+  student_number: number;
+  score: number;
+  correct_answers: number;
+  total_questions: number;
+  time_taken: number;
+  completed_at: string;
+  assessment_data: {
+    questions: QuestionResult[];
+  };
+}
+
+const StudentExamResult = () => {
+  const { sessionId } = useParams<{ sessionId: string }>();
+  const navigate = useNavigate();
+  const [session, setSession] = useState<SessionData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadSessionData();
+  }, [sessionId]);
+
+  const loadSessionData = async () => {
+    if (!sessionId) {
+      setError('ไม่พบรหัสผลสอบ');
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('exam_sessions')
+        .select('*')
+        .eq('id', sessionId)
+        .single();
+
+      if (error) throw error;
+      if (!data) throw new Error('ไม่พบข้อมูลผลสอบ');
+
+      setSession(data as any as SessionData);
+    } catch (err: any) {
+      console.error('Error loading session:', err);
+      setError('ไม่สามารถโหลดผลสอบได้');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6 text-center">
+            <p className="text-muted-foreground">กำลังโหลดผลสอบ...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error || !session) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6 text-center">
+            <XCircle className="w-16 h-16 mx-auto mb-4 text-destructive" />
+            <p className="text-destructive">{error || 'ไม่พบข้อมูลผลสอบ'}</p>
+            <Button onClick={() => navigate('/')} className="mt-4">
+              กลับหน้าหลัก
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const minutes = Math.floor(session.time_taken / 60);
+  const seconds = session.time_taken % 60;
+  const accuracy = (session.correct_answers / session.total_questions) * 100;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-4">
+      <div className="container mx-auto max-w-4xl py-8">
+        <Button
+          variant="outline"
+          onClick={() => navigate('/')}
+          className="mb-6"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          กลับหน้าหลัก
+        </Button>
+
+        {/* Score Summary Card */}
+        <Card className="mb-6 bg-gradient-to-br from-primary/10 to-secondary/10 border-2">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>ผลการสอบของคุณ</span>
+              {session.score >= 80 ? (
+                <Trophy className="w-8 h-8 text-yellow-500" />
+              ) : session.score >= 50 ? (
+                <CheckCircle2 className="w-8 h-8 text-green-500" />
+              ) : (
+                <Target className="w-8 h-8 text-orange-500" />
+              )}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div className="text-center">
+                <div className="text-6xl font-bold mb-2">
+                  {session.score >= 80 ? '🎉' : session.score >= 50 ? '😊' : '💪'}
+                </div>
+                <div className="text-4xl font-bold text-primary">
+                  {session.score.toFixed(2)}%
+                </div>
+                <p className="text-muted-foreground mt-2">คะแนน</p>
+              </div>
+
+              <div className="text-center">
+                <div className="text-4xl font-bold mb-2">
+                  {session.correct_answers}/{session.total_questions}
+                </div>
+                <Progress value={accuracy} className="h-2 mb-2" />
+                <p className="text-muted-foreground">ตอบถูก</p>
+              </div>
+
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-2 text-3xl font-bold mb-2">
+                  <Clock className="w-6 h-6" />
+                  {minutes}:{seconds.toString().padStart(2, '0')}
+                </div>
+                <p className="text-muted-foreground">เวลาที่ใช้</p>
+              </div>
+            </div>
+
+            <div className="bg-background/50 rounded-lg p-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-muted-foreground">ชื่อ-สกุล:</span>
+                  <span className="ml-2 font-medium">{session.student_name}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">ชั้นเรียน:</span>
+                  <span className="ml-2 font-medium">{session.student_class}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">เลขที่:</span>
+                  <span className="ml-2 font-medium">{session.student_number}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">วันที่ทำ:</span>
+                  <span className="ml-2 font-medium">
+                    {new Date(session.completed_at).toLocaleDateString('th-TH', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Detailed Question Results */}
+        <Card>
+          <CardHeader>
+            <CardTitle>รายละเอียดแต่ละข้อ</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {session.assessment_data?.questions?.map((q, index) => {
+              const isCorrect = q.userAnswer === q.correctAnswer || 
+                               String(q.userAnswer) === String(q.correctAnswer);
+              
+              return (
+                <div
+                  key={index}
+                  className={`p-4 rounded-lg border-2 ${
+                    isCorrect
+                      ? 'bg-green-50 dark:bg-green-950/20 border-green-500'
+                      : 'bg-red-50 dark:bg-red-950/20 border-red-500'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    {isCorrect ? (
+                      <CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
+                    ) : (
+                      <XCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
+                    )}
+                    
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-bold text-lg">ข้อ {index + 1}</span>
+                        <span className={`text-sm font-medium px-3 py-1 rounded-full ${
+                          isCorrect
+                            ? 'bg-green-600 text-white'
+                            : 'bg-red-600 text-white'
+                        }`}>
+                          {isCorrect ? '✓ ถูก' : '✗ ผิด'}
+                        </span>
+                      </div>
+                      
+                      <p className="text-foreground mb-3">{q.question}</p>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2">
+                          <span className="text-muted-foreground whitespace-nowrap">คำตอบของคุณ:</span>
+                          <span className={`font-medium ${isCorrect ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
+                            {q.userAnswer !== undefined ? q.userAnswer : '-'}
+                          </span>
+                        </div>
+                        
+                        {!isCorrect && (
+                          <div className="flex items-start gap-2">
+                            <span className="text-muted-foreground whitespace-nowrap">เฉลย:</span>
+                            <span className="font-medium text-green-700 dark:text-green-400">
+                              {q.correctAnswer}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+
+        {/* Encouragement Message */}
+        <Card className="mt-6 bg-gradient-to-br from-primary/5 to-secondary/5">
+          <CardContent className="pt-6 text-center">
+            {session.score >= 80 ? (
+              <>
+                <p className="text-2xl font-bold mb-2">🌟 ยอดเยี่ยมมาก! 🌟</p>
+                <p className="text-muted-foreground">
+                  คุณทำได้ดีมาก! เก่งจริงๆ ขอให้ประสบความสำเร็จในการเรียนต่อไปนะ
+                </p>
+              </>
+            ) : session.score >= 50 ? (
+              <>
+                <p className="text-2xl font-bold mb-2">👏 ผ่านเกณฑ์! 👏</p>
+                <p className="text-muted-foreground">
+                  คุณทำได้ดี ลองทบทวนอีกครั้งเพื่อพัฒนาต่อไปนะ
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-2xl font-bold mb-2">💪 ลองใหม่อีกครั้ง! 💪</p>
+                <p className="text-muted-foreground">
+                  ไม่เป็นไร ทุกคนเคยผิดพลาด ลองทบทวนและฝึกฝนต่อไปนะ คุณทำได้แน่นอน!
+                </p>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default StudentExamResult;
