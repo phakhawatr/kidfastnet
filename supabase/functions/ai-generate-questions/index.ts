@@ -16,7 +16,7 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    const { grade, topic, difficulty, count, language = 'th' } = await req.json();
+    const { grade, semester, assessmentType, topic, difficulty, count, description, range, language = 'th' } = await req.json();
 
     if (!grade || !topic || !difficulty || !count) {
       return new Response(
@@ -25,12 +25,36 @@ serve(async (req) => {
       );
     }
 
+    // Log curriculum context
+    console.log('AI Generation Request:', {
+      grade,
+      semester,
+      assessmentType,
+      topic,
+      description,
+      range
+    });
+
     const systemPrompt = `คุณคือครูคณิตศาสตร์ที่เชี่ยวชาญในการสร้างโจทย์คณิตศาสตร์สำหรับนักเรียนระดับประถมศึกษา
 
 สร้างโจทย์คณิตศาสตร์ภาษา${language === 'th' ? 'ไทย' : 'อังกฤษ'} จำนวน ${count} ข้อ สำหรับ:
-- ชั้น: ป.${grade}
+- ชั้น: ป.${grade}${semester ? ` เทอม ${semester}` : ''}${assessmentType === 'nt' ? ' (สอบ NT)' : ''}
 - หัวข้อ: ${topic}
+- ขอบเขตหัวข้อ: ${description || 'ไม่ระบุ'}
+${range ? `- ช่วงตัวเลขที่ใช้: ${range[0]}-${range[1]}` : ''}
 - ระดับความยาก: ${difficulty}
+
+⚠️ **สำคัญมาก - กฎการสร้างโจทย์**:
+1. โจทย์ทุกข้อต้องอยู่ภายในขอบเขตที่กำหนด "${description || topic}" เท่านั้น
+2. ห้ามสร้างโจทย์ที่เกี่ยวกับทักษะอื่นที่นอกเหนือจากนี้โดยเด็ดขาด
+3. ตัวเลขที่ใช้ในโจทย์ต้องอยู่ในช่วง ${range ? `${range[0]}-${range[1]}` : 'ที่เหมาะสมกับ ป.' + grade}
+4. ระดับความยากต้องเหมาะสมกับ ป.${grade}: ${difficulty === 'easy' ? 'ง่าย' : difficulty === 'medium' ? 'ปานกลาง' : 'ยาก'}
+
+ตัวอย่างความผิดพลาดที่ต้องหลีกเลี่ยง:
+❌ ถ้าขอบเขตคือ "นับทีละ 1" ห้ามสร้างโจทย์บวก-ลบ
+❌ ถ้าขอบเขตคือ "การบวก" ห้ามสร้างโจทย์คูณ-หาร
+❌ ถ้ากำหนดช่วง 0-10 ห้ามใช้ตัวเลข 11 ขึ้นไป
+✅ สร้างโจทย์ตรงตามขอบเขตและช่วงที่กำหนดเท่านั้น
 
 รูปแบบ JSON ที่ต้องการ (ตอบเป็น JSON array เท่านั้น):
 [
@@ -43,12 +67,11 @@ serve(async (req) => {
   }
 ]
 
-กฎสำคัญ:
-1. โจทย์ต้องเหมาะสมกับระดับชั้น ป.${grade}
-2. ระดับความยาก: ${difficulty === 'easy' ? 'ง่าย' : difficulty === 'medium' ? 'ปานกลาง' : 'ยาก'}
-3. ตัวเลือกต้องมี 4 ตัวเลือก และมีคำตอบที่ถูกต้อง 1 ตัวเลือก
-4. คำอธิบายต้องชัดเจนและเข้าใจง่าย
-5. correct_answer ต้องตรงกับหนึ่งในตัวเลือกที่ให้มา`;
+กฎเพิ่มเติม:
+1. ตัวเลือกต้องมี 4 ตัวเลือก และมีคำตอบที่ถูกต้อง 1 ตัวเลือก
+2. คำอธิบายต้องชัดเจนและเข้าใจง่าย เหมาะสมกับ ป.${grade}
+3. correct_answer ต้องตรงกับหนึ่งในตัวเลือกที่ให้มาทุกประการ
+4. ตัวเลือกที่ผิดต้องสมเหตุสมผล ไม่ผิดพลาดชัดเจนเกินไป`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
