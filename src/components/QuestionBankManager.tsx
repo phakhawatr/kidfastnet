@@ -490,7 +490,8 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
 
         <TabsContent value="manual">
           <ManualQuestionForm
-            teacherId={teacherId || adminId || null}
+            teacherId={teacherId}
+            adminId={adminId}
             grade={selectedGrade}
             topics={topics}
             semester={selectedGrade === 3 ? undefined : selectedSemester}
@@ -501,7 +502,8 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
 
         <TabsContent value="ai">
           <AIQuestionGenerator
-            teacherId={teacherId || adminId || null}
+            teacherId={teacherId}
+            adminId={adminId}
             onSuccess={handleRefresh}
           />
         </TabsContent>

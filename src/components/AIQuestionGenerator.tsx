@@ -12,13 +12,14 @@ import { useTranslation } from 'react-i18next';
 import { curriculumConfig } from '@/config/curriculum';
 
 interface AIQuestionGeneratorProps {
-  teacherId: string;
+  teacherId: string | null;
+  adminId?: string | null;
   onSuccess?: () => void;
 }
 
-export default function AIQuestionGenerator({ teacherId, onSuccess }: AIQuestionGeneratorProps) {
+export default function AIQuestionGenerator({ teacherId, adminId, onSuccess }: AIQuestionGeneratorProps) {
   const { t } = useTranslation();
-  const { generateWithAI, createQuestion, fetchTopicsByGrade, topics } = useQuestionBank(teacherId);
+  const { generateWithAI, createQuestion, fetchTopicsByGrade, topics } = useQuestionBank(teacherId || adminId);
   
   const [selectedGrade, setSelectedGrade] = useState<number>(1);
   const [selectedSemester, setSelectedSemester] = useState<number>(1);
@@ -101,6 +102,8 @@ export default function AIQuestionGenerator({ teacherId, onSuccess }: AIQuestion
         skill_name: selectedTopic,
         semester: selectedGrade === 3 ? undefined : selectedSemester,
         assessment_type: selectedGrade === 3 ? assessmentType : (selectedSemester ? `semester${selectedSemester}` : 'semester'),
+        admin_id: adminId || null,
+        is_system_question: !!adminId,
       });
     });
 

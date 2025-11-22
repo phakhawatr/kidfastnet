@@ -129,11 +129,26 @@ export function useQuestionBank(teacherId: string | null) {
     
     setLoading(true);
     try {
+      // Check if admin user by checking grade field
+      const { data: userData } = await supabase
+        .from('user_registrations')
+        .select('grade')
+        .eq('id', teacherId)
+        .maybeSingle();
+      
+      const isAdmin = userData?.grade === 'admin';
+      
       let query = supabase
         .from('question_bank')
         .select('*')
-        .eq('teacher_id', teacherId)
         .order('created_at', { ascending: false });
+      
+      // Filter by teacher_id or admin_id based on user type
+      if (isAdmin) {
+        query = query.eq('admin_id', teacherId);
+      } else {
+        query = query.eq('teacher_id', teacherId);
+      }
 
       if (filters.grade) query = query.eq('grade', filters.grade);
       if (filters.topic) query = query.eq('topic', filters.topic);
@@ -163,10 +178,15 @@ export function useQuestionBank(teacherId: string | null) {
     if (!teacherId) return null;
 
     try {
+      // Determine if this is admin creating system questions
+      const isAdmin = question.admin_id != null;
+      
       const { data, error } = await supabase
         .from('question_bank')
         .insert([{
-          teacher_id: teacherId,
+          teacher_id: isAdmin ? null : teacherId,
+          admin_id: question.admin_id || null,
+          is_system_question: question.is_system_question || false,
           choices: question.choices || [],
           correct_answer: question.correct_answer || '',
           difficulty: question.difficulty || 'medium',
