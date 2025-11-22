@@ -160,7 +160,6 @@ export default function PDFQuestionImporter({
           difficulty: q.difficulty,
           skill_name: q.skill_name,
           topic: q.topic,
-          subject: 'คณิตศาสตร์',
           ai_generated: true,
         }));
 
@@ -264,7 +263,6 @@ export default function PDFQuestionImporter({
         difficulty: q.difficulty,
         skill_name: q.skill_name,
         topic: q.topic,
-        subject: 'คณิตศาสตร์',
         ai_generated: true,
       }));
 
