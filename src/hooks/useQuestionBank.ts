@@ -207,6 +207,11 @@ export function useQuestionBank(teacherId: string | null) {
 
       if (error) throw error;
       
+      // Add the new question to the questions state
+      if (data) {
+        setQuestions(prev => [data, ...prev]);
+      }
+      
       toast({
         title: 'สร้างโจทย์สำเร็จ',
         description: 'บันทึกโจทย์ลงคลังข้อสอบแล้ว',
