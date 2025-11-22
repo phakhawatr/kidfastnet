@@ -7,9 +7,11 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
 import { Search, BookOpen, Pencil, Sparkles, FileText, Trash2, Share2, Users, Trophy } from 'lucide-react';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
 import { useTranslation } from 'react-i18next';
+import { curriculumConfig } from '@/config/curriculum';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import ManualQuestionForm from './ManualQuestionForm';
@@ -133,6 +135,27 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
     if (searchQuery && !q.question_text.toLowerCase().includes(searchQuery.toLowerCase())) return false;
     return true;
   });
+
+  // Helper function to get skill description from curriculum config
+  const getSkillDescription = (grade: number, semester: number | undefined, assessmentType: string | undefined, skillName: string) => {
+    const gradeKey = `grade${grade}` as keyof typeof curriculumConfig;
+    const gradeConfig = curriculumConfig[gradeKey];
+    
+    if (!gradeConfig) return null;
+    
+    let semesterKey: string;
+    if (assessmentType === 'nt') {
+      semesterKey = 'nt';
+    } else {
+      semesterKey = semester ? `semester${semester}` : 'semester1';
+    }
+    
+    const skills = gradeConfig[semesterKey];
+    if (!skills) return null;
+    
+    const skill = skills.find(s => s.skill === skillName);
+    return skill ? skill.description : null;
+  };
 
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -333,44 +356,62 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
                       className="mt-1"
                     />
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
+                      <div className="flex items-start gap-2 mb-2 flex-wrap">
                         <span className="text-sm font-medium text-muted-foreground">
                           ข้อ {index + 1}
                         </span>
+                        <Badge variant="outline" className="text-xs">
+                          ป.{question.grade}
+                        </Badge>
                         <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                          question.difficulty === 'easy' ? 'bg-green-100 text-green-800' :
-                          question.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
+                          question.difficulty === 'easy' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100' :
+                          question.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100' :
+                          'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100'
                         }`}>
                           {question.difficulty === 'easy' ? 'ง่าย' :
                            question.difficulty === 'medium' ? 'ปานกลาง' : 'ยาก'}
                         </span>
-                        {question.topic && (
-                          <span className="px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100">
-                            {question.topic}
-                          </span>
-                        )}
                         {question.semester && (
-                          <span className="px-2 py-0.5 rounded text-xs font-medium bg-secondary text-secondary-foreground">
+                          <Badge variant="secondary" className="text-xs">
                             {question.semester === 1 ? '🔵 เทอม 1' : '🟢 เทอม 2'}
-                          </span>
+                          </Badge>
                         )}
                         {question.assessment_type === 'nt' && (
-                          <span className="px-2 py-0.5 rounded text-xs font-medium bg-primary text-primary-foreground">
+                          <Badge className="text-xs bg-yellow-500 hover:bg-yellow-600">
                             🏆 สอบ NT
-                          </span>
+                          </Badge>
+                        )}
+                        {question.skill_name && (
+                          <>
+                            <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
+                              {t(`skills:skills.${question.skill_name}.title`, question.skill_name)}
+                            </Badge>
+                            {(() => {
+                              const description = getSkillDescription(
+                                question.grade,
+                                question.semester,
+                                question.assessment_type,
+                                question.skill_name
+                              );
+                              return description ? (
+                                <Badge variant="outline" className="text-xs bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-800 max-w-md">
+                                  {description}
+                                </Badge>
+                              ) : null;
+                            })()}
+                          </>
                         )}
                         {question.ai_generated && (
-                          <span className="px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                          <Badge variant="outline" className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-100">
                             <Sparkles className="w-3 h-3 inline mr-1" />
                             AI
-                          </span>
+                          </Badge>
                         )}
                         {question.is_template && (
-                          <span className="px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                          <Badge variant="outline" className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100">
                             <FileText className="w-3 h-3 inline mr-1" />
                             Template
-                          </span>
+                          </Badge>
                         )}
                       </div>
                       <p className="font-medium mb-2">{question.question_text}</p>
