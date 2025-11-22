@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeacherExams, ExamSession } from '@/hooks/useTeacherExams';
@@ -22,7 +22,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 
 const TeacherDashboard = () => {
-  const { registrationId } = useAuth();
+  const { registrationId, username } = useAuth();
   const navigate = useNavigate();
   const {
     examLinks, 
@@ -93,6 +93,29 @@ const TeacherDashboard = () => {
   const [showQuestionSelector, setShowQuestionSelector] = useState(false);
   const [selectedExamForQuestions, setSelectedExamForQuestions] = useState<any>(null);
   const [selectedQuestionIds, setSelectedQuestionIds] = useState<string[]>([]);
+
+  // Load teacher name from user profile
+  useEffect(() => {
+    const fetchTeacherName = async () => {
+      if (!registrationId) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('user_registrations')
+          .select('nickname')
+          .eq('id', registrationId)
+          .single();
+        
+        if (data && !error) {
+          setTeacherName(data.nickname);
+        }
+      } catch (error) {
+        console.error('Error fetching teacher name:', error);
+      }
+    };
+    
+    fetchTeacherName();
+  }, [registrationId]);
 
   const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
