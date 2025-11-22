@@ -275,6 +275,42 @@ export type Database = {
           },
         ]
       }
+      curriculum_topics: {
+        Row: {
+          created_at: string | null
+          grade: number
+          id: string
+          order_index: number | null
+          semester: number | null
+          skill_category: string
+          subject: string
+          topic_name_en: string
+          topic_name_th: string
+        }
+        Insert: {
+          created_at?: string | null
+          grade: number
+          id?: string
+          order_index?: number | null
+          semester?: number | null
+          skill_category: string
+          subject?: string
+          topic_name_en: string
+          topic_name_th: string
+        }
+        Update: {
+          created_at?: string | null
+          grade?: number
+          id?: string
+          order_index?: number | null
+          semester?: number | null
+          skill_category?: string
+          subject?: string
+          topic_name_en?: string
+          topic_name_th?: string
+        }
+        Relationships: []
+      }
       exam_links: {
         Row: {
           activity_name: string | null
@@ -790,6 +826,7 @@ export type Database = {
       }
       question_bank: {
         Row: {
+          ai_generated: boolean | null
           choices: Json
           correct_answer: string
           created_at: string | null
@@ -797,16 +834,21 @@ export type Database = {
           explanation: string | null
           grade: number
           id: string
+          image_urls: string[] | null
+          is_template: boolean | null
           question_text: string
           skill_name: string
           subject: string
           tags: string[] | null
           teacher_id: string
+          template_variables: Json | null
           times_used: number | null
+          topic: string | null
           updated_at: string | null
           visual_elements: Json | null
         }
         Insert: {
+          ai_generated?: boolean | null
           choices: Json
           correct_answer: string
           created_at?: string | null
@@ -814,16 +856,21 @@ export type Database = {
           explanation?: string | null
           grade: number
           id?: string
+          image_urls?: string[] | null
+          is_template?: boolean | null
           question_text: string
           skill_name: string
           subject?: string
           tags?: string[] | null
           teacher_id: string
+          template_variables?: Json | null
           times_used?: number | null
+          topic?: string | null
           updated_at?: string | null
           visual_elements?: Json | null
         }
         Update: {
+          ai_generated?: boolean | null
           choices?: Json
           correct_answer?: string
           created_at?: string | null
@@ -831,12 +878,16 @@ export type Database = {
           explanation?: string | null
           grade?: number
           id?: string
+          image_urls?: string[] | null
+          is_template?: boolean | null
           question_text?: string
           skill_name?: string
           subject?: string
           tags?: string[] | null
           teacher_id?: string
+          template_variables?: Json | null
           times_used?: number | null
+          topic?: string | null
           updated_at?: string | null
           visual_elements?: Json | null
         }
@@ -849,6 +900,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      question_templates: {
+        Row: {
+          answer_formula: string
+          choices_formula: Json | null
+          created_at: string | null
+          difficulty: string
+          grade: number
+          id: string
+          teacher_id: string
+          template_name: string
+          template_text: string
+          times_used: number | null
+          topic: string | null
+          updated_at: string | null
+          variables: Json
+        }
+        Insert: {
+          answer_formula: string
+          choices_formula?: Json | null
+          created_at?: string | null
+          difficulty: string
+          grade: number
+          id?: string
+          teacher_id: string
+          template_name: string
+          template_text: string
+          times_used?: number | null
+          topic?: string | null
+          updated_at?: string | null
+          variables: Json
+        }
+        Update: {
+          answer_formula?: string
+          choices_formula?: Json | null
+          created_at?: string | null
+          difficulty?: string
+          grade?: number
+          id?: string
+          teacher_id?: string
+          template_name?: string
+          template_text?: string
+          times_used?: number | null
+          topic?: string | null
+          updated_at?: string | null
+          variables?: Json
+        }
+        Relationships: []
       }
       security_audit_log: {
         Row: {
