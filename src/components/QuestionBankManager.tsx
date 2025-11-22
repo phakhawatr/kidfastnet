@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Search, BookOpen, Pencil, Sparkles, FileText, Trash2, Share2, Users } from 'lucide-react';
+import { Search, BookOpen, Pencil, Sparkles, FileText, Trash2, Share2, Users, Trophy } from 'lucide-react';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
 import { useTranslation } from 'react-i18next';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -196,29 +196,36 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
                   {selectedGrade === 3 ? 'ประเภทการสอบ' : 'เทอม'}
                 </label>
                 {selectedGrade === 3 ? (
-                  <RadioGroup value={assessmentType} onValueChange={(v: any) => setAssessmentType(v)} className="flex flex-wrap gap-4">
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="semester1" id="semester1" />
-                      <Label htmlFor="semester1">ภาคเรียนที่ 1</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="semester2" id="semester2" />
-                      <Label htmlFor="semester2">ภาคเรียนที่ 2</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="nt" id="nt" />
-                      <Label htmlFor="nt">🏆 สอบ NT</Label>
+                  <RadioGroup value={assessmentType} onValueChange={(v: any) => setAssessmentType(v)}>
+                    <div className="grid gap-2">
+                      <div className="flex items-center space-x-3 p-3 border-2 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-all cursor-pointer">
+                        <RadioGroupItem value="semester1" id="semester1" />
+                        <Label htmlFor="semester1" className="flex-1 cursor-pointer font-medium">ภาคเรียนที่ 1</Label>
+                      </div>
+                      <div className="flex items-center space-x-3 p-3 border-2 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-all cursor-pointer">
+                        <RadioGroupItem value="semester2" id="semester2" />
+                        <Label htmlFor="semester2" className="flex-1 cursor-pointer font-medium">ภาคเรียนที่ 2</Label>
+                      </div>
+                      <div className="flex items-center space-x-3 p-3 border-2 border-yellow-400 rounded-lg hover:bg-yellow-50 hover:border-yellow-500 transition-all cursor-pointer bg-gradient-to-r from-yellow-50 to-orange-50">
+                        <RadioGroupItem value="nt" id="nt" />
+                        <Label htmlFor="nt" className="flex-1 cursor-pointer font-medium flex items-center gap-2">
+                          <Trophy className="w-5 h-5 text-yellow-600" />
+                          <span className="text-yellow-900">สอบวัดระดับชาติ (NT)</span>
+                        </Label>
+                      </div>
                     </div>
                   </RadioGroup>
                 ) : (
-                  <RadioGroup value={selectedSemester.toString()} onValueChange={(v) => setSelectedSemester(Number(v))} className="flex gap-4">
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="1" id="sem1" />
-                      <Label htmlFor="sem1">เทอม 1</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="2" id="sem2" />
-                      <Label htmlFor="sem2">เทอม 2</Label>
+                  <RadioGroup value={selectedSemester.toString()} onValueChange={(v) => setSelectedSemester(Number(v))}>
+                    <div className="grid gap-2">
+                      <div className="flex items-center space-x-3 p-3 border-2 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-all cursor-pointer">
+                        <RadioGroupItem value="1" id="sem1" />
+                        <Label htmlFor="sem1" className="flex-1 cursor-pointer font-medium">เทอม 1</Label>
+                      </div>
+                      <div className="flex items-center space-x-3 p-3 border-2 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-all cursor-pointer">
+                        <RadioGroupItem value="2" id="sem2" />
+                        <Label htmlFor="sem2" className="flex-1 cursor-pointer font-medium">เทอม 2</Label>
+                      </div>
                     </div>
                   </RadioGroup>
                 )}
