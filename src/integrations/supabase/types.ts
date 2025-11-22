@@ -979,6 +979,102 @@ export type Database = {
         }
         Relationships: []
       }
+      shared_questions: {
+        Row: {
+          copy_count: number
+          created_at: string
+          id: string
+          is_public: boolean
+          question_id: string
+          share_code: string | null
+          shared_by: string
+          view_count: number
+        }
+        Insert: {
+          copy_count?: number
+          created_at?: string
+          id?: string
+          is_public?: boolean
+          question_id: string
+          share_code?: string | null
+          shared_by: string
+          view_count?: number
+        }
+        Update: {
+          copy_count?: number
+          created_at?: string
+          id?: string
+          is_public?: boolean
+          question_id?: string
+          share_code?: string | null
+          shared_by?: string
+          view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shared_questions_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "question_bank"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shared_questions_shared_by_fkey"
+            columns: ["shared_by"]
+            isOneToOne: false
+            referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shared_templates: {
+        Row: {
+          copy_count: number
+          created_at: string
+          id: string
+          is_public: boolean
+          share_code: string | null
+          shared_by: string
+          template_id: string
+          view_count: number
+        }
+        Insert: {
+          copy_count?: number
+          created_at?: string
+          id?: string
+          is_public?: boolean
+          share_code?: string | null
+          shared_by: string
+          template_id: string
+          view_count?: number
+        }
+        Update: {
+          copy_count?: number
+          created_at?: string
+          id?: string
+          is_public?: boolean
+          share_code?: string | null
+          shared_by?: string
+          template_id?: string
+          view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shared_templates_shared_by_fkey"
+            columns: ["shared_by"]
+            isOneToOne: false
+            referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shared_templates_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "question_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       skill_assessments: {
         Row: {
           accuracy_rate: number
@@ -1475,6 +1571,7 @@ export type Database = {
       }
       generate_affiliate_code: { Args: { p_user_id: string }; Returns: string }
       generate_member_id: { Args: never; Returns: string }
+      generate_share_code: { Args: never; Returns: string }
       get_affiliate_referrals: {
         Args: { p_user_email: string }
         Returns: {
