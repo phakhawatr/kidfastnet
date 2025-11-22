@@ -235,13 +235,14 @@ export default function ManualQuestionForm({ teacherId, adminId, grade, topics, 
               {choices.filter(c => c.trim()).map((choice, index) => (
                 <div
                   key={index}
-                  className={`p-3 rounded border text-base font-medium ${
+                  className={`p-3 rounded border ${
                     correctAnswer === index.toString()
                       ? 'border-green-500 bg-green-50 dark:bg-green-950/20'
                       : 'border-border'
                   }`}
                 >
-                  {index + 1}) {choice}
+                  <span className="text-sm font-light text-gray-500 dark:text-gray-400">{index + 1})</span>
+                  <span className="text-lg font-semibold text-blue-600 dark:text-blue-400 ml-2">{choice}</span>
                   {correctAnswer === index.toString() && (
                     <span className="ml-2 text-green-600 font-medium">✓ คำตอบที่ถูก</span>
                   )}

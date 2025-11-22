@@ -1236,7 +1236,7 @@ const TeacherDashboard = () => {
                                       }`}
                                     >
                                       <div className="flex items-center gap-2">
-                                        <span className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-base font-bold ${
+                                        <span className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-sm font-light ${
                                           isCorrectChoice 
                                             ? 'bg-green-600 text-white' 
                                             : isStudentChoice 
@@ -1245,7 +1245,7 @@ const TeacherDashboard = () => {
                                         }`}>
                                           {choiceNumber}
                                         </span>
-                                        <span className={`text-base ${isCorrectChoice || isStudentChoice ? 'font-medium' : ''}`}>
+                                        <span className={`text-lg font-semibold text-blue-600 dark:text-blue-400 ${isCorrectChoice || isStudentChoice ? 'font-semibold' : ''}`}>
                                           {choice}
                                         </span>
                                         {isCorrectChoice && (
