@@ -491,10 +491,6 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
         <TabsContent value="ai">
           <AIQuestionGenerator
             teacherId={teacherId!}
-            grade={selectedGrade}
-            topics={topics}
-            semester={selectedGrade === 3 ? undefined : selectedSemester}
-            assessmentType={selectedGrade === 3 ? assessmentType : undefined}
             onSuccess={handleRefresh}
           />
         </TabsContent>
