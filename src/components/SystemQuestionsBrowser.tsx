@@ -283,15 +283,12 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess }: S
 
                   <div className="grid grid-cols-2 gap-2">
                     {Array.isArray(question.choices) && question.choices.map((choice: string, idx: number) => {
-                      // Clean both choice and correct answer for comparison
-                      const cleanChoice = choice.replace(/^[A-D]\)\s*/, '').replace(/^\d+\)\s*/, '').trim();
-                      const cleanCorrectAnswer = question.correct_answer.replace(/^[A-D]\)\s*/, '').replace(/^\d+\)\s*/, '').trim();
+                      // Remove the A), B), C), D) prefix for cleaner display
+                      const displayChoice = choice.replace(/^[A-D]\)\s*/, '');
                       
-                      // Check if correct by comparing cleaned versions OR original
-                      const isCorrect = choice === question.correct_answer || cleanChoice === cleanCorrectAnswer;
-                      
-                      // Display with cleaned format
-                      const displayChoice = choice.replace(/^[A-D]\)\s*/, '').replace(/^\d+\)\s*/, '');
+                      // Extract the letter prefix from choice (e.g., "A" from "A) 6 ตัว")
+                      const choiceLetter = choice.match(/^([A-D])\)/)?.[1];
+                      const isCorrect = choiceLetter === question.correct_answer || choice === question.correct_answer;
                       
                       return (
                         <div
