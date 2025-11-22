@@ -45,7 +45,7 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
     fetchTopicsByGrade,
     deleteQuestion,
     shareQuestion,
-  } = useQuestionBank(teacherId || adminId);
+  } = useQuestionBank(teacherId || adminId, !!adminId);
 
   useEffect(() => {
     if (teacherId || adminId) {

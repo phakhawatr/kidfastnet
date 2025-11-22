@@ -69,7 +69,7 @@ export interface QuestionFilters {
   assessmentType?: string;
 }
 
-export function useQuestionBank(teacherId: string | null) {
+export function useQuestionBank(teacherId: string | null, isAdmin: boolean = false) {
   const [questions, setQuestions] = useState<QuestionBankItem[]>([]);
   const [topics, setTopics] = useState<CurriculumTopic[]>([]);
   const [templates, setTemplates] = useState<QuestionTemplate[]>([]);
@@ -129,15 +129,6 @@ export function useQuestionBank(teacherId: string | null) {
     
     setLoading(true);
     try {
-      // Check if user is an admin by checking admins table
-      const { data: adminData } = await supabase
-        .from('admins')
-        .select('id')
-        .eq('id', teacherId)
-        .maybeSingle();
-      
-      const isAdmin = !!adminData;
-      
       let query = supabase
         .from('question_bank')
         .select('*')
