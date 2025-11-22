@@ -530,19 +530,27 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
                       )}
 
                       <div className="grid grid-cols-2 gap-2">
-                        {Array.isArray(question.choices) && question.choices.map((choice: string, idx: number) => (
-                          <div
-                            key={idx}
-                            className={`p-3 rounded border ${
-                              choice === question.correct_answer
-                                ? 'border-green-500 bg-green-50 dark:bg-green-950/20'
-                                : 'border-border'
-                            }`}
-                          >
-                            <span className="text-sm font-light text-gray-500 dark:text-gray-400">{idx + 1})</span>
-                            <span className="text-lg font-semibold text-blue-600 dark:text-blue-400 ml-2">{choice}</span>
-                          </div>
-                        ))}
+                        {Array.isArray(question.choices) && question.choices.map((choice: string, idx: number) => {
+                          const isCorrect = choice === question.correct_answer;
+                          return (
+                            <div
+                              key={idx}
+                              className={`p-3 rounded border flex items-center justify-between ${
+                                isCorrect
+                                  ? 'border-green-500 bg-green-50 dark:bg-green-950/20'
+                                  : 'border-border'
+                              }`}
+                            >
+                              <div className="flex items-center">
+                                <span className="text-sm font-light text-gray-500 dark:text-gray-400">{idx + 1})</span>
+                                <span className="text-lg font-semibold text-blue-600 dark:text-blue-400 ml-2">{choice}</span>
+                              </div>
+                              {isCorrect && (
+                                <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                       {question.explanation && (
                         <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-950/20 rounded text-sm">
