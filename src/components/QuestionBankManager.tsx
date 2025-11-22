@@ -189,7 +189,7 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
         <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="library" className="flex items-center gap-2">
             <BookOpen className="w-4 h-4" />
-            คลังข้อสอบ
+            คลังข้อสอบของฉัน
           </TabsTrigger>
           <TabsTrigger value="system" className="flex items-center gap-2">
             <Database className="w-4 h-4" />
