@@ -80,32 +80,7 @@ export default function PDFQuestionImporter({
       // Step 1: Parse PDF using document parsing API
       toast({
         title: "กำลังประมวลผล",
-        description: "กำลังอ่านไฟล์ PDF...",
-      });
-
-      const formData = new FormData();
-      formData.append('file', file);
-
-      // Upload to temporary storage first
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}.${fileExt}`;
-      const filePath = `temp/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('question_images')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('question_images')
-        .getPublicUrl(filePath);
-
-      // Parse document (note: this is a placeholder - actual parsing would need a service)
-      toast({
-        title: "กำลังประมวลผล",
-        description: "กำลังใช้ AI วิเคราะห์โจทย์...",
+        description: "กำลังอ่านและวิเคราะห์ไฟล์ PDF...",
       });
 
       // For now, read as text and send to AI
@@ -194,9 +169,6 @@ export default function PDFQuestionImporter({
           description: `บันทึกข้อคำถามทั้งหมด ${confidentQuestions.length} ข้อเรียบร้อยแล้ว`,
         });
       }
-
-      // Clean up temp file
-      await supabase.storage.from('question_images').remove([filePath]);
 
     } catch (error) {
       console.error('Error processing PDF:', error);
