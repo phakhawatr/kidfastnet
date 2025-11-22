@@ -8,6 +8,7 @@ import { compressImage } from '@/utils/imageCompression';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ExamLinkQRCode from '@/components/ExamLinkQRCode';
+import QuestionBankSelector from '@/components/QuestionBankSelector';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -87,6 +88,9 @@ const TeacherDashboard = () => {
   const [showQuestionBank, setShowQuestionBank] = useState(false);
   const [questionBank, setQuestionBank] = useState<any[]>([]);
   const [selectedBankQuestions, setSelectedBankQuestions] = useState<Set<string>>(new Set());
+  const [showQuestionSelector, setShowQuestionSelector] = useState(false);
+  const [selectedExamForQuestions, setSelectedExamForQuestions] = useState<any>(null);
+  const [selectedQuestionIds, setSelectedQuestionIds] = useState<string[]>([]);
 
   const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -441,6 +445,88 @@ const TeacherDashboard = () => {
     await deleteExamLink(linkId);
   };
 
+  const openQuestionSelector = (exam: any) => {
+    setSelectedExamForQuestions(exam);
+    setSelectedQuestionIds([]);
+    setShowQuestionSelector(true);
+  };
+
+  const handleAddQuestionsToExam = async () => {
+    if (!selectedExamForQuestions || selectedQuestionIds.length === 0) {
+      return;
+    }
+
+    try {
+      // Fetch selected questions from question bank
+      const { data: questions, error: fetchError } = await supabase
+        .from('question_bank')
+        .select('*')
+        .in('id', selectedQuestionIds);
+
+      if (fetchError) throw fetchError;
+
+      // Get current question count
+      const { data: existingQuestions, error: countError } = await supabase
+        .from('exam_questions')
+        .select('question_number')
+        .eq('exam_link_id', selectedExamForQuestions.id)
+        .order('question_number', { ascending: false })
+        .limit(1);
+
+      if (countError) throw countError;
+
+      const startNumber = (existingQuestions && existingQuestions[0]) 
+        ? existingQuestions[0].question_number + 1 
+        : 1;
+
+      // Insert questions into exam
+      const examQuestions = questions.map((q, index) => ({
+        exam_link_id: selectedExamForQuestions.id,
+        question_number: startNumber + index,
+        question_text: q.question_text,
+        choices: q.choices,
+        correct_answer: q.correct_answer,
+        difficulty: q.difficulty,
+        skill_name: q.skill_name,
+        explanation: q.explanation,
+        visual_elements: q.visual_elements,
+        is_from_bank: true,
+        question_bank_id: q.id,
+      }));
+
+      const { error: insertError } = await supabase
+        .from('exam_questions')
+        .insert(examQuestions);
+
+      if (insertError) throw insertError;
+
+      // Update total questions count
+      const { error: updateError } = await supabase
+        .from('exam_links')
+        .update({ 
+          total_questions: selectedExamForQuestions.total_questions + questions.length,
+          has_custom_questions: true 
+        })
+        .eq('id', selectedExamForQuestions.id);
+
+      if (updateError) throw updateError;
+
+      toast({
+        title: 'สำเร็จ!',
+        description: `เพิ่มโจทย์ ${questions.length} ข้อเข้าข้อสอบสำเร็จ`,
+      });
+      setShowQuestionSelector(false);
+      await refreshExamLinks();
+    } catch (error) {
+      console.error('Error adding questions:', error);
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: 'ไม่สามารถเพิ่มโจทย์ได้',
+        variant: 'destructive'
+      });
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     const badges = {
       active: 'bg-green-500 text-white',
@@ -727,6 +813,15 @@ const TeacherDashboard = () => {
                             เปิด
                           </Button>
                           
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openQuestionSelector(link)}
+                          >
+                            <BookOpen className="w-4 h-4 mr-2" />
+                            เพิ่มโจทย์จากคลัง
+                          </Button>
+
                           <Button
                             variant="default"
                             size="sm"
@@ -1556,6 +1651,38 @@ const TeacherDashboard = () => {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Question Bank Selector Dialog */}
+      <Dialog open={showQuestionSelector} onOpenChange={setShowQuestionSelector}>
+        <DialogContent className="max-w-4xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>เลือกโจทย์จากคลังโจทย์</DialogTitle>
+          </DialogHeader>
+          
+          {selectedExamForQuestions && (
+            <div className="space-y-4">
+              <QuestionBankSelector
+                teacherId={registrationId!}
+                grade={selectedExamForQuestions.grade}
+                selectedQuestions={selectedQuestionIds}
+                onSelect={setSelectedQuestionIds}
+              />
+
+              <div className="flex justify-end gap-2 pt-4 border-t">
+                <Button variant="outline" onClick={() => setShowQuestionSelector(false)}>
+                  ยกเลิก
+                </Button>
+                <Button 
+                  onClick={handleAddQuestionsToExam}
+                  disabled={selectedQuestionIds.length === 0}
+                >
+                  เพิ่มโจทย์ {selectedQuestionIds.length} ข้อ
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>

@@ -4,11 +4,15 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Search, BookOpen, Pencil, Sparkles, FileText, Trash2 } from 'lucide-react';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
 import { useTranslation } from 'react-i18next';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
 import ManualQuestionForm from './ManualQuestionForm';
 import AIQuestionGenerator from './AIQuestionGenerator';
+import TemplateManager from './TemplateManager';
 
 interface QuestionBankManagerProps {
   teacherId: string | null;
@@ -20,6 +24,9 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
   const [selectedTopic, setSelectedTopic] = useState<string>('all');
+  const [selectedQuestions, setSelectedQuestions] = useState<Set<string>>(new Set());
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   
   const {
     questions,
@@ -48,6 +55,37 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
       await deleteQuestion(id);
       handleRefresh();
     }
+  };
+
+  const toggleQuestion = (id: string) => {
+    const newSelected = new Set(selectedQuestions);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedQuestions(newSelected);
+  };
+
+  const toggleAll = () => {
+    if (selectedQuestions.size === filteredQuestions.length) {
+      setSelectedQuestions(new Set());
+    } else {
+      setSelectedQuestions(new Set(filteredQuestions.map(q => q.id)));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    setDeleting(true);
+    
+    const deletePromises = Array.from(selectedQuestions).map(id => deleteQuestion(id));
+    await Promise.all(deletePromises);
+    
+    setDeleting(false);
+    setShowDeleteDialog(false);
+    setSelectedQuestions(new Set());
+    toast.success(`ลบโจทย์ ${selectedQuestions.size} ข้อสำเร็จ`);
+    handleRefresh();
   };
 
   const filteredQuestions = questions.filter(q => {
@@ -152,6 +190,37 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
             </div>
           </Card>
 
+          {selectedQuestions.size > 0 && (
+            <Card className="p-4 bg-primary/5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    checked={selectedQuestions.size === filteredQuestions.length && filteredQuestions.length > 0}
+                    onCheckedChange={toggleAll}
+                  />
+                  <span className="font-medium">เลือกทั้งหมด ({selectedQuestions.size} ข้อ)</span>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedQuestions(new Set())}
+                  >
+                    ยกเลิก
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => setShowDeleteDialog(true)}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    ลบที่เลือก
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          )}
+
           <div className="grid gap-4">
             {loading ? (
               <Card className="p-8 text-center text-muted-foreground">
@@ -169,7 +238,12 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
             ) : (
               filteredQuestions.map((question, index) => (
                 <Card key={question.id} className="p-4 hover:shadow-md transition-shadow">
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-4">
+                    <Checkbox
+                      checked={selectedQuestions.has(question.id)}
+                      onCheckedChange={() => toggleQuestion(question.id)}
+                      className="mt-1"
+                    />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-sm font-medium text-muted-foreground">
@@ -269,12 +343,27 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
         </TabsContent>
 
         <TabsContent value="templates">
-          <Card className="p-8 text-center text-muted-foreground">
-            <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-            <p>ฟีเจอร์แม่แบบโจทย์กำลังพัฒนา...</p>
-          </Card>
+          <TemplateManager teacherId={teacherId!} grade={selectedGrade} />
         </TabsContent>
       </Tabs>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>ยืนยันการลบ</AlertDialogTitle>
+            <AlertDialogDescription>
+              คุณต้องการลบโจทย์ {selectedQuestions.size} ข้อที่เลือกไว้หรือไม่? 
+              การกระทำนี้ไม่สามารถย้อนกลับได้
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBulkDelete} disabled={deleting}>
+              {deleting ? 'กำลังลบ...' : 'ยืนยันลบ'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
