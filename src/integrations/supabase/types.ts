@@ -827,6 +827,7 @@ export type Database = {
       question_bank: {
         Row: {
           ai_generated: boolean | null
+          assessment_type: string | null
           choices: Json
           correct_answer: string
           created_at: string | null
@@ -837,6 +838,7 @@ export type Database = {
           image_urls: string[] | null
           is_template: boolean | null
           question_text: string
+          semester: number | null
           skill_name: string
           subject: string
           tags: string[] | null
@@ -849,6 +851,7 @@ export type Database = {
         }
         Insert: {
           ai_generated?: boolean | null
+          assessment_type?: string | null
           choices: Json
           correct_answer: string
           created_at?: string | null
@@ -859,6 +862,7 @@ export type Database = {
           image_urls?: string[] | null
           is_template?: boolean | null
           question_text: string
+          semester?: number | null
           skill_name: string
           subject?: string
           tags?: string[] | null
@@ -871,6 +875,7 @@ export type Database = {
         }
         Update: {
           ai_generated?: boolean | null
+          assessment_type?: string | null
           choices?: Json
           correct_answer?: string
           created_at?: string | null
@@ -881,6 +886,7 @@ export type Database = {
           image_urls?: string[] | null
           is_template?: boolean | null
           question_text?: string
+          semester?: number | null
           skill_name?: string
           subject?: string
           tags?: string[] | null
@@ -904,11 +910,13 @@ export type Database = {
       question_templates: {
         Row: {
           answer_formula: string
+          assessment_type: string | null
           choices_formula: Json | null
           created_at: string | null
           difficulty: string
           grade: number
           id: string
+          semester: number | null
           teacher_id: string
           template_name: string
           template_text: string
@@ -919,11 +927,13 @@ export type Database = {
         }
         Insert: {
           answer_formula: string
+          assessment_type?: string | null
           choices_formula?: Json | null
           created_at?: string | null
           difficulty: string
           grade: number
           id?: string
+          semester?: number | null
           teacher_id: string
           template_name: string
           template_text: string
@@ -934,11 +944,13 @@ export type Database = {
         }
         Update: {
           answer_formula?: string
+          assessment_type?: string | null
           choices_formula?: Json | null
           created_at?: string | null
           difficulty?: string
           grade?: number
           id?: string
+          semester?: number | null
           teacher_id?: string
           template_name?: string
           template_text?: string

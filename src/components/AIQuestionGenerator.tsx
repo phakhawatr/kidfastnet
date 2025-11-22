@@ -12,10 +12,12 @@ interface AIQuestionGeneratorProps {
   teacherId: string;
   grade: number;
   topics: any[];
+  semester?: number;
+  assessmentType?: 'semester1' | 'semester2' | 'nt';
   onSuccess?: () => void;
 }
 
-export default function AIQuestionGenerator({ teacherId, grade, topics, onSuccess }: AIQuestionGeneratorProps) {
+export default function AIQuestionGenerator({ teacherId, grade, topics, semester, assessmentType, onSuccess }: AIQuestionGeneratorProps) {
   const { generateWithAI, createQuestion } = useQuestionBank(teacherId);
   const [selectedTopic, setSelectedTopic] = useState('');
   const [difficulty, setDifficulty] = useState('medium');
@@ -81,6 +83,8 @@ export default function AIQuestionGenerator({ teacherId, grade, topics, onSucces
         ...q,
         topic: selectedTopic,
         skill_name: selectedTopic,
+        semester: semester,
+        assessment_type: assessmentType || (semester ? `semester${semester}` : 'semester'),
       });
     });
 
