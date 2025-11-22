@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Download, Database, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Search, Download, Database, Sparkles, CheckCircle2, FileUp } from 'lucide-react';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
@@ -190,102 +190,125 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess }: S
           <p className="text-sm text-muted-foreground">
             พบ {filteredQuestions.length} ข้อสอบ
           </p>
-          {filteredQuestions.map((question) => (
-            <Card key={question.id} className="p-6 hover:shadow-md transition-shadow">
-              <div className="space-y-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="space-y-2 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <Badge variant="outline">ป.{question.grade}</Badge>
-                      <Badge className={getDifficultyColor(question.difficulty)}>
-                        {getDifficultyText(question.difficulty)}
+          {filteredQuestions.map((question, index) => (
+            <Card key={question.id} className="p-4 hover:shadow-md transition-shadow">
+              <div className="flex items-start gap-4">
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-sm font-medium flex-shrink-0">
+                  {index + 1}
+                </div>
+                <div className="flex-1 space-y-4">
+                  <div className="flex items-start gap-2 flex-wrap">
+                    <span className="text-sm font-medium text-muted-foreground">
+                      ข้อ {index + 1}
+                    </span>
+                    
+                    {/* 1. ชั้น */}
+                    <Badge variant="outline" className="text-xs font-normal bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800">
+                      ป.{question.grade}
+                    </Badge>
+                    
+                    {/* 2. เทอม */}
+                    {question.semester && (
+                      <Badge variant="outline" className="text-xs font-normal bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
+                        เทอม {question.semester}
                       </Badge>
-                      {question.ai_generated && (
-                        <Badge variant="secondary" className="bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
-                          <Sparkles className="w-3 h-3 mr-1" />
-                          AI
-                        </Badge>
-                      )}
-                      {question.semester && (
-                        <Badge variant="outline">เทอม {question.semester}</Badge>
-                      )}
-                      {question.assessment_type === 'nt' && (
-                        <Badge variant="outline">NT</Badge>
-                      )}
-                      {question.topic && (
-                        <Badge variant="secondary">{question.topic}</Badge>
-                      )}
-                      {question.times_used > 0 && (
-                        <Badge variant="outline" className="text-xs">
-                          ใช้งาน {question.times_used} ครั้ง
-                        </Badge>
-                      )}
-                    </div>
-
-                    <div className="prose prose-sm dark:prose-invert max-w-none">
-                      <p className="text-base font-medium">{question.question_text}</p>
-                    </div>
-
-                    {question.image_urls && question.image_urls.length > 0 && (
-                      <div className="flex gap-2 flex-wrap">
-                        {question.image_urls.map((url: string, idx: number) => (
-                          <img
-                            key={idx}
-                            src={url}
-                            alt={`Question image ${idx + 1}`}
-                            className="max-w-xs rounded border"
-                          />
-                        ))}
-                      </div>
                     )}
-
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium text-muted-foreground">ตัวเลือก:</p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        {Array.isArray(question.choices) && question.choices.map((choice: string, idx: number) => {
-                          const isCorrect = choice === question.correct_answer;
-                          return (
-                            <div
-                              key={idx}
-                              className={`p-3 rounded border ${
-                                isCorrect
-                                  ? 'border-green-500 bg-green-50 dark:bg-green-950'
-                                  : 'border-border'
-                              }`}
-                            >
-                              <div className="flex items-start gap-2">
-                                <span className="text-sm font-light text-gray-500 dark:text-gray-400">
-                                  {idx + 1})
-                                </span>
-                                <span className="text-lg font-semibold text-blue-600 dark:text-blue-400 flex-1">
-                                  {choice}
-                                </span>
-                                {isCorrect && (
-                                  <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {question.explanation && (
-                      <div className="p-3 bg-blue-50 dark:bg-blue-950 rounded border border-blue-200 dark:border-blue-800">
-                        <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
-                          คำอธิบาย:
-                        </p>
-                        <p className="text-sm text-blue-800 dark:text-blue-200">
-                          {question.explanation}
-                        </p>
-                      </div>
+                    {question.assessment_type === 'nt' && (
+                      <Badge variant="outline" className="text-xs font-normal bg-yellow-50 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800">
+                        🏆 NT
+                      </Badge>
+                    )}
+                    
+                    {/* 3. สร้างจาก (PDF/AI/ระบบ) */}
+                    {question.tags && question.tags.includes && question.tags.includes('PDF') && (
+                      <Badge variant="outline" className="text-xs font-normal bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800">
+                        <FileUp className="w-3 h-3 inline mr-1" />
+                        PDF
+                      </Badge>
+                    )}
+                    {question.ai_generated && (!question.tags || !question.tags.includes || !question.tags.includes('PDF')) && (
+                      <Badge variant="outline" className="text-xs font-normal bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800">
+                        <Sparkles className="w-3 h-3 inline mr-1" />
+                        AI
+                      </Badge>
+                    )}
+                    {question.is_system_question && (
+                      <Badge variant="outline" className="text-xs font-normal bg-cyan-50 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800">
+                        🔧 ระบบ
+                      </Badge>
+                    )}
+                    
+                    {/* 4. ความยาก */}
+                    <Badge variant="outline" className={`text-xs font-normal ${
+                      question.difficulty === 'easy' 
+                        ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-800' :
+                      question.difficulty === 'medium' 
+                        ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950 dark:text-yellow-300 dark:border-yellow-800' :
+                        'bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-300 dark:border-red-800'
+                    }`}>
+                      {question.difficulty === 'easy' ? 'ง่าย' :
+                       question.difficulty === 'medium' ? 'ปานกลาง' : 'ยาก'}
+                    </Badge>
+                    
+                    {/* 5. หัวข้อ */}
+                    {question.topic && (
+                      <Badge variant="outline" className="text-xs font-normal bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800">
+                        {question.topic}
+                      </Badge>
+                    )}
+                    
+                    {question.times_used > 0 && (
+                      <Badge variant="outline" className="text-xs font-normal bg-gray-50 dark:bg-gray-950 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-800">
+                        ใช้งาน {question.times_used} ครั้ง
+                      </Badge>
                     )}
                   </div>
 
+                  <div className="prose prose-sm dark:prose-invert max-w-none">
+                    <p className="text-base font-medium">{question.question_text}</p>
+                  </div>
+
+                  {question.image_urls && question.image_urls.length > 0 && (
+                    <div className="flex gap-2 flex-wrap">
+                      {question.image_urls.map((url: string, idx: number) => (
+                        <img
+                          key={idx}
+                          src={url}
+                          alt={`Question image ${idx + 1}`}
+                          className="max-w-xs rounded border"
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-2">
+                    {Array.isArray(question.choices) && question.choices.map((choice: string, idx: number) => (
+                      <div
+                        key={idx}
+                        className={`p-3 rounded border ${
+                          choice === question.correct_answer
+                            ? 'border-green-500 bg-green-50 dark:bg-green-950/20'
+                            : 'border-border'
+                        }`}
+                      >
+                        <span className="text-sm font-light text-gray-500 dark:text-gray-400">{idx + 1})</span>
+                        <span className="text-lg font-semibold text-blue-600 dark:text-blue-400 ml-2">{choice}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {question.explanation && (
+                    <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-950/20 rounded text-sm">
+                      <strong>คำอธิบาย:</strong> {question.explanation}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex flex-col gap-2">
                   <Button
                     onClick={() => handleCopyQuestion(question.id)}
-                    className="flex-shrink-0"
                     size="sm"
+                    className="w-full"
                   >
                     <Download className="w-4 h-4 mr-2" />
                     นำเข้า
