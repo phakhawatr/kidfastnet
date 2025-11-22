@@ -283,9 +283,10 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess }: S
 
                   <div className="grid grid-cols-2 gap-2">
                     {Array.isArray(question.choices) && question.choices.map((choice: string, idx: number) => {
-                      // Remove A), B), C), D) prefix from choice text
-                      const cleanChoice = choice.replace(/^[A-D]\)\s*/, '');
+                      // Check if this is the correct answer BEFORE cleaning
                       const isCorrect = choice === question.correct_answer;
+                      // Remove A), B), C), D) prefix from choice text for display
+                      const cleanChoice = choice.replace(/^[A-D]\)\s*/, '');
                       
                       return (
                         <div
