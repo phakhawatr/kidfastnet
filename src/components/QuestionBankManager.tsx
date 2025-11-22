@@ -9,10 +9,12 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Search, BookOpen, Pencil, Sparkles, FileText, Trash2, Share2, Users, Trophy, FileUp, Database, CheckCircle2, X } from 'lucide-react';
-import { useQuestionBank } from '@/hooks/useQuestionBank';
+import { useQuestionBank, QuestionBankItem } from '@/hooks/useQuestionBank';
 import { useTranslation } from 'react-i18next';
 import { curriculumConfig } from '@/config/curriculum';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import ManualQuestionForm from './ManualQuestionForm';
 import AIQuestionGenerator from './AIQuestionGenerator';
@@ -38,6 +40,14 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [sharedQuestionsMap, setSharedQuestionsMap] = useState<Record<string, { id: string; share_code: string }>>({});
+  const [editingQuestion, setEditingQuestion] = useState<QuestionBankItem | null>(null);
+  const [editForm, setEditForm] = useState({
+    question_text: '',
+    choices: ['', '', '', ''],
+    correct_answer: '',
+    explanation: '',
+    difficulty: 'medium'
+  });
   
   const {
     questions,
@@ -49,6 +59,7 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
     shareQuestion,
     unshareQuestion,
     checkSharedQuestions,
+    updateQuestion,
   } = useQuestionBank(teacherId || adminId, !!adminId);
 
   useEffect(() => {
@@ -115,6 +126,45 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
       await unshareQuestion(id);
       handleRefresh();
     }
+  };
+
+  const handleEditQuestion = (question: QuestionBankItem) => {
+    setEditingQuestion(question);
+    setEditForm({
+      question_text: question.question_text,
+      choices: Array.isArray(question.choices) ? question.choices : ['', '', '', ''],
+      correct_answer: question.correct_answer,
+      explanation: question.explanation || '',
+      difficulty: question.difficulty
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingQuestion) return;
+
+    const success = await updateQuestion(editingQuestion.id, {
+      question_text: editForm.question_text,
+      choices: editForm.choices,
+      correct_answer: editForm.correct_answer,
+      explanation: editForm.explanation,
+      difficulty: editForm.difficulty
+    });
+
+    if (success) {
+      setEditingQuestion(null);
+      handleRefresh();
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingQuestion(null);
+    setEditForm({
+      question_text: '',
+      choices: ['', '', '', ''],
+      correct_answer: '',
+      explanation: '',
+      difficulty: 'medium'
+    });
   };
 
   const toggleQuestion = (id: string) => {
@@ -486,6 +536,14 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
                       </div>
                     </div>
                     <div className="flex flex-col gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEditQuestion(question)}
+                        title="แก้ไขโจทย์"
+                      >
+                        <Pencil className="w-4 h-4 text-primary" />
+                      </Button>
                       {sharedQuestionsMap[question.id] ? (
                         <div className="flex flex-col gap-2">
                           <div className="flex items-center gap-2 px-3 py-2 bg-green-50 dark:bg-green-950 rounded-md border border-green-200 dark:border-green-800">
@@ -594,6 +652,100 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Edit Question Dialog */}
+      <Dialog open={!!editingQuestion} onOpenChange={() => handleCancelEdit()}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>แก้ไขโจทย์</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* Question Text */}
+            <div>
+              <Label htmlFor="edit-question">คำถาม</Label>
+              <Textarea
+                id="edit-question"
+                value={editForm.question_text}
+                onChange={(e) => setEditForm({ ...editForm, question_text: e.target.value })}
+                rows={3}
+                className="mt-1"
+              />
+            </div>
+
+            {/* Choices */}
+            <div>
+              <Label>ตัวเลือก (4 ข้อ)</Label>
+              <div className="space-y-2 mt-2">
+                {editForm.choices.map((choice, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <span className="text-sm font-medium w-8">{idx + 1})</span>
+                    <Input
+                      value={choice}
+                      onChange={(e) => {
+                        const newChoices = [...editForm.choices];
+                        newChoices[idx] = e.target.value;
+                        setEditForm({ ...editForm, choices: newChoices });
+                      }}
+                      placeholder={`ตัวเลือกที่ ${idx + 1}`}
+                    />
+                    <RadioGroup
+                      value={editForm.correct_answer}
+                      onValueChange={(value) => setEditForm({ ...editForm, correct_answer: value })}
+                    >
+                      <RadioGroupItem
+                        value={choice}
+                        id={`edit-correct-${idx}`}
+                        className="flex-shrink-0"
+                      />
+                    </RadioGroup>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                เลือกปุ่มวงกลมข้างหน้าตัวเลือกที่ถูกต้อง
+              </p>
+            </div>
+
+            {/* Explanation */}
+            <div>
+              <Label htmlFor="edit-explanation">คำอธิบาย (ไม่บังคับ)</Label>
+              <Textarea
+                id="edit-explanation"
+                value={editForm.explanation}
+                onChange={(e) => setEditForm({ ...editForm, explanation: e.target.value })}
+                rows={2}
+                className="mt-1"
+                placeholder="เฉลยหรือคำอธิบายเพิ่มเติม"
+              />
+            </div>
+
+            {/* Difficulty */}
+            <div>
+              <Label htmlFor="edit-difficulty">ระดับความยาก</Label>
+              <Select value={editForm.difficulty} onValueChange={(value) => setEditForm({ ...editForm, difficulty: value })}>
+                <SelectTrigger id="edit-difficulty" className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="easy">ง่าย</SelectItem>
+                  <SelectItem value="medium">ปานกลาง</SelectItem>
+                  <SelectItem value="hard">ยาก</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={handleCancelEdit}>
+              ยกเลิก
+            </Button>
+            <Button onClick={handleSaveEdit}>
+              บันทึกการแก้ไข
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
