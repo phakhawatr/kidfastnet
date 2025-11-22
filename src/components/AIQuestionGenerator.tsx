@@ -335,13 +335,13 @@ export default function AIQuestionGenerator({ teacherId, adminId, onSuccess }: A
                       {question.choices.map((choice: string, cIdx: number) => (
                         <div
                           key={cIdx}
-                          className={`p-2 rounded border ${
+                          className={`p-3 rounded border text-base font-medium ${
                             choice === question.correct_answer
                               ? 'border-green-500 bg-green-50 dark:bg-green-950/20'
                               : 'border-border'
                           }`}
                         >
-                          {String.fromCharCode(65 + cIdx)}. {choice}
+                          {cIdx + 1}) {choice}
                           {choice === question.correct_answer && (
                             <span className="ml-2 text-green-600 font-medium">✓</span>
                           )}

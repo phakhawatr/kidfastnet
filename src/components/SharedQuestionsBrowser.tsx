@@ -202,13 +202,13 @@ export default function SharedQuestionsBrowser({ teacherId, onImportSuccess }: S
                           question.choices.map((choice: string, idx: number) => (
                             <div
                               key={idx}
-                              className={`p-2 rounded border ${
+                              className={`p-3 rounded border text-base font-medium ${
                                 choice === question.correct_answer
                                   ? 'border-green-500 bg-green-50'
                                   : 'border-border'
                               }`}
                             >
-                              {String.fromCharCode(65 + idx)}. {choice}
+                              {idx + 1}) {choice}
                             </div>
                           ))}
                       </div>

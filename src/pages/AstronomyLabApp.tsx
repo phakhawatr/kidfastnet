@@ -1540,7 +1540,7 @@ const AstronomyLabApp = () => {
                 onClick={() => selectedAnswer === null && handleAnswerSelect(index)}
                 disabled={selectedAnswer !== null}
               >
-                <span className="mr-2">{String.fromCharCode(65 + index)}.</span>
+                <span className="mr-2 text-base font-semibold">{index + 1})</span>
                 {option}
               </Button>
             ))}
@@ -1648,7 +1648,7 @@ const AstronomyLabApp = () => {
                 onClick={() => starsSelectedAnswer === null && handleStarsAnswerSelect(index)}
                 disabled={starsSelectedAnswer !== null}
               >
-                <span className="mr-2">{String.fromCharCode(65 + index)}.</span>
+                <span className="mr-2 text-base font-semibold">{index + 1})</span>
                 {option}
               </Button>
             ))}

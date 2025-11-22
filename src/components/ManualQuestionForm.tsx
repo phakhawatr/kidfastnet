@@ -175,12 +175,12 @@ export default function ManualQuestionForm({ teacherId, adminId, grade, topics, 
                   onChange={() => setCorrectAnswer(index.toString())}
                   className="w-4 h-4"
                 />
-                <span className="font-medium">{String.fromCharCode(65 + index)}.</span>
+                <span className="font-medium text-base">{index + 1})</span>
               </div>
               <Input
                 value={choice}
                 onChange={(e) => handleChoiceChange(index, e.target.value)}
-                placeholder={`ตัวเลือก ${String.fromCharCode(65 + index)}`}
+                placeholder={`ตัวเลือก ${index + 1}`}
                 className="flex-1"
               />
               {choices.length > 2 && (
@@ -235,13 +235,13 @@ export default function ManualQuestionForm({ teacherId, adminId, grade, topics, 
               {choices.filter(c => c.trim()).map((choice, index) => (
                 <div
                   key={index}
-                  className={`p-3 rounded border ${
+                  className={`p-3 rounded border text-base font-medium ${
                     correctAnswer === index.toString()
                       ? 'border-green-500 bg-green-50 dark:bg-green-950/20'
                       : 'border-border'
                   }`}
                 >
-                  {String.fromCharCode(65 + index)}. {choice}
+                  {index + 1}) {choice}
                   {correctAnswer === index.toString() && (
                     <span className="ml-2 text-green-600 font-medium">✓ คำตอบที่ถูก</span>
                   )}
