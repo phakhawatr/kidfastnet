@@ -6,7 +6,8 @@ import { useTranslation } from 'react-i18next';
 
 export interface QuestionBankItem {
   id: string;
-  teacher_id: string;
+  teacher_id: string | null;
+  admin_id?: string | null;
   question_text: string;
   choices: any;
   correct_answer: string;
@@ -19,6 +20,7 @@ export interface QuestionBankItem {
   visual_elements?: any;
   times_used: number;
   is_template: boolean;
+  is_system_question?: boolean;
   template_variables?: any;
   ai_generated: boolean;
   image_urls?: string[];

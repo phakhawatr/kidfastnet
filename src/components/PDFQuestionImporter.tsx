@@ -11,7 +11,8 @@ import { FileUp, Loader2, Check, X, Edit2, Save } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface PDFQuestionImporterProps {
-  teacherId: string;
+  teacherId?: string;
+  adminId?: string;
   grade: number;
   semester?: number;
   assessmentType?: string;
@@ -36,7 +37,8 @@ interface ImportedQuestion {
 }
 
 export default function PDFQuestionImporter({ 
-  teacherId, 
+  teacherId,
+  adminId,
   grade, 
   semester, 
   assessmentType,
@@ -145,7 +147,9 @@ export default function PDFQuestionImporter({
       // บันทึกข้อที่ AI มั่นใจอัตโนมัติ
       if (confidentQuestions.length > 0) {
         const questionsToSave = confidentQuestions.map(q => ({
-          teacher_id: teacherId,
+          teacher_id: adminId ? null : teacherId,
+          admin_id: adminId || null,
+          is_system_question: !!adminId,
           grade: q.grade,
           semester: q.semester,
           assessment_type: q.assessment_type,
@@ -247,7 +251,9 @@ export default function PDFQuestionImporter({
     try {
       // Prepare questions for database
       const questionsToSave = selectedQuestions.map(q => ({
-        teacher_id: teacherId,
+        teacher_id: adminId ? null : teacherId,
+        admin_id: adminId || null,
+        is_system_question: !!adminId,
         grade: q.grade,
         semester: q.semester,
         assessment_type: q.assessment_type,

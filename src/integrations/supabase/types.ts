@@ -826,6 +826,7 @@ export type Database = {
       }
       question_bank: {
         Row: {
+          admin_id: string | null
           ai_generated: boolean | null
           assessment_type: string | null
           choices: Json
@@ -836,13 +837,14 @@ export type Database = {
           grade: number
           id: string
           image_urls: string[] | null
+          is_system_question: boolean | null
           is_template: boolean | null
           question_text: string
           semester: number | null
           skill_name: string
           subject: string
           tags: string[] | null
-          teacher_id: string
+          teacher_id: string | null
           template_variables: Json | null
           times_used: number | null
           topic: string | null
@@ -850,6 +852,7 @@ export type Database = {
           visual_elements: Json | null
         }
         Insert: {
+          admin_id?: string | null
           ai_generated?: boolean | null
           assessment_type?: string | null
           choices: Json
@@ -860,13 +863,14 @@ export type Database = {
           grade: number
           id?: string
           image_urls?: string[] | null
+          is_system_question?: boolean | null
           is_template?: boolean | null
           question_text: string
           semester?: number | null
           skill_name: string
           subject?: string
           tags?: string[] | null
-          teacher_id: string
+          teacher_id?: string | null
           template_variables?: Json | null
           times_used?: number | null
           topic?: string | null
@@ -874,6 +878,7 @@ export type Database = {
           visual_elements?: Json | null
         }
         Update: {
+          admin_id?: string | null
           ai_generated?: boolean | null
           assessment_type?: string | null
           choices?: Json
@@ -884,13 +889,14 @@ export type Database = {
           grade?: number
           id?: string
           image_urls?: string[] | null
+          is_system_question?: boolean | null
           is_template?: boolean | null
           question_text?: string
           semester?: number | null
           skill_name?: string
           subject?: string
           tags?: string[] | null
-          teacher_id?: string
+          teacher_id?: string | null
           template_variables?: Json | null
           times_used?: number | null
           topic?: string | null
@@ -898,6 +904,13 @@ export type Database = {
           visual_elements?: Json | null
         }
         Relationships: [
+          {
+            foreignKeyName: "question_bank_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "question_bank_teacher_id_fkey"
             columns: ["teacher_id"]

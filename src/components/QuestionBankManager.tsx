@@ -21,10 +21,11 @@ import SharedQuestionsBrowser from './SharedQuestionsBrowser';
 import PDFQuestionImporter from './PDFQuestionImporter';
 
 interface QuestionBankManagerProps {
-  teacherId: string | null;
+  teacherId?: string | null;
+  adminId?: string | null;
 }
 
-export default function QuestionBankManager({ teacherId }: QuestionBankManagerProps) {
+export default function QuestionBankManager({ teacherId, adminId }: QuestionBankManagerProps) {
   const { t } = useTranslation();
   const [selectedGrade, setSelectedGrade] = useState<number>(1);
   const [searchQuery, setSearchQuery] = useState('');
@@ -44,10 +45,10 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
     fetchTopicsByGrade,
     deleteQuestion,
     shareQuestion,
-  } = useQuestionBank(teacherId);
+  } = useQuestionBank(teacherId || adminId);
 
   useEffect(() => {
-    if (teacherId) {
+    if (teacherId || adminId) {
       // Clear topics first when changing grade/semester  
       const filters: any = { grade: selectedGrade };
       
@@ -63,10 +64,10 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
       // For all grades, we pass the semester to get the correct topics
       fetchTopicsByGrade(selectedGrade, selectedGrade === 3 ? undefined : selectedSemester);
     }
-  }, [teacherId, selectedGrade, selectedSemester, assessmentType]);
+  }, [teacherId, adminId, selectedGrade, selectedSemester, assessmentType]);
 
   const handleRefresh = () => {
-    if (teacherId) {
+    if (teacherId || adminId) {
       const filters: any = { 
         grade: selectedGrade, 
         topic: selectedTopic !== 'all' ? selectedTopic : undefined, 
@@ -409,6 +410,11 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
                             AI
                           </Badge>
                         )}
+                        {question.is_system_question && (
+                          <Badge variant="outline" className="text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-100 border-indigo-300">
+                            🔧 ระบบ
+                          </Badge>
+                        )}
                         {question.is_template && (
                           <Badge variant="outline" className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100">
                             <FileText className="w-3 h-3 inline mr-1" />
@@ -479,12 +485,12 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
         </TabsContent>
 
         <TabsContent value="shared">
-          <SharedQuestionsBrowser teacherId={teacherId!} onImportSuccess={handleRefresh} />
+          <SharedQuestionsBrowser teacherId={teacherId || adminId || null} onImportSuccess={handleRefresh} />
         </TabsContent>
 
         <TabsContent value="manual">
           <ManualQuestionForm
-            teacherId={teacherId!}
+            teacherId={teacherId || adminId || null}
             grade={selectedGrade}
             topics={topics}
             semester={selectedGrade === 3 ? undefined : selectedSemester}
@@ -495,14 +501,15 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
 
         <TabsContent value="ai">
           <AIQuestionGenerator
-            teacherId={teacherId!}
+            teacherId={teacherId || adminId || null}
             onSuccess={handleRefresh}
           />
         </TabsContent>
 
         <TabsContent value="pdf-import">
           <PDFQuestionImporter
-            teacherId={teacherId!}
+            teacherId={teacherId || null}
+            adminId={adminId || null}
             grade={selectedGrade}
             semester={selectedGrade === 3 ? undefined : selectedSemester}
             assessmentType={selectedGrade === 3 ? assessmentType : undefined}
@@ -512,7 +519,7 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
 
         <TabsContent value="templates">
           <TemplateManager 
-            teacherId={teacherId!} 
+            teacherId={teacherId || adminId || null} 
             grade={selectedGrade}
             semester={selectedGrade === 3 ? undefined : selectedSemester}
             assessmentType={selectedGrade === 3 ? assessmentType : undefined}
