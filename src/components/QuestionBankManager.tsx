@@ -531,7 +531,9 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
 
                       <div className="grid grid-cols-2 gap-2">
                         {Array.isArray(question.choices) && question.choices.map((choice: string, idx: number) => {
-                          const isCorrect = choice === question.correct_answer;
+                          // Extract the letter prefix from choice (e.g., "A" from "A) 6")
+                          const choiceLetter = choice.match(/^([A-D])\)/)?.[1];
+                          const isCorrect = choiceLetter === question.correct_answer || choice === question.correct_answer;
                           return (
                             <div
                               key={idx}
