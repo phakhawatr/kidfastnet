@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { curriculumConfig } from '@/config/curriculum';
+import { useTranslation } from 'react-i18next';
 
 export interface QuestionBankItem {
   id: string;
@@ -107,25 +109,42 @@ export function useQuestionBank(teacherId: string | null) {
     }
   };
 
-  const fetchTopicsByGrade = async (grade: number, semester?: number) => {
+  const { t } = useTranslation();
+
+  // Helper function to get Thai skill name from translation
+  const getSkillNameTh = (skill: string): string => {
+    return t(`skills:skills.${skill}.title`, skill);
+  };
+
+  const fetchTopicsByGrade = (grade: number, semester?: number) => {
     try {
-      let query = supabase
-        .from('curriculum_topics')
-        .select('*')
-        .eq('grade', grade);
+      const gradeKey = `grade${grade}` as keyof typeof curriculumConfig;
+      const semesterKey = semester ? `semester${semester}` : 'semester1';
+      
+      const gradeConfig = curriculumConfig[gradeKey];
+      if (!gradeConfig) {
+        setTopics([]);
+        return;
+      }
 
-      if (semester) query = query.eq('semester', semester);
-
-      const { data, error } = await query.order('order_index');
-
-      if (error) throw error;
-      setTopics(data || []);
+      const skills = gradeConfig[semesterKey] || [];
+      
+      // Convert from SkillConfig[] to CurriculumTopic[]
+      const topics: CurriculumTopic[] = skills.map((skill, index) => ({
+        id: `${grade}-${semester || 1}-${skill.skill}-${index}`,
+        grade: grade,
+        semester: semester,
+        subject: 'math',
+        topic_name_th: getSkillNameTh(skill.skill),
+        topic_name_en: skill.skill,
+        skill_category: skill.skill,
+        order_index: index
+      }));
+      
+      setTopics(topics);
     } catch (error: any) {
-      toast({
-        title: 'เกิดข้อผิดพลาด',
-        description: error.message,
-        variant: 'destructive',
-      });
+      console.error('Error fetching topics:', error);
+      setTopics([]);
     }
   };
 
