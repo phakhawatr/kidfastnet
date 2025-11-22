@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Plus, Trash2, Edit, Copy } from 'lucide-react';
+import { FileText, Plus, Trash2, Edit, Copy, Share2 } from 'lucide-react';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import TemplateForm from './TemplateForm';
@@ -14,7 +14,7 @@ interface TemplateManagerProps {
 }
 
 export default function TemplateManager({ teacherId, grade }: TemplateManagerProps) {
-  const { templates, fetchTemplates, generateFromTemplate } = useQuestionBank(teacherId);
+  const { templates, fetchTemplates, generateFromTemplate, shareTemplate } = useQuestionBank(teacherId);
   const [search, setSearch] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -45,6 +45,12 @@ export default function TemplateManager({ teacherId, grade }: TemplateManagerPro
   const handleCreate = () => {
     setSelectedTemplate(null);
     setIsFormOpen(true);
+  };
+
+  const handleShare = async (templateId: string) => {
+    if (confirm('แชร์แม่แบบนี้ให้ครูท่านอื่นใช้ได้หรือไม่?')) {
+      await shareTemplate(templateId, true);
+    }
   };
 
   return (
@@ -124,6 +130,15 @@ export default function TemplateManager({ teacherId, grade }: TemplateManagerPro
               </div>
 
               <div className="flex gap-2 ml-4">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleShare(template.id)}
+                  title="แชร์แม่แบบ"
+                >
+                  <Share2 className="w-4 h-4" />
+                </Button>
+                
                 <Button
                   size="sm"
                   variant="outline"

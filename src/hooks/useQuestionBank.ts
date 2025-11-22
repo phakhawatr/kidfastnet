@@ -352,6 +352,222 @@ export function useQuestionBank(teacherId: string | null) {
     }
   };
 
+  const shareQuestion = async (questionId: string, isPublic: boolean = true) => {
+    if (!teacherId) return null;
+
+    try {
+      const { data, error } = await supabase
+        .from('shared_questions')
+        .insert([{
+          question_id: questionId,
+          shared_by: teacherId,
+          is_public: isPublic,
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: 'แชร์โจทย์สำเร็จ',
+        description: `รหัสแชร์: ${data.share_code}`,
+      });
+
+      return data;
+    } catch (error: any) {
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return null;
+    }
+  };
+
+  const shareTemplate = async (templateId: string, isPublic: boolean = true) => {
+    if (!teacherId) return null;
+
+    try {
+      const { data, error } = await supabase
+        .from('shared_templates')
+        .insert([{
+          template_id: templateId,
+          shared_by: teacherId,
+          is_public: isPublic,
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: 'แชร์แม่แบบสำเร็จ',
+        description: `รหัสแชร์: ${data.share_code}`,
+      });
+
+      return data;
+    } catch (error: any) {
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return null;
+    }
+  };
+
+  const fetchSharedQuestions = async (filters: QuestionFilters = {}) => {
+    try {
+      let query = supabase
+        .from('shared_questions')
+        .select(`
+          *,
+          question:question_bank(*),
+          shared_by_user:user_registrations(nickname)
+        `)
+        .eq('is_public', true)
+        .order('created_at', { ascending: false });
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      return data || [];
+    } catch (error: any) {
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return [];
+    }
+  };
+
+  const fetchSharedTemplates = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('shared_templates')
+        .select(`
+          *,
+          template:question_templates(*),
+          shared_by_user:user_registrations(nickname)
+        `)
+        .eq('is_public', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    } catch (error: any) {
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return [];
+    }
+  };
+
+  const copySharedQuestion = async (questionId: string, sharedId: string) => {
+    if (!teacherId) return null;
+
+    try {
+      // Get original question
+      const { data: originalQuestion, error: fetchError } = await supabase
+        .from('question_bank')
+        .select('*')
+        .eq('id', questionId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Create copy with new teacher_id
+      const { data: newQuestion, error: createError } = await supabase
+        .from('question_bank')
+        .insert([{
+          ...originalQuestion,
+          id: undefined,
+          teacher_id: teacherId,
+          created_at: undefined,
+          updated_at: undefined,
+          times_used: 0,
+        }])
+        .select()
+        .single();
+
+      if (createError) throw createError;
+
+      // Increment copy count
+      await supabase
+        .from('shared_questions')
+        .update({ copy_count: supabase.sql`copy_count + 1` })
+        .eq('id', sharedId);
+
+      toast({
+        title: 'นำเข้าโจทย์สำเร็จ',
+        description: 'คัดลอกโจทย์ไปยังคลังของคุณแล้ว',
+      });
+
+      return newQuestion;
+    } catch (error: any) {
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return null;
+    }
+  };
+
+  const copySharedTemplate = async (templateId: string, sharedId: string) => {
+    if (!teacherId) return null;
+
+    try {
+      // Get original template
+      const { data: originalTemplate, error: fetchError } = await supabase
+        .from('question_templates')
+        .select('*')
+        .eq('id', templateId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Create copy with new teacher_id
+      const { data: newTemplate, error: createError } = await supabase
+        .from('question_templates')
+        .insert([{
+          ...originalTemplate,
+          id: undefined,
+          teacher_id: teacherId,
+          created_at: undefined,
+          updated_at: undefined,
+          times_used: 0,
+        }])
+        .select()
+        .single();
+
+      if (createError) throw createError;
+
+      // Increment copy count
+      await supabase
+        .from('shared_templates')
+        .update({ copy_count: supabase.sql`copy_count + 1` })
+        .eq('id', sharedId);
+
+      toast({
+        title: 'นำเข้าแม่แบบสำเร็จ',
+        description: 'คัดลอกแม่แบบไปยังคลังของคุณแล้ว',
+      });
+
+      return newTemplate;
+    } catch (error: any) {
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return null;
+    }
+  };
+
   return {
     questions,
     topics,
@@ -367,5 +583,11 @@ export function useQuestionBank(teacherId: string | null) {
     fetchTemplates,
     createTemplate,
     generateFromTemplate,
+    shareQuestion,
+    shareTemplate,
+    fetchSharedQuestions,
+    fetchSharedTemplates,
+    copySharedQuestion,
+    copySharedTemplate,
   };
 }
