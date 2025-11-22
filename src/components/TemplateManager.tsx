@@ -11,9 +11,11 @@ import TemplateForm from './TemplateForm';
 interface TemplateManagerProps {
   teacherId: string;
   grade: number;
+  semester?: number;
+  assessmentType?: 'semester1' | 'semester2' | 'nt';
 }
 
-export default function TemplateManager({ teacherId, grade }: TemplateManagerProps) {
+export default function TemplateManager({ teacherId, grade, semester, assessmentType }: TemplateManagerProps) {
   const { templates, fetchTemplates, generateFromTemplate, shareTemplate } = useQuestionBank(teacherId);
   const [search, setSearch] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
@@ -24,12 +26,17 @@ export default function TemplateManager({ teacherId, grade }: TemplateManagerPro
     fetchTemplates();
   }, []);
 
-  const filteredTemplates = templates.filter(t => 
-    t.grade === grade &&
-    (search === '' || 
-     t.template_name.toLowerCase().includes(search.toLowerCase()) ||
-     t.topic?.toLowerCase().includes(search.toLowerCase()))
-  );
+  const filteredTemplates = templates.filter(t => {
+    if (t.grade !== grade) return false;
+    if (semester && t.semester !== semester) return false;
+    if (assessmentType && t.assessment_type !== assessmentType) return false;
+    if (search !== '' && 
+        !t.template_name.toLowerCase().includes(search.toLowerCase()) &&
+        !t.topic?.toLowerCase().includes(search.toLowerCase())) {
+      return false;
+    }
+    return true;
+  });
 
   const handleGenerate = async (templateId: string, count: number = 5) => {
     setGenerating(templateId);
@@ -80,6 +87,8 @@ export default function TemplateManager({ teacherId, grade }: TemplateManagerPro
             <TemplateForm
               teacherId={teacherId}
               grade={grade}
+              semester={semester}
+              assessmentType={assessmentType}
               template={selectedTemplate}
               onSuccess={() => {
                 setIsFormOpen(false);
@@ -107,6 +116,16 @@ export default function TemplateManager({ teacherId, grade }: TemplateManagerPro
                   </Badge>
                   {template.topic && (
                     <Badge variant="outline">{template.topic}</Badge>
+                  )}
+                  {template.semester && (
+                    <Badge variant="secondary" className="text-xs">
+                      {template.semester === 1 ? '🔵 เทอม 1' : '🟢 เทอม 2'}
+                    </Badge>
+                  )}
+                  {template.assessment_type === 'nt' && (
+                    <Badge variant="default" className="text-xs">
+                      🏆 สอบ NT
+                    </Badge>
                   )}
                 </div>
 

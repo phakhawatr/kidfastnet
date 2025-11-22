@@ -20,6 +20,8 @@ export interface QuestionBankItem {
   template_variables?: any;
   ai_generated: boolean;
   image_urls?: string[];
+  semester?: number;
+  assessment_type?: string;
   created_at: string;
   updated_at: string;
 }
@@ -46,6 +48,8 @@ export interface QuestionTemplate {
   grade: number;
   topic?: string;
   difficulty: string;
+  semester?: number;
+  assessment_type?: string;
   times_used: number;
   created_at: string;
   updated_at: string;
@@ -57,6 +61,8 @@ export interface QuestionFilters {
   difficulty?: string;
   tags?: string[];
   search?: string;
+  semester?: number;
+  assessmentType?: string;
 }
 
 export function useQuestionBank(teacherId: string | null) {
@@ -80,6 +86,8 @@ export function useQuestionBank(teacherId: string | null) {
       if (filters.grade) query = query.eq('grade', filters.grade);
       if (filters.topic) query = query.eq('topic', filters.topic);
       if (filters.difficulty) query = query.eq('difficulty', filters.difficulty);
+      if (filters.semester) query = query.eq('semester', filters.semester);
+      if (filters.assessmentType) query = query.eq('assessment_type', filters.assessmentType);
       if (filters.search) {
         query = query.ilike('question_text', `%${filters.search}%`);
       }
@@ -99,13 +107,16 @@ export function useQuestionBank(teacherId: string | null) {
     }
   };
 
-  const fetchTopicsByGrade = async (grade: number) => {
+  const fetchTopicsByGrade = async (grade: number, semester?: number) => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('curriculum_topics')
         .select('*')
-        .eq('grade', grade)
-        .order('order_index');
+        .eq('grade', grade);
+
+      if (semester) query = query.eq('semester', semester);
+
+      const { data, error } = await query.order('order_index');
 
       if (error) throw error;
       setTopics(data || []);

@@ -13,10 +13,12 @@ interface ManualQuestionFormProps {
   teacherId: string;
   grade: number;
   topics: any[];
+  semester?: number;
+  assessmentType?: 'semester1' | 'semester2' | 'nt';
   onSuccess?: () => void;
 }
 
-export default function ManualQuestionForm({ teacherId, grade, topics, onSuccess }: ManualQuestionFormProps) {
+export default function ManualQuestionForm({ teacherId, grade, topics, semester, assessmentType, onSuccess }: ManualQuestionFormProps) {
   const { createQuestion } = useQuestionBank(teacherId);
   const [questionText, setQuestionText] = useState('');
   const [choices, setChoices] = useState(['', '', '', '']);
@@ -76,6 +78,8 @@ export default function ManualQuestionForm({ teacherId, grade, topics, onSuccess
       difficulty,
       skill_name: selectedTopic || 'คณิตศาสตร์',
       image_urls: imageUrls.length > 0 ? imageUrls : undefined,
+      semester: semester,
+      assessment_type: assessmentType || (semester ? `semester${semester}` : 'semester'),
       ai_generated: false,
       is_template: false,
     });

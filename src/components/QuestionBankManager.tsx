@@ -3,6 +3,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Search, BookOpen, Pencil, Sparkles, FileText, Trash2, Share2, Users } from 'lucide-react';
@@ -25,6 +27,8 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
   const [selectedTopic, setSelectedTopic] = useState<string>('all');
+  const [selectedSemester, setSelectedSemester] = useState<number>(1);
+  const [assessmentType, setAssessmentType] = useState<'semester1' | 'semester2' | 'nt'>('semester1');
   const [selectedQuestions, setSelectedQuestions] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -41,14 +45,41 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
 
   useEffect(() => {
     if (teacherId) {
-      fetchQuestions({ grade: selectedGrade });
-      fetchTopicsByGrade(selectedGrade);
+      const filters: any = { grade: selectedGrade };
+      
+      if (selectedGrade === 3) {
+        filters.assessmentType = assessmentType;
+      } else {
+        filters.semester = selectedSemester;
+      }
+      
+      fetchQuestions(filters);
+      
+      // For grade 3, we don't filter topics by assessment type
+      // For other grades, filter by semester
+      if (selectedGrade === 3) {
+        fetchTopicsByGrade(selectedGrade);
+      } else {
+        fetchTopicsByGrade(selectedGrade, selectedSemester);
+      }
     }
-  }, [teacherId, selectedGrade]);
+  }, [teacherId, selectedGrade, selectedSemester, assessmentType]);
 
   const handleRefresh = () => {
     if (teacherId) {
-      fetchQuestions({ grade: selectedGrade, topic: selectedTopic !== 'all' ? selectedTopic : undefined, difficulty: selectedDifficulty !== 'all' ? selectedDifficulty : undefined });
+      const filters: any = { 
+        grade: selectedGrade, 
+        topic: selectedTopic !== 'all' ? selectedTopic : undefined, 
+        difficulty: selectedDifficulty !== 'all' ? selectedDifficulty : undefined 
+      };
+      
+      if (selectedGrade === 3) {
+        filters.assessmentType = assessmentType;
+      } else {
+        filters.semester = selectedSemester;
+      }
+      
+      fetchQuestions(filters);
     }
   };
 
@@ -138,10 +169,15 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
 
         <TabsContent value="library" className="space-y-4">
           <Card className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">ชั้นเรียน</label>
-                <Select value={selectedGrade.toString()} onValueChange={(v) => setSelectedGrade(Number(v))}>
+                <Select value={selectedGrade.toString()} onValueChange={(v) => {
+                  const grade = Number(v);
+                  setSelectedGrade(grade);
+                  setSelectedSemester(1);
+                  setAssessmentType('semester1');
+                }}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -153,6 +189,39 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  {selectedGrade === 3 ? 'ประเภทการสอบ' : 'เทอม'}
+                </label>
+                {selectedGrade === 3 ? (
+                  <RadioGroup value={assessmentType} onValueChange={(v: any) => setAssessmentType(v)} className="flex flex-wrap gap-4">
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="semester1" id="semester1" />
+                      <Label htmlFor="semester1">ภาคเรียนที่ 1</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="semester2" id="semester2" />
+                      <Label htmlFor="semester2">ภาคเรียนที่ 2</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="nt" id="nt" />
+                      <Label htmlFor="nt">🏆 สอบ NT</Label>
+                    </div>
+                  </RadioGroup>
+                ) : (
+                  <RadioGroup value={selectedSemester.toString()} onValueChange={(v) => setSelectedSemester(Number(v))} className="flex gap-4">
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="1" id="sem1" />
+                      <Label htmlFor="sem1">เทอม 1</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="2" id="sem2" />
+                      <Label htmlFor="sem2">เทอม 2</Label>
+                    </div>
+                  </RadioGroup>
+                )}
               </div>
 
               <div>
@@ -274,6 +343,16 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
                             {question.topic}
                           </span>
                         )}
+                        {question.semester && (
+                          <span className="px-2 py-0.5 rounded text-xs font-medium bg-secondary text-secondary-foreground">
+                            {question.semester === 1 ? '🔵 เทอม 1' : '🟢 เทอม 2'}
+                          </span>
+                        )}
+                        {question.assessment_type === 'nt' && (
+                          <span className="px-2 py-0.5 rounded text-xs font-medium bg-primary text-primary-foreground">
+                            🏆 สอบ NT
+                          </span>
+                        )}
                         {question.ai_generated && (
                           <span className="px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
                             <Sparkles className="w-3 h-3 inline mr-1" />
@@ -358,6 +437,8 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
             teacherId={teacherId!}
             grade={selectedGrade}
             topics={topics}
+            semester={selectedGrade === 3 ? undefined : selectedSemester}
+            assessmentType={selectedGrade === 3 ? assessmentType : undefined}
             onSuccess={handleRefresh}
           />
         </TabsContent>
@@ -367,12 +448,19 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
             teacherId={teacherId!}
             grade={selectedGrade}
             topics={topics}
+            semester={selectedGrade === 3 ? undefined : selectedSemester}
+            assessmentType={selectedGrade === 3 ? assessmentType : undefined}
             onSuccess={handleRefresh}
           />
         </TabsContent>
 
         <TabsContent value="templates">
-          <TemplateManager teacherId={teacherId!} grade={selectedGrade} />
+          <TemplateManager 
+            teacherId={teacherId!} 
+            grade={selectedGrade}
+            semester={selectedGrade === 3 ? undefined : selectedSemester}
+            assessmentType={selectedGrade === 3 ? assessmentType : undefined}
+          />
         </TabsContent>
       </Tabs>
 

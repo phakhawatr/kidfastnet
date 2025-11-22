@@ -12,11 +12,13 @@ import { toast } from 'sonner';
 interface TemplateFormProps {
   teacherId: string;
   grade: number;
+  semester?: number;
+  assessmentType?: 'semester1' | 'semester2' | 'nt';
   template?: any;
   onSuccess?: () => void;
 }
 
-export default function TemplateForm({ teacherId, grade, template, onSuccess }: TemplateFormProps) {
+export default function TemplateForm({ teacherId, grade, semester, assessmentType, template, onSuccess }: TemplateFormProps) {
   const { createTemplate } = useQuestionBank(teacherId);
   const [saving, setSaving] = useState(false);
   
@@ -93,6 +95,8 @@ export default function TemplateForm({ teacherId, grade, template, onSuccess }: 
       variables,
       choices_formula: choices,
       teacher_id: teacherId,
+      semester: semester,
+      assessment_type: assessmentType || (semester ? `semester${semester}` : 'semester'),
     };
 
     const success = await createTemplate(templateData);
