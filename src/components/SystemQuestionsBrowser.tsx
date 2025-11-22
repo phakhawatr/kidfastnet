@@ -283,10 +283,15 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess }: S
 
                   <div className="grid grid-cols-2 gap-2">
                     {Array.isArray(question.choices) && question.choices.map((choice: string, idx: number) => {
-                      // Check if this is the correct answer BEFORE cleaning
-                      const isCorrect = choice === question.correct_answer;
-                      // Remove A), B), C), D) prefix from choice text for display
-                      const cleanChoice = choice.replace(/^[A-D]\)\s*/, '');
+                      // Clean both choice and correct answer for comparison
+                      const cleanChoice = choice.replace(/^[A-D]\)\s*/, '').replace(/^\d+\)\s*/, '').trim();
+                      const cleanCorrectAnswer = question.correct_answer.replace(/^[A-D]\)\s*/, '').replace(/^\d+\)\s*/, '').trim();
+                      
+                      // Check if correct by comparing cleaned versions OR original
+                      const isCorrect = choice === question.correct_answer || cleanChoice === cleanCorrectAnswer;
+                      
+                      // Display with cleaned format
+                      const displayChoice = choice.replace(/^[A-D]\)\s*/, '').replace(/^\d+\)\s*/, '');
                       
                       return (
                         <div
@@ -298,7 +303,7 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess }: S
                           }`}
                         >
                           <span className="text-sm font-light text-gray-500 dark:text-gray-400">{idx + 1})</span>
-                          <span className="text-lg font-semibold text-blue-600 dark:text-blue-400 ml-2">{cleanChoice}</span>
+                          <span className="text-lg font-semibold text-blue-600 dark:text-blue-400 ml-2">{displayChoice}</span>
                         </div>
                       );
                     })}
