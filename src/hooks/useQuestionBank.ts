@@ -73,6 +73,54 @@ export function useQuestionBank(teacherId: string | null) {
   const [templates, setTemplates] = useState<QuestionTemplate[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation();
+
+  // Helper function to get Thai skill name from translation
+  const getSkillNameTh = (skill: string): string => {
+    try {
+      return t(`skills:skills.${skill}.title`, { defaultValue: skill });
+    } catch (error) {
+      console.error('Translation error:', error);
+      return skill;
+    }
+  };
+
+  const fetchTopicsByGrade = (grade: number, semester?: number) => {
+    try {
+      console.log('Fetching topics for grade:', grade, 'semester:', semester);
+      
+      const gradeKey = `grade${grade}` as keyof typeof curriculumConfig;
+      const semesterKey = semester ? `semester${semester}` : 'semester1';
+      
+      const gradeConfig = curriculumConfig[gradeKey];
+      if (!gradeConfig) {
+        console.log('No grade config found for:', gradeKey);
+        setTopics([]);
+        return;
+      }
+
+      const skills = gradeConfig[semesterKey] || [];
+      console.log('Found skills:', skills.length, 'for', gradeKey, semesterKey);
+      
+      // Convert from SkillConfig[] to CurriculumTopic[]
+      const topics: CurriculumTopic[] = skills.map((skill, index) => ({
+        id: `${grade}-${semester || 1}-${skill.skill}-${index}`,
+        grade: grade,
+        semester: semester,
+        subject: 'math',
+        topic_name_th: getSkillNameTh(skill.skill),
+        topic_name_en: skill.skill,
+        skill_category: skill.skill,
+        order_index: index
+      }));
+      
+      console.log('Setting topics:', topics.map(t => t.topic_name_th));
+      setTopics(topics);
+    } catch (error: any) {
+      console.error('Error fetching topics:', error);
+      setTopics([]);
+    }
+  };
 
   const fetchQuestions = async (filters: QuestionFilters = {}) => {
     if (!teacherId) return;
@@ -106,45 +154,6 @@ export function useQuestionBank(teacherId: string | null) {
       });
     } finally {
       setLoading(false);
-    }
-  };
-
-  const { t } = useTranslation();
-
-  // Helper function to get Thai skill name from translation
-  const getSkillNameTh = (skill: string): string => {
-    return t(`skills:skills.${skill}.title`, skill);
-  };
-
-  const fetchTopicsByGrade = (grade: number, semester?: number) => {
-    try {
-      const gradeKey = `grade${grade}` as keyof typeof curriculumConfig;
-      const semesterKey = semester ? `semester${semester}` : 'semester1';
-      
-      const gradeConfig = curriculumConfig[gradeKey];
-      if (!gradeConfig) {
-        setTopics([]);
-        return;
-      }
-
-      const skills = gradeConfig[semesterKey] || [];
-      
-      // Convert from SkillConfig[] to CurriculumTopic[]
-      const topics: CurriculumTopic[] = skills.map((skill, index) => ({
-        id: `${grade}-${semester || 1}-${skill.skill}-${index}`,
-        grade: grade,
-        semester: semester,
-        subject: 'math',
-        topic_name_th: getSkillNameTh(skill.skill),
-        topic_name_en: skill.skill,
-        skill_category: skill.skill,
-        order_index: index
-      }));
-      
-      setTopics(topics);
-    } catch (error: any) {
-      console.error('Error fetching topics:', error);
-      setTopics([]);
     }
   };
 

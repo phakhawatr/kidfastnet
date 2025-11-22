@@ -47,6 +47,7 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
 
   useEffect(() => {
     if (teacherId) {
+      // Clear topics first when changing grade/semester  
       const filters: any = { grade: selectedGrade };
       
       if (selectedGrade === 3) {
@@ -57,13 +58,9 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
       
       fetchQuestions(filters);
       
-      // For grade 3, we don't filter topics by assessment type
-      // For other grades, filter by semester
-      if (selectedGrade === 3) {
-        fetchTopicsByGrade(selectedGrade);
-      } else {
-        fetchTopicsByGrade(selectedGrade, selectedSemester);
-      }
+      // Fetch topics based on grade and semester
+      // For all grades, we pass the semester to get the correct topics
+      fetchTopicsByGrade(selectedGrade, selectedGrade === 3 ? undefined : selectedSemester);
     }
   }, [teacherId, selectedGrade, selectedSemester, assessmentType]);
 
