@@ -21,7 +21,9 @@ export default function AdminQuestionBank() {
   const [isCheckingAccount, setIsCheckingAccount] = useState(true);
 
   useEffect(() => {
+    console.log('🔍 AdminQuestionBank mounted, isLoggedIn:', isLoggedIn, 'name:', name);
     if (!isLoggedIn) {
+      console.log('❌ Not logged in, redirecting to /admin/login');
       navigate('/admin/login');
       return;
     }
@@ -31,6 +33,7 @@ export default function AdminQuestionBank() {
 
   const checkSystemTeacherAccount = async () => {
     try {
+      console.log('🔍 Checking for system teacher account...');
       setIsCheckingAccount(true);
       
       // Check if KidFast System teacher account exists
@@ -41,12 +44,15 @@ export default function AdminQuestionBank() {
         .eq('grade', 'admin')
         .maybeSingle();
 
+      console.log('📊 System user query result:', { systemUser, error });
+
       if (error) {
-        console.error('Error checking system teacher:', error);
+        console.error('❌ Error checking system teacher:', error);
         return;
       }
 
       if (systemUser) {
+        console.log('✅ Found system user:', systemUser.id);
         // Verify this user has teacher role
         const { data: roleData } = await supabase
           .from('user_roles')
@@ -55,12 +61,19 @@ export default function AdminQuestionBank() {
           .eq('role', 'teacher')
           .maybeSingle();
 
+        console.log('📊 Role data:', roleData);
+
         if (roleData) {
+          console.log('✅ System teacher account verified');
           setSystemTeacherId(systemUser.id);
+        } else {
+          console.log('⚠️ System user found but no teacher role');
         }
+      } else {
+        console.log('⚠️ No system teacher account found');
       }
     } catch (error) {
-      console.error('Error checking system account:', error);
+      console.error('❌ Error checking system account:', error);
     } finally {
       setIsCheckingAccount(false);
     }
