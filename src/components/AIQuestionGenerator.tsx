@@ -97,11 +97,17 @@ export default function AIQuestionGenerator({ teacherId, adminId, onSuccess }: A
     const savePromises = Array.from(selectedQuestions).map(async (index) => {
       const q = generatedQuestions[index];
       return createQuestion({
-        ...q,
+        question_text: q.question_text,
+        choices: q.choices,
+        correct_answer: q.correct_answer,
+        explanation: q.explanation,
+        difficulty: q.difficulty,
+        grade: q.grade || selectedGrade,
         topic: selectedTopic,
         skill_name: selectedTopic,
         semester: selectedGrade === 3 ? undefined : selectedSemester,
         assessment_type: selectedGrade === 3 ? assessmentType : (selectedSemester ? `semester${selectedSemester}` : 'semester'),
+        ai_generated: true,
         admin_id: adminId || null,
         is_system_question: !!adminId,
       });
