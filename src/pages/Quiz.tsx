@@ -741,6 +741,32 @@ const Quiz = () => {
              <CardContent className="space-y-6">
               {currentQuestion && (
                 <>
+                  {/* Question Metadata Tags */}
+                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border border-blue-200">
+                    <div className="flex flex-wrap gap-2 text-sm">
+                      <span className="inline-flex items-center gap-1 bg-white px-3 py-1 rounded-full border border-blue-300 text-blue-700 font-medium">
+                        {currentQuestion.difficulty === 'easy' ? 'ง่าย' : currentQuestion.difficulty === 'medium' ? 'ปานกลาง' : 'ยาก'}
+                      </span>
+                      <span className="inline-flex items-center gap-1 bg-white px-3 py-1 rounded-full border border-purple-300 text-purple-700 font-medium">
+                        ป.{selectedGrade} {assessmentType === 'nt' ? 'NT' : `เทอม ${selectedSemester}`}
+                      </span>
+                      <span className="inline-flex items-center gap-1 bg-white px-3 py-1 rounded-full border border-green-300 text-green-700 font-medium">
+                        {t(`skills:skills.${currentQuestion.skill}.title`, { defaultValue: skillNamesTh[currentQuestion.skill] || currentQuestion.skill })}
+                      </span>
+                    </div>
+                    {(() => {
+                      const gradeKey = `grade${selectedGrade}`;
+                      const semesterKey = assessmentType === 'nt' ? 'nt' : `semester${selectedSemester}`;
+                      const skills = curriculumConfig[gradeKey]?.[semesterKey] || [];
+                      const skillConfig = skills.find(s => s.skill === currentQuestion.skill);
+                      return skillConfig?.description ? (
+                        <p className="text-xs text-gray-600 mt-2 leading-relaxed">
+                          <span className="font-semibold">คำอธิบาย:</span> {skillConfig.description}
+                        </p>
+                      ) : null;
+                    })()}
+                  </div>
+
                   <div className="bg-white p-6 rounded-lg border-2 border-purple-200">
                     {currentQuestion.clockDisplay && (
                       <ClockDisplay 
@@ -1126,6 +1152,30 @@ const Quiz = () => {
                             <XCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
                           )}
                            <div className="flex-1">
+                            {/* Question Metadata Tags */}
+                            <div className="mb-3 flex flex-wrap gap-2 text-xs">
+                              <span className="inline-flex items-center gap-1 bg-white px-2 py-1 rounded-full border border-blue-300 text-blue-700 font-medium">
+                                {q.difficulty === 'easy' ? 'ง่าย' : q.difficulty === 'medium' ? 'ปานกลาง' : 'ยาก'}
+                              </span>
+                              <span className="inline-flex items-center gap-1 bg-white px-2 py-1 rounded-full border border-purple-300 text-purple-700 font-medium">
+                                ป.{selectedGrade} {assessmentType === 'nt' ? 'NT' : `เทอม ${selectedSemester}`}
+                              </span>
+                              <span className="inline-flex items-center gap-1 bg-white px-2 py-1 rounded-full border border-green-300 text-green-700 font-medium">
+                                {t(`skills:skills.${q.skill}.title`, { defaultValue: skillNamesTh[q.skill] || q.skill })}
+                              </span>
+                              {(() => {
+                                const gradeKey = `grade${selectedGrade}`;
+                                const semesterKey = assessmentType === 'nt' ? 'nt' : `semester${selectedSemester}`;
+                                const skills = curriculumConfig[gradeKey]?.[semesterKey] || [];
+                                const skillConfig = skills.find(s => s.skill === q.skill);
+                                return skillConfig?.description ? (
+                                  <span className="text-xs text-gray-600 w-full mt-1">
+                                    : {skillConfig.description}
+                                  </span>
+                                ) : null;
+                              })()}
+                            </div>
+                            
                             <div className="font-semibold text-gray-800 mb-2">
                               <span>ข้อ {idx + 1}: </span>
                               {renderQuestionText(q.question)}
