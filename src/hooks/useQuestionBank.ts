@@ -129,14 +129,14 @@ export function useQuestionBank(teacherId: string | null) {
     
     setLoading(true);
     try {
-      // Check if admin user by checking grade field
-      const { data: userData } = await supabase
-        .from('user_registrations')
-        .select('grade')
+      // Check if user is an admin by checking admins table
+      const { data: adminData } = await supabase
+        .from('admins')
+        .select('id')
         .eq('id', teacherId)
         .maybeSingle();
       
-      const isAdmin = userData?.grade === 'admin';
+      const isAdmin = !!adminData;
       
       let query = supabase
         .from('question_bank')
