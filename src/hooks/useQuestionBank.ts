@@ -178,22 +178,34 @@ export function useQuestionBank(teacherId: string | null) {
     if (!teacherId) return null;
 
     try {
-      // Determine if this is admin creating system questions
-      const isAdmin = question.admin_id != null;
+      // Check if the user creating the question is an admin
+      const { data: userData } = await supabase
+        .from('user_registrations')
+        .select('grade')
+        .eq('id', teacherId)
+        .maybeSingle();
+      
+      const isAdmin = userData?.grade === 'admin';
       
       const { data, error } = await supabase
         .from('question_bank')
         .insert([{
           teacher_id: isAdmin ? null : teacherId,
-          admin_id: question.admin_id || null,
-          is_system_question: question.is_system_question || false,
+          admin_id: isAdmin ? teacherId : null,
+          is_system_question: isAdmin ? true : (question.is_system_question || false),
           choices: question.choices || [],
           correct_answer: question.correct_answer || '',
           difficulty: question.difficulty || 'medium',
           grade: question.grade || 1,
           question_text: question.question_text || '',
           skill_name: question.skill_name || '',
-          ...question,
+          semester: question.semester,
+          assessment_type: question.assessment_type,
+          topic: question.topic,
+          explanation: question.explanation,
+          ai_generated: question.ai_generated || false,
+          image_urls: question.image_urls,
+          tags: question.tags,
         }])
         .select()
         .single();
