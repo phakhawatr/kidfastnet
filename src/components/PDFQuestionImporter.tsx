@@ -164,22 +164,23 @@ export default function PDFQuestionImporter({
     setIsSaving(true);
 
     try {
-      const questionsToSave = selectedQuestions.map(q => ({
-        teacher_id: adminId ? null : teacherId,
-        admin_id: adminId || null,
-        is_system_question: !!adminId,
-        grade: q.grade,
-        semester: q.semester,
-        assessment_type: q.assessment_type,
-        question_text: q.question_text,
-        choices: q.choices,
-        correct_answer: q.correct_answer,
-        explanation: q.explanation,
-        difficulty: q.difficulty,
-        skill_name: q.skill_name,
-        topic: q.topic,
-        ai_generated: true,
-      }));
+    const questionsToSave = selectedQuestions.map(q => ({
+      teacher_id: adminId ? null : teacherId,
+      admin_id: adminId || null,
+      is_system_question: !!adminId,
+      grade: q.grade,
+      semester: q.semester,
+      assessment_type: q.assessment_type,
+      question_text: q.question_text,
+      choices: q.choices,
+      correct_answer: q.correct_answer,
+      explanation: q.explanation,
+      difficulty: q.difficulty,
+      skill_name: q.skill_name,
+      topic: q.topic,
+      ai_generated: true,
+      tags: ['PDF'],
+    }));
 
       const { error } = await supabase
         .from('question_bank')
