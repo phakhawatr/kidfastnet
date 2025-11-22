@@ -282,19 +282,25 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess }: S
                   )}
 
                   <div className="grid grid-cols-2 gap-2">
-                    {Array.isArray(question.choices) && question.choices.map((choice: string, idx: number) => (
-                      <div
-                        key={idx}
-                        className={`p-3 rounded border ${
-                          choice === question.correct_answer
-                            ? 'border-green-500 bg-green-50 dark:bg-green-950/20'
-                            : 'border-border'
-                        }`}
-                      >
-                        <span className="text-sm font-light text-gray-500 dark:text-gray-400">{idx + 1})</span>
-                        <span className="text-lg font-semibold text-blue-600 dark:text-blue-400 ml-2">{choice}</span>
-                      </div>
-                    ))}
+                    {Array.isArray(question.choices) && question.choices.map((choice: string, idx: number) => {
+                      // Remove A), B), C), D) prefix from choice text
+                      const cleanChoice = choice.replace(/^[A-D]\)\s*/, '');
+                      const isCorrect = choice === question.correct_answer;
+                      
+                      return (
+                        <div
+                          key={idx}
+                          className={`p-3 rounded border ${
+                            isCorrect
+                              ? 'border-green-500 bg-green-50 dark:bg-green-950/20'
+                              : 'border-border'
+                          }`}
+                        >
+                          <span className="text-sm font-light text-gray-500 dark:text-gray-400">{idx + 1})</span>
+                          <span className="text-lg font-semibold text-blue-600 dark:text-blue-400 ml-2">{cleanChoice}</span>
+                        </div>
+                      );
+                    })}
                   </div>
 
                   {question.explanation && (
