@@ -135,8 +135,11 @@ ${range ? `- ช่วงตัวเลขที่ใช้: ${range[0]}-${ran
     const enrichedQuestions = questions.map((q: any) => ({
       ...q,
       grade,
+      semester,
+      assessment_type: assessmentType,
       topic,
       difficulty,
+      description,
       ai_generated: true,
     }));
 

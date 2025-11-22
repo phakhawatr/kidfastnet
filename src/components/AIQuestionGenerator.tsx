@@ -306,27 +306,18 @@ export default function AIQuestionGenerator({ teacherId, onSuccess }: AIQuestion
                         </span>
                         <span className="text-gray-400">|</span>
                         <span className="px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
-                          ป.{selectedGrade} {assessmentType === 'nt' ? 'NT' : `เทอม ${selectedSemester}`}
+                          ป.{question.grade || selectedGrade} {question.assessment_type === 'nt' || assessmentType === 'nt' ? 'NT' : `เทอม ${question.semester || selectedSemester}`}
                         </span>
                         <span className="text-gray-400">|</span>
                         <span className="px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                          {selectedTopic}
+                          {question.skill_name || question.topic || selectedTopic}
                         </span>
                       </div>
-                      {(() => {
-                        const gradeKey = `grade${selectedGrade}`;
-                        const semesterKey = assessmentType === 'nt' ? 'nt' : `semester${selectedSemester}`;
-                        const skills = curriculumConfig[gradeKey]?.[semesterKey] || [];
-                        const skillConfig = skills.find(s => {
-                          const translatedTitle = t(`skills:skills.${s.skill}.title`);
-                          return translatedTitle === selectedTopic;
-                        });
-                        return skillConfig?.description ? (
-                          <p className="text-xs text-gray-600 mt-2 leading-relaxed">
-                            <span className="font-semibold">:</span> {skillConfig.description}
-                          </p>
-                        ) : null;
-                      })()}
+                      {question.description && (
+                        <p className="text-xs text-gray-600 mt-2 leading-relaxed">
+                          <span className="font-semibold">:</span> {question.description}
+                        </p>
+                      )}
                     </div>
 
                     <p className="font-medium">{question.question_text}</p>
