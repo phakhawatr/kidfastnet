@@ -10,7 +10,8 @@ import ImageUploader from './ImageUploader';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
 
 interface ManualQuestionFormProps {
-  teacherId: string;
+  teacherId: string | null;
+  adminId?: string | null;
   grade: number;
   topics: any[];
   semester?: number;
@@ -18,8 +19,8 @@ interface ManualQuestionFormProps {
   onSuccess?: () => void;
 }
 
-export default function ManualQuestionForm({ teacherId, grade, topics, semester, assessmentType, onSuccess }: ManualQuestionFormProps) {
-  const { createQuestion } = useQuestionBank(teacherId);
+export default function ManualQuestionForm({ teacherId, adminId, grade, topics, semester, assessmentType, onSuccess }: ManualQuestionFormProps) {
+  const { createQuestion } = useQuestionBank(teacherId || adminId);
   const [questionText, setQuestionText] = useState('');
   const [choices, setChoices] = useState(['', '', '', '']);
   const [correctAnswer, setCorrectAnswer] = useState('0');
@@ -82,6 +83,8 @@ export default function ManualQuestionForm({ teacherId, grade, topics, semester,
       assessment_type: assessmentType || (semester ? `semester${semester}` : 'semester'),
       ai_generated: false,
       is_template: false,
+      admin_id: adminId || null,
+      is_system_question: !!adminId,
     });
 
     setSaving(false);
@@ -145,7 +148,7 @@ export default function ManualQuestionForm({ teacherId, grade, topics, semester,
         <div>
           <Label>รูปภาพประกอบ (ถ้ามี)</Label>
           <ImageUploader
-            teacherId={teacherId}
+            teacherId={teacherId || adminId || ''}
             onImagesChange={setImageUrls}
             maxImages={3}
           />
