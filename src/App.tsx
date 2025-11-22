@@ -46,6 +46,7 @@ import AstronomyLabApp from "./pages/AstronomyLabApp";
 import STEMProgressDashboard from "./pages/STEMProgressDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import QuestionBank from "./pages/QuestionBank";
+import AdminQuestionBank from "./pages/AdminQuestionBank";
 import PublicExam from "./pages/PublicExam";
 import StudentExamResult from "./pages/StudentExamResult";
 import NotFound from "./pages/NotFound";
@@ -107,6 +108,14 @@ const App = () => {
             } 
           />
           <Route path="/admin/login" element={<AdminLogin />} />
+          <Route 
+            path="/admin/question-bank" 
+            element={
+              <AdminProtectedRoute>
+                <AdminQuestionBank />
+              </AdminProtectedRoute>
+            } 
+          />
           <Route path="/admin/dashboard" element={
             <AdminProtectedRoute>
               <AdminDashboard />
