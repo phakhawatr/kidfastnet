@@ -298,27 +298,10 @@ const AdminDashboard = () => {
 
       if (error) throw error;
 
-      // Assign role to the user
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({ 
-          user_id: registrationId, 
-          role: role,
-          created_by: adminId 
-        });
-
-      if (roleError) {
-        console.error('Error assigning role:', roleError);
-        ToastManager.show({
-          message: 'อนุมัติสำเร็จแต่ไม่สามารถกำหนด Role ได้',
-          type: 'info'
-        });
-      } else {
-        ToastManager.show({
-          message: `อนุมัติสมาชิกเรียบร้อย! (Role: ${role})`,
-          type: 'success'
-        });
-      }
+      ToastManager.show({
+        message: 'อนุมัติสมาชิกเรียบร้อย! หากต้องการมอบสิทธิ์ครู ให้กดปุ่ม "🎓 ครู" หลังจากอนุมัติ',
+        type: 'success'
+      });
 
       fetchRegistrations();
     } catch (error) {
@@ -680,7 +663,7 @@ const AdminDashboard = () => {
       if (approveError) throw approveError;
 
       ToastManager.show({
-        message: `สร้างผู้ใช้ "${newUser.nickname}" เรียบร้อยและอนุมัติอัตโนมัติแล้ว!`,
+        message: `สร้างผู้ใช้ "${newUser.nickname}" เรียบร้อยและอนุมัติอัตโนมัติแล้ว! หากต้องการมอบสิทธิ์ครู ให้กดปุ่ม "🎓 ครู" ในรายการผู้ใช้`,
         type: 'success'
       });
 
