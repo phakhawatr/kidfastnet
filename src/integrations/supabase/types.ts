@@ -332,6 +332,7 @@ export type Database = {
           start_time: string | null
           status: string
           teacher_id: string
+          teacher_name: string | null
           time_limit_minutes: number | null
           total_questions: number
           updated_at: string
@@ -356,6 +357,7 @@ export type Database = {
           start_time?: string | null
           status?: string
           teacher_id: string
+          teacher_name?: string | null
           time_limit_minutes?: number | null
           total_questions?: number
           updated_at?: string
@@ -380,6 +382,7 @@ export type Database = {
           start_time?: string | null
           status?: string
           teacher_id?: string
+          teacher_name?: string | null
           time_limit_minutes?: number | null
           total_questions?: number
           updated_at?: string
