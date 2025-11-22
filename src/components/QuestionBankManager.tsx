@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Search, BookOpen, Pencil, Sparkles, FileText, Trash2 } from 'lucide-react';
+import { Search, BookOpen, Pencil, Sparkles, FileText, Trash2, Share2, Users } from 'lucide-react';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
 import { useTranslation } from 'react-i18next';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import ManualQuestionForm from './ManualQuestionForm';
 import AIQuestionGenerator from './AIQuestionGenerator';
 import TemplateManager from './TemplateManager';
+import SharedQuestionsBrowser from './SharedQuestionsBrowser';
 
 interface QuestionBankManagerProps {
   teacherId: string | null;
@@ -35,6 +36,7 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
     fetchQuestions,
     fetchTopicsByGrade,
     deleteQuestion,
+    shareQuestion,
   } = useQuestionBank(teacherId);
 
   useEffect(() => {
@@ -54,6 +56,12 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
     if (confirm('คุณต้องการลบโจทย์นี้หรือไม่?')) {
       await deleteQuestion(id);
       handleRefresh();
+    }
+  };
+
+  const handleShare = async (id: string) => {
+    if (confirm('แชร์โจทย์นี้ให้ครูท่านอื่นใช้ได้หรือไม่?')) {
+      await shareQuestion(id, true);
     }
   };
 
@@ -105,10 +113,14 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
       </div>
 
       <Tabs defaultValue="library" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="library" className="flex items-center gap-2">
             <BookOpen className="w-4 h-4" />
             คลังข้อสอบ
+          </TabsTrigger>
+          <TabsTrigger value="shared" className="flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            โจทย์แชร์
           </TabsTrigger>
           <TabsTrigger value="manual" className="flex items-center gap-2">
             <Pencil className="w-4 h-4" />
@@ -312,6 +324,14 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
                       <Button
                         variant="ghost"
                         size="sm"
+                        onClick={() => handleShare(question.id)}
+                        title="แชร์โจทย์"
+                      >
+                        <Share2 className="w-4 h-4 text-primary" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => handleDelete(question.id)}
                       >
                         <Trash2 className="w-4 h-4 text-destructive" />
@@ -322,6 +342,10 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
               ))
             )}
           </div>
+        </TabsContent>
+
+        <TabsContent value="shared">
+          <SharedQuestionsBrowser teacherId={teacherId!} onImportSuccess={handleRefresh} />
         </TabsContent>
 
         <TabsContent value="manual">
