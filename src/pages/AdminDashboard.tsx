@@ -82,7 +82,7 @@ const AdminDashboard = () => {
   const [newUser, setNewUser] = useState({
     nickname: '',
     age: 10,
-    grade: 'admin',
+    grade: '1',
     avatar: 'cat',
     parent_email: '',
     parent_phone: '',
@@ -688,7 +688,7 @@ const AdminDashboard = () => {
       setNewUser({
         nickname: '',
         age: 10,
-        grade: 'admin',
+        grade: '1',
         avatar: 'cat',
         parent_email: '',
         parent_phone: '',
@@ -789,7 +789,8 @@ const AdminDashboard = () => {
                 <DialogHeader>
                   <DialogTitle>สร้างผู้ใช้ใหม่</DialogTitle>
                   <DialogDescription>
-                    กรอกข้อมูลผู้ใช้ใหม่ ระบบจะสร้างและอนุมัติอัตโนมัติ
+                    กรอกข้อมูลผู้ใช้ใหม่ ระบบจะสร้างและอนุมัติอัตโนมัติ<br />
+                    <span className="text-orange-600 font-medium">หมายเหตุ: สำหรับ System Teacher ใช้ระดับชั้น ป.1 หรือ ป.6 แล้วมอบสิทธิ์ครูภายหลัง</span>
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
@@ -833,7 +834,7 @@ const AdminDashboard = () => {
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="grade" className="text-right">
-                      ระดับชั้น
+                      ระดับชั้น *
                     </Label>
                     <Select
                       value={newUser.grade}
@@ -843,7 +844,6 @@ const AdminDashboard = () => {
                         <SelectValue placeholder="เลือกระดับชั้น" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="admin">admin</SelectItem>
                         <SelectItem value="1">ป.1</SelectItem>
                         <SelectItem value="2">ป.2</SelectItem>
                         <SelectItem value="3">ป.3</SelectItem>
