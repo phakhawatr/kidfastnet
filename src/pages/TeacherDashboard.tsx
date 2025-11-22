@@ -1216,12 +1216,11 @@ const TeacherDashboard = () => {
                               <p className="font-medium text-base">{q.question}</p>
                             </div>
                             
-                            {/* Choices */}
-                            <div className="space-y-2">
+                              <div className="space-y-2">
                               <p className="text-xs text-muted-foreground">ตัวเลือก</p>
                               <div className="space-y-1.5">
                                 {q.choices?.map((choice: string, cIndex: number) => {
-                                  const choiceLetter = String.fromCharCode(65 + cIndex);
+                                  const choiceNumber = (cIndex + 1) + ')';
                                   const isStudentChoice = compareAnswers(studentAnswer, choice);
                                   const isCorrectChoice = compareAnswers(q.correctAnswer, choice);
                                   
@@ -1237,16 +1236,16 @@ const TeacherDashboard = () => {
                                       }`}
                                     >
                                       <div className="flex items-center gap-2">
-                                        <span className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold ${
+                                        <span className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-base font-bold ${
                                           isCorrectChoice 
                                             ? 'bg-green-600 text-white' 
                                             : isStudentChoice 
                                             ? 'bg-red-600 text-white'
                                             : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
                                         }`}>
-                                          {choiceLetter}
+                                          {choiceNumber}
                                         </span>
-                                        <span className={isCorrectChoice || isStudentChoice ? 'font-medium' : ''}>
+                                        <span className={`text-base ${isCorrectChoice || isStudentChoice ? 'font-medium' : ''}`}>
                                           {choice}
                                         </span>
                                         {isCorrectChoice && (
