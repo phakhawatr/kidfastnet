@@ -19,6 +19,7 @@ import { Copy, Link as LinkIcon, Users, Clock, BarChart, ExternalLink, CheckCirc
 import { useToast } from '@/hooks/use-toast';
 import { exportToCSV, exportToPDF, generateReportSummary, generateItemAnalysis, compareAnswers } from '@/utils/examReportUtils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
 
 const TeacherDashboard = () => {
   const { registrationId } = useAuth();
@@ -1511,7 +1512,9 @@ const TeacherDashboard = () => {
                        question.difficulty === 'hard' ? 'ยาก' : 'ปานกลาง'}
                     </div>
                     {question.is_edited && (
-                      <div className="text-xs text-blue-600 mt-1">✏️</div>
+                      <Badge variant="secondary" className="mt-2 text-[10px] px-1.5 py-0.5">
+                        ตรวจสอบแล้วแก้ไข
+                      </Badge>
                     )}
                   </div>
                 </div>
