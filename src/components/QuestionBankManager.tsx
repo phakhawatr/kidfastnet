@@ -437,64 +437,82 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
                         <span className="text-sm font-medium text-muted-foreground">
                           ข้อ {index + 1}
                         </span>
-                        <Badge variant="outline" className="text-xs">
+                        
+                        {/* 1. ชั้น */}
+                        <Badge variant="outline" className="text-xs font-normal bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800">
                           ป.{question.grade}
                         </Badge>
-                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                          question.difficulty === 'easy' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100' :
-                          question.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100' :
-                          'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100'
-                        }`}>
-                          {question.difficulty === 'easy' ? 'ง่าย' :
-                           question.difficulty === 'medium' ? 'ปานกลาง' : 'ยาก'}
-                        </span>
+                        
+                        {/* 2. เทอม */}
                         {question.semester && (
-                          <Badge variant="secondary" className="text-xs">
-                            {question.semester === 1 ? '🔵 เทอม 1' : '🟢 เทอม 2'}
+                          <Badge variant="outline" className="text-xs font-normal bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
+                            เทอม {question.semester}
                           </Badge>
                         )}
                         {question.assessment_type === 'nt' && (
-                          <Badge className="text-xs bg-yellow-500 hover:bg-yellow-600">
-                            🏆 สอบ NT
+                          <Badge variant="outline" className="text-xs font-normal bg-yellow-50 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800">
+                            🏆 NT
                           </Badge>
                         )}
-                        {question.skill_name && (
-                          <>
-                            <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
-                              {t(`skills:skills.${question.skill_name}.title`, question.skill_name)}
-                            </Badge>
-                            {(() => {
-                              const description = getSkillDescription(
-                                question.grade,
-                                question.semester,
-                                question.assessment_type,
-                                question.skill_name
-                              );
-                              return description ? (
-                                <Badge variant="outline" className="text-xs bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-800 max-w-md">
-                                  {description}
-                                </Badge>
-                              ) : null;
-                            })()}
-                          </>
+                        
+                        {/* 3. สร้างจาก (PDF/AI/Template/ระบบ) */}
+                        {question.tags && question.tags.includes('PDF') && (
+                          <Badge variant="outline" className="text-xs font-normal bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800">
+                            <FileUp className="w-3 h-3 inline mr-1" />
+                            PDF
+                          </Badge>
                         )}
-                        {question.ai_generated && (
-                          <Badge variant="outline" className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-100">
+                        {question.ai_generated && !question.tags?.includes('PDF') && (
+                          <Badge variant="outline" className="text-xs font-normal bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800">
                             <Sparkles className="w-3 h-3 inline mr-1" />
                             AI
                           </Badge>
                         )}
                         {question.is_system_question && (
-                          <Badge variant="outline" className="text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-100 border-indigo-300">
+                          <Badge variant="outline" className="text-xs font-normal bg-cyan-50 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800">
                             🔧 ระบบ
                           </Badge>
                         )}
                         {question.is_template && (
-                          <Badge variant="outline" className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100">
+                          <Badge variant="outline" className="text-xs font-normal bg-teal-50 dark:bg-teal-950 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800">
                             <FileText className="w-3 h-3 inline mr-1" />
                             Template
                           </Badge>
                         )}
+                        
+                        {/* 4. ความยาก */}
+                        <Badge variant="outline" className={`text-xs font-normal ${
+                          question.difficulty === 'easy' 
+                            ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-800' :
+                          question.difficulty === 'medium' 
+                            ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950 dark:text-yellow-300 dark:border-yellow-800' :
+                            'bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-300 dark:border-red-800'
+                        }`}>
+                          {question.difficulty === 'easy' ? 'ง่าย' :
+                           question.difficulty === 'medium' ? 'ปานกลาง' : 'ยาก'}
+                        </Badge>
+                        
+                        {/* 5. หัวข้อ */}
+                        {question.skill_name && (
+                          <Badge variant="outline" className="text-xs font-normal bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800">
+                            {t(`skills:skills.${question.skill_name}.title`, question.skill_name)}
+                          </Badge>
+                        )}
+                        
+                        {/* 6. อธิบายหัวข้อ */}
+                        {question.skill_name && (() => {
+                          const description = getSkillDescription(
+                            question.grade,
+                            question.semester,
+                            question.assessment_type,
+                            question.skill_name
+                          );
+                          return description ? (
+                            <Badge variant="outline" className="text-xs font-normal bg-violet-50 dark:bg-violet-950 text-violet-700 dark:text-violet-300 border-violet-200 dark:border-violet-800 max-w-md truncate">
+                              {description}
+                            </Badge>
+                          ) : null;
+                        })()}
                       </div>
                       <p className="font-medium mb-2">{question.question_text}</p>
                       
