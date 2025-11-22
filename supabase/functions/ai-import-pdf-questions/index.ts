@@ -30,6 +30,11 @@ serve(async (req) => {
 4. กำหนด difficulty (easy, medium, hard) ตามความซับซ้อน
 5. จัดหมวดหมู่ตาม skill_name ที่เหมาะสม
 6. แปลง "วิธีทำ" เป็น explanation
+7. **ประเมินความมั่นใจ (confidence_score)** ของแต่ละข้อ:
+   - 0.9-1.0 = มั่นใจมาก (โจทย์ชัดเจน, ตัวเลือกดี)
+   - 0.7-0.89 = มั่นใจปานกลาง (โจทย์โอเค, ตัวเลือกดี)
+   - 0.5-0.69 = ไม่แน่ใจ (โจทย์คลุมเครือ หรือสร้างตัวเลือกยาก)
+   - 0.0-0.49 = ไม่มั่นใจมาก (OCR ผิด, โจทย์ไม่ชัด)
 
 สำหรับชั้นประถมศึกษาปีที่ ${grade} ${assessmentType === 'nt' ? 'NT' : `เทอม ${semester}`}
 
@@ -56,7 +61,8 @@ Skills ที่เป็นไปได้:
     "explanation": "คำอธิบายวิธีทำ",
     "difficulty": "easy|medium|hard",
     "skill_name": "ชื่อทักษะ",
-    "topic": "หัวข้อ"
+    "topic": "หัวข้อ",
+    "confidence_score": 0.95
   }
 ]
 
@@ -144,6 +150,7 @@ ${parsedText}
       assessment_type: assessmentType,
       ai_generated: true,
       is_from_pdf: true,
+      confidence_score: q.confidence_score || 0.5,
     }));
 
     return new Response(JSON.stringify({ 
