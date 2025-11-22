@@ -757,9 +757,11 @@ const TeacherDashboard = () => {
                     <div key={link.id} className="p-4 border border-border rounded-lg bg-card/50">
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className="font-mono text-lg font-bold text-primary">{link.link_code}</span>
-                              {getStatusBadge(link.status)}
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
+                              <span className="font-mono text-lg font-bold text-primary break-all">{link.link_code}</span>
+                              <div className="flex-shrink-0">
+                                {getStatusBadge(link.status)}
+                              </div>
                             </div>
                             <div className="text-sm text-muted-foreground space-y-1">
                               {link.activity_name && (
@@ -786,82 +788,92 @@ const TeacherDashboard = () => {
                             </div>
                           </div>
                         
-                        <div className="flex flex-wrap gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleCopyLink(link.link_code)}
-                          >
-                            <Copy className="w-4 h-4 mr-2" />
-                            คัดลอก Link
-                          </Button>
-
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setShowQRCode(link.link_code)}
-                          >
-                            <QrCode className="w-4 h-4 mr-2" />
-                            QR Code
-                          </Button>
-                          
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => window.open(`/exam/${link.link_code}`, '_blank')}
-                          >
-                            <ExternalLink className="w-4 h-4 mr-2" />
-                            เปิด
-                          </Button>
-                          
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => openQuestionSelector(link)}
-                          >
-                            <BookOpen className="w-4 h-4 mr-2" />
-                            เพิ่มโจทย์จากคลัง
-                          </Button>
-
-                          <Button
-                            variant="default"
-                            size="sm"
-                            onClick={() => handleViewReport(link.id, link.link_code)}
-                            disabled={link.current_students === 0}
-                          >
-                            <BarChart className="w-4 h-4 mr-2" />
-                            รายงาน ({link.current_students})
-                          </Button>
-
-                          {link.has_custom_questions && (
+                        <div className="flex flex-col gap-2 w-full md:w-auto mt-3 md:mt-0">
+                          <div className="grid grid-cols-2 md:flex md:flex-wrap gap-2">
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => handleEditExamLink(link.id, link.link_code)}
+                              onClick={() => handleCopyLink(link.link_code)}
+                              className="w-full md:w-auto whitespace-nowrap"
                             >
-                              <Eye className="w-4 h-4 mr-2" />
-                              แก้ไขโจทย์
+                              <Copy className="w-4 h-4 mr-2" />
+                              คัดลอก Link
                             </Button>
-                          )}
-                          
-                          {link.status === 'active' && (
+
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setShowQRCode(link.link_code)}
+                              className="w-full md:w-auto whitespace-nowrap"
+                            >
+                              <QrCode className="w-4 h-4 mr-2" />
+                              QR Code
+                            </Button>
+                            
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => window.open(`/exam/${link.link_code}`, '_blank')}
+                              className="w-full md:w-auto whitespace-nowrap"
+                            >
+                              <ExternalLink className="w-4 h-4 mr-2" />
+                              เปิด
+                            </Button>
+                            
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openQuestionSelector(link)}
+                              className="w-full md:w-auto whitespace-nowrap"
+                            >
+                              <BookOpen className="w-4 h-4 mr-2" />
+                              เพิ่มโจทย์จากคลัง
+                            </Button>
+
+                            <Button
+                              variant="default"
+                              size="sm"
+                              onClick={() => handleViewReport(link.id, link.link_code)}
+                              disabled={link.current_students === 0}
+                              className="w-full md:w-auto whitespace-nowrap"
+                            >
+                              <BarChart className="w-4 h-4 mr-2" />
+                              รายงาน ({link.current_students})
+                            </Button>
+
+                            {link.has_custom_questions && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleEditExamLink(link.id, link.link_code)}
+                                className="w-full md:w-auto whitespace-nowrap"
+                              >
+                                <Eye className="w-4 h-4 mr-2" />
+                                แก้ไขโจทย์
+                              </Button>
+                            )}
+                            
+                            {link.status === 'active' && (
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => updateExamLinkStatus(link.id, 'expired')}
+                                className="w-full md:w-auto whitespace-nowrap"
+                              >
+                                ปิด
+                              </Button>
+                            )}
+                            
                             <Button
                               variant="destructive"
                               size="sm"
-                              onClick={() => updateExamLinkStatus(link.id, 'expired')}
+                              onClick={() => handleDeleteExamLink(link.id, link.link_code)}
+                              className="w-full md:w-auto whitespace-nowrap"
                             >
-                              ปิด
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              ลบ
                             </Button>
-                          )}
-                          
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => handleDeleteExamLink(link.id, link.link_code)}
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            ลบ
-                          </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
