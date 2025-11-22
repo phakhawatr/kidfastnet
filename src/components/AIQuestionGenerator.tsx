@@ -1,24 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Sparkles, Loader2, Save } from 'lucide-react';
+import { Sparkles, Loader2, Save, Trophy } from 'lucide-react';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
+import { useTranslation } from 'react-i18next';
 
 interface AIQuestionGeneratorProps {
   teacherId: string;
-  grade: number;
-  topics: any[];
-  semester?: number;
-  assessmentType?: 'semester1' | 'semester2' | 'nt';
   onSuccess?: () => void;
 }
 
-export default function AIQuestionGenerator({ teacherId, grade, topics, semester, assessmentType, onSuccess }: AIQuestionGeneratorProps) {
-  const { generateWithAI, createQuestion } = useQuestionBank(teacherId);
+export default function AIQuestionGenerator({ teacherId, onSuccess }: AIQuestionGeneratorProps) {
+  const { t } = useTranslation();
+  const { generateWithAI, createQuestion, fetchTopicsByGrade, topics } = useQuestionBank(teacherId);
+  
+  const [selectedGrade, setSelectedGrade] = useState<number>(1);
+  const [selectedSemester, setSelectedSemester] = useState<number>(1);
+  const [assessmentType, setAssessmentType] = useState<'semester1' | 'semester2' | 'nt'>('semester1');
   const [selectedTopic, setSelectedTopic] = useState('');
   const [difficulty, setDifficulty] = useState('medium');
   const [count, setCount] = useState('5');
@@ -28,6 +31,16 @@ export default function AIQuestionGenerator({ teacherId, grade, topics, semester
   const [selectedQuestions, setSelectedQuestions] = useState<Set<number>>(new Set());
   const [saving, setSaving] = useState(false);
 
+  useEffect(() => {
+    // Fetch topics when grade or semester changes
+    if (selectedGrade === 3) {
+      fetchTopicsByGrade(selectedGrade, undefined);
+    } else {
+      fetchTopicsByGrade(selectedGrade, selectedSemester);
+    }
+    setSelectedTopic(''); // Reset topic when grade/semester changes
+  }, [selectedGrade, selectedSemester, assessmentType]);
+
   const handleGenerate = async () => {
     if (!selectedTopic) {
       alert('กรุณาเลือกหัวข้อเรียน');
@@ -36,7 +49,7 @@ export default function AIQuestionGenerator({ teacherId, grade, topics, semester
 
     setGenerating(true);
     const questions = await generateWithAI({
-      grade,
+      grade: selectedGrade,
       topic: selectedTopic,
       difficulty,
       count: parseInt(count),
@@ -83,8 +96,8 @@ export default function AIQuestionGenerator({ teacherId, grade, topics, semester
         ...q,
         topic: selectedTopic,
         skill_name: selectedTopic,
-        semester: semester,
-        assessment_type: assessmentType || (semester ? `semester${semester}` : 'semester'),
+        semester: selectedGrade === 3 ? undefined : selectedSemester,
+        assessment_type: selectedGrade === 3 ? assessmentType : (selectedSemester ? `semester${selectedSemester}` : 'semester'),
       });
     });
 
@@ -99,8 +112,76 @@ export default function AIQuestionGenerator({ teacherId, grade, topics, semester
 
   return (
     <div className="space-y-6">
-      <Card className="p-6 space-y-4">
-        <div className="space-y-4">
+      <Card className="p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div>
+            <label className="text-sm font-medium mb-2 block">ชั้นเรียน</label>
+            <Select value={selectedGrade.toString()} onValueChange={(v) => {
+              const grade = Number(v);
+              setSelectedGrade(grade);
+              setSelectedSemester(1);
+              setAssessmentType('semester1');
+              setSelectedTopic('');
+            }}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {[1, 2, 3, 4, 5, 6].map(grade => (
+                  <SelectItem key={grade} value={grade.toString()}>
+                    ป.{grade}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-2 block">
+              {selectedGrade === 3 ? 'ประเภทการสอบ' : 'เทอม'}
+            </label>
+            {selectedGrade === 3 ? (
+              <RadioGroup value={assessmentType} onValueChange={(v: any) => {
+                setAssessmentType(v);
+                setSelectedTopic('');
+              }}>
+                <div className="grid gap-2">
+                  <div className="flex items-center space-x-3 p-3 border-2 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-all cursor-pointer">
+                    <RadioGroupItem value="semester1" id="ai-semester1" />
+                    <Label htmlFor="ai-semester1" className="flex-1 cursor-pointer font-medium">ภาคเรียนที่ 1</Label>
+                  </div>
+                  <div className="flex items-center space-x-3 p-3 border-2 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-all cursor-pointer">
+                    <RadioGroupItem value="semester2" id="ai-semester2" />
+                    <Label htmlFor="ai-semester2" className="flex-1 cursor-pointer font-medium">ภาคเรียนที่ 2</Label>
+                  </div>
+                  <div className="flex items-center space-x-3 p-3 border-2 border-yellow-400 rounded-lg hover:bg-yellow-50 hover:border-yellow-500 transition-all cursor-pointer bg-gradient-to-r from-yellow-50 to-orange-50">
+                    <RadioGroupItem value="nt" id="ai-nt" />
+                    <Label htmlFor="ai-nt" className="flex-1 cursor-pointer font-medium flex items-center gap-2">
+                      <Trophy className="w-5 h-5 text-yellow-600" />
+                      <span className="text-yellow-900">สอบวัดระดับชาติ (NT)</span>
+                    </Label>
+                  </div>
+                </div>
+              </RadioGroup>
+            ) : (
+              <RadioGroup value={selectedSemester.toString()} onValueChange={(v) => {
+                setSelectedSemester(Number(v));
+                setSelectedTopic('');
+              }}>
+                <div className="grid gap-2">
+                  <div className="flex items-center space-x-3 p-3 border-2 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-all cursor-pointer">
+                    <RadioGroupItem value="1" id="ai-sem1" />
+                    <Label htmlFor="ai-sem1" className="flex-1 cursor-pointer font-medium">เทอม 1</Label>
+                  </div>
+                  <div className="flex items-center space-x-3 p-3 border-2 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-all cursor-pointer">
+                    <RadioGroupItem value="2" id="ai-sem2" />
+                    <Label htmlFor="ai-sem2" className="flex-1 cursor-pointer font-medium">เทอม 2</Label>
+                  </div>
+                </div>
+              </RadioGroup>
+            )}
+          </div>
+
           <div>
             <Label>หัวข้อเรียน *</Label>
             <Select value={selectedTopic} onValueChange={setSelectedTopic}>
@@ -117,51 +198,51 @@ export default function AIQuestionGenerator({ teacherId, grade, topics, semester
             </Select>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <Label>ระดับความยาก</Label>
-              <Select value={difficulty} onValueChange={setDifficulty}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="easy">ง่าย</SelectItem>
-                  <SelectItem value="medium">ปานกลาง</SelectItem>
-                  <SelectItem value="hard">ยาก</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div>
+            <Label>ความยาก</Label>
+            <Select value={difficulty} onValueChange={setDifficulty}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="easy">ง่าย</SelectItem>
+                <SelectItem value="medium">ปานกลาง</SelectItem>
+                <SelectItem value="hard">ยาก</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
-            <div>
-              <Label>จำนวนข้อ</Label>
-              <Input
-                type="number"
-                min="1"
-                max="20"
-                value={count}
-                onChange={(e) => setCount(e.target.value)}
-              />
-            </div>
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          <div>
+            <Label>จำนวนข้อ</Label>
+            <Input
+              type="number"
+              min="1"
+              max="20"
+              value={count}
+              onChange={(e) => setCount(e.target.value)}
+            />
+          </div>
 
-            <div>
-              <Label>ภาษา</Label>
-              <Select value={language} onValueChange={setLanguage}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="th">ไทย</SelectItem>
-                  <SelectItem value="en">English</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div>
+            <Label>ภาษา</Label>
+            <Select value={language} onValueChange={setLanguage}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="th">ไทย</SelectItem>
+                <SelectItem value="en">English</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
         <Button
           onClick={handleGenerate}
           disabled={generating || !selectedTopic}
-          className="w-full"
+          className="w-full mt-4"
         >
           {generating ? (
             <>
