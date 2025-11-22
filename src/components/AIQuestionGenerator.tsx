@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Sparkles, Loader2, Save, Trophy } from 'lucide-react';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
 import { useTranslation } from 'react-i18next';
+import { curriculumConfig } from '@/config/curriculum';
 
 interface AIQuestionGeneratorProps {
   teacherId: string;
@@ -290,18 +291,42 @@ export default function AIQuestionGenerator({ teacherId, onSuccess }: AIQuestion
                     className="mt-1"
                   />
                   <div className="flex-1 space-y-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-muted-foreground">
-                        ข้อ {index + 1}
-                      </span>
-                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                        question.difficulty === 'easy' ? 'bg-green-100 text-green-800' :
-                        question.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
-                        {question.difficulty === 'easy' ? 'ง่าย' :
-                         question.difficulty === 'medium' ? 'ปานกลาง' : 'ยาก'}
-                      </span>
+                    {/* Question Metadata Tags */}
+                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-3 rounded-lg border border-blue-200">
+                      <div className="flex items-center gap-2 flex-wrap text-sm">
+                        <span className="font-semibold text-gray-700">ข้อ {index + 1}</span>
+                        <span className="text-gray-400">|</span>
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                          question.difficulty === 'easy' ? 'bg-green-100 text-green-800' :
+                          question.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                          {question.difficulty === 'easy' ? 'ง่าย' :
+                           question.difficulty === 'medium' ? 'ปานกลาง' : 'ยาก'}
+                        </span>
+                        <span className="text-gray-400">|</span>
+                        <span className="px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                          ป.{selectedGrade} {assessmentType === 'nt' ? 'NT' : `เทอม ${selectedSemester}`}
+                        </span>
+                        <span className="text-gray-400">|</span>
+                        <span className="px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                          {selectedTopic}
+                        </span>
+                      </div>
+                      {(() => {
+                        const gradeKey = `grade${selectedGrade}`;
+                        const semesterKey = assessmentType === 'nt' ? 'nt' : `semester${selectedSemester}`;
+                        const skills = curriculumConfig[gradeKey]?.[semesterKey] || [];
+                        const skillConfig = skills.find(s => {
+                          const translatedTitle = t(`skills:skills.${s.skill}.title`);
+                          return translatedTitle === selectedTopic;
+                        });
+                        return skillConfig?.description ? (
+                          <p className="text-xs text-gray-600 mt-2 leading-relaxed">
+                            <span className="font-semibold">:</span> {skillConfig.description}
+                          </p>
+                        ) : null;
+                      })()}
                     </div>
 
                     <p className="font-medium">{question.question_text}</p>
