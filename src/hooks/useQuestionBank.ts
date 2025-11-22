@@ -680,6 +680,94 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
     }
   };
 
+  // ========== System Questions (Admin) ==========
+  const fetchSystemQuestions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('question_bank')
+        .select('*')
+        .or('admin_id.not.is.null,is_system_question.eq.true')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    } catch (error: any) {
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return [];
+    }
+  };
+
+  const copySystemQuestion = async (questionId: string) => {
+    if (!teacherId) return false;
+
+    try {
+      // Fetch the original question
+      const { data: originalQuestion, error: fetchError } = await supabase
+        .from('question_bank')
+        .select('*')
+        .eq('id', questionId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Create a copy for the teacher
+      const { data: copiedQuestion, error: insertError } = await supabase
+        .from('question_bank')
+        .insert([{
+          teacher_id: teacherId,
+          admin_id: null,
+          is_system_question: false,
+          choices: originalQuestion.choices,
+          correct_answer: originalQuestion.correct_answer,
+          difficulty: originalQuestion.difficulty,
+          grade: originalQuestion.grade,
+          question_text: originalQuestion.question_text,
+          skill_name: originalQuestion.skill_name,
+          semester: originalQuestion.semester,
+          assessment_type: originalQuestion.assessment_type,
+          topic: originalQuestion.topic,
+          explanation: originalQuestion.explanation,
+          ai_generated: originalQuestion.ai_generated,
+          image_urls: originalQuestion.image_urls,
+          tags: originalQuestion.tags,
+          visual_elements: originalQuestion.visual_elements,
+        }])
+        .select()
+        .single();
+
+      if (insertError) throw insertError;
+
+      // Update times_used counter on original question
+      await supabase
+        .from('question_bank')
+        .update({ times_used: (originalQuestion.times_used || 0) + 1 })
+        .eq('id', questionId);
+
+      // Add to local questions state
+      if (copiedQuestion) {
+        setQuestions(prev => [copiedQuestion, ...prev]);
+      }
+
+      toast({
+        title: 'นำเข้าสำเร็จ',
+        description: 'คัดลอกโจทย์จากคลังกลางเรียบร้อยแล้ว',
+      });
+
+      return true;
+    } catch (error: any) {
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return false;
+    }
+  };
+
   return {
     questions,
     topics,
@@ -701,5 +789,7 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
     fetchSharedTemplates,
     copySharedQuestion,
     copySharedTemplate,
+    fetchSystemQuestions,
+    copySystemQuestion,
   };
 }

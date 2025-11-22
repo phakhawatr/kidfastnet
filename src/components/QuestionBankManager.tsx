@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Search, BookOpen, Pencil, Sparkles, FileText, Trash2, Share2, Users, Trophy, FileUp } from 'lucide-react';
+import { Search, BookOpen, Pencil, Sparkles, FileText, Trash2, Share2, Users, Trophy, FileUp, Database } from 'lucide-react';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
 import { useTranslation } from 'react-i18next';
 import { curriculumConfig } from '@/config/curriculum';
@@ -18,6 +18,7 @@ import ManualQuestionForm from './ManualQuestionForm';
 import AIQuestionGenerator from './AIQuestionGenerator';
 import TemplateManager from './TemplateManager';
 import SharedQuestionsBrowser from './SharedQuestionsBrowser';
+import SystemQuestionsBrowser from './SystemQuestionsBrowser';
 import PDFQuestionImporter from './PDFQuestionImporter';
 
 interface QuestionBankManagerProps {
@@ -166,10 +167,14 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
       </div>
 
       <Tabs defaultValue="library" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="library" className="flex items-center gap-2">
             <BookOpen className="w-4 h-4" />
             คลังข้อสอบ
+          </TabsTrigger>
+          <TabsTrigger value="system" className="flex items-center gap-2">
+            <Database className="w-4 h-4" />
+            คลังกลาง
           </TabsTrigger>
           <TabsTrigger value="shared" className="flex items-center gap-2">
             <Users className="w-4 h-4" />
@@ -483,6 +488,10 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
               ))
             )}
           </div>
+        </TabsContent>
+
+        <TabsContent value="system">
+          <SystemQuestionsBrowser teacherId={teacherId || adminId || null} onImportSuccess={handleRefresh} />
         </TabsContent>
 
         <TabsContent value="shared">
