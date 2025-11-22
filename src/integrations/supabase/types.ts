@@ -908,7 +908,7 @@ export type Database = {
             foreignKeyName: "question_bank_admin_id_fkey"
             columns: ["admin_id"]
             isOneToOne: false
-            referencedRelation: "user_registrations"
+            referencedRelation: "admins"
             referencedColumns: ["id"]
           },
           {
