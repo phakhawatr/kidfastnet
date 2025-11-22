@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAdmin } from '../hooks/useAdmin';
 import { supabase } from '@/integrations/supabase/client';
 import { ToastManager } from '../components/Toast';
@@ -47,6 +48,7 @@ interface UserPresence {
 }
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const { name, email, logout, adminId } = useAdmin();
   const [registrations, setRegistrations] = useState<UserRegistration[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -685,7 +687,7 @@ const AdminDashboard = () => {
           </div>
           <div className="flex flex-wrap gap-3" role="group" aria-label="การดำเนินการหลัก">
             <button
-              onClick={() => window.location.href = '/admin/question-bank'}
+              onClick={() => navigate('/admin/question-bank')}
               className="btn-primary flex items-center gap-2 min-h-[44px] px-4 focus:ring-4 focus:ring-purple-300 focus:outline-none"
               aria-label="จัดการคลังข้อสอบระบบ"
             >
