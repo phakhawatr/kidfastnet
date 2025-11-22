@@ -22,14 +22,8 @@ export default function AdminQuestionBank() {
 
   useEffect(() => {
     console.log('🔍 AdminQuestionBank mounted, isLoggedIn:', isLoggedIn, 'name:', name);
-    if (!isLoggedIn) {
-      console.log('❌ Not logged in, redirecting to /admin/login');
-      navigate('/admin/login');
-      return;
-    }
-    
     checkSystemTeacherAccount();
-  }, [isLoggedIn, navigate]);
+  }, []);
 
   const checkSystemTeacherAccount = async () => {
     try {
@@ -79,9 +73,6 @@ export default function AdminQuestionBank() {
     }
   };
 
-  if (!isLoggedIn) {
-    return null;
-  }
 
   if (isCheckingAccount) {
     return (
