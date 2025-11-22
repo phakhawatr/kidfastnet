@@ -687,7 +687,10 @@ const AdminDashboard = () => {
           </div>
           <div className="flex flex-wrap gap-3" role="group" aria-label="การดำเนินการหลัก">
             <button
-              onClick={() => navigate('/admin/question-bank')}
+              onClick={() => {
+                console.log('🔘 คลังข้อสอบระบบ button clicked');
+                navigate('/admin/question-bank');
+              }}
               className="btn-primary flex items-center gap-2 min-h-[44px] px-4 focus:ring-4 focus:ring-purple-300 focus:outline-none"
               aria-label="จัดการคลังข้อสอบระบบ"
             >
