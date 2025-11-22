@@ -269,6 +269,11 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
                           {question.difficulty === 'easy' ? 'ง่าย' :
                            question.difficulty === 'medium' ? 'ปานกลาง' : 'ยาก'}
                         </span>
+                        {question.topic && (
+                          <span className="px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100">
+                            {question.topic}
+                          </span>
+                        )}
                         {question.ai_generated && (
                           <span className="px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
                             <Sparkles className="w-3 h-3 inline mr-1" />

@@ -496,10 +496,18 @@ export function useQuestionBank(teacherId: string | null) {
       if (createError) throw createError;
 
       // Increment copy count
-      await supabase
+      const { data: sharedData } = await supabase
         .from('shared_questions')
-        .update({ copy_count: supabase.sql`copy_count + 1` })
-        .eq('id', sharedId);
+        .select('copy_count')
+        .eq('id', sharedId)
+        .single();
+
+      if (sharedData) {
+        await supabase
+          .from('shared_questions')
+          .update({ copy_count: (sharedData.copy_count || 0) + 1 })
+          .eq('id', sharedId);
+      }
 
       toast({
         title: 'นำเข้าโจทย์สำเร็จ',
@@ -547,10 +555,18 @@ export function useQuestionBank(teacherId: string | null) {
       if (createError) throw createError;
 
       // Increment copy count
-      await supabase
+      const { data: sharedData } = await supabase
         .from('shared_templates')
-        .update({ copy_count: supabase.sql`copy_count + 1` })
-        .eq('id', sharedId);
+        .select('copy_count')
+        .eq('id', sharedId)
+        .single();
+
+      if (sharedData) {
+        await supabase
+          .from('shared_templates')
+          .update({ copy_count: (sharedData.copy_count || 0) + 1 })
+          .eq('id', sharedId);
+      }
 
       toast({
         title: 'นำเข้าแม่แบบสำเร็จ',
