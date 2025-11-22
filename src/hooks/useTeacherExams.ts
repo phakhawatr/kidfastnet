@@ -124,7 +124,8 @@ export const useTeacherExams = (teacherId: string | null) => {
     activityName?: string,
     totalQuestions: number = 20,
     schoolName?: string,
-    schoolLogoUrl?: string
+    schoolLogoUrl?: string,
+    teacherName?: string
   ) => {
     if (!teacherId) {
       toast({
@@ -156,7 +157,8 @@ export const useTeacherExams = (teacherId: string | null) => {
           activity_name: activityName || null,
           total_questions: totalQuestions,
           school_name: schoolName || null,
-          school_logo_url: schoolLogoUrl || null
+          school_logo_url: schoolLogoUrl || null,
+          teacher_name: teacherName || null
         })
         .select()
         .single();

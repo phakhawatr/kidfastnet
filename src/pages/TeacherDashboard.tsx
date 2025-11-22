@@ -42,6 +42,7 @@ const TeacherDashboard = () => {
   const { toast } = useToast();
   
   const [activityName, setActivityName] = useState<string>('');
+  const [teacherName, setTeacherName] = useState<string>('');
   const [selectedGrade, setSelectedGrade] = useState<number>(1);
   const [selectedType, setSelectedType] = useState<'semester' | 'nt'>('semester');
   const [selectedSemester, setSelectedSemester] = useState<number>(1);
@@ -236,7 +237,8 @@ const TeacherDashboard = () => {
         previewMode.metadata.activityName,
         previewMode.metadata.totalQuestions,
         schoolName,
-        uploadedLogoUrl || undefined
+        uploadedLogoUrl || undefined,
+        teacherName || undefined
       );
       
       if (!link) throw new Error('Failed to create exam link');
@@ -276,6 +278,7 @@ const TeacherDashboard = () => {
       
       setPreviewMode(null);
       setActivityName('');
+      setTeacherName('');
       setTotalQuestions(20);
       await refreshExamLinks();
       
@@ -362,7 +365,8 @@ const TeacherDashboard = () => {
       activityName || undefined,
       totalQuestions,
       schoolName || undefined,
-      uploadedLogoUrl || undefined
+      uploadedLogoUrl || undefined,
+      teacherName || undefined
     );
     
     if (link) {
@@ -376,6 +380,7 @@ const TeacherDashboard = () => {
       
       // Reset form
       setActivityName('');
+      setTeacherName('');
       setTotalQuestions(20);
     }
   };
@@ -603,6 +608,17 @@ const TeacherDashboard = () => {
                   placeholder="เช่น ทดสอบกลางภาค"
                   value={activityName}
                   onChange={(e) => setActivityName(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="teacherName">ชื่อครู</Label>
+                <Input
+                  id="teacherName"
+                  type="text"
+                  placeholder="เช่น ครูสมหญิง"
+                  value={teacherName}
+                  onChange={(e) => setTeacherName(e.target.value)}
                 />
               </div>
 
