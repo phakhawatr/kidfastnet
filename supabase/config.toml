@@ -23,3 +23,6 @@ verify_jwt = true
 
 [functions.ai-generate-from-template]
 verify_jwt = true
+
+[functions.ai-import-pdf-questions]
+verify_jwt = true

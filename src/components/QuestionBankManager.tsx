@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Search, BookOpen, Pencil, Sparkles, FileText, Trash2, Share2, Users, Trophy } from 'lucide-react';
+import { Search, BookOpen, Pencil, Sparkles, FileText, Trash2, Share2, Users, Trophy, FileUp } from 'lucide-react';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
 import { useTranslation } from 'react-i18next';
 import { curriculumConfig } from '@/config/curriculum';
@@ -18,6 +18,7 @@ import ManualQuestionForm from './ManualQuestionForm';
 import AIQuestionGenerator from './AIQuestionGenerator';
 import TemplateManager from './TemplateManager';
 import SharedQuestionsBrowser from './SharedQuestionsBrowser';
+import PDFQuestionImporter from './PDFQuestionImporter';
 
 interface QuestionBankManagerProps {
   teacherId: string | null;
@@ -164,7 +165,7 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
       </div>
 
       <Tabs defaultValue="library" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="library" className="flex items-center gap-2">
             <BookOpen className="w-4 h-4" />
             คลังข้อสอบ
@@ -180,6 +181,10 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
           <TabsTrigger value="ai" className="flex items-center gap-2">
             <Sparkles className="w-4 h-4" />
             สร้างด้วย AI
+          </TabsTrigger>
+          <TabsTrigger value="pdf-import" className="flex items-center gap-2">
+            <FileUp className="w-4 h-4" />
+            นำเข้า PDF
           </TabsTrigger>
           <TabsTrigger value="templates" className="flex items-center gap-2">
             <FileText className="w-4 h-4" />
@@ -492,6 +497,16 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
           <AIQuestionGenerator
             teacherId={teacherId!}
             onSuccess={handleRefresh}
+          />
+        </TabsContent>
+
+        <TabsContent value="pdf-import">
+          <PDFQuestionImporter
+            teacherId={teacherId!}
+            grade={selectedGrade}
+            semester={selectedGrade === 3 ? undefined : selectedSemester}
+            assessmentType={selectedGrade === 3 ? assessmentType : undefined}
+            onImportComplete={handleRefresh}
           />
         </TabsContent>
 
