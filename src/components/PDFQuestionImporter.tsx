@@ -32,6 +32,7 @@ interface ImportedQuestion {
   assessment_type?: string;
   selected?: boolean;
   editing?: boolean;
+  confidence_score?: number;
 }
 
 export default function PDFQuestionImporter({ 
@@ -49,6 +50,10 @@ export default function PDFQuestionImporter({
   const [isSaving, setIsSaving] = useState(false);
   const [questions, setQuestions] = useState<ImportedQuestion[]>([]);
   const [editingQuestion, setEditingQuestion] = useState<ImportedQuestion | null>(null);
+  const [autoSavedCount, setAutoSavedCount] = useState(0);
+  const [uncertainCount, setUncertainCount] = useState(0);
+  
+  const CONFIDENCE_THRESHOLD = 0.7; // ข้อที่มี confidence >= 0.7 จะถูกบันทึกอัตโนมัติ
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -120,19 +125,72 @@ export default function PDFQuestionImporter({
         throw new Error(data.error);
       }
 
-      // Add unique IDs and selection flag
+      // Add unique IDs and separate by confidence
       const processedQuestions = data.questions.map((q: any, index: number) => ({
         ...q,
         id: `imported-${Date.now()}-${index}`,
         selected: true,
       }));
 
-      setQuestions(processedQuestions);
+      // แยกข้อคำถามตาม confidence score
+      const confidentQuestions = processedQuestions.filter((q: ImportedQuestion) => 
+        (q.confidence_score || 0) >= CONFIDENCE_THRESHOLD
+      );
+      const uncertainQuestions = processedQuestions.filter((q: ImportedQuestion) => 
+        (q.confidence_score || 0) < CONFIDENCE_THRESHOLD
+      );
 
-      toast({
-        title: "สำเร็จ!",
-        description: `แปลงโจทย์ได้ ${processedQuestions.length} ข้อ กรุณาตรวจสอบและแก้ไข`,
-      });
+      console.log('📊 Confident:', confidentQuestions.length, 'Uncertain:', uncertainQuestions.length);
+
+      // บันทึกข้อที่ AI มั่นใจอัตโนมัติ
+      if (confidentQuestions.length > 0) {
+        const questionsToSave = confidentQuestions.map(q => ({
+          teacher_id: teacherId,
+          grade: q.grade,
+          semester: q.semester,
+          assessment_type: q.assessment_type,
+          question_text: q.question_text,
+          choices: q.choices,
+          correct_answer: q.correct_answer,
+          explanation: q.explanation,
+          difficulty: q.difficulty,
+          skill_name: q.skill_name,
+          topic: q.topic,
+          subject: 'คณิตศาสตร์',
+          ai_generated: true,
+        }));
+
+        const { error: insertError } = await supabase
+          .from('question_bank')
+          .insert(questionsToSave);
+
+        if (insertError) {
+          console.error('Auto-save error:', insertError);
+          toast({
+            title: "เกิดข้อผิดพลาดบางส่วน",
+            description: "ไม่สามารถบันทึกข้อที่มั่นใจอัตโนมัติได้",
+            variant: "destructive",
+          });
+        } else {
+          setAutoSavedCount(confidentQuestions.length);
+        }
+      }
+
+      // แสดงเฉพาะข้อที่ไม่แน่ใจให้ครูตรวจสอบ
+      setQuestions(uncertainQuestions);
+      setUncertainCount(uncertainQuestions.length);
+
+      if (uncertainQuestions.length > 0) {
+        toast({
+          title: "ประมวลผลสำเร็จ!",
+          description: `บันทึกอัตโนมัติ ${confidentQuestions.length} ข้อ | เหลือตรวจสอบ ${uncertainQuestions.length} ข้อ`,
+        });
+      } else {
+        toast({
+          title: "สำเร็จ!",
+          description: `บันทึกข้อคำถามทั้งหมด ${confidentQuestions.length} ข้อเรียบร้อยแล้ว`,
+        });
+      }
 
       // Clean up temp file
       await supabase.storage.from('question_images').remove([filePath]);
@@ -210,13 +268,17 @@ export default function PDFQuestionImporter({
 
       if (error) throw error;
 
+      const totalSaved = autoSavedCount + selectedQuestions.length;
+      
       toast({
         title: "บันทึกสำเร็จ!",
-        description: `บันทึกข้อสอบ ${selectedQuestions.length} ข้อเข้าคลังข้อสอบแล้ว`,
+        description: `บันทึกทั้งหมด ${totalSaved} ข้อ (อัตโนมัติ ${autoSavedCount} ข้อ + ตรวจสอบแล้ว ${selectedQuestions.length} ข้อ)`,
       });
 
       setQuestions([]);
       setFile(null);
+      setAutoSavedCount(0);
+      setUncertainCount(0);
       onImportComplete();
 
     } catch (error) {
@@ -293,33 +355,47 @@ export default function PDFQuestionImporter({
       {/* Questions Preview and Edit */}
       {questions.length > 0 && (
         <Card className="p-6">
-          <div className="flex justify-between items-center mb-4">
+          <div className="space-y-3 mb-4">
             <h3 className="text-lg font-semibold">
-              ตรวจสอบและแก้ไขข้อสอบ ({questions.filter(q => q.selected).length}/{questions.length} ข้อ)
+              ตรวจสอบข้อที่ AI ไม่แน่ใจ ({questions.filter(q => q.selected).length}/{questions.length} ข้อ)
             </h3>
-            <Button
-              onClick={handleSaveSelected}
-              disabled={isSaving || questions.filter(q => q.selected).length === 0}
-            >
-              {isSaving ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  กำลังบันทึก...
-                </>
-              ) : (
-                <>
-                  <Save className="w-4 h-4 mr-2" />
-                  บันทึกข้อที่เลือก
-                </>
-              )}
-            </Button>
+            <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded-lg space-y-1 text-sm">
+              <p className="text-green-600 dark:text-green-400 font-medium">
+                ✅ บันทึกอัตโนมัติแล้ว: {autoSavedCount} ข้อ (AI มั่นใจ ≥70%)
+              </p>
+              <p className="text-yellow-600 dark:text-yellow-400 font-medium">
+                ⚠️ ต้องตรวจสอบ: {questions.length} ข้อ (AI มั่นใจ &lt;70%)
+              </p>
+            </div>
+            <div className="flex justify-end">
+              <Button
+                onClick={handleSaveSelected}
+                disabled={isSaving || questions.filter(q => q.selected).length === 0}
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    กำลังบันทึก...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    บันทึกข้อที่เลือก
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
 
           <div className="space-y-4 max-h-[600px] overflow-y-auto">
             {questions.map((question, index) => (
               <Card 
                 key={question.id} 
-                className={`p-4 ${question.selected ? 'border-primary' : 'border-gray-200 opacity-60'}`}
+                className={`p-4 border-2 ${
+                  question.selected 
+                    ? 'border-yellow-400 bg-yellow-50 dark:bg-yellow-950/20' 
+                    : 'border-gray-200 opacity-60'
+                }`}
               >
                 <div className="flex items-start gap-3">
                   <input
@@ -333,7 +409,16 @@ export default function PDFQuestionImporter({
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-bold">ข้อ {index + 1}</span>
-                        <span className="px-2 py-0.5 rounded text-xs bg-yellow-100 text-yellow-800">
+                        {question.confidence_score !== undefined && (
+                          <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                            question.confidence_score >= 0.6 
+                              ? 'bg-yellow-200 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200' 
+                              : 'bg-red-200 text-red-800 dark:bg-red-800 dark:text-red-200'
+                          }`}>
+                            มั่นใจ: {(question.confidence_score * 100).toFixed(0)}%
+                          </span>
+                        )}
+                        <span className="px-2 py-0.5 rounded text-xs bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-200">
                           {question.difficulty}
                         </span>
                         <span className="px-2 py-0.5 rounded text-xs bg-purple-100 text-purple-800">
