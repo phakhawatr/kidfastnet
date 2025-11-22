@@ -172,14 +172,15 @@ export default function SharedQuestionsBrowser({ teacherId, onImportSuccess }: S
                           {question.difficulty === 'easy' ? 'ง่าย' : question.difficulty === 'medium' ? 'ปานกลาง' : 'ยาก'}
                         </Badge>
                         {question.ai_generated && (
-                          <Badge variant="outline" className="bg-purple-50">
+                          <Badge variant="outline" className="bg-purple-50 dark:bg-purple-950">
                             <Sparkles className="w-3 h-3 mr-1" />
                             AI
                           </Badge>
                         )}
-                        <span className="text-sm text-muted-foreground">
-                          โดย: {item.shared_by_user?.nickname || 'ไม่ระบุ'}
-                        </span>
+                      </div>
+                      
+                      <div className="text-sm text-muted-foreground font-medium">
+                        แชร์โดยคุณครู {item.shared_by_user?.nickname || 'ไม่ระบุ'}
                       </div>
 
                       <p className="font-medium">{question.question_text}</p>
@@ -271,9 +272,10 @@ export default function SharedQuestionsBrowser({ teacherId, onImportSuccess }: S
                         >
                           {template.difficulty === 'easy' ? 'ง่าย' : template.difficulty === 'medium' ? 'ปานกลาง' : 'ยาก'}
                         </Badge>
-                        <span className="text-sm text-muted-foreground">
-                          โดย: {item.shared_by_user?.nickname || 'ไม่ระบุ'}
-                        </span>
+                      </div>
+                      
+                      <div className="text-sm text-muted-foreground font-medium">
+                        แชร์โดยคุณครู {item.shared_by_user?.nickname || 'ไม่ระบุ'}
                       </div>
 
                       <div className="bg-muted p-3 rounded text-sm font-mono">
