@@ -10,6 +10,42 @@
   "unpinSuccess": "Unpinned successfully",
   "pinnedCount": "{{count}} pinned",
   "skills": {
+    "counting": {
+      "title": "Counting",
+      "desc": "Learn to count and read/write numbers"
+    },
+    "comparing": {
+      "title": "Comparing Numbers",
+      "desc": "Compare numbers using symbols =, ≠, >, <"
+    },
+    "ordering": {
+      "title": "Ordering Numbers",
+      "desc": "Arrange numbers from least to greatest and vice versa"
+    },
+    "patterns": {
+      "title": "Patterns",
+      "desc": "Find and create number patterns"
+    },
+    "measurement": {
+      "title": "Measurement",
+      "desc": "Measure and compare length, weight, and volume"
+    },
+    "pictograph": {
+      "title": "Pictograph",
+      "desc": "Read and interpret picture graphs"
+    },
+    "volume": {
+      "title": "Volume",
+      "desc": "Measure volume and liquid capacity"
+    },
+    "mixedOperations": {
+      "title": "Mixed Operations",
+      "desc": "Solve problems using multiple operations"
+    },
+    "dataPresentation": {
+      "title": "Data Presentation",
+      "desc": "Read and interpret tables, charts, and graphs"
+    },
     "placeValue": {
       "title": "Place Value",
       "desc": "Learn the value of digits in each place, a crucial foundation of Singapore Math"
