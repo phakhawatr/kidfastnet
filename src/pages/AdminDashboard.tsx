@@ -15,6 +15,24 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface UserRegistration {
   id: string;
@@ -60,6 +78,17 @@ const AdminDashboard = () => {
     registrationId: string;
     nickname: string;
   } | null>(null);
+  const [createUserDialog, setCreateUserDialog] = useState(false);
+  const [newUser, setNewUser] = useState({
+    nickname: '',
+    age: 10,
+    grade: 'admin',
+    avatar: 'cat',
+    parent_email: '',
+    parent_phone: '',
+    password: '',
+    learning_style: 'visual'
+  });
 
   const avatarEmojis: Record<string, string> = {
     cat: '🐱',
@@ -617,6 +646,66 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleCreateUser = async () => {
+    try {
+      // Validate required fields
+      if (!newUser.nickname || !newUser.parent_email || !newUser.password) {
+        ToastManager.show({
+          message: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน',
+          type: 'error'
+        });
+        return;
+      }
+
+      // Call RPC to create user
+      const { data: userId, error } = await supabase.rpc('register_new_user', {
+        p_nickname: newUser.nickname,
+        p_age: newUser.age,
+        p_grade: newUser.grade,
+        p_avatar: newUser.avatar,
+        p_parent_email: newUser.parent_email,
+        p_parent_phone: newUser.parent_phone || '',
+        p_password: newUser.password,
+        p_learning_style: newUser.learning_style
+      });
+
+      if (error) throw error;
+
+      // Auto-approve the user
+      const { error: approveError } = await supabase.rpc('approve_user_registration', {
+        registration_id: userId,
+        admin_id: adminId
+      });
+
+      if (approveError) throw approveError;
+
+      ToastManager.show({
+        message: `สร้างผู้ใช้ "${newUser.nickname}" เรียบร้อยและอนุมัติอัตโนมัติแล้ว!`,
+        type: 'success'
+      });
+
+      // Reset form and close dialog
+      setNewUser({
+        nickname: '',
+        age: 10,
+        grade: 'admin',
+        avatar: 'cat',
+        parent_email: '',
+        parent_phone: '',
+        password: '',
+        learning_style: 'visual'
+      });
+      setCreateUserDialog(false);
+      fetchRegistrations();
+    } catch (error: any) {
+      console.error('Error creating user:', error);
+      ToastManager.show({
+        message: 'เกิดข้อผิดพลาดในการสร้างผู้ใช้: ' + (error?.message || 'Unknown error'),
+        type: 'error'
+      });
+    }
+  };
+
   const filteredRegistrations = registrations.filter(reg => {
     // Apply status filter
     let matchesFilter = false;
@@ -686,6 +775,122 @@ const AdminDashboard = () => {
             </p>
           </div>
           <div className="flex flex-wrap gap-3" role="group" aria-label="การดำเนินการหลัก">
+            <Dialog open={createUserDialog} onOpenChange={setCreateUserDialog}>
+              <DialogTrigger asChild>
+                <button
+                  className="btn-primary flex items-center gap-2 min-h-[44px] px-4 focus:ring-4 focus:ring-green-300 focus:outline-none"
+                  aria-label="สร้างผู้ใช้ใหม่"
+                >
+                  <span aria-hidden="true">➕</span>
+                  <span>สร้างผู้ใช้ใหม่</span>
+                </button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>สร้างผู้ใช้ใหม่</DialogTitle>
+                  <DialogDescription>
+                    กรอกข้อมูลผู้ใช้ใหม่ ระบบจะสร้างและอนุมัติอัตโนมัติ
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="nickname" className="text-right">
+                      ชื่อเล่น *
+                    </Label>
+                    <Input
+                      id="nickname"
+                      value={newUser.nickname}
+                      onChange={(e) => setNewUser({...newUser, nickname: e.target.value})}
+                      className="col-span-3"
+                      placeholder="เช่น KidFast System"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="email" className="text-right">
+                      อีเมล *
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={newUser.parent_email}
+                      onChange={(e) => setNewUser({...newUser, parent_email: e.target.value})}
+                      className="col-span-3"
+                      placeholder="system@kidfastai.com"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="password" className="text-right">
+                      รหัสผ่าน *
+                    </Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={newUser.password}
+                      onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+                      className="col-span-3"
+                      placeholder="รหัสผ่าน"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="grade" className="text-right">
+                      ระดับชั้น
+                    </Label>
+                    <Select
+                      value={newUser.grade}
+                      onValueChange={(value) => setNewUser({...newUser, grade: value})}
+                    >
+                      <SelectTrigger className="col-span-3">
+                        <SelectValue placeholder="เลือกระดับชั้น" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="admin">admin</SelectItem>
+                        <SelectItem value="1">ป.1</SelectItem>
+                        <SelectItem value="2">ป.2</SelectItem>
+                        <SelectItem value="3">ป.3</SelectItem>
+                        <SelectItem value="4">ป.4</SelectItem>
+                        <SelectItem value="5">ป.5</SelectItem>
+                        <SelectItem value="6">ป.6</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="age" className="text-right">
+                      อายุ
+                    </Label>
+                    <Input
+                      id="age"
+                      type="number"
+                      value={newUser.age}
+                      onChange={(e) => setNewUser({...newUser, age: parseInt(e.target.value) || 10})}
+                      className="col-span-3"
+                      min={1}
+                      max={100}
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="phone" className="text-right">
+                      เบอร์โทร
+                    </Label>
+                    <Input
+                      id="phone"
+                      value={newUser.parent_phone}
+                      onChange={(e) => setNewUser({...newUser, parent_phone: e.target.value})}
+                      className="col-span-3"
+                      placeholder="เบอร์โทรศัพท์"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setCreateUserDialog(false)}>
+                    ยกเลิก
+                  </Button>
+                  <Button onClick={handleCreateUser}>
+                    สร้างผู้ใช้
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+            
             <button
               onClick={() => {
                 console.log('🔘 คลังข้อสอบระบบ button clicked');
