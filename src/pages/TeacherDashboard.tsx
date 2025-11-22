@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeacherExams, ExamSession } from '@/hooks/useTeacherExams';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,14 +14,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Copy, Link as LinkIcon, Users, Clock, BarChart, ExternalLink, CheckCircle, QrCode, Download, FileText, Trash2, Eye, X, FileDown, Upload, Image as ImageIcon } from 'lucide-react';
+import { Copy, Link as LinkIcon, Users, Clock, BarChart, ExternalLink, CheckCircle, QrCode, Download, FileText, Trash2, Eye, X, FileDown, Upload, Image as ImageIcon, BookOpen } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { exportToCSV, exportToPDF, generateReportSummary, generateItemAnalysis, compareAnswers } from '@/utils/examReportUtils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const TeacherDashboard = () => {
   const { registrationId } = useAuth();
-  const { 
+  const navigate = useNavigate();
+  const {
     examLinks, 
     isLoading, 
     createExamLink, 
@@ -482,9 +484,18 @@ const TeacherDashboard = () => {
       <Header />
       
       <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">👨‍🏫 แดชบอร์ดครู</h1>
-          <p className="text-muted-foreground">สร้างและจัดการ link ข้อสอบสำหรับนักเรียน</p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold text-foreground mb-2">👨‍🏫 แดชบอร์ดครู</h1>
+            <p className="text-muted-foreground">สร้างและจัดการ link ข้อสอบสำหรับนักเรียน</p>
+          </div>
+          <Button
+            onClick={() => navigate('/teacher/question-bank')}
+            className="gap-2"
+          >
+            <BookOpen className="w-4 h-4" />
+            คลังข้อสอบ
+          </Button>
         </div>
 
         {/* Create Exam Link Section */}

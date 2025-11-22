@@ -4,9 +4,11 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Search, BookOpen, Pencil, Sparkles, FileText } from 'lucide-react';
+import { Search, BookOpen, Pencil, Sparkles, FileText, Trash2 } from 'lucide-react';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
 import { useTranslation } from 'react-i18next';
+import ManualQuestionForm from './ManualQuestionForm';
+import AIQuestionGenerator from './AIQuestionGenerator';
 
 interface QuestionBankManagerProps {
   teacherId: string | null;
@@ -25,6 +27,7 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
     loading,
     fetchQuestions,
     fetchTopicsByGrade,
+    deleteQuestion,
   } = useQuestionBank(teacherId);
 
   useEffect(() => {
@@ -33,6 +36,19 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
       fetchTopicsByGrade(selectedGrade);
     }
   }, [teacherId, selectedGrade]);
+
+  const handleRefresh = () => {
+    if (teacherId) {
+      fetchQuestions({ grade: selectedGrade, topic: selectedTopic !== 'all' ? selectedTopic : undefined, difficulty: selectedDifficulty !== 'all' ? selectedDifficulty : undefined });
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm('คุณต้องการลบโจทย์นี้หรือไม่?')) {
+      await deleteQuestion(id);
+      handleRefresh();
+    }
+  };
 
   const filteredQuestions = questions.filter(q => {
     if (selectedDifficulty !== 'all' && q.difficulty !== selectedDifficulty) return false;
@@ -153,7 +169,7 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
             ) : (
               filteredQuestions.map((question, index) => (
                 <Card key={question.id} className="p-4 hover:shadow-md transition-shadow">
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-sm font-medium text-muted-foreground">
@@ -181,13 +197,27 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
                         )}
                       </div>
                       <p className="font-medium mb-2">{question.question_text}</p>
+                      
+                      {question.image_urls && question.image_urls.length > 0 && (
+                        <div className="grid grid-cols-2 gap-2 mb-2">
+                          {question.image_urls.map((url: string, imgIdx: number) => (
+                            <img
+                              key={imgIdx}
+                              src={url}
+                              alt={`Question image ${imgIdx + 1}`}
+                              className="rounded border max-h-32 object-cover"
+                            />
+                          ))}
+                        </div>
+                      )}
+
                       <div className="grid grid-cols-2 gap-2 text-sm">
-                        {question.choices.map((choice, idx) => (
+                        {Array.isArray(question.choices) && question.choices.map((choice: string, idx: number) => (
                           <div
                             key={idx}
                             className={`p-2 rounded border ${
                               choice === question.correct_answer
-                                ? 'border-green-500 bg-green-50'
+                                ? 'border-green-500 bg-green-50 dark:bg-green-950/20'
                                 : 'border-border'
                             }`}
                           >
@@ -196,10 +226,22 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
                         ))}
                       </div>
                       {question.explanation && (
-                        <div className="mt-2 p-2 bg-blue-50 rounded text-sm">
+                        <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-950/20 rounded text-sm">
                           <strong>คำอธิบาย:</strong> {question.explanation}
                         </div>
                       )}
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        ใช้ไปแล้ว: {question.times_used || 0} ครั้ง
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(question.id)}
+                      >
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
                     </div>
                   </div>
                 </Card>
@@ -209,17 +251,21 @@ export default function QuestionBankManager({ teacherId }: QuestionBankManagerPr
         </TabsContent>
 
         <TabsContent value="manual">
-          <Card className="p-8 text-center text-muted-foreground">
-            <Pencil className="w-12 h-12 mx-auto mb-4 opacity-50" />
-            <p>ฟีเจอร์สร้างโจทย์ด้วยมือกำลังพัฒนา...</p>
-          </Card>
+          <ManualQuestionForm
+            teacherId={teacherId!}
+            grade={selectedGrade}
+            topics={topics}
+            onSuccess={handleRefresh}
+          />
         </TabsContent>
 
         <TabsContent value="ai">
-          <Card className="p-8 text-center text-muted-foreground">
-            <Sparkles className="w-12 h-12 mx-auto mb-4 opacity-50" />
-            <p>ฟีเจอร์สร้างโจทย์ด้วย AI กำลังพัฒนา...</p>
-          </Card>
+          <AIQuestionGenerator
+            teacherId={teacherId!}
+            grade={selectedGrade}
+            topics={topics}
+            onSuccess={handleRefresh}
+          />
         </TabsContent>
 
         <TabsContent value="templates">
