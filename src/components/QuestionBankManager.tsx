@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Search, BookOpen, Pencil, Sparkles, FileText, Trash2, Share2, Users, Trophy, FileUp, Database } from 'lucide-react';
+import { Search, BookOpen, Pencil, Sparkles, FileText, Trash2, Share2, Users, Trophy, FileUp, Database, CheckCircle2, X } from 'lucide-react';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
 import { useTranslation } from 'react-i18next';
 import { curriculumConfig } from '@/config/curriculum';
@@ -37,6 +37,7 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
   const [selectedQuestions, setSelectedQuestions] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [sharedQuestionsMap, setSharedQuestionsMap] = useState<Record<string, { id: string; share_code: string }>>({});
   
   const {
     questions,
@@ -46,6 +47,8 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
     fetchTopicsByGrade,
     deleteQuestion,
     shareQuestion,
+    unshareQuestion,
+    checkSharedQuestions,
   } = useQuestionBank(teacherId || adminId, !!adminId);
 
   useEffect(() => {
@@ -66,6 +69,14 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
       fetchTopicsByGrade(selectedGrade, selectedGrade === 3 ? undefined : selectedSemester);
     }
   }, [teacherId, adminId, selectedGrade, selectedSemester, assessmentType]);
+
+  useEffect(() => {
+    // Check which questions are shared
+    if (questions.length > 0) {
+      const questionIds = questions.map(q => q.id);
+      checkSharedQuestions(questionIds).then(setSharedQuestionsMap);
+    }
+  }, [questions]);
 
   const handleRefresh = () => {
     if (teacherId || adminId) {
@@ -95,6 +106,14 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
   const handleShare = async (id: string) => {
     if (confirm('แชร์โจทย์นี้ให้ครูท่านอื่นใช้ได้หรือไม่?')) {
       await shareQuestion(id, true);
+      handleRefresh();
+    }
+  };
+
+  const handleUnshare = async (id: string) => {
+    if (confirm('ยกเลิกการแชร์โจทย์นี้หรือไม่?')) {
+      await unshareQuestion(id);
+      handleRefresh();
     }
   };
 
@@ -467,14 +486,33 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
                       </div>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleShare(question.id)}
-                        title="แชร์โจทย์"
-                      >
-                        <Share2 className="w-4 h-4 text-primary" />
-                      </Button>
+                      {sharedQuestionsMap[question.id] ? (
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2 px-3 py-2 bg-green-50 dark:bg-green-950 rounded-md border border-green-200 dark:border-green-800">
+                            <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+                            <span className="text-xs font-medium text-green-700 dark:text-green-300">แชร์แล้ว</span>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleUnshare(question.id)}
+                            title="ยกเลิกการแชร์"
+                            className="border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950"
+                          >
+                            <X className="w-4 h-4 mr-1" />
+                            ยกเลิก
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleShare(question.id)}
+                          title="แชร์โจทย์"
+                        >
+                          <Share2 className="w-4 h-4 text-primary" />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="sm"

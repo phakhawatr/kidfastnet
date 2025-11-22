@@ -768,6 +768,63 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
     }
   };
 
+  const unshareQuestion = async (questionId: string) => {
+    if (!teacherId) return false;
+
+    try {
+      // Delete from shared_questions table
+      const { error } = await supabase
+        .from('shared_questions')
+        .delete()
+        .eq('question_id', questionId)
+        .eq('shared_by', teacherId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'ยกเลิกการแชร์สำเร็จ',
+        description: 'ยกเลิกการแชร์โจทย์เรียบร้อยแล้ว',
+      });
+
+      return true;
+    } catch (error: any) {
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return false;
+    }
+  };
+
+  const checkSharedQuestions = async (questionIds: string[]) => {
+    if (!teacherId || questionIds.length === 0) return {};
+
+    try {
+      const { data, error } = await supabase
+        .from('shared_questions')
+        .select('id, question_id, share_code')
+        .eq('shared_by', teacherId)
+        .in('question_id', questionIds);
+
+      if (error) throw error;
+
+      // Convert to map for easy lookup
+      const sharedMap: Record<string, { id: string; share_code: string }> = {};
+      data?.forEach((item) => {
+        sharedMap[item.question_id] = {
+          id: item.id,
+          share_code: item.share_code || '',
+        };
+      });
+
+      return sharedMap;
+    } catch (error: any) {
+      console.error('Error checking shared questions:', error);
+      return {};
+    }
+  };
+
   return {
     questions,
     topics,
@@ -791,5 +848,7 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
     copySharedTemplate,
     fetchSystemQuestions,
     copySystemQuestion,
+    unshareQuestion,
+    checkSharedQuestions,
   };
 }
