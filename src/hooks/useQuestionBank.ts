@@ -275,6 +275,8 @@ export function useQuestionBank(teacherId: string | null) {
 
   const generateWithAI = async (params: {
     grade: number;
+    semester?: number;
+    assessmentType?: string;
     topic: string;
     difficulty: string;
     count: number;
@@ -282,8 +284,38 @@ export function useQuestionBank(teacherId: string | null) {
   }) => {
     setLoading(true);
     try {
+      // Find skill description and range from curriculumConfig
+      const gradeKey = `grade${params.grade}` as keyof typeof curriculumConfig;
+      const semesterKey = params.assessmentType === 'nt' 
+        ? 'nt' 
+        : `semester${params.semester || 1}`;
+      
+      const skills = curriculumConfig[gradeKey]?.[semesterKey] || [];
+      
+      // Find the skill config by matching translated topic name
+      const skillConfig = skills.find(s => {
+        const translatedTitle = t(`skills:skills.${s.skill}.title`);
+        return translatedTitle === params.topic;
+      });
+      
+      const description = skillConfig?.description || '';
+      const range = skillConfig?.range;
+      
+      console.log('Generating with curriculum context:', {
+        grade: params.grade,
+        semester: params.semester,
+        assessmentType: params.assessmentType,
+        topic: params.topic,
+        description,
+        range
+      });
+      
       const { data, error } = await supabase.functions.invoke('ai-generate-questions', {
-        body: params,
+        body: {
+          ...params,
+          description,
+          range
+        }
       });
 
       if (error) throw error;

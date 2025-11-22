@@ -50,6 +50,8 @@ export default function AIQuestionGenerator({ teacherId, onSuccess }: AIQuestion
     setGenerating(true);
     const questions = await generateWithAI({
       grade: selectedGrade,
+      semester: selectedGrade === 3 ? undefined : selectedSemester,
+      assessmentType: selectedGrade === 3 ? assessmentType : undefined,
       topic: selectedTopic,
       difficulty,
       count: parseInt(count),
