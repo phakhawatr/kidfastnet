@@ -77,7 +77,11 @@ export default function AIQuestionGenerator({ teacherId, grade, topics, onSucces
 
     const savePromises = Array.from(selectedQuestions).map(async (index) => {
       const q = generatedQuestions[index];
-      return createQuestion(q);
+      return createQuestion({
+        ...q,
+        topic: selectedTopic,
+        skill_name: selectedTopic,
+      });
     });
 
     await Promise.all(savePromises);
