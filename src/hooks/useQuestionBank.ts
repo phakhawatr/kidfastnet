@@ -859,6 +859,166 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
     }
   };
 
+  const fetchTagsWithCount = async (): Promise<{ tag: string; count: number }[]> => {
+    try {
+      let query = supabase
+        .from('question_bank')
+        .select('tags');
+      
+      if (isAdmin) {
+        query = query.eq('admin_id', teacherId);
+      } else {
+        query = query.eq('teacher_id', teacherId);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      // Count tags
+      const tagCounts = new Map<string, number>();
+      data?.forEach((item) => {
+        if (item.tags && Array.isArray(item.tags)) {
+          item.tags.forEach((tag: string) => {
+            tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+          });
+        }
+      });
+
+      // Convert to array and sort by count (descending)
+      return Array.from(tagCounts.entries())
+        .map(([tag, count]) => ({ tag, count }))
+        .sort((a, b) => b.count - a.count);
+    } catch (error: any) {
+      console.error('Error fetching tags with count:', error);
+      return [];
+    }
+  };
+
+  const renameTag = async (oldTag: string, newTag: string): Promise<boolean> => {
+    if (!teacherId) return false;
+
+    try {
+      // Fetch all questions with the old tag
+      let query = supabase
+        .from('question_bank')
+        .select('id, tags');
+      
+      if (isAdmin) {
+        query = query.eq('admin_id', teacherId).contains('tags', [oldTag]);
+      } else {
+        query = query.eq('teacher_id', teacherId).contains('tags', [oldTag]);
+      }
+
+      const { data: questions, error: fetchError } = await query;
+
+      if (fetchError) throw fetchError;
+
+      if (!questions || questions.length === 0) {
+        toast({
+          title: 'ไม่พบข้อสอบ',
+          description: 'ไม่พบข้อสอบที่มี tag นี้',
+          variant: 'destructive',
+        });
+        return false;
+      }
+
+      // Update each question's tags
+      const updatePromises = questions.map(async (q) => {
+        const updatedTags = q.tags.map((t: string) => t === oldTag ? newTag : t);
+        
+        return supabase
+          .from('question_bank')
+          .update({ tags: updatedTags })
+          .eq('id', q.id);
+      });
+
+      const results = await Promise.all(updatePromises);
+      
+      // Check if any updates failed
+      const hasError = results.some(r => r.error);
+      if (hasError) {
+        throw new Error('Some updates failed');
+      }
+
+      toast({
+        title: 'เปลี่ยนชื่อ Tag สำเร็จ',
+        description: `เปลี่ยนชื่อ "${oldTag}" เป็น "${newTag}" ใน ${questions.length} ข้อสอบ`,
+      });
+
+      return true;
+    } catch (error: any) {
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return false;
+    }
+  };
+
+  const deleteTag = async (tag: string): Promise<boolean> => {
+    if (!teacherId) return false;
+
+    try {
+      // Fetch all questions with the tag
+      let query = supabase
+        .from('question_bank')
+        .select('id, tags');
+      
+      if (isAdmin) {
+        query = query.eq('admin_id', teacherId).contains('tags', [tag]);
+      } else {
+        query = query.eq('teacher_id', teacherId).contains('tags', [tag]);
+      }
+
+      const { data: questions, error: fetchError } = await query;
+
+      if (fetchError) throw fetchError;
+
+      if (!questions || questions.length === 0) {
+        toast({
+          title: 'ไม่พบข้อสอบ',
+          description: 'ไม่พบข้อสอบที่มี tag นี้',
+          variant: 'destructive',
+        });
+        return false;
+      }
+
+      // Update each question's tags (remove the tag)
+      const updatePromises = questions.map(async (q) => {
+        const updatedTags = q.tags.filter((t: string) => t !== tag);
+        
+        return supabase
+          .from('question_bank')
+          .update({ tags: updatedTags })
+          .eq('id', q.id);
+      });
+
+      const results = await Promise.all(updatePromises);
+      
+      // Check if any updates failed
+      const hasError = results.some(r => r.error);
+      if (hasError) {
+        throw new Error('Some updates failed');
+      }
+
+      toast({
+        title: 'ลบ Tag สำเร็จ',
+        description: `ลบ "${tag}" จาก ${questions.length} ข้อสอบแล้ว`,
+      });
+
+      return true;
+    } catch (error: any) {
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return false;
+    }
+  };
+
   return {
     questions,
     topics,
@@ -884,6 +1044,9 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
     copySystemQuestion,
     unshareQuestion,
     fetchAvailableTags,
+    fetchTagsWithCount,
+    renameTag,
+    deleteTag,
     checkSharedQuestions,
   };
 }
