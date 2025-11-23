@@ -303,14 +303,14 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
                   <Badge
                     key={tag}
                     variant={isSelected ? "default" : "outline"}
-                    className={`cursor-pointer text-xs transition-all hover:scale-105 ${
+                    className={`cursor-pointer text-xs font-light transition-all hover:scale-105 ${
                       isSelected 
                         ? 'bg-pink-500 text-white border-pink-600 dark:bg-pink-600' 
                         : 'bg-pink-50 text-pink-700 border-pink-200 dark:bg-pink-950 dark:text-pink-300 dark:border-pink-800'
                     }`}
                     onClick={() => handleToggleTag(tag)}
                   >
-                    🏷️ {tag} <span className="ml-1 font-bold">({count})</span>
+                    🏷️ {tag} <span className="ml-1 font-medium">({count})</span>
                   </Badge>
                 );
               })}
