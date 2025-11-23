@@ -141,6 +141,9 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
         query = query.eq('teacher_id', teacherId);
       }
 
+      // Filter out system questions (dummy questions used for storing tag data)
+      query = query.or('is_system_question.is.null,is_system_question.eq.false');
+
       if (filters.grade) query = query.eq('grade', filters.grade);
       if (filters.topic) query = query.eq('topic', filters.topic);
       if (filters.difficulty) query = query.eq('difficulty', filters.difficulty);
