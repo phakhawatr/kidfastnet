@@ -45,33 +45,60 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
       return;
     }
 
-    const utterance = new SpeechSynthesisUtterance(thaiSpeechText);
-    console.log('🔊 Created utterance, about to speak');
-    utterance.lang = lang;
-    utterance.rate = rate;
-    utterance.pitch = pitch;
-    utterance.volume = volume;
+    // Function to speak with Thai voice
+    const speakWithThaiVoice = () => {
+      const utterance = new SpeechSynthesisUtterance(thaiSpeechText);
+      utterance.lang = lang;
+      utterance.rate = rate;
+      utterance.pitch = pitch;
+      utterance.volume = volume;
 
-    utterance.onstart = () => {
-      console.log('🔊 Speech started');
-      setIsSpeaking(true);
-    };
-    utterance.onend = () => {
-      console.log('🔊 Speech ended');
-      setIsSpeaking(false);
-    };
-    utterance.onerror = (event) => {
-      console.error('🔊 Speech error:', event);
-      setIsSpeaking(false);
-    };
+      // Get available voices
+      const voices = window.speechSynthesis.getVoices();
+      console.log('🔊 Available voices:', voices.length);
 
-    utteranceRef.current = utterance;
-    
-    // Small delay to ensure browser is ready
-    setTimeout(() => {
+      // Try to find Thai voice
+      const thaiVoice = voices.find(voice => 
+        voice.lang.startsWith('th') || 
+        voice.lang === 'th-TH' ||
+        voice.name.includes('Thai')
+      );
+
+      if (thaiVoice) {
+        utterance.voice = thaiVoice;
+        console.log('🔊 Using Thai voice:', thaiVoice.name, thaiVoice.lang);
+      } else {
+        console.warn('🔊 No Thai voice found, using default. Available languages:', 
+          voices.map(v => v.lang).filter((v, i, a) => a.indexOf(v) === i)
+        );
+      }
+      utterance.onstart = () => {
+        console.log('🔊 Speech started');
+        setIsSpeaking(true);
+      };
+      utterance.onend = () => {
+        console.log('🔊 Speech ended');
+        setIsSpeaking(false);
+      };
+      utterance.onerror = (event) => {
+        console.error('🔊 Speech error:', event);
+        setIsSpeaking(false);
+      };
+
+      utteranceRef.current = utterance;
       console.log('🔊 Calling speechSynthesis.speak()');
       window.speechSynthesis.speak(utterance);
-    }, 100);
+    };
+
+    // Wait for voices to load
+    if (window.speechSynthesis.getVoices().length > 0) {
+      speakWithThaiVoice();
+    } else {
+      // Voices not loaded yet, wait for them
+      window.speechSynthesis.onvoiceschanged = () => {
+        speakWithThaiVoice();
+      };
+    }
   }, [isSupported, lang, rate, pitch, volume]);
 
   const stop = useCallback(() => {
