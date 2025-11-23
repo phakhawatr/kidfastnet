@@ -4064,8 +4064,8 @@ export const generateAssessmentQuestions = async (
         // Specific year selected
         selectedTags = [`ข้อสอบ NT ${ntYear}`];
       } else {
-        // Mixed: use all years
-        selectedTags = ['ข้อสอบ NT 2565', 'ข้อสอบ NT 2566', 'ข้อสอบ NT 2567'];
+        // Mixed: use all years (all 120 questions)
+        selectedTags = ['ข้อสอบ NT 2564', 'ข้อสอบ NT 2565', 'ข้อสอบ NT 2566', 'ข้อสอบ NT 2567'];
       }
       
       const bankQuestions = await fetchQuestionsFromBank(

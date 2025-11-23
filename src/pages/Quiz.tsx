@@ -478,7 +478,13 @@ const Quiz = () => {
                       <div className="flex items-center space-x-3 p-3 border-2 border-yellow-400 rounded-lg hover:bg-yellow-100 transition-all cursor-pointer bg-white">
                         <RadioGroupItem value="mixed" id="year-mixed" />
                         <Label htmlFor="year-mixed" className="flex-1 cursor-pointer font-medium text-sm">
-                          🎲 สุ่มผสมทุกปี (2565, 2566, 2567) - แนะนำ
+                          🎲 สุ่มผสมทุกปี (2564, 2565, 2566, 2567) - แนะนำ
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-3 p-3 border-2 rounded-lg hover:bg-yellow-50 hover:border-yellow-400 transition-all cursor-pointer">
+                        <RadioGroupItem value="2564" id="year-2564" />
+                        <Label htmlFor="year-2564" className="flex-1 cursor-pointer font-medium text-sm">
+                          📅 ปีการศึกษา 2564
                         </Label>
                       </div>
                       <div className="flex items-center space-x-3 p-3 border-2 rounded-lg hover:bg-yellow-50 hover:border-yellow-400 transition-all cursor-pointer">
