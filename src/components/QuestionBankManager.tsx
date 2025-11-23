@@ -28,9 +28,10 @@ import TagInput from './ui/tag-input';
 interface QuestionBankManagerProps {
   teacherId?: string | null;
   adminId?: string | null;
+  isAdmin?: boolean;
 }
 
-export default function QuestionBankManager({ teacherId, adminId }: QuestionBankManagerProps) {
+export default function QuestionBankManager({ teacherId, adminId, isAdmin = false }: QuestionBankManagerProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [selectedGrade, setSelectedGrade] = useState<number>(1);

@@ -4,21 +4,26 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Download, Database, Sparkles, CheckCircle2, FileUp } from 'lucide-react';
+import { Search, Download, Database, Sparkles, CheckCircle2, FileUp, Pencil, Trash2 } from 'lucide-react';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 
 interface SystemQuestionsBrowserProps {
   teacherId: string;
   onImportSuccess?: () => void;
+  isAdmin?: boolean;
 }
 
-export default function SystemQuestionsBrowser({ teacherId, onImportSuccess }: SystemQuestionsBrowserProps) {
+export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isAdmin = false }: SystemQuestionsBrowserProps) {
   const {
     fetchSystemQuestions,
     copySystemQuestion,
-  } = useQuestionBank(teacherId);
+    updateQuestion,
+    deleteQuestion,
+  } = useQuestionBank(teacherId, isAdmin);
 
   const [systemQuestions, setSystemQuestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -27,6 +32,14 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess }: S
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
   const [selectedSemester, setSelectedSemester] = useState<string>('all');
   const [selectedTopic, setSelectedTopic] = useState<string>('all');
+  const [editingQuestion, setEditingQuestion] = useState<any | null>(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editForm, setEditForm] = useState({
+    question_text: '',
+    explanation: '',
+    correct_answer: '',
+    choices: [] as string[],
+  });
 
   useEffect(() => {
     loadSystemQuestions();
@@ -46,7 +59,46 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess }: S
     }
   };
 
-  const filteredQuestions = systemQuestions.filter((question) => {
+  const handleEditQuestion = (question: any) => {
+    setEditingQuestion(question);
+    setEditForm({
+      question_text: question.question_text,
+      explanation: question.explanation || '',
+      correct_answer: question.correct_answer,
+      choices: Array.isArray(question.choices) ? question.choices : [],
+    });
+    setShowEditDialog(true);
+  };
+
+  const handleDeleteQuestion = async (questionId: string) => {
+    if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบข้อสอบนี้?')) return;
+    
+    const success = await deleteQuestion(questionId);
+    if (success) {
+      loadSystemQuestions();
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingQuestion) return;
+
+    const success = await updateQuestion(editingQuestion.id, {
+      question_text: editForm.question_text,
+      explanation: editForm.explanation,
+      correct_answer: editForm.correct_answer,
+      choices: editForm.choices,
+    });
+
+    if (success) {
+      setShowEditDialog(false);
+      setEditingQuestion(null);
+      loadSystemQuestions();
+    }
+  };
+
+  const filteredQuestions = systemQuestions
+    .filter((q) => !q.question_text.startsWith('[SYSTEM TAG PLACEHOLDER:'))
+    .filter((question) => {
     if (selectedGrade !== 'all' && question.grade !== selectedGrade) return false;
     if (selectedDifficulty !== 'all' && question.difficulty !== selectedDifficulty) return false;
     if (selectedSemester !== 'all') {
@@ -319,6 +371,28 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess }: S
                 </div>
                 
                 <div className="flex flex-col gap-2">
+                  {isAdmin && (
+                    <>
+                      <Button
+                        onClick={() => handleEditQuestion(question)}
+                        size="sm"
+                        variant="outline"
+                        className="w-full"
+                      >
+                        <Pencil className="w-4 h-4 mr-2" />
+                        แก้ไข
+                      </Button>
+                      <Button
+                        onClick={() => handleDeleteQuestion(question.id)}
+                        size="sm"
+                        variant="destructive"
+                        className="w-full"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        ลบ
+                      </Button>
+                    </>
+                  )}
                   <Button
                     onClick={() => handleCopyQuestion(question.id)}
                     size="sm"
@@ -333,6 +407,79 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess }: S
           ))}
         </div>
       )}
+
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>แก้ไขข้อสอบ</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">โจทย์</label>
+              <Textarea
+                value={editForm.question_text}
+                onChange={(e) => setEditForm({ ...editForm, question_text: e.target.value })}
+                rows={4}
+                className="w-full"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">ตัวเลือก</label>
+              {editForm.choices.map((choice, idx) => (
+                <div key={idx} className="mb-2">
+                  <Input
+                    value={choice}
+                    onChange={(e) => {
+                      const newChoices = [...editForm.choices];
+                      newChoices[idx] = e.target.value;
+                      setEditForm({ ...editForm, choices: newChoices });
+                    }}
+                    placeholder={`ตัวเลือก ${idx + 1}`}
+                  />
+                </div>
+              ))}
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">คำตอบที่ถูกต้อง</label>
+              <Select
+                value={editForm.correct_answer}
+                onValueChange={(value) => setEditForm({ ...editForm, correct_answer: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="A">A</SelectItem>
+                  <SelectItem value="B">B</SelectItem>
+                  <SelectItem value="C">C</SelectItem>
+                  <SelectItem value="D">D</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">คำอธิบาย</label>
+              <Textarea
+                value={editForm.explanation}
+                onChange={(e) => setEditForm({ ...editForm, explanation: e.target.value })}
+                rows={3}
+                className="w-full"
+              />
+            </div>
+
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+                ยกเลิก
+              </Button>
+              <Button onClick={handleSaveEdit}>
+                บันทึก
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -693,7 +693,8 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
       const { data, error } = await supabase
         .from('question_bank')
         .select('*')
-        .or('admin_id.not.is.null,is_system_question.eq.true')
+        .not('admin_id', 'is', null)
+        .not('question_text', 'like', '[SYSTEM TAG PLACEHOLDER:%')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
