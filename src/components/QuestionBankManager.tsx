@@ -377,8 +377,8 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold mb-2">📚 คลังข้อสอบ</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl font-bold mb-2 text-white">📚 คลังข้อสอบ</h1>
+          <p className="text-gray-200">
             จัดการและสร้างโจทย์สำหรับการออกข้อสอบ
           </p>
         </div>
