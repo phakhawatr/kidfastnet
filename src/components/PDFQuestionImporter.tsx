@@ -167,7 +167,7 @@ export default function PDFQuestionImporter({
     const questionsToSave = selectedQuestions.map(q => ({
       teacher_id: adminId ? null : teacherId,
       admin_id: adminId || null,
-      is_system_question: !!adminId,
+      is_system_question: false, // Never mark PDF imports as system questions
       grade: q.grade,
       semester: q.semester,
       assessment_type: q.assessment_type,
