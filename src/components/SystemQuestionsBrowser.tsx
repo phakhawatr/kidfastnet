@@ -10,6 +10,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import TagInput from '@/components/ui/tag-input';
 
 interface SystemQuestionsBrowserProps {
   teacherId: string;
@@ -23,6 +24,7 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
     copySystemQuestion,
     updateQuestion,
     deleteQuestion,
+    fetchAvailableTags,
   } = useQuestionBank(teacherId, isAdmin);
 
   const [systemQuestions, setSystemQuestions] = useState<any[]>([]);
@@ -39,11 +41,19 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
     explanation: '',
     correct_answer: '',
     choices: [] as string[],
+    tags: [] as string[],
   });
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
 
   useEffect(() => {
     loadSystemQuestions();
+    loadAvailableTags();
   }, []);
+
+  const loadAvailableTags = async () => {
+    const tags = await fetchAvailableTags();
+    setAvailableTags(tags);
+  };
 
   const loadSystemQuestions = async () => {
     setLoading(true);
@@ -66,6 +76,7 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
       explanation: question.explanation || '',
       correct_answer: question.correct_answer,
       choices: Array.isArray(question.choices) ? question.choices : [],
+      tags: question.tags || [],
     });
     setShowEditDialog(true);
   };
@@ -87,12 +98,14 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
       explanation: editForm.explanation,
       correct_answer: editForm.correct_answer,
       choices: editForm.choices,
+      tags: editForm.tags,
     });
 
     if (success) {
       setShowEditDialog(false);
       setEditingQuestion(null);
       loadSystemQuestions();
+      loadAvailableTags(); // Refresh tags list
     }
   };
 
@@ -466,6 +479,16 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
                 onChange={(e) => setEditForm({ ...editForm, explanation: e.target.value })}
                 rows={3}
                 className="w-full"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">Tags</label>
+              <TagInput
+                value={editForm.tags}
+                onChange={(tags) => setEditForm({ ...editForm, tags })}
+                suggestions={availableTags}
+                placeholder="เพิ่ม tags..."
               />
             </div>
 
