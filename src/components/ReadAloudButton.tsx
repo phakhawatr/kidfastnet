@@ -17,8 +17,13 @@ export const ReadAloudButton = ({ text, className = '' }: ReadAloudButtonProps) 
   });
   const { toast } = useToast();
 
+  console.log('🔊 ReadAloudButton - isSupported:', isSupported);
+
   const handleClick = () => {
+    console.log('🔊 Button clicked! isSupported:', isSupported, 'isSpeaking:', isSpeaking);
+    
     if (!isSupported) {
+      console.warn('🔊 Browser does not support TTS');
       toast({
         title: "ไม่รองรับการอ่านเสียง",
         description: "เบราว์เซอร์ของคุณไม่รองรับการอ่านข้อความเป็นเสียง",
@@ -28,15 +33,20 @@ export const ReadAloudButton = ({ text, className = '' }: ReadAloudButtonProps) 
     }
 
     if (isSpeaking) {
+      console.log('🔊 Stopping speech');
       stop();
     } else {
+      console.log('🔊 Starting speech with text:', text);
       speak(text);
     }
   };
 
   if (!isSupported) {
+    console.warn('🔊 TTS not supported, button hidden');
     return null;
   }
+
+  console.log('🔊 Rendering button');
 
   return (
     <Button
