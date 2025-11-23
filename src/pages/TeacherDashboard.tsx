@@ -221,8 +221,17 @@ const TeacherDashboard = () => {
     }
   };
 
-  const handlePreviewQuestions = () => {
-    const questions = generateAssessmentQuestions(
+  const handlePreviewQuestions = async () => {
+    if (!selectedGrade || totalQuestions <= 0) {
+      toast({
+        title: "ข้อมูลไม่ครบถ้วน",
+        description: "กรุณาเลือกชั้นเรียนและระบุจำนวนข้อสอบ",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const questions = await generateAssessmentQuestions(
       selectedGrade,
       selectedType === 'semester' ? selectedSemester : 'nt',
       totalQuestions

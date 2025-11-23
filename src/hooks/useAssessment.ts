@@ -14,22 +14,34 @@ export const useAssessment = (userId: string, grade: number, semesterOrType: num
   useEffect(() => {
     if (grade && semesterOrType) {
       setIsLoading(true);
-      let qs: AssessmentQuestion[];
       
-      // ตรวจสอบว่าเป็น NT หรือ semester
-      if (semesterOrType === 'nt') {
-        qs = generateAssessmentQuestions(grade, 'nt' as any, totalQuestions);
-      } else {
-        qs = generateAssessmentQuestions(grade, semesterOrType as number, totalQuestions);
-      }
+      const loadQuestions = async () => {
+        try {
+          let qs: AssessmentQuestion[];
+          
+          // Call async generateAssessmentQuestions
+          if (semesterOrType === 'nt') {
+            qs = await generateAssessmentQuestions(grade, 'nt' as any, totalQuestions);
+          } else {
+            qs = await generateAssessmentQuestions(grade, semesterOrType as number, totalQuestions);
+          }
+          
+          setQuestions(qs);
+          setStartTime(Date.now());
+          setCurrentIndex(0);
+          setAnswers(new Map());
+          setIsSubmitted(false);
+          setTimeTaken(0);
+        } catch (error) {
+          console.error('Error loading questions:', error);
+          // Set empty questions on error
+          setQuestions([]);
+        } finally {
+          setIsLoading(false);
+        }
+      };
       
-      setQuestions(qs);
-      setStartTime(Date.now());
-      setCurrentIndex(0);
-      setAnswers(new Map());
-      setIsSubmitted(false);
-      setTimeTaken(0);
-      setIsLoading(false);
+      loadQuestions();
     }
   }, [grade, semesterOrType, totalQuestions]);
 
