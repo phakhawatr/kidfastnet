@@ -31,26 +31,47 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
       return;
     }
 
+    console.log('🔊 Original text:', text);
+
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
 
     // Convert text to proper Thai speech format
     const thaiSpeechText = convertToThaiSpeech(text);
+    console.log('🔊 Converted Thai text:', thaiSpeechText);
 
-    if (!thaiSpeechText) return;
+    if (!thaiSpeechText) {
+      console.warn('🔊 No text to speak after conversion');
+      return;
+    }
 
     const utterance = new SpeechSynthesisUtterance(thaiSpeechText);
+    console.log('🔊 Created utterance, about to speak');
     utterance.lang = lang;
     utterance.rate = rate;
     utterance.pitch = pitch;
     utterance.volume = volume;
 
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
+    utterance.onstart = () => {
+      console.log('🔊 Speech started');
+      setIsSpeaking(true);
+    };
+    utterance.onend = () => {
+      console.log('🔊 Speech ended');
+      setIsSpeaking(false);
+    };
+    utterance.onerror = (event) => {
+      console.error('🔊 Speech error:', event);
+      setIsSpeaking(false);
+    };
 
     utteranceRef.current = utterance;
-    window.speechSynthesis.speak(utterance);
+    
+    // Small delay to ensure browser is ready
+    setTimeout(() => {
+      console.log('🔊 Calling speechSynthesis.speak()');
+      window.speechSynthesis.speak(utterance);
+    }, 100);
   }, [isSupported, lang, rate, pitch, volume]);
 
   const stop = useCallback(() => {
