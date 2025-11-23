@@ -5,7 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Download, Eye, Copy, FileText, Sparkles, Users } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Search, Download, Eye, Copy, FileText, Sparkles, Users, AlertTriangle, Info } from 'lucide-react';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
 
 interface SharedQuestionsBrowserProps {
@@ -19,6 +29,7 @@ export default function SharedQuestionsBrowser({ teacherId, onImportSuccess }: S
     fetchSharedTemplates,
     copySharedQuestion,
     copySharedTemplate,
+    checkDuplicateQuestion,
   } = useQuestionBank(teacherId);
 
   const [sharedQuestions, setSharedQuestions] = useState<any[]>([]);
@@ -27,6 +38,19 @@ export default function SharedQuestionsBrowser({ teacherId, onImportSuccess }: S
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGrade, setSelectedGrade] = useState<number | 'all'>('all');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    type: 'question' | 'template';
+    questionId?: string;
+    sharedId?: string;
+    templateId?: string;
+    isDuplicate?: boolean;
+    duplicateInfo?: any;
+    data?: any;
+  }>({
+    open: false,
+    type: 'question',
+  });
 
   useEffect(() => {
     loadSharedContent();
@@ -43,14 +67,49 @@ export default function SharedQuestionsBrowser({ teacherId, onImportSuccess }: S
     setLoading(false);
   };
 
-  const handleCopyQuestion = async (questionId: string, sharedId: string) => {
-    await copySharedQuestion(questionId, sharedId);
-    onImportSuccess?.();
+  const handleImportQuestion = async (questionId: string, sharedId: string, questionData: any) => {
+    // Check for duplicates
+    const duplicateCheck = await checkDuplicateQuestion({
+      question_text: questionData.question_text,
+      choices: questionData.choices,
+      correct_answer: questionData.correct_answer,
+      grade: questionData.grade,
+    });
+
+    setConfirmDialog({
+      open: true,
+      type: 'question',
+      questionId,
+      sharedId,
+      isDuplicate: duplicateCheck.isDuplicate,
+      duplicateInfo: duplicateCheck,
+      data: questionData,
+    });
   };
 
-  const handleCopyTemplate = async (templateId: string, sharedId: string) => {
-    await copySharedTemplate(templateId, sharedId);
-    onImportSuccess?.();
+  const handleImportTemplate = async (templateId: string, sharedId: string, templateData: any) => {
+    setConfirmDialog({
+      open: true,
+      type: 'template',
+      templateId,
+      sharedId,
+      isDuplicate: false,
+      data: templateData,
+    });
+  };
+
+  const confirmImport = async () => {
+    try {
+      if (confirmDialog.type === 'question') {
+        await copySharedQuestion(confirmDialog.questionId!, confirmDialog.sharedId!);
+      } else {
+        await copySharedTemplate(confirmDialog.templateId!, confirmDialog.sharedId!);
+      }
+      onImportSuccess?.();
+      setConfirmDialog({ ...confirmDialog, open: false });
+    } catch (error) {
+      console.error('Import error:', error);
+    }
   };
 
   const filteredQuestions = sharedQuestions.filter((item) => {
@@ -228,7 +287,7 @@ export default function SharedQuestionsBrowser({ teacherId, onImportSuccess }: S
                     </div>
 
                     <Button
-                      onClick={() => handleCopyQuestion(question.id, item.id)}
+                      onClick={() => handleImportQuestion(question.id, item.id, question)}
                       size="sm"
                     >
                       <Download className="w-4 h-4 mr-2" />
@@ -303,7 +362,7 @@ export default function SharedQuestionsBrowser({ teacherId, onImportSuccess }: S
                     </div>
 
                     <Button
-                      onClick={() => handleCopyTemplate(template.id, item.id)}
+                      onClick={() => handleImportTemplate(template.id, item.id, template)}
                       size="sm"
                     >
                       <Download className="w-4 h-4 mr-2" />
@@ -316,6 +375,64 @@ export default function SharedQuestionsBrowser({ teacherId, onImportSuccess }: S
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Confirmation Dialog */}
+      <AlertDialog open={confirmDialog.open} onOpenChange={(open) => setConfirmDialog({ ...confirmDialog, open })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              {confirmDialog.isDuplicate ? (
+                <>
+                  <AlertTriangle className="w-5 h-5 text-yellow-500" />
+                  พบข้อสอบที่คล้ายกันในคลังของคุณ
+                </>
+              ) : (
+                <>
+                  <Info className="w-5 h-5 text-blue-500" />
+                  ยืนยันการนำเข้า{confirmDialog.type === 'question' ? 'โจทย์' : 'แม่แบบ'}
+                </>
+              )}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-3">
+              {confirmDialog.isDuplicate ? (
+                <>
+                  <p className="text-yellow-600 dark:text-yellow-500 font-medium">
+                    ⚠️ คุณมีข้อสอบที่มีเนื้อหาคล้ายกันอยู่แล้ว {confirmDialog.duplicateInfo?.existingQuestions?.length || 0} ข้อ
+                  </p>
+                  <div className="bg-yellow-50 dark:bg-yellow-950/20 p-3 rounded border border-yellow-200 dark:border-yellow-800">
+                    <p className="text-sm font-medium mb-1">ข้อความโจทย์:</p>
+                    <p className="text-sm text-muted-foreground">
+                      "{confirmDialog.data?.question_text.substring(0, 100)}..."
+                    </p>
+                  </div>
+                  <p className="text-sm">
+                    คุณต้องการนำเข้าข้อสอบนี้ต่อหรือไม่?
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p>คุณต้องการนำเข้า{confirmDialog.type === 'question' ? 'โจทย์' : 'แม่แบบ'}นี้ไปยังคลังของคุณหรือไม่?</p>
+                  {confirmDialog.data && (
+                    <div className="bg-muted p-3 rounded">
+                      <p className="text-sm font-medium">
+                        {confirmDialog.type === 'question' 
+                          ? confirmDialog.data.question_text.substring(0, 80) 
+                          : confirmDialog.data.template_name}
+                      </p>
+                    </div>
+                  )}
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmImport}>
+              {confirmDialog.isDuplicate ? 'นำเข้าต่อ' : 'ยืนยัน'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
