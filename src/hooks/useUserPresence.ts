@@ -33,9 +33,7 @@ export const useUserPresence = ({ userId, userInfo, registrationId }: UseUserPre
 
     channel.subscribe(async (status) => {
       if (status === 'SUBSCRIBED') {
-        console.log(`User ${userInfo.nickname} (${trackingId}) joined presence channel`);
-        const presenceTrackStatus = await channel.track(userPresence);
-        console.log('Presence track status:', presenceTrackStatus);
+        await channel.track(userPresence);
       }
     });
 
@@ -50,7 +48,6 @@ export const useUserPresence = ({ userId, userInfo, registrationId }: UseUserPre
     return () => {
       clearInterval(intervalId);
       supabase.removeChannel(channel);
-      console.log(`User ${userInfo.nickname} (${trackingId}) left presence channel`);
     };
   }, [userId, userInfo, registrationId]);
 };
