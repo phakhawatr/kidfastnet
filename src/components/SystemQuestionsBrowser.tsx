@@ -45,6 +45,7 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
     tags: [] as string[],
   });
   const [availableTags, setAvailableTags] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   useEffect(() => {
     loadSystemQuestions();
@@ -119,6 +120,32 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
     }
   };
 
+  const getTagCounts = () => {
+    const tagCounts: { [key: string]: number } = {};
+    
+    systemQuestions
+      .filter((q) => !q.question_text.startsWith('[SYSTEM TAG PLACEHOLDER:'))
+      .forEach((question) => {
+        if (question.tags && Array.isArray(question.tags)) {
+          question.tags.forEach((tag: string) => {
+            tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+          });
+        }
+      });
+    
+    return Object.entries(tagCounts)
+      .sort(([, a], [, b]) => b - a)
+      .map(([tag, count]) => ({ tag, count }));
+  };
+
+  const handleToggleTag = (tag: string) => {
+    setSelectedTags(prev => 
+      prev.includes(tag) 
+        ? prev.filter(t => t !== tag) 
+        : [...prev, tag]
+    );
+  };
+
   const filteredQuestions = systemQuestions
     .filter((q) => !q.question_text.startsWith('[SYSTEM TAG PLACEHOLDER:'))
     .filter((question) => {
@@ -130,6 +157,16 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
     }
     if (selectedTopic !== 'all' && question.topic !== selectedTopic) return false;
     if (searchQuery && !question.question_text.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    
+    // Tag filtering
+    if (selectedTags.length > 0) {
+      const questionTags = question.tags || [];
+      const hasMatchingTag = selectedTags.some(selectedTag => 
+        questionTags.includes(selectedTag)
+      );
+      if (!hasMatchingTag) return false;
+    }
+    
     return true;
   });
 
@@ -242,6 +279,47 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
               className="pl-10"
             />
           </div>
+
+          {/* Tag Cloud Section */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium">🏷️ Tags</label>
+              {selectedTags.length > 0 && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setSelectedTags([])}
+                  className="h-6 text-xs"
+                >
+                  ล้างทั้งหมด
+                </Button>
+              )}
+            </div>
+            
+            <div className="flex flex-wrap gap-2">
+              {getTagCounts().map(({ tag, count }) => {
+                const isSelected = selectedTags.includes(tag);
+                return (
+                  <Badge
+                    key={tag}
+                    variant={isSelected ? "default" : "outline"}
+                    className={`cursor-pointer text-xs transition-all hover:scale-105 ${
+                      isSelected 
+                        ? 'bg-pink-500 text-white border-pink-600 dark:bg-pink-600' 
+                        : 'bg-pink-50 text-pink-700 border-pink-200 dark:bg-pink-950 dark:text-pink-300 dark:border-pink-800'
+                    }`}
+                    onClick={() => handleToggleTag(tag)}
+                  >
+                    🏷️ {tag} <span className="ml-1 font-bold">({count})</span>
+                  </Badge>
+                );
+              })}
+            </div>
+            
+            {getTagCounts().length === 0 && (
+              <p className="text-xs text-muted-foreground">ยังไม่มี tags</p>
+            )}
+          </div>
         </div>
       </Card>
 
@@ -255,16 +333,39 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
           <Database className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-xl font-semibold mb-2">ไม่พบข้อสอบ</h3>
           <p className="text-muted-foreground">
-            {searchQuery || selectedGrade !== 'all' || selectedDifficulty !== 'all' || selectedSemester !== 'all' || selectedTopic !== 'all'
+            {searchQuery || selectedGrade !== 'all' || selectedDifficulty !== 'all' || selectedSemester !== 'all' || selectedTopic !== 'all' || selectedTags.length > 0
               ? 'ลองปรับเงื่อนไขการค้นหาใหม่'
               : 'ยังไม่มีข้อสอบในคลังกลาง'}
           </p>
         </Card>
       ) : (
         <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            พบ {filteredQuestions.length} ข้อสอบ
-          </p>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <p className="text-sm text-muted-foreground">
+              พบ <span className="font-bold text-primary">{filteredQuestions.length}</span> ข้อสอบ
+            </p>
+            
+            {/* Active Filters Summary */}
+            {(selectedGrade !== 'all' || selectedSemester !== 'all' || selectedTopic !== 'all' || selectedDifficulty !== 'all' || selectedTags.length > 0) && (
+              <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
+                <span>กรองโดย:</span>
+                {selectedGrade !== 'all' && <Badge variant="secondary" className="text-xs">ป.{selectedGrade}</Badge>}
+                {selectedSemester !== 'all' && <Badge variant="secondary" className="text-xs">เทอม {selectedSemester}</Badge>}
+                {selectedTopic !== 'all' && <Badge variant="secondary" className="text-xs">{selectedTopic}</Badge>}
+                {selectedDifficulty !== 'all' && <Badge variant="secondary" className="text-xs">{getDifficultyText(selectedDifficulty)}</Badge>}
+                {selectedTags.map(tag => (
+                  <Badge 
+                    key={tag} 
+                    variant="outline" 
+                    className="text-xs bg-pink-100 text-pink-700 border-pink-300 dark:bg-pink-950 dark:text-pink-300 dark:border-pink-800"
+                  >
+                    🏷️ {tag}
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+          
           {filteredQuestions.map((question, index) => (
             <Card key={question.id} className="p-4 hover:shadow-md transition-shadow">
               <div className="flex items-start gap-4">
