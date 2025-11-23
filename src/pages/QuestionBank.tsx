@@ -22,12 +22,19 @@ export default function QuestionBank() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900">
+      {/* AI Background Effect */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 -left-20 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
+        <div className="absolute top-40 -right-20 w-96 h-96 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute -bottom-20 left-1/2 w-96 h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '4s' }}></div>
+      </div>
+
       <Header />
       
-      <div className="flex-1 container mx-auto py-6">
+      <div className="flex-1 container mx-auto py-6 relative z-10">
         <div className="mb-4">
-          <Button variant="ghost" onClick={() => navigate('/teacher')}>
+          <Button variant="ghost" onClick={() => navigate('/teacher')} className="text-white hover:text-white/80">
             <ArrowLeft className="w-4 h-4 mr-2" />
             กลับไปหน้าแผงควบคุม
           </Button>
