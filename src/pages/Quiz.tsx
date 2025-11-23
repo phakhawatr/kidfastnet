@@ -67,11 +67,6 @@ const Quiz = () => {
     assessmentType === 'nt' ? selectedNTYear : undefined
   );
 
-  // Debug logs for userId
-  console.log('🔍 Quiz - User ID:', user?.id);
-  console.log('🔍 Quiz - Registration ID:', registrationId);
-  console.log('🔍 Quiz - Final userId for assessment:', user?.id || registrationId || '');
-
   const handleStartAssessment = () => {
     const userId = user?.id || registrationId;
     if (!userId) {
@@ -89,9 +84,6 @@ const Quiz = () => {
   const handleSubmit = async () => {
     const userId = user?.id || registrationId;
     
-    console.log('🚀 Quiz - handleSubmit called');
-    console.log('🔍 Quiz - User ID for submission:', userId);
-    
     if (!userId) {
       toast({
         title: "ไม่สามารถส่งคำตอบได้",
@@ -104,7 +96,7 @@ const Quiz = () => {
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(userId)) {
-      console.error('❌ Invalid userId format:', userId);
+      console.error('Invalid userId format:', userId);
       toast({
         title: "ข้อผิดพลาดระบบ",
         description: "รูปแบบ User ID ไม่ถูกต้อง กรุณาติดต่อผู้ดูแลระบบ",
@@ -113,7 +105,6 @@ const Quiz = () => {
       return;
     }
 
-    console.log('✅ UUID validation passed');
     setIsSubmitting(true);
     try {
       const result = await submitAssessment();

@@ -95,12 +95,8 @@ export const useAssessment = (userId: string, grade: number, semesterOrType: num
   };
 
   const submitAssessment = async () => {
-    console.log('📝 useAssessment - submitAssessment called');
-    console.log('🔍 useAssessment - userId:', userId);
-    console.log('🔍 useAssessment - Is userId empty?', !userId);
-    
     if (!userId) {
-      console.error('❌ User ID is required to submit assessment');
+      console.error('User ID is required to submit assessment');
       throw new Error('User ID is required to submit assessment');
     }
 
@@ -111,17 +107,6 @@ export const useAssessment = (userId: string, grade: number, semesterOrType: num
     // Determine semester and assessment_type from semesterOrType
     const assessmentType = semesterOrType === 'nt' ? 'nt' : 'semester';
     const semesterValue = typeof semesterOrType === 'number' ? semesterOrType : null;
-
-    console.log('📊 Assessment data:', {
-      user_id: userId,
-      grade,
-      semester: semesterValue,
-      assessment_type: assessmentType,
-      total_questions: questions.length,
-      correct_answers: correct,
-      score: parseFloat(score.toFixed(2)),
-      time_taken: timeTaken
-    });
 
     try {
       const insertData = {
@@ -145,23 +130,14 @@ export const useAssessment = (userId: string, grade: number, semesterOrType: num
         completed_at: new Date().toISOString()
       };
       
-      console.log('💾 Attempting to insert into Supabase:', insertData);
-      
       const { error } = await supabase.from('level_assessments').insert([insertData]);
 
       if (error) {
-        console.error('❌ Supabase insert error:', error);
-        console.error('❌ Error code:', error.code);
-        console.error('❌ Error message:', error.message);
-        console.error('❌ Error details:', error.details);
-        console.error('❌ Error hint:', error.hint);
+        console.error('Supabase insert error:', error);
         throw new Error(`Failed to save assessment: ${error.message}`);
       }
       
-      console.log('✅ Assessment saved successfully!');
-      
       // Check and award achievements
-      console.log('🏆 Checking for new achievements...');
       const { data: newAchievements, error: achievementError } = await supabase
         .rpc('check_and_award_achievements', {
           p_user_id: userId,
@@ -170,9 +146,7 @@ export const useAssessment = (userId: string, grade: number, semesterOrType: num
         });
 
       if (achievementError) {
-        console.error('⚠️ Error checking achievements:', achievementError);
-      } else if (newAchievements && newAchievements.length > 0) {
-        console.log('🎉 New achievements earned:', newAchievements);
+        console.error('Error checking achievements:', achievementError);
       }
       
       setIsSubmitted(true);
