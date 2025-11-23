@@ -13,6 +13,7 @@ import CertificateCard from '@/components/CertificateCard';
 import AchievementBadge from '@/components/AchievementBadge';
 import AchievementNotification from '@/components/AchievementNotification';
 import { ClockDisplay } from '@/components/ClockDisplay';
+import { ReadAloudButton } from '@/components/ReadAloudButton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -815,7 +816,7 @@ const Quiz = () => {
                     })()}
                   </div>
 
-                  <div className="bg-white p-6 rounded-lg border-2 border-purple-200">
+                  <div className="bg-white p-6 rounded-lg border-2 border-purple-200 space-y-4">
                     {currentQuestion.clockDisplay && (
                       <ClockDisplay 
                         hour={currentQuestion.clockDisplay.hour} 
@@ -823,6 +824,9 @@ const Quiz = () => {
                       />
                     )}
                     {renderQuestionText(currentQuestion.question)}
+                    <div className="flex justify-end pt-2">
+                      <ReadAloudButton text={currentQuestion.question} />
+                    </div>
                   </div>
 
                   <RadioGroup 
