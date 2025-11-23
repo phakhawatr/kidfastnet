@@ -248,14 +248,16 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
             จัดการและสร้างโจทย์สำหรับการออกข้อสอบ
           </p>
         </div>
-        <Button
-          variant="outline"
-          onClick={() => window.location.href = '/teacher/tags'}
-          className="flex items-center gap-2"
-        >
-          <Tag className="w-4 h-4" />
-          จัดการ Tags
-        </Button>
+        {adminId && (
+          <Button
+            variant="outline"
+            onClick={() => window.location.href = '/admin/tags'}
+            className="flex items-center gap-2"
+          >
+            <Tag className="w-4 h-4" />
+            จัดการ Tags
+          </Button>
+        )}
       </div>
 
       <Tabs defaultValue="library" className="w-full">

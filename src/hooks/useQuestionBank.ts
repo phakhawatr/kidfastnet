@@ -1019,6 +1019,62 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
     }
   };
 
+  const createTag = async (tagName: string): Promise<boolean> => {
+    if (!teacherId || !isAdmin) return false;
+
+    try {
+      // Check if tag already exists in any question
+      const { data: existingQuestions, error: checkError } = await supabase
+        .from('question_bank')
+        .select('id')
+        .contains('tags', [tagName])
+        .limit(1);
+
+      if (checkError) throw checkError;
+
+      if (existingQuestions && existingQuestions.length > 0) {
+        toast({
+          title: 'Tag มีอยู่แล้ว',
+          description: `Tag "${tagName}" มีอยู่ในระบบแล้ว`,
+          variant: 'destructive',
+        });
+        return false;
+      }
+
+      // Create a placeholder/system question with this tag to register it in the system
+      const { error: insertError } = await supabase
+        .from('question_bank')
+        .insert({
+          admin_id: teacherId,
+          question_text: `[SYSTEM TAG PLACEHOLDER: ${tagName}]`,
+          choices: ['A', 'B', 'C', 'D'],
+          correct_answer: 'A',
+          grade: 1,
+          skill_name: 'system',
+          difficulty: 'easy',
+          tags: [tagName],
+          is_system_question: true,
+          subject: 'math',
+        });
+
+      if (insertError) throw insertError;
+
+      toast({
+        title: 'สร้าง Tag สำเร็จ',
+        description: `Tag "${tagName}" พร้อมใช้งานแล้ว`,
+      });
+
+      return true;
+    } catch (error: any) {
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return false;
+    }
+  };
+
   return {
     questions,
     topics,
@@ -1047,6 +1103,7 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
     fetchTagsWithCount,
     renameTag,
     deleteTag,
+    createTag,
     checkSharedQuestions,
   };
 }

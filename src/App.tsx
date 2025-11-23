@@ -404,11 +404,11 @@ const App = () => {
           />
           
           <Route 
-            path="/teacher/tags" 
+            path="/admin/tags" 
             element={
-              <TeacherProtectedRoute>
+              <AdminProtectedRoute>
                 <TagManagement />
-              </TeacherProtectedRoute>
+              </AdminProtectedRoute>
             } 
           />
           
