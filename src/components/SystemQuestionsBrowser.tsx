@@ -238,11 +238,11 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold mb-2 flex items-center gap-2 text-primary">
+        <h2 className="text-2xl font-bold mb-2 flex items-center gap-2 text-white">
           <Database className="w-6 h-6" />
           คลังข้อสอบกลาง
         </h2>
-        <p className="text-muted-foreground">
+        <p className="text-gray-200">
           ข้อสอบคุณภาพสูงจาก Admin พร้อมใช้งาน สามารถนำเข้ามาใช้และปรับแต่งได้
         </p>
       </div>
