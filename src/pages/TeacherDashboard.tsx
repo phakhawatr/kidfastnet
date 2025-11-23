@@ -624,7 +624,9 @@ const TeacherDashboard = () => {
       <main className="flex-1 container mx-auto px-4 py-8 relative z-10">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-white mb-2">👨‍🏫 แดشบอร์ดครู</h1>
+            <h1 className="text-4xl font-bold text-white mb-2">
+              👨‍🏫 แผงควบคุมการทำงานของ ครู{teacherName ? ` ${teacherName}` : ''}
+            </h1>
             <p className="text-gray-200">สร้างและจัดการ link ข้อสอบสำหรับนักเรียน</p>
           </div>
           <Button
