@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import TagInput from '@/components/ui/tag-input';
+import { toast } from 'sonner';
 
 interface SystemQuestionsBrowserProps {
   teacherId: string;
@@ -71,12 +72,14 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
 
   const handleEditQuestion = (question: any) => {
     setEditingQuestion(question);
+    const questionTags = Array.isArray(question.tags) ? question.tags : [];
+    console.log('Loading question tags:', questionTags); // Debug log
     setEditForm({
       question_text: question.question_text,
       explanation: question.explanation || '',
       correct_answer: question.correct_answer,
       choices: Array.isArray(question.choices) ? question.choices : [],
-      tags: question.tags || [],
+      tags: questionTags,
     });
     setShowEditDialog(true);
   };
@@ -93,6 +96,8 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
   const handleSaveEdit = async () => {
     if (!editingQuestion) return;
 
+    console.log('Saving question with tags:', editForm.tags);
+    
     const success = await updateQuestion(editingQuestion.id, {
       question_text: editForm.question_text,
       explanation: editForm.explanation,
@@ -102,10 +107,15 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
     });
 
     if (success) {
+      toast.success('บันทึกข้อสอบเรียบร้อยแล้ว', {
+        description: `Tags: ${editForm.tags.join(', ') || 'ไม่มี'}`
+      });
       setShowEditDialog(false);
       setEditingQuestion(null);
-      loadSystemQuestions();
+      await loadSystemQuestions(); // Wait for reload
       loadAvailableTags(); // Refresh tags list
+    } else {
+      toast.error('เกิดข้อผิดพลาดในการบันทึก');
     }
   };
 
@@ -327,6 +337,17 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
                         ใช้งาน {question.times_used} ครั้ง
                       </Badge>
                     )}
+                    
+                    {/* 6. Tags */}
+                    {question.tags && Array.isArray(question.tags) && question.tags.length > 0 && question.tags.map((tag: string, tagIdx: number) => (
+                      <Badge 
+                        key={tagIdx} 
+                        variant="outline" 
+                        className="text-xs font-normal bg-pink-50 dark:bg-pink-950 text-pink-700 dark:text-pink-300 border-pink-200 dark:border-pink-800"
+                      >
+                        🏷️ {tag}
+                      </Badge>
+                    ))}
                   </div>
 
                   <div className="prose prose-sm dark:prose-invert max-w-none">
