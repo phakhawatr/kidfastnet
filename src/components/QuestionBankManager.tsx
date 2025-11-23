@@ -51,7 +51,8 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
     choices: ['', '', '', ''],
     correct_answer: '',
     explanation: '',
-    difficulty: 'medium'
+    difficulty: 'medium',
+    tags: [] as string[]
   });
   
   const {
@@ -144,24 +145,44 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
 
   const handleEditQuestion = (question: QuestionBankItem) => {
     setEditingQuestion(question);
+    
+    // Clean choices - remove A), B), C), D) prefix
+    const cleanedChoices = Array.isArray(question.choices) 
+      ? question.choices.map(c => typeof c === 'string' ? c.replace(/^[A-D]\)\s*/, '') : c)
+      : ['', '', '', ''];
+    
     setEditForm({
       question_text: question.question_text,
-      choices: Array.isArray(question.choices) ? question.choices : ['', '', '', ''],
-      correct_answer: question.correct_answer,
+      choices: cleanedChoices,
+      correct_answer: question.correct_answer.replace(/^[A-D]\)\s*/, ''),
       explanation: question.explanation || '',
-      difficulty: question.difficulty
+      difficulty: question.difficulty,
+      tags: question.tags || []
     });
   };
 
   const handleSaveEdit = async () => {
     if (!editingQuestion) return;
 
+    // Add A), B), C), D) prefix back to choices for database storage
+    const choicesWithPrefix = editForm.choices.map((c, idx) => {
+      const letter = String.fromCharCode(65 + idx); // A, B, C, D
+      return `${letter}) ${c}`;
+    });
+    
+    // Add prefix to correct answer too
+    const correctIndex = editForm.choices.indexOf(editForm.correct_answer);
+    const correctWithPrefix = correctIndex !== -1 
+      ? String.fromCharCode(65 + correctIndex) + ') ' + editForm.correct_answer
+      : editForm.correct_answer;
+
     const success = await updateQuestion(editingQuestion.id, {
       question_text: editForm.question_text,
-      choices: editForm.choices,
-      correct_answer: editForm.correct_answer,
+      choices: choicesWithPrefix,
+      correct_answer: correctWithPrefix,
       explanation: editForm.explanation,
-      difficulty: editForm.difficulty
+      difficulty: editForm.difficulty,
+      tags: editForm.tags
     });
 
     if (success) {
@@ -177,7 +198,8 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
       choices: ['', '', '', ''],
       correct_answer: '',
       explanation: '',
-      difficulty: 'medium'
+      difficulty: 'medium',
+      tags: []
     });
   };
 
@@ -821,6 +843,24 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Tags Section - Admin Only */}
+            {adminId && (
+              <div>
+                <Label htmlFor="edit-tags">🏷️ Tags (เฉพาะ Admin)</Label>
+                <div className="mt-2">
+                  <TagInput
+                    value={editForm.tags}
+                    onChange={(newTags) => setEditForm({ ...editForm, tags: newTags })}
+                    suggestions={availableTags}
+                    placeholder="เพิ่ม tags..."
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  เพิ่มหรือแก้ไข tags เพื่อจัดหมวดหมู่ข้อสอบ
+                </p>
+              </div>
+            )}
           </div>
 
           <DialogFooter>
