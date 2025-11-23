@@ -47,6 +47,7 @@ import STEMProgressDashboard from "./pages/STEMProgressDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import QuestionBank from "./pages/QuestionBank";
 import AdminQuestionBank from "./pages/AdminQuestionBank";
+import TagManagement from "./pages/TagManagement";
 import PublicExam from "./pages/PublicExam";
 import StudentExamResult from "./pages/StudentExamResult";
 import NotFound from "./pages/NotFound";
@@ -398,6 +399,15 @@ const App = () => {
             element={
               <TeacherProtectedRoute>
                 <QuestionBank />
+              </TeacherProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/teacher/tags" 
+            element={
+              <TeacherProtectedRoute>
+                <TagManagement />
               </TeacherProtectedRoute>
             } 
           />

@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Search, BookOpen, Pencil, Sparkles, FileText, Trash2, Share2, Users, Trophy, FileUp, Database, CheckCircle2, X } from 'lucide-react';
+import { Search, BookOpen, Pencil, Sparkles, FileText, Trash2, Share2, Users, Trophy, FileUp, Database, CheckCircle2, X, Tag } from 'lucide-react';
 import { useQuestionBank, QuestionBankItem } from '@/hooks/useQuestionBank';
 import { useTranslation } from 'react-i18next';
 import { curriculumConfig } from '@/config/curriculum';
@@ -241,11 +241,21 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold mb-2">📚 คลังข้อสอบ</h1>
-        <p className="text-muted-foreground">
-          จัดการและสร้างโจทย์สำหรับการออกข้อสอบ
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">📚 คลังข้อสอบ</h1>
+          <p className="text-muted-foreground">
+            จัดการและสร้างโจทย์สำหรับการออกข้อสอบ
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => window.location.href = '/teacher/tags'}
+          className="flex items-center gap-2"
+        >
+          <Tag className="w-4 h-4" />
+          จัดการ Tags
+        </Button>
       </div>
 
       <Tabs defaultValue="library" className="w-full">
