@@ -29,7 +29,7 @@ export default function QuestionBank() {
         <div className="mb-4">
           <Button variant="ghost" onClick={() => navigate('/teacher')}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            กลับไปหน้า Dashboard
+            กลับไปหน้าแผงควบคุม
           </Button>
         </div>
         
