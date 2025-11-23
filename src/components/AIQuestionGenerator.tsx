@@ -109,7 +109,7 @@ export default function AIQuestionGenerator({ teacherId, adminId, onSuccess }: A
         assessment_type: selectedGrade === 3 ? assessmentType : (selectedSemester ? `semester${selectedSemester}` : 'semester'),
         ai_generated: true,
         admin_id: adminId || null,
-        is_system_question: !!adminId,
+        is_system_question: false, // Never mark AI-generated questions as system questions
       });
     });
 

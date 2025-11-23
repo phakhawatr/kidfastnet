@@ -142,7 +142,8 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
       }
 
       // Filter out system questions (dummy questions used for storing tag data)
-      query = query.or('is_system_question.is.null,is_system_question.eq.false');
+      // Use .not() to exclude questions where is_system_question is true
+      query = query.not('is_system_question', 'eq', true);
 
       if (filters.grade) query = query.eq('grade', filters.grade);
       if (filters.topic) query = query.eq('topic', filters.topic);

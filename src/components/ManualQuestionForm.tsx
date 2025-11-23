@@ -93,7 +93,7 @@ export default function ManualQuestionForm({ teacherId, adminId, grade, topics, 
       ai_generated: false,
       is_template: false,
       admin_id: adminId || null,
-      is_system_question: !!adminId,
+      is_system_question: false, // Never mark manually created questions as system questions
     });
 
     setSaving(false);
