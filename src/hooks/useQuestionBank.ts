@@ -1159,6 +1159,52 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
     }
   };
 
+  const checkDuplicateQuestion = async (questionData: {
+    question_text: string;
+    choices: any;
+    correct_answer: string;
+    grade: number;
+  }) => {
+    if (!teacherId) return { isDuplicate: false };
+
+    try {
+      // Query questions with same text and grade
+      let query = supabase
+        .from('question_bank')
+        .select('id, question_text, choices, correct_answer, created_at')
+        .eq('question_text', questionData.question_text)
+        .eq('grade', questionData.grade)
+        .limit(5);
+
+      if (isAdmin) {
+        query = query.eq('admin_id', teacherId);
+      } else {
+        query = query.eq('teacher_id', teacherId);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      // Check for exact match including choices and answer
+      const exactMatch = data?.find((q) => {
+        return (
+          JSON.stringify(q.choices) === JSON.stringify(questionData.choices) &&
+          q.correct_answer === questionData.correct_answer
+        );
+      });
+
+      return {
+        isDuplicate: !!exactMatch,
+        existingQuestions: data || [],
+        exactMatch: exactMatch || null,
+      };
+    } catch (error: any) {
+      console.error('Error checking duplicate:', error);
+      return { isDuplicate: false };
+    }
+  };
+
   return {
     questions,
     topics,
@@ -1190,5 +1236,6 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
     createTag,
     updateTagColor,
     checkSharedQuestions,
+    checkDuplicateQuestion,
   };
 }
