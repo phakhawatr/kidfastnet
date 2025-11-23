@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -31,6 +32,7 @@ interface QuestionBankManagerProps {
 
 export default function QuestionBankManager({ teacherId, adminId }: QuestionBankManagerProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [selectedGrade, setSelectedGrade] = useState<number>(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
@@ -251,7 +253,7 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
         {adminId && (
           <Button
             variant="outline"
-            onClick={() => window.location.href = '/admin/tags'}
+            onClick={() => navigate('/admin/tags')}
             className="flex items-center gap-2"
           >
             <Tag className="w-4 h-4" />

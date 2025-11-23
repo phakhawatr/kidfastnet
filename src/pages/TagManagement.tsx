@@ -19,7 +19,7 @@ interface TagWithCount {
 }
 
 export default function TagManagement() {
-  const { adminId, isLoggedIn } = useAdmin();
+  const { adminId, isLoggedIn, isLoading } = useAdmin();
   const navigate = useNavigate();
   const { fetchTagsWithCount, renameTag, deleteTag, createTag } = useQuestionBank(adminId, true);
   
@@ -33,12 +33,12 @@ export default function TagManagement() {
   const [newTagInput, setNewTagInput] = useState('');
 
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (!isLoading && !isLoggedIn) {
       navigate('/admin/login');
-    } else {
+    } else if (!isLoading && isLoggedIn) {
       loadTags();
     }
-  }, [isLoggedIn, navigate]);
+  }, [isLoggedIn, isLoading, navigate]);
 
   const loadTags = async () => {
     setLoading(true);
@@ -106,8 +106,15 @@ export default function TagManagement() {
 
   const totalQuestions = tags.reduce((sum, t) => sum + t.count, 0);
 
-  if (!isLoggedIn) {
-    return null;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="card-glass p-8 text-center">
+          <div className="text-4xl mb-4">🔄</div>
+          <p className="text-muted-foreground">กำลังตรวจสอบสิทธิ์...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
