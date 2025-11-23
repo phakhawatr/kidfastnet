@@ -54,6 +54,10 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
     difficulty: 'medium',
     tags: [] as string[]
   });
+  const [showBulkTagDialog, setShowBulkTagDialog] = useState(false);
+  const [bulkTagsToAdd, setBulkTagsToAdd] = useState<string[]>([]);
+  const [bulkTagsToRemove, setBulkTagsToRemove] = useState<string[]>([]);
+  const [bulkEditing, setBulkEditing] = useState(false);
   
   const {
     questions,
@@ -232,6 +236,51 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
     setSelectedQuestions(new Set());
     toast.success(`ลบโจทย์ ${selectedQuestions.size} ข้อสำเร็จ`);
     handleRefresh();
+  };
+
+  const handleBulkEditTags = async () => {
+    setBulkEditing(true);
+    
+    try {
+      const selectedQuestionsData = questions.filter(q => selectedQuestions.has(q.id));
+      
+      const updatePromises = selectedQuestionsData.map(async (question) => {
+        let newTags = [...(question.tags || [])];
+        
+        // Add new tags
+        bulkTagsToAdd.forEach(tag => {
+          if (!newTags.includes(tag)) {
+            newTags.push(tag);
+          }
+        });
+        
+        // Remove tags
+        bulkTagsToRemove.forEach(tag => {
+          newTags = newTags.filter(t => t !== tag);
+        });
+        
+        return updateQuestion(question.id, { tags: newTags });
+      });
+      
+      await Promise.all(updatePromises);
+      
+      toast.success(`แก้ไข Tags สำหรับ ${selectedQuestions.size} ข้อสำเร็จ`);
+      setShowBulkTagDialog(false);
+      setBulkTagsToAdd([]);
+      setBulkTagsToRemove([]);
+      setSelectedQuestions(new Set());
+      handleRefresh();
+    } catch (error: any) {
+      toast.error('เกิดข้อผิดพลาดในการแก้ไข Tags');
+    } finally {
+      setBulkEditing(false);
+    }
+  };
+
+  const handleOpenBulkTagDialog = () => {
+    setBulkTagsToAdd([]);
+    setBulkTagsToRemove([]);
+    setShowBulkTagDialog(true);
   };
 
   const filteredQuestions = questions.filter(q => {
@@ -459,6 +508,16 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
                   <span className="font-medium">เลือกทั้งหมด ({selectedQuestions.size} ข้อ)</span>
                 </div>
                 <div className="flex gap-2">
+                  {adminId && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleOpenBulkTagDialog}
+                    >
+                      <Tag className="w-4 h-4 mr-2" />
+                      แก้ไข Tags
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
                     size="sm"
@@ -761,6 +820,103 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Bulk Edit Tags Dialog */}
+      <Dialog open={showBulkTagDialog} onOpenChange={setShowBulkTagDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>แก้ไข Tags แบบกลุ่ม</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="p-4 bg-muted rounded-lg">
+              <p className="text-sm font-medium">
+                📝 จำนวนโจทย์ที่เลือก: <span className="text-primary">{selectedQuestions.size} ข้อ</span>
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                การเปลี่ยนแปลงจะมีผลกับทุกโจทย์ที่เลือกไว้
+              </p>
+            </div>
+
+            {/* Add Tags Section */}
+            <div>
+              <Label htmlFor="bulk-add-tags">✨ เพิ่ม Tags</Label>
+              <div className="mt-2">
+                <TagInput
+                  value={bulkTagsToAdd}
+                  onChange={setBulkTagsToAdd}
+                  suggestions={availableTags}
+                  placeholder="เลือก tags ที่ต้องการเพิ่ม..."
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Tags เหล่านี้จะถูกเพิ่มเข้าไปในทุกโจทย์ที่เลือก (ไม่ซ้ำกัน)
+              </p>
+            </div>
+
+            {/* Remove Tags Section */}
+            <div>
+              <Label htmlFor="bulk-remove-tags">🗑️ ลบ Tags</Label>
+              <div className="mt-2">
+                <TagInput
+                  value={bulkTagsToRemove}
+                  onChange={setBulkTagsToRemove}
+                  suggestions={availableTags}
+                  placeholder="เลือก tags ที่ต้องการลบ..."
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Tags เหล่านี้จะถูกลบออกจากทุกโจทย์ที่เลือก (ถ้ามีอยู่)
+              </p>
+            </div>
+
+            {/* Preview Section */}
+            {(bulkTagsToAdd.length > 0 || bulkTagsToRemove.length > 0) && (
+              <div className="p-4 bg-accent/50 rounded-lg border">
+                <p className="text-sm font-medium mb-2">📋 สรุปการเปลี่ยนแปลง:</p>
+                {bulkTagsToAdd.length > 0 && (
+                  <div className="text-xs mb-1">
+                    ✅ เพิ่ม: {bulkTagsToAdd.map(tag => (
+                      <Badge key={tag} variant="secondary" className="ml-1">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+                {bulkTagsToRemove.length > 0 && (
+                  <div className="text-xs">
+                    ❌ ลบ: {bulkTagsToRemove.map(tag => (
+                      <Badge key={tag} variant="destructive" className="ml-1">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setShowBulkTagDialog(false);
+                setBulkTagsToAdd([]);
+                setBulkTagsToRemove([]);
+              }}
+              disabled={bulkEditing}
+            >
+              ยกเลิก
+            </Button>
+            <Button 
+              onClick={handleBulkEditTags}
+              disabled={bulkEditing || (bulkTagsToAdd.length === 0 && bulkTagsToRemove.length === 0)}
+            >
+              {bulkEditing ? 'กำลังบันทึก...' : 'บันทึกการเปลี่ยนแปลง'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Question Dialog */}
       <Dialog open={!!editingQuestion} onOpenChange={() => handleCancelEdit()}>
