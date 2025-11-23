@@ -4,11 +4,21 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Download, Database, Sparkles, CheckCircle2, FileUp, Pencil, Trash2 } from 'lucide-react';
+import { Search, Download, Database, Sparkles, CheckCircle2, FileUp, Pencil, Trash2, AlertTriangle, Info } from 'lucide-react';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Textarea } from '@/components/ui/textarea';
 import TagInput from '@/components/ui/tag-input';
 import { toast } from 'sonner';
@@ -26,6 +36,7 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
     updateQuestion,
     deleteQuestion,
     fetchAvailableTags,
+    checkDuplicateQuestion,
   } = useQuestionBank(teacherId, isAdmin);
 
   const [systemQuestions, setSystemQuestions] = useState<any[]>([]);
@@ -46,6 +57,15 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
   });
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    questionId?: string;
+    isDuplicate?: boolean;
+    duplicateInfo?: any;
+    data?: any;
+  }>({
+    open: false,
+  });
 
   useEffect(() => {
     loadSystemQuestions();
@@ -64,10 +84,35 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
     setLoading(false);
   };
 
-  const handleCopyQuestion = async (questionId: string) => {
-    const success = await copySystemQuestion(questionId);
-    if (success) {
-      onImportSuccess?.();
+  const handleImportQuestion = async (questionId: string, questionData: any) => {
+    // Check for duplicates
+    const duplicateCheck = await checkDuplicateQuestion({
+      question_text: questionData.question_text,
+      choices: questionData.choices,
+      correct_answer: questionData.correct_answer,
+      grade: questionData.grade,
+    });
+
+    setConfirmDialog({
+      open: true,
+      questionId,
+      isDuplicate: duplicateCheck.isDuplicate,
+      duplicateInfo: duplicateCheck,
+      data: questionData,
+    });
+  };
+
+  const confirmImport = async () => {
+    if (!confirmDialog.questionId) return;
+    
+    try {
+      const success = await copySystemQuestion(confirmDialog.questionId);
+      if (success) {
+        onImportSuccess?.();
+        setConfirmDialog({ ...confirmDialog, open: false });
+      }
+    } catch (error) {
+      console.error('Import error:', error);
     }
   };
 
@@ -529,7 +574,7 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
                     </>
                   )}
                   <Button
-                    onClick={() => handleCopyQuestion(question.id)}
+                    onClick={() => handleImportQuestion(question.id, question)}
                     size="sm"
                     className="w-full"
                   >
@@ -625,6 +670,62 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Confirmation Dialog */}
+      <AlertDialog open={confirmDialog.open} onOpenChange={(open) => setConfirmDialog({ ...confirmDialog, open })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              {confirmDialog.isDuplicate ? (
+                <>
+                  <AlertTriangle className="w-5 h-5 text-yellow-500" />
+                  พบข้อสอบที่คล้ายกันในคลังของคุณ
+                </>
+              ) : (
+                <>
+                  <Info className="w-5 h-5 text-blue-500" />
+                  ยืนยันการนำเข้าโจทย์
+                </>
+              )}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-3">
+              {confirmDialog.isDuplicate ? (
+                <>
+                  <p className="text-yellow-600 dark:text-yellow-500 font-medium">
+                    ⚠️ คุณมีข้อสอบที่มีเนื้อหาคล้ายกันอยู่แล้ว {confirmDialog.duplicateInfo?.existingQuestions?.length || 0} ข้อ
+                  </p>
+                  <div className="bg-yellow-50 dark:bg-yellow-950/20 p-3 rounded border border-yellow-200 dark:border-yellow-800">
+                    <p className="text-sm font-medium mb-1">ข้อความโจทย์:</p>
+                    <p className="text-sm text-muted-foreground">
+                      "{confirmDialog.data?.question_text.substring(0, 100)}..."
+                    </p>
+                  </div>
+                  <p className="text-sm">
+                    คุณต้องการนำเข้าข้อสอบนี้ต่อหรือไม่?
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p>คุณต้องการนำเข้าโจทย์นี้จากคลังกลางไปยังคลังของคุณหรือไม่?</p>
+                  {confirmDialog.data && (
+                    <div className="bg-muted p-3 rounded">
+                      <p className="text-sm font-medium">
+                        {confirmDialog.data.question_text.substring(0, 80)}
+                      </p>
+                    </div>
+                  )}
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmImport}>
+              {confirmDialog.isDuplicate ? 'นำเข้าต่อ' : 'ยืนยัน'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
