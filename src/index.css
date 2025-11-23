@@ -176,6 +176,10 @@
     @apply bg-white/95 backdrop-blur-sm rounded-2xl shadow-[0_8px_30px_hsl(251_100%_69%/0.15)] border border-white/20;
   }
   
+  .card-glass-dark {
+    @apply bg-slate-800/90 backdrop-blur-md rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.3)] border border-white/10 text-white;
+  }
+  
   .btn-primary {
     background: var(--btn-primary);
     @apply text-white font-medium rounded-full px-6 py-3 shadow-[0_4px_15px_hsl(36_100%_60%/0.3)] transition-all duration-300 hover:scale-105 hover:shadow-[0_6px_20px_hsl(36_100%_60%/0.4)] active:scale-95;

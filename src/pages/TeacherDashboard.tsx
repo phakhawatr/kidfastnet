@@ -590,12 +590,19 @@ const TeacherDashboard = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-950 via-indigo-950 to-teal-950">
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 relative overflow-hidden">
+        {/* Animated AI Background Effect */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 -left-4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute top-0 -right-4 w-96 h-96 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '4s' }}></div>
+        </div>
+        
         <Header />
-        <div className="flex-1 flex items-center justify-center">
+        <div className="flex-1 flex items-center justify-center relative z-10">
           <div className="text-center">
             <div className="text-4xl mb-4">⏳</div>
-            <p className="text-muted-foreground">กำลังโหลดข้อมูล...</p>
+            <p className="text-gray-200">กำลังโหลดข้อมูล...</p>
           </div>
         </div>
         <Footer />
@@ -604,14 +611,21 @@ const TeacherDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-950 via-indigo-950 to-teal-950">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 relative overflow-hidden">
+      {/* Animated AI Background Effect */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-0 -left-4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+        <div className="absolute top-0 -right-4 w-96 h-96 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute -bottom-8 left-20 w-96 h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '4s' }}></div>
+      </div>
+      
       <Header />
       
-      <main className="flex-1 container mx-auto px-4 py-8">
+      <main className="flex-1 container mx-auto px-4 py-8 relative z-10">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-foreground mb-2">👨‍🏫 แดชบอร์ดครู</h1>
-            <p className="text-muted-foreground">สร้างและจัดการ link ข้อสอบสำหรับนักเรียน</p>
+            <h1 className="text-4xl font-bold text-white mb-2">👨‍🏫 แดشบอร์ดครู</h1>
+            <p className="text-gray-200">สร้างและจัดการ link ข้อสอบสำหรับนักเรียน</p>
           </div>
           <Button
             onClick={() => navigate('/teacher/question-bank')}
@@ -623,7 +637,7 @@ const TeacherDashboard = () => {
         </div>
 
         {/* Create Exam Link Section */}
-        <Card className="mb-8 card-glass">
+        <Card className="mb-8 card-glass-dark">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <LinkIcon className="w-5 h-5" />
@@ -788,7 +802,7 @@ const TeacherDashboard = () => {
 
         {/* Exam Links List */}
         {!viewingSessions ? (
-          <Card className="card-glass">
+          <Card className="card-glass-dark">
             <CardHeader>
               <CardTitle>Link ข้อสอบทั้งหมด ({examLinks.length})</CardTitle>
             </CardHeader>
@@ -932,7 +946,7 @@ const TeacherDashboard = () => {
           </Card>
         ) : (
           // Exam Sessions Report
-          <Card className="card-glass">
+          <Card className="card-glass-dark">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
