@@ -859,11 +859,11 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
     }
   };
 
-  const fetchTagsWithCount = async (): Promise<{ tag: string; count: number }[]> => {
+  const fetchTagsWithCount = async (): Promise<{ tag: string; count: number; color?: string }[]> => {
     try {
       let query = supabase
         .from('question_bank')
-        .select('tags');
+        .select('tags, visual_elements, is_system_question');
       
       if (isAdmin) {
         query = query.eq('admin_id', teacherId);
@@ -875,9 +875,17 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
 
       if (error) throw error;
 
-      // Count tags
+      // Count occurrences of each tag and get colors from system questions
       const tagCounts = new Map<string, number>();
-      data?.forEach((item) => {
+      const tagColors = new Map<string, string>();
+      
+      data?.forEach((item: any) => {
+        // If this is a system question with tagColor, store it
+        if (item.is_system_question && item.visual_elements?.tagColor && item.tags && Array.isArray(item.tags) && item.tags.length > 0) {
+          tagColors.set(item.tags[0], item.visual_elements.tagColor);
+        }
+        
+        // Count tags
         if (item.tags && Array.isArray(item.tags)) {
           item.tags.forEach((tag: string) => {
             tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
@@ -887,7 +895,11 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
 
       // Convert to array and sort by count (descending)
       return Array.from(tagCounts.entries())
-        .map(([tag, count]) => ({ tag, count }))
+        .map(([tag, count]) => ({ 
+          tag, 
+          count,
+          color: tagColors.get(tag) || '#6B7280' // default gray color
+        }))
         .sort((a, b) => b.count - a.count);
     } catch (error: any) {
       console.error('Error fetching tags with count:', error);
@@ -1019,7 +1031,7 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
     }
   };
 
-  const createTag = async (tagName: string): Promise<boolean> => {
+  const createTag = async (tagName: string, tagColor: string = '#6B7280'): Promise<boolean> => {
     if (!teacherId || !isAdmin) return false;
 
     try {
@@ -1055,6 +1067,7 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
           tags: [tagName],
           is_system_question: true,
           subject: 'math',
+          visual_elements: { tagColor },
         });
 
       if (insertError) throw insertError;
@@ -1062,6 +1075,72 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
       toast({
         title: 'สร้าง Tag สำเร็จ',
         description: `Tag "${tagName}" พร้อมใช้งานแล้ว`,
+      });
+
+      return true;
+    } catch (error: any) {
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return false;
+    }
+  };
+
+  const updateTagColor = async (tagName: string, newColor: string): Promise<boolean> => {
+    if (!teacherId || !isAdmin) return false;
+
+    try {
+      // Find the system question for this tag
+      let query = supabase
+        .from('question_bank')
+        .select('id')
+        .eq('is_system_question', true)
+        .contains('tags', [tagName]);
+      
+      if (isAdmin) {
+        query = query.eq('admin_id', teacherId);
+      }
+
+      const { data: systemQuestions, error: findError } = await query;
+
+      if (findError) throw findError;
+
+      if (!systemQuestions || systemQuestions.length === 0) {
+        // Create system question if it doesn't exist
+        const { error: insertError } = await supabase
+          .from('question_bank')
+          .insert({
+            admin_id: teacherId,
+            question_text: `[SYSTEM TAG PLACEHOLDER: ${tagName}]`,
+            choices: ['A', 'B', 'C', 'D'],
+            correct_answer: 'A',
+            grade: 1,
+            skill_name: 'system',
+            difficulty: 'easy',
+            tags: [tagName],
+            is_system_question: true,
+            subject: 'math',
+            visual_elements: { tagColor: newColor },
+          });
+
+        if (insertError) throw insertError;
+      } else {
+        // Update existing system question
+        const { error: updateError } = await supabase
+          .from('question_bank')
+          .update({ 
+            visual_elements: { tagColor: newColor }
+          })
+          .eq('id', systemQuestions[0].id);
+
+        if (updateError) throw updateError;
+      }
+
+      toast({
+        title: 'อัพเดทสีสำเร็จ',
+        description: `เปลี่ยนสีของ tag "${tagName}" แล้ว`,
       });
 
       return true;
@@ -1104,6 +1183,7 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
     renameTag,
     deleteTag,
     createTag,
+    updateTagColor,
     checkSharedQuestions,
   };
 }

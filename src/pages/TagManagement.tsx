@@ -16,21 +16,39 @@ import { toast } from 'sonner';
 interface TagWithCount {
   tag: string;
   count: number;
+  color?: string;
 }
+
+const PRESET_COLORS = [
+  { value: '#3B82F6', label: 'น้ำเงิน', class: 'bg-blue-500' },
+  { value: '#EF4444', label: 'แดง', class: 'bg-red-500' },
+  { value: '#F97316', label: 'ส้ม', class: 'bg-orange-500' },
+  { value: '#10B981', label: 'เขียว', class: 'bg-green-500' },
+  { value: '#8B5CF6', label: 'ม่วง', class: 'bg-purple-500' },
+  { value: '#EAB308', label: 'เหลือง', class: 'bg-yellow-500' },
+  { value: '#6B7280', label: 'เทา', class: 'bg-gray-500' },
+  { value: '#EC4899', label: 'ชมพู', class: 'bg-pink-500' },
+  { value: '#6366F1', label: 'อินดิโก', class: 'bg-indigo-500' },
+  { value: '#14B8A6', label: 'เขียวมรกต', class: 'bg-teal-500' },
+  { value: '#06B6D4', label: 'ฟ้า', class: 'bg-cyan-500' },
+  { value: '#F43F5E', label: 'กุหลาบ', class: 'bg-rose-500' },
+];
 
 export default function TagManagement() {
   const { adminId, isLoggedIn, isLoading } = useAdmin();
   const navigate = useNavigate();
-  const { fetchTagsWithCount, renameTag, deleteTag, createTag } = useQuestionBank(adminId, true);
+  const { fetchTagsWithCount, renameTag, deleteTag, createTag, updateTagColor } = useQuestionBank(adminId, true);
   
   const [tags, setTags] = useState<TagWithCount[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [editingTag, setEditingTag] = useState<string | null>(null);
   const [newTagName, setNewTagName] = useState('');
+  const [editingColor, setEditingColor] = useState<string>('#6B7280');
   const [deletingTag, setDeletingTag] = useState<string | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [newTagInput, setNewTagInput] = useState('');
+  const [newTagColor, setNewTagColor] = useState('#6B7280');
 
   useEffect(() => {
     if (!isLoading && !isLoggedIn) {
@@ -47,25 +65,45 @@ export default function TagManagement() {
     setLoading(false);
   };
 
-  const handleEditClick = (tag: string) => {
+  const handleEditClick = (tag: string, color?: string) => {
     setEditingTag(tag);
     setNewTagName(tag);
+    setEditingColor(color || '#6B7280');
   };
 
   const handleSaveEdit = async () => {
     if (!editingTag || !newTagName.trim()) return;
 
-    if (newTagName.trim() === editingTag) {
+    const tagChanged = newTagName.trim() !== editingTag;
+    const colorChanged = editingColor !== tags.find(t => t.tag === editingTag)?.color;
+
+    if (!tagChanged && !colorChanged) {
       setEditingTag(null);
       return;
     }
 
-    const success = await renameTag(editingTag, newTagName.trim());
-    if (success) {
-      toast.success(`เปลี่ยนชื่อ tag จาก "${editingTag}" เป็น "${newTagName}" แล้ว`);
-      setEditingTag(null);
-      loadTags();
+    let success = true;
+
+    if (tagChanged) {
+      success = await renameTag(editingTag, newTagName.trim());
+      if (!success) return;
     }
+
+    if (colorChanged) {
+      const tagToUpdate = tagChanged ? newTagName.trim() : editingTag;
+      success = await updateTagColor(tagToUpdate, editingColor);
+      if (!success) return;
+    }
+
+    toast.success(
+      tagChanged && colorChanged
+        ? `เปลี่ยนชื่อและสีของ tag แล้ว`
+        : tagChanged
+        ? `เปลี่ยนชื่อ tag จาก "${editingTag}" เป็น "${newTagName}" แล้ว`
+        : `เปลี่ยนสี tag "${editingTag}" แล้ว`
+    );
+    setEditingTag(null);
+    loadTags();
   };
 
   const handleCancelEdit = () => {
@@ -91,11 +129,12 @@ export default function TagManagement() {
   const handleCreateTag = async () => {
     if (!newTagInput.trim()) return;
 
-    const success = await createTag(newTagInput.trim());
+    const success = await createTag(newTagInput.trim(), newTagColor);
     if (success) {
       toast.success(`สร้าง tag "${newTagInput.trim()}" แล้ว`);
       setCreateDialogOpen(false);
       setNewTagInput('');
+      setNewTagColor('#6B7280');
       loadTags();
     }
   };
@@ -203,37 +242,62 @@ export default function TagManagement() {
           </Card>
         ) : (
           <div className="grid gap-3">
-            {filteredTags.map((item) => (
+                {filteredTags.map((item) => (
               <Card key={item.tag} className="p-4 hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <Tag className="w-5 h-5 text-purple-600 dark:text-purple-400 flex-shrink-0" />
+                    <div 
+                      className="w-4 h-4 rounded-full flex-shrink-0 border-2 border-border"
+                      style={{ backgroundColor: item.color || '#6B7280' }}
+                    />
                     
                     {editingTag === item.tag ? (
-                      <div className="flex items-center gap-2 flex-1">
-                        <Input
-                          value={newTagName}
-                          onChange={(e) => setNewTagName(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleSaveEdit();
-                            if (e.key === 'Escape') handleCancelEdit();
-                          }}
-                          autoFocus
-                          className="max-w-md"
-                        />
-                        <Button size="sm" onClick={handleSaveEdit} disabled={!newTagName.trim()}>
-                          <Save className="w-4 h-4" />
-                        </Button>
-                        <Button size="sm" variant="ghost" onClick={handleCancelEdit}>
-                          <X className="w-4 h-4" />
-                        </Button>
+                      <div className="flex flex-col gap-2 flex-1">
+                        <div className="flex items-center gap-2">
+                          <Input
+                            value={newTagName}
+                            onChange={(e) => setNewTagName(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') handleSaveEdit();
+                              if (e.key === 'Escape') handleCancelEdit();
+                            }}
+                            autoFocus
+                            className="max-w-md"
+                          />
+                          <Button size="sm" onClick={handleSaveEdit} disabled={!newTagName.trim()}>
+                            <Save className="w-4 h-4" />
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={handleCancelEdit}>
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {PRESET_COLORS.map((color) => (
+                            <button
+                              key={color.value}
+                              type="button"
+                              onClick={() => setEditingColor(color.value)}
+                              className={`w-8 h-8 rounded-full border-2 ${
+                                editingColor === color.value
+                                  ? 'border-foreground scale-110'
+                                  : 'border-border hover:scale-105'
+                              } transition-all ${color.class}`}
+                              title={color.label}
+                            />
+                          ))}
+                        </div>
                       </div>
                     ) : (
                       <>
                         <div className="flex-1 min-w-0">
                           <Badge
                             variant="secondary"
-                            className="text-base px-4 py-2 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800"
+                            className="text-base px-4 py-2"
+                            style={{
+                              backgroundColor: `${item.color}20`,
+                              borderColor: `${item.color}40`,
+                              color: item.color,
+                            }}
                           >
                             {item.tag}
                           </Badge>
@@ -252,7 +316,7 @@ export default function TagManagement() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handleEditClick(item.tag)}
+                        onClick={() => handleEditClick(item.tag, item.color)}
                       >
                         <Pencil className="w-4 h-4" />
                       </Button>
@@ -297,13 +361,52 @@ export default function TagManagement() {
                 autoFocus
               />
             </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">สีของ Tag</label>
+              <div className="flex flex-wrap gap-2">
+                {PRESET_COLORS.map((color) => (
+                  <button
+                    key={color.value}
+                    type="button"
+                    onClick={() => setNewTagColor(color.value)}
+                    className={`w-10 h-10 rounded-full border-2 ${
+                      newTagColor === color.value
+                        ? 'border-foreground scale-110'
+                        : 'border-border hover:scale-105'
+                    } transition-all ${color.class}`}
+                    title={color.label}
+                  />
+                ))}
+              </div>
+              <div className="flex items-center gap-2 mt-2">
+                <span className="text-xs text-muted-foreground">หรือเลือกสีเอง:</span>
+                <input
+                  type="color"
+                  value={newTagColor}
+                  onChange={(e) => setNewTagColor(e.target.value)}
+                  className="w-12 h-8 rounded border border-border cursor-pointer"
+                />
+                <Badge
+                  variant="secondary"
+                  style={{
+                    backgroundColor: `${newTagColor}20`,
+                    borderColor: `${newTagColor}40`,
+                    color: newTagColor,
+                  }}
+                >
+                  ตัวอย่าง Tag
+                </Badge>
+              </div>
+            </div>
+            
             <div className="text-sm text-muted-foreground">
-              <p className="font-medium mb-2">ตัวอย่าง Tags:</p>
-              <ul className="space-y-1 ml-4 list-disc">
-                <li>ข้อสอบ NT 64</li>
-                <li>แนว O-NET</li>
-                <li>ข้อสอบกลางภาค</li>
-                <li>ข้อสอบปลายภาค</li>
+              <p className="font-medium mb-2">คำแนะนำการใช้สี:</p>
+              <ul className="space-y-1 ml-4 list-disc text-xs">
+                <li>🔵 น้ำเงิน - ข้อสอบกลางภาค</li>
+                <li>🔴 แดง - ข้อสอบปลายภาค</li>
+                <li>🟠 ส้ม - NT</li>
+                <li>🟢 เขียว - O-NET</li>
               </ul>
             </div>
           </div>
@@ -311,6 +414,7 @@ export default function TagManagement() {
             <Button variant="outline" onClick={() => {
               setCreateDialogOpen(false);
               setNewTagInput('');
+              setNewTagColor('#6B7280');
             }}>
               ยกเลิก
             </Button>
