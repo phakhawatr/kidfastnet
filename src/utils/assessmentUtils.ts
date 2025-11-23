@@ -3812,7 +3812,8 @@ async function fetchQuestionsFromBank(
   assessmentType: 'nt' | 'semester',
   count: number,
   semesterNumber?: number,
-  tags?: string[]
+  tags?: string[],
+  specificYearMode?: boolean
 ): Promise<AssessmentQuestion[]> {
   try {
     let query = supabase
@@ -3827,7 +3828,13 @@ async function fetchQuestionsFromBank(
     }
     
     if (tags && tags.length > 0) {
-      query = query.overlaps('tags', tags);
+      if (specificYearMode || tags.length === 1) {
+        // Specific year: use contains (exact match)
+        query = query.contains('tags', tags);
+      } else {
+        // Mixed mode: use overlaps (any match)
+        query = query.overlaps('tags', tags);
+      }
     }
     
     const { data, error } = await query;
@@ -4028,7 +4035,8 @@ function generateSemesterQuestionsWithAI(
 export const generateAssessmentQuestions = async (
   grade: number,
   semesterOrType: number | string,
-  totalQuestions?: number
+  totalQuestions?: number,
+  ntYear?: string
 ): Promise<AssessmentQuestion[]> => {
   let config;
   
@@ -4048,14 +4056,25 @@ export const generateAssessmentQuestions = async (
   // === Case 1: Grade 3 NT - Use ONLY question bank ===
   if (isNT && grade === 3) {
     try {
-      console.log('📚 Fetching NT Grade 3 questions from question bank...');
+      console.log(`📚 Fetching NT Grade 3 questions (Year: ${ntYear || 'mixed'})...`);
+      
+      // Determine tags based on selected year
+      let selectedTags: string[];
+      if (ntYear && ntYear !== 'mixed') {
+        // Specific year selected
+        selectedTags = [`ข้อสอบ NT ${ntYear}`];
+      } else {
+        // Mixed: use all years
+        selectedTags = ['ข้อสอบ NT 2565', 'ข้อสอบ NT 2566', 'ข้อสอบ NT 2567'];
+      }
       
       const bankQuestions = await fetchQuestionsFromBank(
         grade,
         'nt',
         totalQuestions || 30,
         undefined,
-        ['ข้อสอบ NT 2565', 'ข้อสอบ NT 2566', 'ข้อสอบ NT 2567']
+        selectedTags,
+        ntYear && ntYear !== 'mixed' // specific year mode
       );
       
       if (bankQuestions.length >= (totalQuestions || 30)) {
