@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { convertToThaiSpeech } from '@/utils/thaiTextToSpeech';
 
 interface UseTextToSpeechOptions {
   lang?: string;
@@ -33,15 +34,12 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
 
-    // Remove special formatting from text
-    const cleanText = text
-      .replace(/\[shapes:.*?\]/g, '') // Remove shape markers
-      .replace(/\[(triangle|square|circle)-(red|blue|green|orange|yellow|sky)\]/g, '') // Remove single shape markers
-      .trim();
+    // Convert text to proper Thai speech format
+    const thaiSpeechText = convertToThaiSpeech(text);
 
-    if (!cleanText) return;
+    if (!thaiSpeechText) return;
 
-    const utterance = new SpeechSynthesisUtterance(cleanText);
+    const utterance = new SpeechSynthesisUtterance(thaiSpeechText);
     utterance.lang = lang;
     utterance.rate = rate;
     utterance.pitch = pitch;
