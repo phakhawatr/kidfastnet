@@ -284,6 +284,9 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
   };
 
   const filteredQuestions = questions.filter(q => {
+    // Filter out system questions (safety net to prevent displaying tag placeholders)
+    if (q.is_system_question === true) return false;
+    
     if (selectedDifficulty !== 'all' && q.difficulty !== selectedDifficulty) return false;
     if (selectedTopic !== 'all' && q.topic !== selectedTopic) return false;
     if (searchQuery && !q.question_text.toLowerCase().includes(searchQuery.toLowerCase())) return false;
