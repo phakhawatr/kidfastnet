@@ -10,6 +10,7 @@ import {
   generateNTShapesQuestions,
   generateNTDataPresentationQuestions
 } from './ntQuestionGenerators';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface AssessmentQuestion {
   id: string;
@@ -3763,71 +3764,170 @@ const generateGraphReadingQuestions = (config: SkillConfig): AssessmentQuestion[
   return questions;
 };
 
-export const generateAssessmentQuestions = (
+// Topic to Skill mapping for question bank transformation
+const topicToSkillMap: Record<string, string> = {
+  'การเปรียบเทียบและเรียงลำดับจำนวน': 'counting',
+  'การเปรียบเทียบเศษส่วน': 'fractions',
+  'การหาค่าของตัวไม่ทราบค่า': 'algebra',
+  'โจทย์ปัญหาการบวกลบคูณหารระคน': 'mixedProblems',
+  'การบวกและลบเศษส่วน': 'fractions',
+  'แบบรูปของจำนวน': 'patterns',
+  'โจทย์ปัญหาเกี่ยวกับเงิน': 'money',
+  'โจทย์ปัญหาเกี่ยวกับเวลา': 'time',
+  'โจทย์ปัญหาความยาว': 'measurement',
+  'โจทย์ปัญหาน้ำหนัก': 'measurement',
+  'โจทย์ปัญหาปริมาตร': 'measurement',
+  'แกนสมมาตร': 'shapes',
+  'แผนภูมิรูปภาพ': 'dataPresentation',
+  'ตารางทางเดียว': 'dataPresentation'
+};
+
+/**
+ * Randomize choices order and update correct answer index
+ */
+const randomizeChoices = (question: AssessmentQuestion): AssessmentQuestion => {
+  const choicesWithIndex = question.choices.map((choice, index) => ({
+    choice,
+    originalIndex: index
+  }));
+  
+  const shuffled = shuffleArray(choicesWithIndex);
+  
+  // Find the new index of the correct answer
+  const correctAnswerValue = question.choices[Number(question.correctAnswer)];
+  const newCorrectIndex = shuffled.findIndex(item => item.choice === correctAnswerValue);
+  
+  return {
+    ...question,
+    choices: shuffled.map(item => item.choice),
+    correctAnswer: newCorrectIndex
+  };
+};
+
+/**
+ * Fetch questions from question_bank table
+ */
+async function fetchQuestionsFromBank(
   grade: number,
-  semesterOrType: number | string,
-  totalQuestions?: number
-): AssessmentQuestion[] => {
-  let config;
-  
-  if (semesterOrType === 'nt') {
-    // Handle NT assessments
-    config = curriculumConfig[`grade${grade}`]?.['nt'];
-  } else {
-    // Handle semester assessments
-    config = curriculumConfig[`grade${grade}`]?.[`semester${semesterOrType}`];
-  }
-  
-  if (!config) {
-    console.warn(`No curriculum found for grade ${grade} ${semesterOrType === 'nt' ? 'NT' : `semester ${semesterOrType}`}`);
-    return [];
-  }
-  
-  const allQuestions: AssessmentQuestion[] = [];
-  
-  // Check if this is NT assessment
-  const isNT = semesterOrType === 'nt';
-  
-  if (isNT && grade === 3) {
-    // Generate NT-specific questions with real-world context
-    for (const skillConfig of config) {
-      let questions: AssessmentQuestion[] = [];
-      
-      switch (skillConfig.skill) {
-        case 'counting':
-          questions = generateNTCountingQuestions(skillConfig.count);
-          break;
-        case 'fractions':
-          questions = generateNTFractionsQuestions(skillConfig.count);
-          break;
-        case 'money':
-          questions = generateNTMoneyQuestions(skillConfig.count);
-          break;
-        case 'time':
-          questions = generateNTTimeQuestions(skillConfig.count);
-          break;
-        case 'measurement':
-          questions = generateNTMeasurementQuestions(skillConfig.count);
-          break;
-        case 'shapes':
-          questions = generateNTShapesQuestions(skillConfig.count);
-          break;
-        case 'dataPresentation':
-          questions = generateNTDataPresentationQuestions(skillConfig.count);
-          break;
-        default:
-          console.warn(`NT skill ${skillConfig.skill} not implemented, using placeholder`);
-          questions = generatePlaceholderQuestions(skillConfig);
-      }
-      
-      allQuestions.push(...questions);
+  assessmentType: 'nt' | 'semester',
+  count: number,
+  semesterNumber?: number,
+  tags?: string[]
+): Promise<AssessmentQuestion[]> {
+  try {
+    let query = supabase
+      .from('question_bank')
+      .select('*')
+      .eq('grade', grade)
+      .eq('assessment_type', assessmentType)
+      .eq('is_system_question', true);
+    
+    if (assessmentType === 'semester' && semesterNumber) {
+      query = query.eq('semester', semesterNumber);
     }
     
-    // Shuffle all NT questions for varied order
-    return shuffleArray(allQuestions);
+    if (tags && tags.length > 0) {
+      query = query.overlaps('tags', tags);
+    }
+    
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error('Error fetching questions from bank:', error);
+      return [];
+    }
+    
+    if (!data || data.length === 0) {
+      console.warn(`No questions found in bank for grade ${grade}, ${assessmentType}`);
+      return [];
+    }
+    
+    // Shuffle and select random questions
+    const shuffledData = shuffleArray(data);
+    const selectedQuestions = shuffledData.slice(0, count);
+    
+    // Transform to AssessmentQuestion format
+    const transformedQuestions: AssessmentQuestion[] = selectedQuestions.map((item) => {
+      const choices = Array.isArray(item.choices) 
+        ? (item.choices as Array<string | number>) 
+        : [];
+      const correctAnswerIndex = choices.findIndex(
+        (choice) => String(choice) === String(item.correct_answer)
+      );
+      
+      const question: AssessmentQuestion = {
+        id: item.id,
+        skill: topicToSkillMap[item.topic || ''] || item.skill_name || 'counting',
+        question: item.question_text,
+        choices: choices,
+        correctAnswer: correctAnswerIndex >= 0 ? correctAnswerIndex : 0,
+        difficulty: item.difficulty as 'easy' | 'medium' | 'hard',
+        explanation: item.explanation || undefined,
+        imagePrompt: item.image_urls?.[0] || undefined
+      };
+      
+      // Randomize choices to prevent memorization
+      return randomizeChoices(question);
+    });
+    
+    return transformedQuestions;
+  } catch (error) {
+    console.error('Exception in fetchQuestionsFromBank:', error);
+    return [];
+  }
+}
+
+/**
+ * Generate NT questions using AI (fallback)
+ */
+function generateNTQuestionsWithAI(config: SkillConfig[]): AssessmentQuestion[] {
+  const allQuestions: AssessmentQuestion[] = [];
+  
+  for (const skillConfig of config) {
+    let questions: AssessmentQuestion[] = [];
+    
+    switch (skillConfig.skill) {
+      case 'counting':
+        questions = generateNTCountingQuestions(skillConfig.count);
+        break;
+      case 'fractions':
+        questions = generateNTFractionsQuestions(skillConfig.count);
+        break;
+      case 'money':
+        questions = generateNTMoneyQuestions(skillConfig.count);
+        break;
+      case 'time':
+        questions = generateNTTimeQuestions(skillConfig.count);
+        break;
+      case 'measurement':
+        questions = generateNTMeasurementQuestions(skillConfig.count);
+        break;
+      case 'shapes':
+        questions = generateNTShapesQuestions(skillConfig.count);
+        break;
+      case 'dataPresentation':
+        questions = generateNTDataPresentationQuestions(skillConfig.count);
+        break;
+      default:
+        console.warn(`NT skill ${skillConfig.skill} not implemented, using placeholder`);
+        questions = generatePlaceholderQuestions(skillConfig);
+    }
+    
+    allQuestions.push(...questions);
   }
   
-  // Regular semester assessment question generation
+  return allQuestions;
+}
+
+/**
+ * Generate semester questions using AI
+ */
+function generateSemesterQuestionsWithAI(
+  config: SkillConfig[],
+  limitCount?: number
+): AssessmentQuestion[] {
+  const allQuestions: AssessmentQuestion[] = [];
+  
   for (const skillConfig of config) {
     let questions: AssessmentQuestion[] = [];
     
@@ -3918,20 +4018,98 @@ export const generateAssessmentQuestions = (
         questions = generatePlaceholderQuestions(skillConfig);
     }
     
-    // Shuffle only within each skill group to maintain skill grouping
     allQuestions.push(...shuffleArray(questions));
   }
   
-  // Shuffle all questions for varied order
-  const shuffledQuestions = shuffleArray(allQuestions);
+  const shuffled = shuffleArray(allQuestions);
+  return limitCount ? shuffled.slice(0, limitCount) : shuffled;
+}
+
+export const generateAssessmentQuestions = async (
+  grade: number,
+  semesterOrType: number | string,
+  totalQuestions?: number
+): Promise<AssessmentQuestion[]> => {
+  let config;
   
-  // If totalQuestions is specified, limit the number of questions returned
-  if (totalQuestions && totalQuestions > 0 && totalQuestions < shuffledQuestions.length) {
-    return shuffledQuestions.slice(0, totalQuestions);
+  if (semesterOrType === 'nt') {
+    config = curriculumConfig[`grade${grade}`]?.['nt'];
+  } else {
+    config = curriculumConfig[`grade${grade}`]?.[`semester${semesterOrType}`];
   }
   
-  // Return questions grouped by skill (no shuffling between skills)
-  return shuffledQuestions;
+  if (!config) {
+    console.warn(`No curriculum found for grade ${grade} ${semesterOrType === 'nt' ? 'NT' : `semester ${semesterOrType}`}`);
+    return [];
+  }
+  
+  const isNT = semesterOrType === 'nt';
+  
+  // === Case 1: Grade 3 NT - Use ONLY question bank ===
+  if (isNT && grade === 3) {
+    try {
+      console.log('📚 Fetching NT Grade 3 questions from question bank...');
+      
+      const bankQuestions = await fetchQuestionsFromBank(
+        grade,
+        'nt',
+        totalQuestions || 30,
+        undefined,
+        ['ข้อสอบ NT 2565', 'ข้อสอบ NT 2566', 'ข้อสอบ NT 2567']
+      );
+      
+      if (bankQuestions.length >= (totalQuestions || 30)) {
+        console.log(`✅ Successfully fetched ${bankQuestions.length} NT questions from bank`);
+        return shuffleArray(bankQuestions);
+      } else {
+        console.error(`❌ Insufficient NT questions in bank: ${bankQuestions.length}/${totalQuestions || 30}`);
+        throw new Error('ข้อสอบ NT ไม่เพียงพอในระบบ');
+      }
+    } catch (error) {
+      console.error('❌ Error fetching NT questions, falling back to AI:', error);
+      // Fallback to AI generation in case of error
+      const aiQuestions = generateNTQuestionsWithAI(config);
+      return shuffleArray(aiQuestions);
+    }
+  }
+  
+  // === Case 2: Grade 3 Semester 1 & 2 - Hybrid approach ===
+  if (!isNT && grade === 3) {
+    try {
+      const semesterNum = typeof semesterOrType === 'number' ? semesterOrType : 1;
+      const desiredCount = totalQuestions || config.reduce((sum, s) => sum + s.count, 0);
+      
+      console.log(`📚 Fetching Grade 3 Semester ${semesterNum} questions from bank...`);
+      
+      const bankQuestions = await fetchQuestionsFromBank(
+        grade,
+        'semester',
+        desiredCount,
+        semesterNum
+      );
+      
+      console.log(`📊 Fetched ${bankQuestions.length}/${desiredCount} questions from bank`);
+      
+      if (bankQuestions.length >= desiredCount) {
+        // Enough questions from bank
+        console.log('✅ Using questions from bank only');
+        return shuffleArray(bankQuestions);
+      } else {
+        // Not enough - supplement with AI
+        const aiQuestionsNeeded = desiredCount - bankQuestions.length;
+        console.log(`🤖 Generating ${aiQuestionsNeeded} additional questions with AI`);
+        
+        const aiQuestions = generateSemesterQuestionsWithAI(config, aiQuestionsNeeded);
+        return shuffleArray([...bankQuestions, ...aiQuestions]);
+      }
+    } catch (error) {
+      console.error('⚠️ Error in hybrid approach, falling back to AI generation:', error);
+      return generateSemesterQuestionsWithAI(config);
+    }
+  }
+  
+  // === Case 3: Other grades/assessments - Use AI generation ===
+  return generateSemesterQuestionsWithAI(config, totalQuestions);
 };
 
 export const evaluateAssessment = (score: number): {
