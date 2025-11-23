@@ -306,6 +306,32 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
     }
   };
 
+  const getTagCounts = () => {
+    const tagCounts: { [key: string]: number } = {};
+    
+    questions
+      .filter((q) => !q.is_system_question)
+      .forEach((question) => {
+        if (question.tags && Array.isArray(question.tags)) {
+          question.tags.forEach((tag: string) => {
+            tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+          });
+        }
+      });
+    
+    return Object.entries(tagCounts)
+      .sort(([, a], [, b]) => b - a)
+      .map(([tag, count]) => ({ tag, count }));
+  };
+
+  const handleToggleTag = (tag: string) => {
+    setSelectedTags(prev => 
+      prev.includes(tag) 
+        ? prev.filter(t => t !== tag) 
+        : [...prev, tag]
+    );
+  };
+
   const filteredQuestions = questions.filter(q => {
     // Filter out system questions (safety net to prevent displaying tag placeholders)
     if (q.is_system_question === true) return false;
@@ -313,7 +339,16 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
     if (selectedDifficulty !== 'all' && q.difficulty !== selectedDifficulty) return false;
     if (selectedTopic !== 'all' && q.topic !== selectedTopic) return false;
     if (searchQuery && !q.question_text.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-    if (selectedTags.length > 0 && !selectedTags.every(tag => q.tags?.includes(tag))) return false;
+    
+    // Tag filtering with OR logic (at least one tag matches)
+    if (selectedTags.length > 0) {
+      const questionTags = q.tags || [];
+      const hasMatchingTag = selectedTags.some(selectedTag => 
+        questionTags.includes(selectedTag)
+      );
+      if (!hasMatchingTag) return false;
+    }
+    
     return true;
   });
 
@@ -501,24 +536,43 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
               </div>
             </div>
 
-            <div className="pt-4 border-t">
-              <TagInput
-                value={selectedTags}
-                onChange={setSelectedTags}
-                suggestions={availableTags}
-                label="🏷️ กรองตาม Tags"
-                placeholder="เลือก tags เพื่อกรอง..."
-              />
-              {selectedTags.length > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSelectedTags([])}
-                  className="mt-2"
-                >
-                  <X className="w-4 h-4 mr-2" />
-                  ล้าง Tags
-                </Button>
+            <div className="pt-4 border-t space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">🏷️ กรองตาม Tags</label>
+                {selectedTags.length > 0 && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setSelectedTags([])}
+                    className="h-6 text-xs"
+                  >
+                    ล้างทั้งหมด
+                  </Button>
+                )}
+              </div>
+              
+              <div className="flex flex-wrap gap-2">
+                {getTagCounts().map(({ tag, count }) => {
+                  const isSelected = selectedTags.includes(tag);
+                  return (
+                    <Badge
+                      key={tag}
+                      variant={isSelected ? "default" : "outline"}
+                      className={`cursor-pointer text-xs font-light transition-all hover:scale-105 ${
+                        isSelected 
+                          ? 'bg-pink-500 text-white border-pink-600 dark:bg-pink-600' 
+                          : 'bg-pink-50 text-pink-700 border-pink-200 dark:bg-pink-950 dark:text-pink-300 dark:border-pink-800'
+                      }`}
+                      onClick={() => handleToggleTag(tag)}
+                    >
+                      🏷️ {tag} <span className="ml-1 font-medium">({count})</span>
+                    </Badge>
+                  );
+                })}
+              </div>
+              
+              {getTagCounts().length === 0 && (
+                <p className="text-xs text-muted-foreground">ยังไม่มี tags</p>
               )}
             </div>
           </Card>
@@ -562,6 +616,36 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
                 </div>
               </div>
             </Card>
+          )}
+
+          {!loading && filteredQuestions.length > 0 && (
+            <div className="flex items-center justify-between flex-wrap gap-2 px-2">
+              <p className="text-sm text-muted-foreground">
+                พบ <span className="font-bold text-primary">{filteredQuestions.length}</span> ข้อสอบ
+              </p>
+              
+              {/* Active Filters Summary */}
+              {(selectedDifficulty !== 'all' || selectedTopic !== 'all' || selectedTags.length > 0) && (
+                <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
+                  <span>กรองโดย:</span>
+                  {selectedTopic !== 'all' && <Badge variant="secondary" className="text-xs">{selectedTopic}</Badge>}
+                  {selectedDifficulty !== 'all' && (
+                    <Badge variant="secondary" className="text-xs">
+                      {selectedDifficulty === 'easy' ? 'ง่าย' : selectedDifficulty === 'medium' ? 'ปานกลาง' : 'ยาก'}
+                    </Badge>
+                  )}
+                  {selectedTags.map(tag => (
+                    <Badge 
+                      key={tag} 
+                      variant="outline" 
+                      className="text-xs bg-pink-100 text-pink-700 border-pink-300 dark:bg-pink-950 dark:text-pink-300 dark:border-pink-800"
+                    >
+                      🏷️ {tag}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
 
           <div className="grid gap-4">
