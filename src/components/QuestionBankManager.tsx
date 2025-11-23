@@ -620,13 +620,13 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
 
           {!loading && filteredQuestions.length > 0 && (
             <div className="flex items-center justify-between flex-wrap gap-2 px-2">
-              <p className="text-sm text-muted-foreground">
-                พบ <span className="font-bold text-primary">{filteredQuestions.length}</span> ข้อสอบ
+              <p className="text-sm text-gray-200">
+                พบ <span className="font-bold text-white">{filteredQuestions.length}</span> ข้อสอบ
               </p>
               
               {/* Active Filters Summary */}
               {(selectedDifficulty !== 'all' || selectedTopic !== 'all' || selectedTags.length > 0) && (
-                <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
+                <div className="flex items-center gap-2 flex-wrap text-xs text-gray-300">
                   <span>กรองโดย:</span>
                   {selectedTopic !== 'all' && <Badge variant="secondary" className="text-xs">{selectedTopic}</Badge>}
                   {selectedDifficulty !== 'all' && (
