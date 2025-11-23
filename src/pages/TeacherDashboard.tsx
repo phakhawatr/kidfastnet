@@ -590,7 +590,7 @@ const TeacherDashboard = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-950 via-indigo-950 to-teal-950">
         <Header />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
@@ -604,7 +604,7 @@ const TeacherDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background to-secondary/20">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-950 via-indigo-950 to-teal-950">
       <Header />
       
       <main className="flex-1 container mx-auto px-4 py-8">
