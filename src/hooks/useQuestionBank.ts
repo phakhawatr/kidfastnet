@@ -149,6 +149,9 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
       if (filters.search) {
         query = query.ilike('question_text', `%${filters.search}%`);
       }
+      if (filters.tags && filters.tags.length > 0) {
+        query = query.contains('tags', filters.tags);
+      }
 
       const { data, error } = await query;
 
@@ -825,6 +828,37 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
     }
   };
 
+  const fetchAvailableTags = async (): Promise<string[]> => {
+    try {
+      let query = supabase
+        .from('question_bank')
+        .select('tags');
+      
+      if (isAdmin) {
+        query = query.eq('admin_id', teacherId);
+      } else {
+        query = query.eq('teacher_id', teacherId);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      // Extract unique tags from all questions
+      const allTags = new Set<string>();
+      data?.forEach((item) => {
+        if (item.tags && Array.isArray(item.tags)) {
+          item.tags.forEach((tag: string) => allTags.add(tag));
+        }
+      });
+
+      return Array.from(allTags).sort();
+    } catch (error: any) {
+      console.error('Error fetching available tags:', error);
+      return [];
+    }
+  };
+
   return {
     questions,
     topics,
@@ -849,6 +883,7 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
     fetchSystemQuestions,
     copySystemQuestion,
     unshareQuestion,
+    fetchAvailableTags,
     checkSharedQuestions,
   };
 }

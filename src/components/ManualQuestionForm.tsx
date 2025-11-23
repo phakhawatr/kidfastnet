@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card';
 import { Save, Plus, Trash2 } from 'lucide-react';
 import ImageUploader from './ImageUploader';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
+import TagInput from './ui/tag-input';
 
 interface ManualQuestionFormProps {
   teacherId: string | null;
@@ -20,7 +21,7 @@ interface ManualQuestionFormProps {
 }
 
 export default function ManualQuestionForm({ teacherId, adminId, grade, topics, semester, assessmentType, onSuccess }: ManualQuestionFormProps) {
-  const { createQuestion } = useQuestionBank(teacherId || adminId);
+  const { createQuestion, fetchAvailableTags } = useQuestionBank(teacherId || adminId);
   const [questionText, setQuestionText] = useState('');
   const [choices, setChoices] = useState(['', '', '', '']);
   const [correctAnswer, setCorrectAnswer] = useState('0');
@@ -28,7 +29,14 @@ export default function ManualQuestionForm({ teacherId, adminId, grade, topics, 
   const [selectedTopic, setSelectedTopic] = useState('');
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
   const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [tags, setTags] = useState<string[]>([]);
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+
+  // Fetch available tags when component mounts
+  useEffect(() => {
+    fetchAvailableTags().then(tags => setAvailableTags(tags));
+  }, []);
 
   const handleChoiceChange = (index: number, value: string) => {
     const newChoices = [...choices];
@@ -79,6 +87,7 @@ export default function ManualQuestionForm({ teacherId, adminId, grade, topics, 
       difficulty,
       skill_name: selectedTopic || 'คณิตศาสตร์',
       image_urls: imageUrls.length > 0 ? imageUrls : undefined,
+      tags: tags.length > 0 ? tags : undefined,
       semester: semester,
       assessment_type: assessmentType || (semester ? `semester${semester}` : 'semester'),
       ai_generated: false,
@@ -96,6 +105,7 @@ export default function ManualQuestionForm({ teacherId, adminId, grade, topics, 
       setCorrectAnswer('0');
       setExplanation('');
       setImageUrls([]);
+      setTags([]);
       onSuccess?.();
     }
   };
@@ -131,6 +141,16 @@ export default function ManualQuestionForm({ teacherId, adminId, grade, topics, 
               <SelectItem value="hard">ยาก</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+
+        <div>
+          <TagInput
+            value={tags}
+            onChange={setTags}
+            suggestions={availableTags}
+            label="🏷️ Tags (ป้ายกำกับ)"
+            placeholder="เช่น ข้อสอบ NT 64, แนว O-NET..."
+          />
         </div>
 
         <div>

@@ -22,6 +22,7 @@ import TemplateManager from './TemplateManager';
 import SharedQuestionsBrowser from './SharedQuestionsBrowser';
 import SystemQuestionsBrowser from './SystemQuestionsBrowser';
 import PDFQuestionImporter from './PDFQuestionImporter';
+import TagInput from './ui/tag-input';
 
 interface QuestionBankManagerProps {
   teacherId?: string | null;
@@ -40,6 +41,8 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [sharedQuestionsMap, setSharedQuestionsMap] = useState<Record<string, { id: string; share_code: string }>>({});
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [editingQuestion, setEditingQuestion] = useState<QuestionBankItem | null>(null);
   const [editForm, setEditForm] = useState({
     question_text: '',
@@ -60,6 +63,7 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
     unshareQuestion,
     checkSharedQuestions,
     updateQuestion,
+    fetchAvailableTags,
   } = useQuestionBank(teacherId || adminId, !!adminId);
 
   useEffect(() => {
@@ -89,12 +93,20 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
     }
   }, [questions]);
 
+  useEffect(() => {
+    // Fetch available tags when component mounts
+    if (teacherId || adminId) {
+      fetchAvailableTags().then(setAvailableTags);
+    }
+  }, [teacherId, adminId]);
+
   const handleRefresh = () => {
     if (teacherId || adminId) {
       const filters: any = { 
         grade: selectedGrade, 
         topic: selectedTopic !== 'all' ? selectedTopic : undefined, 
-        difficulty: selectedDifficulty !== 'all' ? selectedDifficulty : undefined 
+        difficulty: selectedDifficulty !== 'all' ? selectedDifficulty : undefined,
+        tags: selectedTags.length > 0 ? selectedTags : undefined
       };
       
       if (selectedGrade === 3) {
@@ -202,6 +214,7 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
     if (selectedDifficulty !== 'all' && q.difficulty !== selectedDifficulty) return false;
     if (selectedTopic !== 'all' && q.topic !== selectedTopic) return false;
     if (searchQuery && !q.question_text.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    if (selectedTags.length > 0 && !selectedTags.every(tag => q.tags?.includes(tag))) return false;
     return true;
   });
 
@@ -376,6 +389,27 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
                 </div>
               </div>
             </div>
+
+            <div className="pt-4 border-t">
+              <TagInput
+                value={selectedTags}
+                onChange={setSelectedTags}
+                suggestions={availableTags}
+                label="🏷️ กรองตาม Tags"
+                placeholder="เลือก tags เพื่อกรอง..."
+              />
+              {selectedTags.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedTags([])}
+                  className="mt-2"
+                >
+                  <X className="w-4 h-4 mr-2" />
+                  ล้าง Tags
+                </Button>
+              )}
+            </div>
           </Card>
 
           {selectedQuestions.size > 0 && (
@@ -513,6 +547,17 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
                             </Badge>
                           ) : null;
                         })()}
+
+                        {/* 7. Custom Tags */}
+                        {question.tags && question.tags.filter(tag => !['PDF', 'AI'].includes(tag)).map((tag) => (
+                          <Badge
+                            key={tag}
+                            variant="secondary"
+                            className="text-xs font-normal bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800"
+                          >
+                            {tag}
+                          </Badge>
+                        ))}
                       </div>
                       <p className="font-medium mb-2">{question.question_text}</p>
                       
