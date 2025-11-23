@@ -4,7 +4,9 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import PDFQuestionImporter from '@/components/PDFQuestionImporter';
 import QuestionBankManager from '@/components/QuestionBankManager';
+import SystemQuestionsBrowser from '@/components/SystemQuestionsBrowser';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft } from 'lucide-react';
 
 export default function AdminQuestionBank() {
@@ -62,13 +64,32 @@ export default function AdminQuestionBank() {
 
         {/* Question Bank Manager Section */}
         <div className="card-glass p-6">
-          <h2 className="text-2xl font-bold text-foreground mb-4">
-            📋 คลังข้อสอบระบบทั้งหมด
-          </h2>
-          <p className="text-muted-foreground mb-6">
-            จัดการข้อสอบที่นำเข้าแล้ว - แก้ไข ลบ หรือแชร์ให้ครูทุกคนใช้งานได้
-          </p>
-          <QuestionBankManager adminId={adminId} />
+          <Tabs defaultValue="my-questions" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="my-questions">📋 ข้อสอบของฉัน</TabsTrigger>
+              <TabsTrigger value="system-questions">🗄️ คลังกลาง</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="my-questions" className="mt-6">
+              <div className="mb-4">
+                <h2 className="text-2xl font-bold text-foreground mb-2">
+                  📋 คลังข้อสอบระบบทั้งหมด
+                </h2>
+                <p className="text-muted-foreground">
+                  จัดการข้อสอบที่นำเข้าแล้ว - แก้ไข ลบ หรือแชร์ให้ครูทุกคนใช้งานได้
+                </p>
+              </div>
+              <QuestionBankManager adminId={adminId} isAdmin={true} />
+            </TabsContent>
+            
+            <TabsContent value="system-questions" className="mt-6">
+              <SystemQuestionsBrowser 
+                teacherId={adminId} 
+                isAdmin={true}
+                onImportSuccess={() => {}}
+              />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
       
