@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { useAdmin } from '@/hooks/useAdmin';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Tag, Pencil, Trash2, Save, X, Search } from 'lucide-react';
+import { ArrowLeft, Tag, Pencil, Trash2, Save, X, Search, Plus } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
@@ -19,9 +19,9 @@ interface TagWithCount {
 }
 
 export default function TagManagement() {
-  const { registrationId } = useAuth();
+  const { adminId, isLoggedIn } = useAdmin();
   const navigate = useNavigate();
-  const { fetchTagsWithCount, renameTag, deleteTag } = useQuestionBank(registrationId);
+  const { fetchTagsWithCount, renameTag, deleteTag, createTag } = useQuestionBank(adminId, true);
   
   const [tags, setTags] = useState<TagWithCount[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,14 +29,16 @@ export default function TagManagement() {
   const [editingTag, setEditingTag] = useState<string | null>(null);
   const [newTagName, setNewTagName] = useState('');
   const [deletingTag, setDeletingTag] = useState<string | null>(null);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [newTagInput, setNewTagInput] = useState('');
 
   useEffect(() => {
-    if (!registrationId) {
-      navigate('/login');
+    if (!isLoggedIn) {
+      navigate('/admin/login');
     } else {
       loadTags();
     }
-  }, [registrationId, navigate]);
+  }, [isLoggedIn, navigate]);
 
   const loadTags = async () => {
     setLoading(true);
@@ -86,13 +88,25 @@ export default function TagManagement() {
     }
   };
 
+  const handleCreateTag = async () => {
+    if (!newTagInput.trim()) return;
+
+    const success = await createTag(newTagInput.trim());
+    if (success) {
+      toast.success(`สร้าง tag "${newTagInput.trim()}" แล้ว`);
+      setCreateDialogOpen(false);
+      setNewTagInput('');
+      loadTags();
+    }
+  };
+
   const filteredTags = tags.filter(t => 
     t.tag.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const totalQuestions = tags.reduce((sum, t) => sum + t.count, 0);
 
-  if (!registrationId) {
+  if (!isLoggedIn) {
     return null;
   }
 
@@ -101,10 +115,14 @@ export default function TagManagement() {
       <Header />
       
       <div className="flex-1 container mx-auto py-6 space-y-6">
-        <div className="mb-4">
-          <Button variant="ghost" onClick={() => navigate('/question-bank')}>
+        <div className="flex items-center justify-between mb-4">
+          <Button variant="ghost" onClick={() => navigate('/admin/question-bank')}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             กลับไปคลังข้อสอบ
+          </Button>
+          <Button onClick={() => setCreateDialogOpen(true)} className="flex items-center gap-2">
+            <Plus className="w-4 h-4" />
+            เพิ่ม Tag ใหม่
           </Button>
         </div>
 
@@ -114,7 +132,7 @@ export default function TagManagement() {
             จัดการ Tags
           </h1>
           <p className="text-muted-foreground">
-            จัดการป้ายกำกับข้อสอบ สามารถแก้ไขชื่อหรือลบ tags ที่ไม่ต้องการได้
+            จัดการป้ายกำกับข้อสอบ (Admin Only) - สามารถสร้าง แก้ไข หรือลบ tags ได้
           </p>
         </div>
 
@@ -247,6 +265,54 @@ export default function TagManagement() {
           </div>
         )}
       </div>
+
+      {/* Create Tag Dialog */}
+      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>เพิ่ม Tag ใหม่</DialogTitle>
+            <DialogDescription>
+              สร้างป้ายกำกับใหม่สำหรับจัดระเบียบข้อสอบ
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">ชื่อ Tag</label>
+              <Input
+                placeholder="เช่น ข้อสอบ NT 65, แนว O-NET, ข้อสอบกลางภาค"
+                value={newTagInput}
+                onChange={(e) => setNewTagInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && newTagInput.trim()) {
+                    handleCreateTag();
+                  }
+                }}
+                autoFocus
+              />
+            </div>
+            <div className="text-sm text-muted-foreground">
+              <p className="font-medium mb-2">ตัวอย่าง Tags:</p>
+              <ul className="space-y-1 ml-4 list-disc">
+                <li>ข้อสอบ NT 64</li>
+                <li>แนว O-NET</li>
+                <li>ข้อสอบกลางภาค</li>
+                <li>ข้อสอบปลายภาค</li>
+              </ul>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setCreateDialogOpen(false);
+              setNewTagInput('');
+            }}>
+              ยกเลิก
+            </Button>
+            <Button onClick={handleCreateTag} disabled={!newTagInput.trim()}>
+              สร้าง Tag
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!deletingTag} onOpenChange={(open) => !open && setDeletingTag(null)}>
