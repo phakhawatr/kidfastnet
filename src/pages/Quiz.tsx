@@ -33,6 +33,7 @@ const Quiz = () => {
   const [selectedGrade, setSelectedGrade] = useState<number>(1);
   const [selectedSemester, setSelectedSemester] = useState<number>(1);
   const [assessmentType, setAssessmentType] = useState<'semester1' | 'semester2' | 'nt'>('semester1');
+  const [selectedNTYear, setSelectedNTYear] = useState<string>('mixed');
   const [showTopicOutline, setShowTopicOutline] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -60,7 +61,9 @@ const Quiz = () => {
   } = useAssessment(
     user?.id || registrationId || '', 
     hasStarted ? selectedGrade : 0, 
-    hasStarted ? (assessmentType === 'nt' ? 'nt' : selectedSemester) : 0
+    hasStarted ? (assessmentType === 'nt' ? 'nt' : selectedSemester) : 0,
+    undefined,
+    assessmentType === 'nt' ? selectedNTYear : undefined
   );
 
   // Debug logs for userId
@@ -159,6 +162,7 @@ const Quiz = () => {
     setLineSent(false);
     setShowCertificate(false);
     setNewAchievements([]);
+    setSelectedNTYear('mixed');
   };
 
   const handleDownloadCertificate = async () => {
@@ -456,6 +460,44 @@ const Quiz = () => {
                         <Label htmlFor="type-nt" className="flex-1 cursor-pointer font-medium flex items-center gap-2">
                           <Trophy className="w-5 h-5 text-yellow-600" />
                           <span className="text-yellow-900">สอบวัดระดับชาติ (NT)</span>
+                        </Label>
+                      </div>
+                    </div>
+                  </RadioGroup>
+                </div>
+              )}
+
+              {selectedGrade === 3 && assessmentType === 'nt' && (
+                <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-lg border border-yellow-300">
+                  <Label className="text-base mb-3 block font-semibold text-yellow-900 flex items-center gap-2">
+                    <Trophy className="w-4 h-4" />
+                    เลือกปีการศึกษาข้อสอบ NT
+                  </Label>
+                  <RadioGroup value={selectedNTYear} onValueChange={setSelectedNTYear}>
+                    <div className="grid gap-2">
+                      <div className="flex items-center space-x-3 p-3 border-2 border-yellow-400 rounded-lg hover:bg-yellow-100 transition-all cursor-pointer bg-white">
+                        <RadioGroupItem value="mixed" id="year-mixed" />
+                        <Label htmlFor="year-mixed" className="flex-1 cursor-pointer font-medium text-sm">
+                          🎲 สุ่มผสมทุกปี (2565, 2566, 2567) - แนะนำ
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-3 p-3 border-2 rounded-lg hover:bg-yellow-50 hover:border-yellow-400 transition-all cursor-pointer">
+                        <RadioGroupItem value="2565" id="year-2565" />
+                        <Label htmlFor="year-2565" className="flex-1 cursor-pointer font-medium text-sm">
+                          📅 ปีการศึกษา 2565
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-3 p-3 border-2 rounded-lg hover:bg-yellow-50 hover:border-yellow-400 transition-all cursor-pointer">
+                        <RadioGroupItem value="2566" id="year-2566" />
+                        <Label htmlFor="year-2566" className="flex-1 cursor-pointer font-medium text-sm">
+                          📅 ปีการศึกษา 2566
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-3 p-3 border-2 border-green-400 rounded-lg hover:bg-green-50 hover:border-green-500 transition-all cursor-pointer bg-gradient-to-r from-green-50 to-emerald-50">
+                        <RadioGroupItem value="2567" id="year-2567" />
+                        <Label htmlFor="year-2567" className="flex-1 cursor-pointer font-medium text-sm flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-green-600" />
+                          <span className="text-green-900">ปีการศึกษา 2567 (ล่าสุด)</span>
                         </Label>
                       </div>
                     </div>

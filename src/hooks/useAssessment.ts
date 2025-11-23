@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { AssessmentQuestion, generateAssessmentQuestions } from '@/utils/assessmentUtils';
 import { supabase } from '@/integrations/supabase/client';
 
-export const useAssessment = (userId: string, grade: number, semesterOrType: number | string, totalQuestions?: number) => {
+export const useAssessment = (userId: string, grade: number, semesterOrType: number | string, totalQuestions?: number, ntYear?: string) => {
   const [questions, setQuestions] = useState<AssessmentQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Map<number, any>>(new Map());
@@ -21,7 +21,7 @@ export const useAssessment = (userId: string, grade: number, semesterOrType: num
           
           // Call async generateAssessmentQuestions
           if (semesterOrType === 'nt') {
-            qs = await generateAssessmentQuestions(grade, 'nt' as any, totalQuestions);
+            qs = await generateAssessmentQuestions(grade, 'nt' as any, totalQuestions, ntYear);
           } else {
             qs = await generateAssessmentQuestions(grade, semesterOrType as number, totalQuestions);
           }
@@ -43,7 +43,7 @@ export const useAssessment = (userId: string, grade: number, semesterOrType: num
       
       loadQuestions();
     }
-  }, [grade, semesterOrType, totalQuestions]);
+  }, [grade, semesterOrType, totalQuestions, ntYear]);
 
   // Timer effect - update every second
   useEffect(() => {
