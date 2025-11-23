@@ -58,6 +58,8 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
   const [bulkTagsToAdd, setBulkTagsToAdd] = useState<string[]>([]);
   const [bulkTagsToRemove, setBulkTagsToRemove] = useState<string[]>([]);
   const [bulkEditing, setBulkEditing] = useState(false);
+  const [editingTagsQuestion, setEditingTagsQuestion] = useState<QuestionBankItem | null>(null);
+  const [singleQuestionTags, setSingleQuestionTags] = useState<string[]>([]);
   
   const {
     questions,
@@ -281,6 +283,26 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
     setBulkTagsToAdd([]);
     setBulkTagsToRemove([]);
     setShowBulkTagDialog(true);
+  };
+
+  const handleOpenSingleTagEdit = (question: QuestionBankItem) => {
+    setEditingTagsQuestion(question);
+    setSingleQuestionTags(question.tags || []);
+  };
+
+  const handleSaveSingleTags = async () => {
+    if (!editingTagsQuestion) return;
+
+    const success = await updateQuestion(editingTagsQuestion.id, { 
+      tags: singleQuestionTags 
+    });
+
+    if (success) {
+      toast.success('อัพเดท Tags สำเร็จ');
+      setEditingTagsQuestion(null);
+      setSingleQuestionTags([]);
+      handleRefresh();
+    }
   };
 
   const filteredQuestions = questions.filter(q => {
@@ -708,13 +730,27 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
                     </div>
                     <div className="flex flex-col gap-2">
                       <Button
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
                         onClick={() => handleEditQuestion(question)}
                         title="แก้ไขโจทย์"
+                        className="justify-start"
                       >
-                        <Pencil className="w-4 h-4 text-primary" />
+                        <Pencil className="w-4 h-4 mr-2" />
+                        แก้ไข
                       </Button>
+                      {adminId && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleOpenSingleTagEdit(question)}
+                          title="แก้ไข Tags"
+                          className="justify-start"
+                        >
+                          <Tag className="w-4 h-4 mr-2" />
+                          แก้ไข Tags
+                        </Button>
+                      )}
                       {sharedQuestionsMap[question.id] ? (
                         <div className="flex flex-col gap-2">
                           <div className="flex items-center gap-2 px-3 py-2 bg-green-50 dark:bg-green-950 rounded-md border border-green-200 dark:border-green-800">
@@ -1028,6 +1064,70 @@ export default function QuestionBankManager({ teacherId, adminId }: QuestionBank
             </Button>
             <Button onClick={handleSaveEdit}>
               บันทึกการแก้ไข
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Single Question Tags Edit Dialog */}
+      <Dialog open={!!editingTagsQuestion} onOpenChange={() => {
+        setEditingTagsQuestion(null);
+        setSingleQuestionTags([]);
+      }}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>แก้ไข Tags</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="p-4 bg-muted rounded-lg">
+              <p className="text-sm font-medium mb-2">
+                📝 ข้อสอบที่กำลังแก้ไข:
+              </p>
+              <p className="text-sm text-muted-foreground line-clamp-2">
+                {editingTagsQuestion?.question_text}
+              </p>
+            </div>
+
+            <div>
+              <Label htmlFor="single-question-tags">Tags</Label>
+              <div className="mt-2">
+                <TagInput
+                  value={singleQuestionTags}
+                  onChange={setSingleQuestionTags}
+                  placeholder="พิมพ์ tag และกด Enter (เช่น ข้อสอบ NT, แนว O-NET)"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                💡 พิมพ์ชื่อ tag และกด Enter เพื่อเพิ่ม หรือคลิกปุ่ม X เพื่อลบ tag
+              </p>
+            </div>
+
+            {singleQuestionTags.length > 0 && (
+              <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
+                <p className="text-xs font-medium text-blue-900 dark:text-blue-100 mb-2">
+                  ✨ Tags ปัจจุบัน:
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {singleQuestionTags.map((tag, idx) => (
+                    <Badge key={idx} variant="secondary">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setEditingTagsQuestion(null);
+              setSingleQuestionTags([]);
+            }}>
+              ยกเลิก
+            </Button>
+            <Button onClick={handleSaveSingleTags}>
+              บันทึกการเปลี่ยนแปลง
             </Button>
           </DialogFooter>
         </DialogContent>
