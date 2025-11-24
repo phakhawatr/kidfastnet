@@ -12,6 +12,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Progress } from '@/components/ui/progress';
 import { AlertCircle, Clock, Users, BookOpen } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import kidFastAILogo from '@/assets/kidfastai-logo.png';
 
 interface ExamLinkData {
   id: string;
@@ -417,25 +418,29 @@ const PublicExam = () => {
   return (
     <div className={`min-h-screen bg-gradient-to-br from-background to-secondary/20 p-4 ${fontSizeClass}`}>
       <div className="container mx-auto max-w-4xl py-8">
-        {/* KidfastAI Header with Exam Title */}
-        <div className="flex items-center justify-center gap-4 mb-6 flex-wrap">
-          {/* Logo - Clickable */}
-          <button 
-            onClick={() => navigate('/')}
-            className="flex-shrink-0 hover:opacity-80 transition-opacity"
-          >
+        {/* KidFastAI Header with Exam Title and Teacher Name */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6 px-2">
+          {/* Left: KidFastAI Logo */}
+          <div className="flex-shrink-0">
             <img 
-              src="/src/assets/logo-ai-final.png" 
-              alt="KidfastAI Logo" 
-              className="h-12 w-auto object-contain"
+              src={kidFastAILogo} 
+              alt="KidFastAI.com" 
+              className="h-8 md:h-10 object-contain"
             />
-          </button>
+          </div>
           
-          {/* Exam Title */}
+          {/* Center: Exam Title */}
           {examLink?.activity_name && (
-            <h1 className="text-2xl font-bold text-foreground">
+            <h1 className="text-xl md:text-2xl font-bold text-foreground text-center">
               {examLink.activity_name}
             </h1>
+          )}
+          
+          {/* Right: Teacher Name */}
+          {examLink?.teacher_name && (
+            <div className="flex-shrink-0 text-sm md:text-base text-foreground/80 italic">
+              โดย คุณครู {examLink.teacher_name}
+            </div>
           )}
         </div>
         
