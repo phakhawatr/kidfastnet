@@ -563,7 +563,7 @@ const PublicExam = () => {
             ระบบการสร้างข้อสอบอัจฉริยะด้วย AI โดย{' '}
             <button
               onClick={() => navigate('/')}
-              className="text-blue-400 hover:text-blue-300 font-semibold transition-colors"
+              className="text-white hover:text-gray-100 font-semibold transition-colors drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
             >
               KidFastAI.com
             </button>
