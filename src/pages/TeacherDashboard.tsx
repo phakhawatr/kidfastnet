@@ -837,6 +837,25 @@ const TeacherDashboard = () => {
                                   {link.activity_name}
                                 </p>
                               )}
+                              
+                              {/* School Info */}
+                              {(link.school_name || link.school_logo_url) && (
+                                <div className="flex items-center gap-2 py-2 border-y border-border/50 my-2">
+                                  {link.school_logo_url && (
+                                    <img 
+                                      src={link.school_logo_url} 
+                                      alt="School Logo" 
+                                      className="w-8 h-8 object-contain"
+                                    />
+                                  )}
+                                  {link.school_name && (
+                                    <p className="font-medium text-foreground">
+                                      🏫 {link.school_name}
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+                              
                               <p>📚 ชั้น ป.{link.grade} - {getAssessmentTypeName(link.assessment_type, link.semester)} ({link.total_questions} ข้อ)</p>
                               <p className="flex items-center gap-2">
                                 <Users className="w-4 h-4" />
