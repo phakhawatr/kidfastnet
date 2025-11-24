@@ -274,7 +274,7 @@ export const useTeacherExams = (teacherId: string | null) => {
     return (data || []) as ExamQuestion[];
   };
 
-  const updateExamQuestion = async (questionId: string, updates: Partial<ExamQuestion>) => {
+  const updateExamQuestion = async (questionId: string, updates: Partial<ExamQuestion> & { image_urls?: string[] | null }) => {
     try {
       const { error } = await supabase
         .from('exam_questions')

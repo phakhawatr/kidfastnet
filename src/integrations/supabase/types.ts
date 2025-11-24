@@ -406,6 +406,7 @@ export type Database = {
           exam_link_id: string
           explanation: string | null
           id: string
+          image_urls: string[] | null
           is_edited: boolean | null
           is_from_bank: boolean | null
           original_question: Json | null
@@ -424,6 +425,7 @@ export type Database = {
           exam_link_id: string
           explanation?: string | null
           id?: string
+          image_urls?: string[] | null
           is_edited?: boolean | null
           is_from_bank?: boolean | null
           original_question?: Json | null
@@ -442,6 +444,7 @@ export type Database = {
           exam_link_id?: string
           explanation?: string | null
           id?: string
+          image_urls?: string[] | null
           is_edited?: boolean | null
           is_from_bank?: boolean | null
           original_question?: Json | null

@@ -9,6 +9,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ExamLinkQRCode from '@/components/ExamLinkQRCode';
 import QuestionBankSelector from '@/components/QuestionBankSelector';
+import ImageUploader from '@/components/ImageUploader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -343,6 +344,7 @@ const TeacherDashboard = () => {
       correct_answer: editingExamQuestion.question.correct_answer,
       difficulty: editingExamQuestion.question.difficulty,
       explanation: editingExamQuestion.question.explanation,
+      image_urls: editingExamQuestion.question.image_urls || null,
       is_edited: true
     });
 
@@ -1702,6 +1704,21 @@ const TeacherDashboard = () => {
                   rows={3}
                   className="mt-2"
                   placeholder="คำอธิบายเพิ่มเติม..."
+                />
+              </div>
+
+              {/* Image Upload */}
+              <div>
+                <Label>รูปภาพประกอบ (สูงสุด 1 รูป)</Label>
+                <ImageUploader
+                  teacherId={registrationId || ''}
+                  onImagesChange={(urls) => {
+                    const updated = { ...editingExamQuestion };
+                    updated.question.image_urls = urls;
+                    setEditingExamQuestion(updated);
+                  }}
+                  maxImages={1}
+                  initialImages={editingExamQuestion.question.image_urls || []}
                 />
               </div>
             </div>
