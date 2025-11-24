@@ -20,6 +20,7 @@ export interface ExamLink {
   questions_finalized_at?: string;
   school_name?: string | null;
   school_logo_url?: string | null;
+  teacher_name?: string | null;
 }
 
 export interface ExamQuestion {

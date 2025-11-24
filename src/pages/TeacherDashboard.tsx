@@ -21,6 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import { exportToCSV, exportToPDF, generateReportSummary, generateItemAnalysis, compareAnswers } from '@/utils/examReportUtils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import kidFastAILogo from '@/assets/kidfastai-logo.png';
 
 const TeacherDashboard = () => {
   const { registrationId, username } = useAuth();
@@ -882,6 +883,15 @@ const TeacherDashboard = () => {
                     <div key={link.id} className="p-4 border border-border rounded-lg bg-card/50">
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex-1">
+                            {/* KidFastAI Logo Header */}
+                            <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border/30">
+                              <img 
+                                src={kidFastAILogo} 
+                                alt="KidFastAI.com" 
+                                className="h-8 object-contain"
+                              />
+                            </div>
+                            
                             <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
                               <span className="font-mono text-lg font-bold text-primary break-all">{link.link_code}</span>
                               <div className="flex-shrink-0">
@@ -912,6 +922,13 @@ const TeacherDashboard = () => {
                                     </p>
                                   )}
                                 </div>
+                              )}
+                              
+                              {/* Teacher Name */}
+                              {link.teacher_name && (
+                                <p className="flex items-center gap-2 text-foreground/90 italic">
+                                  โดย คุณครู {link.teacher_name}
+                                </p>
                               )}
                               
                               <p>📚 ชั้น ป.{link.grade} - {getAssessmentTypeName(link.assessment_type, link.semester)} ({link.total_questions} ข้อ)</p>
