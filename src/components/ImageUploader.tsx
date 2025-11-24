@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ImageUploaderProps {
   onImagesChange: (urls: string[]) => void;
@@ -70,24 +71,15 @@ export default function ImageUploader({ onImagesChange, maxImages = 5, teacherId
             // Convert to base64
             const base64 = canvas.toDataURL('image/jpeg', 0.8);
 
-            // Upload via edge function
-            const response = await fetch(
-              `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-question-image`,
-              {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-                },
-                body: JSON.stringify({ image: base64, teacherId }),
-              }
-            );
+            // Upload via edge function using Supabase client
+            const { data, error } = await supabase.functions.invoke('upload-question-image', {
+              body: { image: base64, teacherId }
+            });
 
-            if (!response.ok) {
-              throw new Error('Upload failed');
+            if (error) {
+              throw new Error(error.message || 'Upload failed');
             }
 
-            const data = await response.json();
             resolve(data.url);
           };
 
