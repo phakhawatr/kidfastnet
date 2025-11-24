@@ -429,7 +429,7 @@ const PublicExam = () => {
               alt="KidFastAI Logo" 
               className="h-12 w-12 object-contain drop-shadow-[0_0_8px_rgba(168,85,247,0.6)]"
             />
-            <span className="text-2xl font-bold text-amber-400">
+            <span className="text-2xl font-bold text-yellow-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
               KidFastAI.com
             </span>
           </button>
