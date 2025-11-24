@@ -9,22 +9,23 @@ interface QuestionTextRendererProps {
 const QuestionTextRenderer: React.FC<QuestionTextRendererProps> = ({ text, className = '' }) => {
   if (!text) return null;
 
+  // Convert text to string to handle numbers
+  const textStr = String(text);
+
   // Pattern 1: [shapes:circle-red,triangle-yellow,square-sky] - multiple shapes in a box
   const multiShapePattern = /\[shapes:([^\]]+)\]/g;
   
   // Pattern 2: [circle-red] - single shape inline
   const singleShapePattern = /\[([a-z]+-[a-z]+)\]/g;
-
-  let processedText = text;
   const elements: React.ReactNode[] = [];
   let lastIndex = 0;
 
   // Process multiple shapes pattern first
   let match;
-  while ((match = multiShapePattern.exec(text)) !== null) {
+  while ((match = multiShapePattern.exec(textStr)) !== null) {
     // Add text before the match
     if (match.index > lastIndex) {
-      const beforeText = text.substring(lastIndex, match.index);
+      const beforeText = textStr.substring(lastIndex, match.index);
       elements.push(<span key={`text-${lastIndex}`}>{beforeText}</span>);
     }
 
@@ -45,7 +46,7 @@ const QuestionTextRenderer: React.FC<QuestionTextRendererProps> = ({ text, class
 
   // If we found multiple shapes, process the remaining text for single shapes
   if (elements.length > 0) {
-    const remainingText = text.substring(lastIndex);
+    const remainingText = textStr.substring(lastIndex);
     
     // Process single shape pattern in remaining text
     const parts = remainingText.split(singleShapePattern);
@@ -69,9 +70,9 @@ const QuestionTextRenderer: React.FC<QuestionTextRendererProps> = ({ text, class
   }
 
   // No multiple shapes found, check for single shapes only
-  if (singleShapePattern.test(text)) {
-    const parts = text.split(singleShapePattern);
-    const matches = text.match(singleShapePattern);
+  if (singleShapePattern.test(textStr)) {
+    const parts = textStr.split(singleShapePattern);
+    const matches = textStr.match(singleShapePattern);
     
     return (
       <div className={className}>
@@ -93,7 +94,7 @@ const QuestionTextRenderer: React.FC<QuestionTextRendererProps> = ({ text, class
   }
 
   // No shape patterns found, return plain text
-  return <div className={className}>{text}</div>;
+  return <div className={className}>{textStr}</div>;
 };
 
 export default QuestionTextRenderer;

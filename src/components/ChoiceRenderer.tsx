@@ -14,19 +14,22 @@ const ChoiceRenderer: React.FC<ChoiceRendererProps> = ({
 }) => {
   if (!choice) return null;
 
+  // Convert choice to string to handle numbers
+  const choiceStr = String(choice);
+
   // Check if this is a shape code pattern: shape-color (e.g., "circle-red", "triangle-blue")
   const shapePattern = /^(circle|square|triangle|ellipse)-(red|blue|green|orange|yellow|sky|purple|pink|teal)$/;
   
-  if (shapePattern.test(choice.trim())) {
+  if (shapePattern.test(choiceStr.trim())) {
     return (
       <div className={`flex justify-center items-center ${className}`}>
-        <ShapeDisplay shape={choice.trim()} size={size} />
+        <ShapeDisplay shape={choiceStr.trim()} size={size} />
       </div>
     );
   }
 
   // Not a shape code, render as regular text
-  return <span className={className}>{choice}</span>;
+  return <span className={className}>{choiceStr}</span>;
 };
 
 export default ChoiceRenderer;
