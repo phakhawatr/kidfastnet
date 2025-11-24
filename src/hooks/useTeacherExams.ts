@@ -18,6 +18,8 @@ export interface ExamLink {
   total_questions: number;
   has_custom_questions?: boolean;
   questions_finalized_at?: string;
+  school_name?: string | null;
+  school_logo_url?: string | null;
 }
 
 export interface ExamQuestion {
