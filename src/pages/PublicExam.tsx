@@ -418,24 +418,34 @@ const PublicExam = () => {
     <div className={`min-h-screen bg-gradient-to-br from-background to-secondary/20 p-4 ${fontSizeClass}`}>
       <div className="container mx-auto max-w-4xl py-8">
         {/* KidfastAI Header with Exam Title */}
-        <div className="flex items-center justify-center gap-4 mb-6 flex-wrap">
-          {/* Logo - Clickable */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6 p-4 rounded-lg bg-gradient-to-r from-purple-900/20 to-indigo-900/20 backdrop-blur-sm border border-white/10">
+          {/* Left: Logo + KidFastAI.com */}
           <button 
             onClick={() => navigate('/')}
-            className="flex-shrink-0 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-3 hover:scale-105 transition-transform"
           >
             <img 
               src="/src/assets/logo-ai-final.png" 
-              alt="KidfastAI Logo" 
-              className="h-12 w-auto object-contain"
+              alt="KidFastAI Logo" 
+              className="h-12 w-12 object-contain drop-shadow-[0_0_8px_rgba(168,85,247,0.6)]"
             />
+            <span className="text-2xl font-bold text-amber-400">
+              KidFastAI.com
+            </span>
           </button>
           
-          {/* Exam Title */}
+          {/* Center: Exam Title */}
           {examLink?.activity_name && (
-            <h1 className="text-2xl font-bold text-foreground">
+            <h1 className="text-xl md:text-2xl font-bold text-foreground text-center">
               {examLink.activity_name}
             </h1>
+          )}
+          
+          {/* Right: Teacher Name */}
+          {examLink?.teacher_name && (
+            <div className="text-foreground/90 italic text-lg">
+              โดย คุณครู {examLink.teacher_name}
+            </div>
           )}
         </div>
         
