@@ -25,6 +25,8 @@ import SystemQuestionsBrowser from './SystemQuestionsBrowser';
 import PDFQuestionImporter from './PDFQuestionImporter';
 import TagInput from './ui/tag-input';
 import ImageUploader from './ImageUploader';
+import QuestionTextRenderer from './QuestionTextRenderer';
+import ChoiceRenderer from './ChoiceRenderer';
 
 interface QuestionBankManagerProps {
   teacherId?: string | null;
@@ -818,7 +820,9 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
                           </Badge>
                         )}
                       </div>
-                      <p className="font-medium mb-2">{question.question_text}</p>
+                      <div className="font-medium mb-2">
+                        <QuestionTextRenderer text={question.question_text} />
+                      </div>
                       
                       {question.image_urls && question.image_urls.length > 0 && (
                         <div className="mb-3 p-2 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800">
@@ -861,9 +865,13 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
                                   : 'border-border'
                               }`}
                             >
-                              <div className="flex items-center">
+                              <div className="flex items-center gap-2">
                                 <span className="text-sm font-light text-gray-500 dark:text-gray-400">{idx + 1})</span>
-                                <span className="text-lg font-semibold text-blue-600 dark:text-blue-400 ml-2">{choice.replace(/^[A-D]\)\s*/, '')}</span>
+                                <ChoiceRenderer 
+                                  choice={choice.replace(/^[A-D]\)\s*/, '')} 
+                                  size={56}
+                                  className="text-lg font-semibold text-blue-600 dark:text-blue-400"
+                                />
                               </div>
                               {isCorrect && (
                                 <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />

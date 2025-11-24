@@ -10,6 +10,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { FileUp, Loader2, Check, X, Edit2, Save, CheckCircle, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction } from '@/components/ui/alert-dialog';
+import QuestionTextRenderer from '@/components/QuestionTextRenderer';
+import ChoiceRenderer from '@/components/ChoiceRenderer';
 
 interface PDFQuestionImporterProps {
   teacherId?: string;
@@ -415,21 +417,23 @@ export default function PDFQuestionImporter({
                       </div>
                     </div>
 
-                    <p className="font-medium mb-2">{question.question_text}</p>
+                    <div className="mb-2">
+                      <QuestionTextRenderer text={question.question_text} className="font-medium" />
+                    </div>
 
                     <div className="space-y-1 text-sm mb-2">
                       {question.choices.map((choice, i) => (
                         <div 
                           key={i}
-                          className={`p-2 rounded ${
+                          className={`p-2 rounded flex items-center gap-2 ${
                             choice.startsWith(question.correct_answer) 
                               ? 'bg-green-50 text-green-800 font-medium' 
                               : 'bg-muted'
                           }`}
                         >
-                          {choice}
+                          <ChoiceRenderer choice={choice} size={40} />
                           {choice.startsWith(question.correct_answer) && (
-                            <Check className="w-3 h-3 inline ml-2 text-green-600" />
+                            <Check className="w-3 h-3 text-green-600" />
                           )}
                         </div>
                       ))}

@@ -17,6 +17,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Search, Download, Eye, Copy, FileText, Sparkles, Users, AlertTriangle, Info } from 'lucide-react';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
+import QuestionTextRenderer from '@/components/QuestionTextRenderer';
+import ChoiceRenderer from '@/components/ChoiceRenderer';
 
 interface SharedQuestionsBrowserProps {
   teacherId: string;
@@ -242,7 +244,7 @@ export default function SharedQuestionsBrowser({ teacherId, onImportSuccess }: S
                         แชร์โดยคุณครู {item.shared_by_user?.nickname || 'ไม่ระบุ'}
                       </div>
 
-                      <p className="font-medium">{question.question_text}</p>
+                      <QuestionTextRenderer text={question.question_text} className="font-medium" />
 
                       {question.image_urls && question.image_urls.length > 0 && (
                         <div className="grid grid-cols-2 gap-2">
@@ -262,14 +264,18 @@ export default function SharedQuestionsBrowser({ teacherId, onImportSuccess }: S
                           question.choices.map((choice: string, idx: number) => (
                             <div
                               key={idx}
-                              className={`p-3 rounded border ${
+                              className={`p-3 rounded border flex items-center gap-2 ${
                                 choice === question.correct_answer
                                   ? 'border-green-500 bg-green-50'
                                   : 'border-border'
                               }`}
                             >
                               <span className="text-sm font-light text-gray-500 dark:text-gray-400">{idx + 1})</span>
-                              <span className="text-lg font-semibold text-blue-600 dark:text-blue-400 ml-2">{choice}</span>
+                              <ChoiceRenderer 
+                                choice={choice} 
+                                size={56}
+                                className="text-lg font-semibold text-blue-600 dark:text-blue-400"
+                              />
                             </div>
                           ))}
                       </div>

@@ -22,6 +22,8 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import TagInput from '@/components/ui/tag-input';
 import { toast } from 'sonner';
+import QuestionTextRenderer from '@/components/QuestionTextRenderer';
+import ChoiceRenderer from '@/components/ChoiceRenderer';
 
 interface SystemQuestionsBrowserProps {
   teacherId: string;
@@ -497,7 +499,7 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
                   </div>
 
                   <div className="prose prose-sm dark:prose-invert max-w-none">
-                    <p className="text-base font-medium">{question.question_text}</p>
+                    <QuestionTextRenderer text={question.question_text} className="text-base font-medium" />
                   </div>
 
                   {question.image_urls && question.image_urls.length > 0 && (
@@ -531,9 +533,13 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
                               : 'border-border'
                           }`}
                         >
-                          <div className="flex items-center">
+                          <div className="flex items-center gap-2">
                             <span className="text-sm font-light text-gray-500 dark:text-gray-400">{idx + 1})</span>
-                            <span className="text-lg font-semibold text-blue-600 dark:text-blue-400 ml-2">{displayChoice}</span>
+                            <ChoiceRenderer 
+                              choice={displayChoice} 
+                              size={56}
+                              className="text-lg font-semibold text-blue-600 dark:text-blue-400"
+                            />
                           </div>
                           {isCorrect && (
                             <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />

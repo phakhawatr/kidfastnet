@@ -3,7 +3,7 @@ interface ShapeDisplayProps {
   size?: number;
 }
 
-const ShapeDisplay = ({ shape, size = 38 }: ShapeDisplayProps) => {
+const ShapeDisplay = ({ shape, size = 48 }: ShapeDisplayProps) => {
   const shapeColors: Record<string, string> = {
     'circle-red': '#ef4444',
     'circle-blue': '#3b82f6',
@@ -11,18 +11,36 @@ const ShapeDisplay = ({ shape, size = 38 }: ShapeDisplayProps) => {
     'circle-orange': '#f97316',
     'circle-yellow': '#eab308',
     'circle-sky': '#0ea5e9',
+    'circle-purple': '#a855f7',
+    'circle-pink': '#ec4899',
+    'circle-teal': '#14b8a6',
     'square-red': '#ef4444',
     'square-blue': '#3b82f6',
     'square-green': '#22c55e',
     'square-orange': '#f97316',
     'square-yellow': '#eab308',
     'square-sky': '#0ea5e9',
+    'square-purple': '#a855f7',
+    'square-pink': '#ec4899',
+    'square-teal': '#14b8a6',
     'triangle-red': '#ef4444',
     'triangle-blue': '#3b82f6',
     'triangle-green': '#22c55e',
     'triangle-orange': '#f97316',
     'triangle-yellow': '#eab308',
     'triangle-sky': '#0ea5e9',
+    'triangle-purple': '#a855f7',
+    'triangle-pink': '#ec4899',
+    'triangle-teal': '#14b8a6',
+    'ellipse-red': '#ef4444',
+    'ellipse-blue': '#3b82f6',
+    'ellipse-green': '#22c55e',
+    'ellipse-orange': '#f97316',
+    'ellipse-yellow': '#eab308',
+    'ellipse-sky': '#0ea5e9',
+    'ellipse-purple': '#a855f7',
+    'ellipse-pink': '#ec4899',
+    'ellipse-teal': '#14b8a6',
   };
 
   const color = shapeColors[shape] || '#3b82f6';
@@ -53,7 +71,7 @@ const ShapeDisplay = ({ shape, size = 38 }: ShapeDisplayProps) => {
   }
 
   // รองรับวงรี (ellipse)
-  if (shapeType === 'ellipse' || (shapeType === 'circle' && shapeColor === 'orange')) {
+  if (shapeType === 'ellipse') {
     return (
       <svg width={size} height={size} viewBox="0 0 100 100" className="inline-block">
         <ellipse cx="50" cy="50" rx="45" ry="30" fill={color} stroke="#1e293b" strokeWidth="3" />
