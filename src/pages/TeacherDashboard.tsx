@@ -171,29 +171,39 @@ const TeacherDashboard = () => {
   const uploadLogoToStorage = async (): Promise<string | null> => {
     // If no file selected, return null
     if (!schoolLogoFile) {
-      console.log('No logo file selected');
+      console.log('📄 No logo file selected, skipping upload');
       return null;
     }
     
     if (!registrationId) {
-      console.error('No registrationId available');
+      console.error('❌ No registrationId available for upload');
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: 'ไม่พบข้อมูลผู้ใช้ กรุณาล็อกอินใหม่',
+        variant: 'destructive'
+      });
       return null;
     }
 
     setIsUploadingLogo(true);
     try {
-      console.log('Starting logo upload...', schoolLogoFile.name);
+      console.log('🚀 Starting logo upload...');
+      console.log('   File:', schoolLogoFile.name, '| Size:', (schoolLogoFile.size / 1024).toFixed(2), 'KB');
+      console.log('   User ID:', registrationId);
       
       // Compress image
+      console.log('🔄 Compressing image...');
       const compressedBlob = await compressImage(schoolLogoFile, 400, 400, 0.8);
-      console.log('Image compressed successfully');
+      console.log('✅ Image compressed:', (compressedBlob.size / 1024).toFixed(2), 'KB');
       
       // Generate unique filename
-      const fileExt = schoolLogoFile.name.split('.').pop();
+      const fileExt = schoolLogoFile.name.split('.').pop() || 'jpg';
       const fileName = `${registrationId}-${Date.now()}.${fileExt}`;
       const filePath = `${fileName}`;
 
-      console.log('Uploading to path:', filePath);
+      console.log('📤 Uploading to Supabase Storage...');
+      console.log('   Bucket: school-logos');
+      console.log('   Path:', filePath);
 
       // Upload to Supabase Storage
       const { data, error } = await supabase.storage
@@ -204,30 +214,35 @@ const TeacherDashboard = () => {
         });
 
       if (error) {
-        console.error('Storage upload error:', error);
-        throw error;
+        console.error('❌ Storage upload error:', error);
+        console.error('   Error details:', JSON.stringify(error, null, 2));
+        throw new Error(`Upload failed: ${error.message || 'Unknown error'}`);
       }
 
-      console.log('Upload successful:', data);
+      console.log('✅ Upload successful!');
+      console.log('   Data:', data);
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('school-logos')
         .getPublicUrl(filePath);
 
-      console.log('Public URL generated:', publicUrl);
+      console.log('🔗 Public URL generated:', publicUrl);
 
       toast({
-        title: 'สำเร็จ',
-        description: 'อัปโหลดโลโก้เรียบร้อยแล้ว',
+        title: '✅ สำเร็จ',
+        description: 'อัปโหลดโลโก้โรงเรียนเรียบร้อยแล้ว',
       });
 
       return publicUrl;
-    } catch (error) {
-      console.error('Error uploading logo:', error);
+    } catch (error: any) {
+      console.error('❌ Error uploading logo:', error);
+      console.error('   Error message:', error?.message || 'Unknown error');
+      console.error('   Error stack:', error?.stack);
+      
       toast({
         title: 'เกิดข้อผิดพลาด',
-        description: 'ไม่สามารถอัปโหลดรูปภาพได้',
+        description: `ไม่สามารถอัปโหลดรูปภาพได้: ${error?.message || 'กรุณาลองใหม่อีกครั้ง'}`,
         variant: 'destructive'
       });
       return null;
@@ -267,9 +282,20 @@ const TeacherDashboard = () => {
   const handleFinalizeAndCreateLink = async () => {
     if (!previewMode || !registrationId) return;
     
+    setIsUploadingLogo(true); // Show loading state
     try {
+      console.log('📋 Starting exam link creation...');
+      
       // Upload logo if file is selected
+      console.log('🖼️ Checking for logo upload...');
       const uploadedLogoUrl = await uploadLogoToStorage();
+      
+      if (schoolLogoFile && !uploadedLogoUrl) {
+        console.warn('⚠️ Logo file was selected but upload failed');
+        // Continue anyway, but without logo
+      }
+      
+      console.log('📝 Creating exam link with logo URL:', uploadedLogoUrl || 'none');
       
       const semester = previewMode.metadata.semester;
       const link = await createExamLink(
@@ -289,8 +315,10 @@ const TeacherDashboard = () => {
       );
       
       if (!link) throw new Error('Failed to create exam link');
+      console.log('✅ Exam link created:', link.link_code);
       
       // Save all questions to exam_questions table
+      console.log('💾 Saving questions to database...');
       const questionsData = previewMode.questions.map((q, idx) => ({
         exam_link_id: link.id,
         question_number: idx + 1,
@@ -309,6 +337,7 @@ const TeacherDashboard = () => {
         .insert(questionsData);
       
       if (questionsError) throw questionsError;
+      console.log('✅ Questions saved successfully');
       
       // Update exam_link with custom questions flag
       const expiresAt = new Date();
@@ -323,6 +352,8 @@ const TeacherDashboard = () => {
         })
         .eq('id', link.id);
       
+      console.log('✅ Exam link finalized');
+      
       setPreviewMode(null);
       setActivityName('');
       setTeacherName('');
@@ -330,25 +361,30 @@ const TeacherDashboard = () => {
       await refreshExamLinks();
       
       toast({
-        title: 'สำเร็จ!',
+        title: '✅ สำเร็จ!',
         description: `สร้าง Link ข้อสอบเรียบร้อยแล้ว (${link.link_code})`,
       });
       
       // Save school info to localStorage for next time
       if (schoolName || uploadedLogoUrl) {
+        console.log('💾 Saving school info to localStorage...');
         localStorage.setItem('teacher_school_info', JSON.stringify({
           schoolName: schoolName,
           schoolLogoUrl: uploadedLogoUrl
         }));
+        console.log('✅ School info saved');
       }
       
-    } catch (error) {
-      console.error('Error finalizing exam:', error);
+    } catch (error: any) {
+      console.error('❌ Error finalizing exam:', error);
+      console.error('   Error message:', error?.message);
       toast({
         title: 'เกิดข้อผิดพลาด',
-        description: 'ไม่สามารถสร้าง Link ข้อสอบได้',
+        description: `ไม่สามารถสร้าง Link ข้อสอบได้: ${error?.message || 'กรุณาลองใหม่อีกครั้ง'}`,
         variant: 'destructive'
       });
+    } finally {
+      setIsUploadingLogo(false); // Hide loading state
     }
   };
 
@@ -1454,11 +1490,30 @@ const TeacherDashboard = () => {
             
             {/* Action Buttons */}
             <div className="flex gap-3 mt-6">
-              <Button variant="outline" onClick={() => setPreviewMode(null)} className="flex-1">
+              <Button 
+                variant="outline" 
+                onClick={() => setPreviewMode(null)} 
+                className="flex-1"
+                disabled={isUploadingLogo}
+              >
                 ยกเลิก
               </Button>
-              <Button onClick={handleFinalizeAndCreateLink} className="flex-1" size="lg">
-                ✅ สร้าง Link ข้อสอบ
+              <Button 
+                onClick={handleFinalizeAndCreateLink} 
+                className="flex-1" 
+                size="lg"
+                disabled={isUploadingLogo}
+              >
+                {isUploadingLogo ? (
+                  <>
+                    <span className="animate-spin mr-2">⏳</span>
+                    กำลังสร้าง Link...
+                  </>
+                ) : (
+                  <>
+                    ✅ สร้าง Link ข้อสอบ
+                  </>
+                )}
               </Button>
             </div>
           </DialogContent>
