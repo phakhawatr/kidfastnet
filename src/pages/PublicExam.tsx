@@ -473,13 +473,35 @@ const PublicExam = () => {
               <RadioGroup 
                 value={answers.get(currentIndex)?.toString() ?? ''} 
                 onValueChange={(v) => setAnswer(currentIndex, parseInt(v))}
+                className="space-y-3"
               >
-                {currentQuestion?.choices.map((choice, idx) => (
-                  <div key={idx} className="flex items-center space-x-2 p-3 rounded-lg hover:bg-accent/50">
-                    <RadioGroupItem value={idx.toString()} id={`choice-${idx}`} />
-                    <Label htmlFor={`choice-${idx}`} className="flex-1 cursor-pointer">{idx + 1}. {choice}</Label>
-                  </div>
-                ))}
+                {currentQuestion?.choices.map((choice, idx) => {
+                  const isSelected = answers.get(currentIndex) === idx;
+                  return (
+                    <div 
+                      key={idx} 
+                      className={`flex items-center space-x-3 p-4 rounded-lg border-2 transition-all cursor-pointer ${
+                        isSelected 
+                          ? 'border-green-500 bg-green-50 shadow-md' 
+                          : 'border-gray-300 hover:border-blue-400 hover:bg-accent/30'
+                      }`}
+                      onClick={() => setAnswer(currentIndex, idx)}
+                    >
+                      <RadioGroupItem 
+                        value={idx.toString()} 
+                        id={`choice-${idx}`}
+                        className="flex-shrink-0"
+                      />
+                      <Label 
+                        htmlFor={`choice-${idx}`} 
+                        className="flex-1 cursor-pointer"
+                      >
+                        <span className="font-normal text-gray-600">{idx + 1})</span>{' '}
+                        <span className="text-lg text-blue-600 font-normal">{choice}</span>
+                      </Label>
+                    </div>
+                  );
+                })}
               </RadioGroup>
             </CardContent>
           </Card>
