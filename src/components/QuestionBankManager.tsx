@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Search, BookOpen, Pencil, Sparkles, FileText, Trash2, Share2, Users, Trophy, FileUp, Database, CheckCircle2, X, Tag } from 'lucide-react';
+import { Search, BookOpen, Pencil, Sparkles, FileText, Trash2, Share2, Users, Trophy, FileUp, Database, CheckCircle2, X, Tag, ImageIcon } from 'lucide-react';
 import { useQuestionBank, QuestionBankItem } from '@/hooks/useQuestionBank';
 import { useTranslation } from 'react-i18next';
 import { curriculumConfig } from '@/config/curriculum';
@@ -768,19 +768,33 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
                             {tag}
                           </Badge>
                         ))}
+
+                        {/* 8. Image Indicator */}
+                        {question.image_urls && question.image_urls.length > 0 && (
+                          <Badge variant="outline" className="text-xs font-normal bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
+                            <ImageIcon className="w-3 h-3 mr-1" />
+                            {question.image_urls.length} รูป
+                          </Badge>
+                        )}
                       </div>
                       <p className="font-medium mb-2">{question.question_text}</p>
                       
                       {question.image_urls && question.image_urls.length > 0 && (
-                        <div className="grid grid-cols-2 gap-2 mb-2">
-                          {question.image_urls.map((url: string, imgIdx: number) => (
-                            <img
-                              key={imgIdx}
-                              src={url}
-                              alt={`Question image ${imgIdx + 1}`}
-                              className="rounded border max-h-32 object-cover"
-                            />
-                          ))}
+                        <div className="mb-3 p-2 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800">
+                          <div className="flex items-center gap-1 mb-2">
+                            <ImageIcon className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                            <span className="text-xs font-medium text-blue-700 dark:text-blue-300">รูปภาพประกอบ:</span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            {question.image_urls.map((url: string, imgIdx: number) => (
+                              <img
+                                key={imgIdx}
+                                src={url}
+                                alt={`Question image ${imgIdx + 1}`}
+                                className="rounded border border-gray-300 dark:border-gray-700 max-h-32 w-full object-cover hover:scale-105 transition-transform cursor-pointer"
+                              />
+                            ))}
+                          </div>
                         </div>
                       )}
 
