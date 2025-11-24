@@ -662,17 +662,6 @@ const TeacherDashboard = () => {
               </div>
 
               <div>
-                <Label htmlFor="teacherName">ชื่อครู</Label>
-                <Input
-                  id="teacherName"
-                  type="text"
-                  placeholder="เช่น ครูสมหญิง"
-                  value={teacherName}
-                  onChange={(e) => setTeacherName(e.target.value)}
-                />
-              </div>
-
-              <div>
                 <Label htmlFor="grade">ชั้นเรียน</Label>
                 <Select value={selectedGrade.toString()} onValueChange={(v) => setSelectedGrade(parseInt(v))}>
                   <SelectTrigger>
@@ -788,6 +777,18 @@ const TeacherDashboard = () => {
                         alt="Logo Preview" 
                         className="w-full h-full object-contain"
                       />
+                      <button
+                        onClick={() => {
+                          setSchoolLogoUrl('');
+                          setSchoolLogoFile(null);
+                          const fileInput = document.getElementById('schoolLogo') as HTMLInputElement;
+                          if (fileInput) fileInput.value = '';
+                        }}
+                        className="absolute top-0 right-0 bg-destructive text-destructive-foreground rounded-bl p-1 hover:bg-destructive/90 transition-colors"
+                        type="button"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
                     </div>
                   )}
                 </div>
