@@ -28,6 +28,7 @@ interface ExamLinkData {
   questions_finalized_at?: string;
   school_name?: string | null;
   school_logo_url?: string | null;
+  teacher_name?: string | null;
 }
 
 const PublicExam = () => {
@@ -416,6 +417,40 @@ const PublicExam = () => {
   return (
     <div className={`min-h-screen bg-gradient-to-br from-background to-secondary/20 p-4 ${fontSizeClass}`}>
       <div className="container mx-auto max-w-4xl py-8">
+        {/* KidfastAI Header with Exam Title and Teacher Name */}
+        <div className="flex items-center justify-center gap-4 mb-6 flex-wrap">
+          {/* Logo - Clickable */}
+          <button 
+            onClick={() => navigate('/')}
+            className="flex-shrink-0 hover:opacity-80 transition-opacity"
+          >
+            <img 
+              src="/src/assets/logo-ai-final.png" 
+              alt="KidfastAI Logo" 
+              className="h-12 w-auto object-contain"
+            />
+          </button>
+          
+          {/* Exam Title */}
+          {examLink?.activity_name && (
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold text-foreground">
+                {examLink.activity_name}
+              </h1>
+              
+              {/* Teacher Name */}
+              {examLink.teacher_name && (
+                <>
+                  <span className="text-lg text-muted-foreground">โดย</span>
+                  <span className="text-lg font-medium text-foreground">
+                    {examLink.teacher_name}
+                  </span>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+        
         {/* School Logo and Name Header */}
         {(examLink?.school_logo_url || examLink?.school_name) && (
           <div className="text-center mb-6">
