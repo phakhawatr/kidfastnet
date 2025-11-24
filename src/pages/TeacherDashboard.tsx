@@ -54,6 +54,20 @@ const TeacherDashboard = () => {
   const [schoolLogoUrl, setSchoolLogoUrl] = useState<string>('');
   const [schoolLogoFile, setSchoolLogoFile] = useState<File | null>(null);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+
+  // Load saved school info from localStorage on mount
+  useEffect(() => {
+    const savedSchoolInfo = localStorage.getItem('teacher_school_info');
+    if (savedSchoolInfo) {
+      try {
+        const { schoolName: savedName, schoolLogoUrl: savedLogo } = JSON.parse(savedSchoolInfo);
+        if (savedName) setSchoolName(savedName);
+        if (savedLogo) setSchoolLogoUrl(savedLogo);
+      } catch (error) {
+        console.error('Error loading saved school info:', error);
+      }
+    }
+  }, []);
   const [viewingSessions, setViewingSessions] = useState<{ linkId: string; linkCode: string; sessions: ExamSession[] } | null>(null);
   const [showQRCode, setShowQRCode] = useState<string | null>(null);
   const [viewingSessionDetail, setViewingSessionDetail] = useState<ExamSession | null>(null);
@@ -319,6 +333,14 @@ const TeacherDashboard = () => {
         title: 'สำเร็จ!',
         description: `สร้าง Link ข้อสอบเรียบร้อยแล้ว (${link.link_code})`,
       });
+      
+      // Save school info to localStorage for next time
+      if (schoolName || uploadedLogoUrl) {
+        localStorage.setItem('teacher_school_info', JSON.stringify({
+          schoolName: schoolName,
+          schoolLogoUrl: uploadedLogoUrl
+        }));
+      }
       
     } catch (error) {
       console.error('Error finalizing exam:', error);
