@@ -12,7 +12,6 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Progress } from '@/components/ui/progress';
 import { AlertCircle, Clock, Users, BookOpen } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AccessibilityToolbar } from '@/components/AccessibilityToolbar';
 
 interface ExamLinkData {
   id: string;
@@ -417,8 +416,6 @@ const PublicExam = () => {
   return (
     <div className={`min-h-screen bg-gradient-to-br from-background to-secondary/20 p-4 ${fontSizeClass}`}>
       <div className="container mx-auto max-w-4xl py-8">
-        <AccessibilityToolbar showKeyboardShortcuts={true} />
-        
         {/* School Logo and Name Header */}
         {(examLink?.school_logo_url || examLink?.school_name) && (
           <div className="text-center mb-6">
