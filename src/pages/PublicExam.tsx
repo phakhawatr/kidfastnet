@@ -375,18 +375,18 @@ const PublicExam = () => {
         <div className="space-y-4">
           <div className="text-center mb-6">
             {examLink.school_logo_url && (
-              <div className="flex justify-center mb-3">
+              <div className="flex justify-center mb-4">
                 <img 
                   src={examLink.school_logo_url} 
                   alt="School Logo" 
-                  className="h-20 w-20 object-contain"
+                  className="h-32 w-32 object-contain"
                 />
               </div>
             )}
             {examLink.school_name && (
-              <p className="text-lg font-medium text-foreground mb-4">
+              <h2 className="text-xl font-bold text-foreground mb-4">
                 {examLink.school_name}
-              </p>
+              </h2>
             )}
             <h3 className="text-lg font-semibold">
               {examLink.activity_name || `ข้อสอบ ป.${examLink.grade}`}
