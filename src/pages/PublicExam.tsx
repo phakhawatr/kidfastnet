@@ -417,7 +417,7 @@ const PublicExam = () => {
   return (
     <div className={`min-h-screen bg-gradient-to-br from-background to-secondary/20 p-4 ${fontSizeClass}`}>
       <div className="container mx-auto max-w-4xl py-8">
-        {/* KidfastAI Header with Exam Title and Teacher Name */}
+        {/* KidfastAI Header with Exam Title */}
         <div className="flex items-center justify-center gap-4 mb-6 flex-wrap">
           {/* Logo - Clickable */}
           <button 
@@ -433,21 +433,9 @@ const PublicExam = () => {
           
           {/* Exam Title */}
           {examLink?.activity_name && (
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-foreground">
-                {examLink.activity_name}
-              </h1>
-              
-              {/* Teacher Name */}
-              {examLink.teacher_name && (
-                <>
-                  <span className="text-lg text-muted-foreground">โดย</span>
-                  <span className="text-lg font-medium text-foreground">
-                    {examLink.teacher_name}
-                  </span>
-                </>
-              )}
-            </div>
+            <h1 className="text-2xl font-bold text-foreground">
+              {examLink.activity_name}
+            </h1>
           )}
         </div>
         
