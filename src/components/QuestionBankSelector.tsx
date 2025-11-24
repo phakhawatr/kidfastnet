@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Check } from 'lucide-react';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
+import QuestionTextRenderer from './QuestionTextRenderer';
+import ChoiceRenderer from './ChoiceRenderer';
 
 interface QuestionBankSelectorProps {
   teacherId: string;
@@ -166,20 +168,24 @@ export default function QuestionBankSelector({
                   )}
                 </div>
 
-                <p className="font-medium">{question.question_text}</p>
+                <QuestionTextRenderer text={question.question_text} className="font-medium" />
 
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   {question.choices.map((choice: string, idx: number) => (
                     <div
                       key={idx}
-                      className={`p-3 rounded border ${
+                      className={`p-3 rounded border flex items-center gap-2 ${
                         choice === question.correct_answer
                           ? 'border-green-500 bg-green-50 dark:bg-green-950/20'
                           : 'border-border'
                       }`}
                     >
                       <span className="text-sm font-light text-gray-500 dark:text-gray-400">{idx + 1})</span>
-                      <span className="text-lg font-semibold text-blue-600 dark:text-blue-400 ml-2">{choice}</span>
+                      <ChoiceRenderer 
+                        choice={choice} 
+                        size={56}
+                        className="text-lg font-semibold text-blue-600 dark:text-blue-400"
+                      />
                     </div>
                   ))}
                 </div>

@@ -311,6 +311,68 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_missions: {
+        Row: {
+          ai_reasoning: string | null
+          can_retry: boolean | null
+          completed_at: string | null
+          completed_questions: number | null
+          correct_answers: number | null
+          created_at: string | null
+          difficulty: string
+          id: string
+          mission_date: string
+          skill_name: string
+          stars_earned: number | null
+          status: string
+          time_spent: number | null
+          total_questions: number
+          user_id: string
+        }
+        Insert: {
+          ai_reasoning?: string | null
+          can_retry?: boolean | null
+          completed_at?: string | null
+          completed_questions?: number | null
+          correct_answers?: number | null
+          created_at?: string | null
+          difficulty: string
+          id?: string
+          mission_date: string
+          skill_name: string
+          stars_earned?: number | null
+          status?: string
+          time_spent?: number | null
+          total_questions?: number
+          user_id: string
+        }
+        Update: {
+          ai_reasoning?: string | null
+          can_retry?: boolean | null
+          completed_at?: string | null
+          completed_questions?: number | null
+          correct_answers?: number | null
+          created_at?: string | null
+          difficulty?: string
+          id?: string
+          mission_date?: string
+          skill_name?: string
+          stars_earned?: number | null
+          status?: string
+          time_spent?: number | null
+          total_questions?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_missions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exam_links: {
         Row: {
           activity_name: string | null
@@ -734,6 +796,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      mission_rewards: {
+        Row: {
+          created_at: string | null
+          icon_url: string | null
+          id: string
+          is_active: boolean | null
+          reward_description: string | null
+          reward_name: string
+          reward_type: string
+          stars_required: number
+        }
+        Insert: {
+          created_at?: string | null
+          icon_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          reward_description?: string | null
+          reward_name: string
+          reward_type: string
+          stars_required: number
+        }
+        Update: {
+          created_at?: string | null
+          icon_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          reward_description?: string | null
+          reward_name?: string
+          reward_type?: string
+          stars_required?: number
+        }
+        Relationships: []
       }
       practice_sessions: {
         Row: {
@@ -1465,6 +1560,45 @@ export type Database = {
           },
         ]
       }
+      user_rewards: {
+        Row: {
+          earned_at: string | null
+          id: string
+          is_equipped: boolean | null
+          reward_id: string
+          user_id: string
+        }
+        Insert: {
+          earned_at?: string | null
+          id?: string
+          is_equipped?: boolean | null
+          reward_id: string
+          user_id: string
+        }
+        Update: {
+          earned_at?: string | null
+          id?: string
+          is_equipped?: boolean | null
+          reward_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_rewards_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "mission_rewards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_rewards_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1488,6 +1622,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_streaks: {
+        Row: {
+          current_streak: number | null
+          id: string
+          last_completed_date: string | null
+          longest_streak: number | null
+          perfect_days: number | null
+          total_missions_completed: number | null
+          total_stars_earned: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          current_streak?: number | null
+          id?: string
+          last_completed_date?: string | null
+          longest_streak?: number | null
+          perfect_days?: number | null
+          total_missions_completed?: number | null
+          total_stars_earned?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          current_streak?: number | null
+          id?: string
+          last_completed_date?: string | null
+          longest_streak?: number | null
+          perfect_days?: number | null
+          total_missions_completed?: number | null
+          total_stars_earned?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_streaks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

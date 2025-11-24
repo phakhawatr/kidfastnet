@@ -12,6 +12,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Progress } from '@/components/ui/progress';
 import { AlertCircle, Clock, Users, BookOpen } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import QuestionTextRenderer from '@/components/QuestionTextRenderer';
+import ChoiceRenderer from '@/components/ChoiceRenderer';
 
 interface ExamLinkData {
   id: string;
@@ -497,7 +499,9 @@ const PublicExam = () => {
                   </div>
                 </div>
               )}
-              <CardTitle>{currentQuestion?.question}</CardTitle>
+              <CardTitle>
+                <QuestionTextRenderer text={currentQuestion?.question || ''} />
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <RadioGroup 
@@ -524,10 +528,10 @@ const PublicExam = () => {
                       />
                       <Label 
                         htmlFor={`choice-${idx}`} 
-                        className="flex-1 cursor-pointer"
+                        className="flex-1 cursor-pointer flex items-center gap-2"
                       >
-                        <span className="font-normal text-gray-600">{idx + 1})</span>{' '}
-                        <span className="text-lg text-blue-600 font-normal">{choice}</span>
+                        <span className="font-normal text-gray-600">{idx + 1})</span>
+                        <ChoiceRenderer choice={choice} size={56} className="text-lg text-blue-600 font-normal" />
                       </Label>
                     </div>
                   );

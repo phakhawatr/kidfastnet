@@ -9,6 +9,8 @@ import { Save, Plus, Trash2 } from 'lucide-react';
 import ImageUploader from './ImageUploader';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
 import TagInput from './ui/tag-input';
+import QuestionTextRenderer from './QuestionTextRenderer';
+import ChoiceRenderer from './ChoiceRenderer';
 
 interface ManualQuestionFormProps {
   teacherId: string | null;
@@ -241,7 +243,7 @@ export default function ManualQuestionForm({ teacherId, adminId, grade, topics, 
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4">ตัวอย่างโจทย์</h3>
           <div className="space-y-4">
-            <p className="font-medium">{questionText}</p>
+            <QuestionTextRenderer text={questionText} className="font-medium" />
             
             {imageUrls.length > 0 && (
               <div className="grid grid-cols-2 gap-2">
@@ -255,14 +257,18 @@ export default function ManualQuestionForm({ teacherId, adminId, grade, topics, 
               {choices.filter(c => c.trim()).map((choice, index) => (
                 <div
                   key={index}
-                  className={`p-3 rounded border ${
+                  className={`p-3 rounded border flex items-center gap-2 ${
                     correctAnswer === index.toString()
                       ? 'border-green-500 bg-green-50 dark:bg-green-950/20'
                       : 'border-border'
                   }`}
                 >
                   <span className="text-sm font-light text-gray-500 dark:text-gray-400">{index + 1})</span>
-                  <span className="text-lg font-semibold text-blue-600 dark:text-blue-400 ml-2">{choice}</span>
+                  <ChoiceRenderer 
+                    choice={choice} 
+                    size={56}
+                    className="text-lg font-semibold text-blue-600 dark:text-blue-400"
+                  />
                   {correctAnswer === index.toString() && (
                     <span className="ml-2 text-green-600 font-medium">✓ คำตอบที่ถูก</span>
                   )}

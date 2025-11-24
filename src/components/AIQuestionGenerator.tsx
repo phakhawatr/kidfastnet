@@ -10,6 +10,8 @@ import { Sparkles, Loader2, Save, Trophy } from 'lucide-react';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
 import { useTranslation } from 'react-i18next';
 import { curriculumConfig } from '@/config/curriculum';
+import QuestionTextRenderer from '@/components/QuestionTextRenderer';
+import ChoiceRenderer from '@/components/ChoiceRenderer';
 
 interface AIQuestionGeneratorProps {
   teacherId: string | null;
@@ -329,7 +331,7 @@ export default function AIQuestionGenerator({ teacherId, adminId, onSuccess }: A
                       )}
                     </div>
 
-                    <p className="font-medium">{question.question_text}</p>
+                    <QuestionTextRenderer text={question.question_text} className="font-medium" />
 
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       {question.choices.map((choice: string, cIdx: number) => (
@@ -341,8 +343,14 @@ export default function AIQuestionGenerator({ teacherId, adminId, onSuccess }: A
                               : 'border-border'
                           }`}
                         >
-                          <span className="text-sm font-light text-gray-500 dark:text-gray-400">{cIdx + 1})</span>
-                          <span className="text-lg font-semibold text-blue-600 dark:text-blue-400 ml-2">{choice}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-light text-gray-500 dark:text-gray-400">{cIdx + 1})</span>
+                            <ChoiceRenderer 
+                              choice={choice} 
+                              size={56}
+                              className="text-lg font-semibold text-blue-600 dark:text-blue-400"
+                            />
+                          </div>
                           {choice === question.correct_answer && (
                             <span className="ml-2 text-green-600 font-medium">✓</span>
                           )}
