@@ -189,7 +189,8 @@ const PublicExam = () => {
         choices: q.choices,
         difficulty: q.difficulty,
         explanation: q.explanation,
-        visualElements: q.visual_elements
+        visualElements: q.visual_elements,
+        imageUrls: q.image_urls
       }));
 
       console.log('✅ Custom questions loaded:', formattedQuestions.length, 'questions');
@@ -450,7 +451,24 @@ const PublicExam = () => {
 
         {isLoadingState ? <Card><CardContent className="py-12 text-center">กำลังโหลด...</CardContent></Card> : (
           <Card>
-            <CardHeader><CardTitle>{currentQuestion?.question}</CardTitle></CardHeader>
+            <CardHeader>
+              {currentQuestion?.imageUrls && currentQuestion.imageUrls.length > 0 && (
+                <div className="mb-4">
+                  <div className="grid grid-cols-1 gap-3">
+                    {currentQuestion.imageUrls.map((url, idx) => (
+                      <img
+                        key={idx}
+                        src={url}
+                        alt={`รูปประกอบข้อ ${currentIndex + 1}`}
+                        className="w-full max-w-md mx-auto rounded-lg border-2 border-border shadow-sm object-contain"
+                        style={{ maxHeight: '400px' }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+              <CardTitle>{currentQuestion?.question}</CardTitle>
+            </CardHeader>
             <CardContent>
               <RadioGroup 
                 value={answers.get(currentIndex)?.toString() ?? ''} 
