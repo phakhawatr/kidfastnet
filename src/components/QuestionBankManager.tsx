@@ -24,6 +24,7 @@ import SharedQuestionsBrowser from './SharedQuestionsBrowser';
 import SystemQuestionsBrowser from './SystemQuestionsBrowser';
 import PDFQuestionImporter from './PDFQuestionImporter';
 import TagInput from './ui/tag-input';
+import ImageUploader from './ImageUploader';
 
 interface QuestionBankManagerProps {
   teacherId?: string | null;
@@ -53,7 +54,8 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
     correct_answer: '',
     explanation: '',
     difficulty: 'medium',
-    tags: [] as string[]
+    tags: [] as string[],
+    image_urls: [] as string[]
   });
   const [showBulkTagDialog, setShowBulkTagDialog] = useState(false);
   const [bulkTagsToAdd, setBulkTagsToAdd] = useState<string[]>([]);
@@ -164,7 +166,8 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
       correct_answer: question.correct_answer.replace(/^[A-D]\)\s*/, ''),
       explanation: question.explanation || '',
       difficulty: question.difficulty,
-      tags: question.tags || []
+      tags: question.tags || [],
+      image_urls: question.image_urls || []
     });
   };
 
@@ -189,7 +192,8 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
       correct_answer: correctWithPrefix,
       explanation: editForm.explanation,
       difficulty: editForm.difficulty,
-      tags: editForm.tags
+      tags: editForm.tags,
+      image_urls: editForm.image_urls.length > 0 ? editForm.image_urls : undefined
     });
 
     if (success) {
@@ -206,7 +210,8 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
       correct_answer: '',
       explanation: '',
       difficulty: 'medium',
-      tags: []
+      tags: [],
+      image_urls: []
     });
   };
 
@@ -1060,6 +1065,19 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
                 rows={3}
                 className="mt-1"
               />
+            </div>
+
+            {/* Image Upload */}
+            <div>
+              <Label>รูปภาพประกอบ (สูงสุด 1 รูป)</Label>
+              <div className="mt-2">
+                <ImageUploader
+                  teacherId={teacherId || adminId || ''}
+                  onImagesChange={(urls) => setEditForm({ ...editForm, image_urls: urls })}
+                  maxImages={1}
+                  initialImages={editForm.image_urls}
+                />
+              </div>
             </div>
 
             {/* Choices */}

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -7,13 +7,19 @@ interface ImageUploaderProps {
   onImagesChange: (urls: string[]) => void;
   maxImages?: number;
   teacherId: string;
+  initialImages?: string[];
 }
 
-export default function ImageUploader({ onImagesChange, maxImages = 5, teacherId }: ImageUploaderProps) {
-  const [images, setImages] = useState<string[]>([]);
+export default function ImageUploader({ onImagesChange, maxImages = 5, teacherId, initialImages = [] }: ImageUploaderProps) {
+  const [images, setImages] = useState<string[]>(initialImages);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  // Update images when initialImages prop changes
+  useEffect(() => {
+    setImages(initialImages);
+  }, [initialImages]);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
