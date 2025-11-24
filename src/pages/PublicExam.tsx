@@ -556,6 +556,19 @@ const PublicExam = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Footer with AI System Credit */}
+        <div className="mt-8 mb-4 text-center">
+          <p className="text-sm text-muted-foreground">
+            ระบบการสร้างข้อสอบอัจฉริยะด้วย AI โดย{' '}
+            <button
+              onClick={() => navigate('/')}
+              className="text-yellow-300 hover:text-yellow-200 font-semibold underline transition-colors"
+            >
+              KidFastAI.com
+            </button>
+          </p>
+        </div>
       </div>
     </div>
   );
