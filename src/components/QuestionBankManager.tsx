@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Search, BookOpen, Pencil, Sparkles, FileText, Trash2, Share2, Users, Trophy, FileUp, Database, CheckCircle2, X, Tag, ImageIcon } from 'lucide-react';
+import { Search, BookOpen, Pencil, Sparkles, FileText, Trash2, Share2, Users, Trophy, FileUp, Database, CheckCircle2, X, Tag, ImageIcon, ZoomIn, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useQuestionBank, QuestionBankItem } from '@/hooks/useQuestionBank';
 import { useTranslation } from 'react-i18next';
 import { curriculumConfig } from '@/config/curriculum';
@@ -63,6 +63,10 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
   const [bulkEditing, setBulkEditing] = useState(false);
   const [editingTagsQuestion, setEditingTagsQuestion] = useState<QuestionBankItem | null>(null);
   const [singleQuestionTags, setSingleQuestionTags] = useState<string[]>([]);
+  const [imageFilter, setImageFilter] = useState<'all' | 'with-image' | 'no-image'>('all');
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxImages, setLightboxImages] = useState<string[]>([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   const {
     questions,
@@ -345,6 +349,10 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
     if (selectedTopic !== 'all' && q.topic !== selectedTopic) return false;
     if (searchQuery && !q.question_text.toLowerCase().includes(searchQuery.toLowerCase())) return false;
     
+    // Image filter
+    if (imageFilter === 'with-image' && (!q.image_urls || q.image_urls.length === 0)) return false;
+    if (imageFilter === 'no-image' && q.image_urls && q.image_urls.length > 0) return false;
+    
     // Tag filtering with OR logic (at least one tag matches)
     if (selectedTags.length > 0) {
       const questionTags = q.tags || [];
@@ -376,6 +384,20 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
     
     const skill = skills.find(s => s.skill === skillName);
     return skill ? skill.description : null;
+  };
+
+  const openLightbox = (images: string[], startIndex: number = 0) => {
+    setLightboxImages(images);
+    setCurrentImageIndex(startIndex);
+    setLightboxOpen(true);
+  };
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % lightboxImages.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + lightboxImages.length) % lightboxImages.length);
   };
 
   return (
@@ -538,6 +560,25 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
                     className="pl-10"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">รูปภาพ</label>
+                <Select value={imageFilter} onValueChange={(v: any) => setImageFilter(v)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">ทั้งหมด</SelectItem>
+                    <SelectItem value="with-image">
+                      <div className="flex items-center gap-2">
+                        <ImageIcon className="w-4 h-4" />
+                        มีรูปภาพ
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="no-image">ไม่มีรูปภาพ</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -787,12 +828,20 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
                           </div>
                           <div className="grid grid-cols-2 gap-2">
                             {question.image_urls.map((url: string, imgIdx: number) => (
-                              <img
+                              <div
                                 key={imgIdx}
-                                src={url}
-                                alt={`Question image ${imgIdx + 1}`}
-                                className="rounded border border-gray-300 dark:border-gray-700 max-h-32 w-full object-cover hover:scale-105 transition-transform cursor-pointer"
-                              />
+                                className="relative group cursor-pointer"
+                                onClick={() => openLightbox(question.image_urls || [], imgIdx)}
+                              >
+                                <img
+                                  src={url}
+                                  alt={`Question image ${imgIdx + 1}`}
+                                  className="rounded border border-gray-300 dark:border-gray-700 max-h-32 w-full object-cover hover:scale-105 transition-transform"
+                                />
+                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
+                                  <ZoomIn className="w-6 h-6 text-white" />
+                                </div>
+                              </div>
                             ))}
                           </div>
                         </div>
@@ -1247,6 +1296,59 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
               บันทึกการเปลี่ยนแปลง
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Image Lightbox Dialog */}
+      <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
+        <DialogContent className="max-w-5xl h-[90vh] p-0 bg-black/95">
+          <div className="relative h-full flex items-center justify-center">
+            {/* Close Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-4 right-4 z-50 text-white hover:bg-white/20"
+              onClick={() => setLightboxOpen(false)}
+            >
+              <X className="w-6 h-6" />
+            </Button>
+
+            {/* Navigation Buttons */}
+            {lightboxImages.length > 1 && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute left-4 z-50 text-white hover:bg-white/20"
+                  onClick={prevImage}
+                >
+                  <ChevronLeft className="w-8 h-8" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-4 z-50 text-white hover:bg-white/20"
+                  onClick={nextImage}
+                >
+                  <ChevronRight className="w-8 h-8" />
+                </Button>
+              </>
+            )}
+
+            {/* Image */}
+            <img
+              src={lightboxImages[currentImageIndex]}
+              alt={`Image ${currentImageIndex + 1}`}
+              className="max-h-full max-w-full object-contain"
+            />
+
+            {/* Image Counter */}
+            {lightboxImages.length > 1 && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-full text-sm">
+                {currentImageIndex + 1} / {lightboxImages.length}
+              </div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
