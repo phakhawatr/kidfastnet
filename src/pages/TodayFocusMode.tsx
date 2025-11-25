@@ -33,30 +33,85 @@ const TodayFocusMode = () => {
     }
   }, [userId, isLoading, navigate, t]);
 
+  const getSkillRoute = (skillName: string): string => {
+    // Expanded skill routes mapping with variants
+    const skillRoutes: Record<string, string> = {
+      // Addition variants
+      'บวกเลข': '/addition',
+      'การบวกเลข': '/addition',
+      'การบวกเลขไม่เกิน 10': '/addition',
+      'การบวกเลขไม่เกิน 100': '/addition',
+      'การบวกเลขไม่เกิน 1000': '/addition',
+      
+      // Subtraction variants  
+      'ลบเลข': '/subtraction',
+      'การลบเลข': '/subtraction',
+      
+      // Multiplication variants
+      'คูณเลข': '/multiplication',
+      'การคูณเลข': '/multiplication',
+      
+      // Division variants
+      'หารเลข': '/division',
+      'การหารเลข': '/division',
+      
+      // Other skills
+      'เศษส่วน': '/fraction-shapes',
+      'ทศนิยม': '/place-value',
+      'ร้อยละ': '/percentage',
+      'เงิน': '/money',
+      'การวัด': '/measurement',
+      'เวลา': '/time',
+      'น้ำหนัก': '/weighing',
+      'รูปทรง': '/shape-matching',
+    };
+    
+    // Check exact match first
+    if (skillRoutes[skillName]) return skillRoutes[skillName];
+    
+    // Flexible matching - check if skill contains keywords
+    const skillLower = skillName.toLowerCase();
+    if (skillLower.includes('บวก')) return '/addition';
+    if (skillLower.includes('ลบ')) return '/subtraction';
+    if (skillLower.includes('คูณ')) return '/multiplication';
+    if (skillLower.includes('หาร')) return '/division';
+    if (skillLower.includes('เศษส่วน')) return '/fraction-shapes';
+    if (skillLower.includes('ทศนิยม')) return '/place-value';
+    if (skillLower.includes('ร้อยละ') || skillLower.includes('เปอร์เซ็นต์')) return '/percentage';
+    if (skillLower.includes('เงิน')) return '/money';
+    if (skillLower.includes('วัด')) return '/measurement';
+    if (skillLower.includes('เวลา') || skillLower.includes('นาฬิกา')) return '/time';
+    if (skillLower.includes('น้ำหนัก') || skillLower.includes('ชั่ง')) return '/weighing';
+    if (skillLower.includes('รูปทรง')) return '/shape-matching';
+    
+    return '/quiz'; // fallback
+  };
+
   const handleStartMission = async () => {
     if (!todayMission) return;
 
     try {
       await startMission(todayMission.id);
       
-      // Navigate to appropriate quiz page based on skill
-      const skillRoutes: Record<string, string> = {
-        'บวกเลข': '/addition',
-        'ลบเลข': '/subtraction',
-        'คูณเลข': '/multiplication',
-        'หารเลข': '/division',
-        'เศษส่วน': '/fraction-shapes',
-        'ทศนิยม': '/place-value',
-        'ร้อยละ': '/percentage',
-        'เงิน': '/money',
-        'การวัด': '/measurement',
-        'เวลา': '/time',
-        'น้ำหนัก': '/weighing',
-        'รูปทรง': '/shape-matching',
+      const route = getSkillRoute(todayMission.skill_name);
+      
+      // Map difficulty to app's level
+      const levelMap: Record<string, string> = {
+        'easy': 'easy',
+        'medium': 'medium', 
+        'hard': 'hard'
       };
-
-      const route = skillRoutes[todayMission.skill_name] || '/quiz';
-      navigate(route);
+      const appLevel = levelMap[todayMission.difficulty] || 'easy';
+      
+      // Build query params
+      const params = new URLSearchParams({
+        level: appLevel,
+        count: String(todayMission.total_questions),
+        autoStart: 'true',
+        missionId: todayMission.id
+      });
+      
+      navigate(`${route}?${params.toString()}`);
     } catch (error) {
       toast.error('ไม่สามารถเริ่มภารกิจได้');
     }
