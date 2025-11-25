@@ -8,6 +8,7 @@ import { useSubtractionGame } from "../hooks/useSubtractionGame";
 import { ProblemCard } from "../components/ProblemCard";
 import { useBackgroundMusic } from "../hooks/useBackgroundMusic";
 import { BackgroundMusic } from "../components/BackgroundMusic";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { 
   formatMS, 
   fmtDate, 
@@ -551,69 +552,70 @@ const SubtractionApp: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-sky-50 via-white to-pink-50 text-zinc-800">
+    <div className="min-h-screen bg-gradient-to-b from-sky-50 via-white to-pink-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 text-zinc-800 dark:text-zinc-100 transition-colors">
       {showPdfPreview && <PdfPreviewModal />}
       
       <header className="max-w-6xl mx-auto p-6 pb-2">
-        <div className="flex items-center gap-4 mb-4">
+        <div className="flex items-center justify-between gap-4 mb-4">
           <Link 
             to="/profile" 
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 hover:bg-white shadow-sm border"
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 dark:bg-slate-700 hover:bg-white dark:hover:bg-slate-600 shadow-sm border dark:border-slate-600 dark:text-zinc-200"
           >
             <ArrowLeft size={20} />
             <span>{t('common.backToProfile')}</span>
           </Link>
+          <ThemeToggle />
         </div>
         <h1 className="text-3xl sm:text-4xl font-black flex items-center gap-2">➖ การลบที่ผลลัพธ์ไม่เกิน 1,000</h1>
-        <p className="text-zinc-600 mt-1 text-base">ตอบผลลัพธ์ของโจทย์ลบ 2 หรือ 3 จำนวน โดยผลลัพธ์ไม่เกิน 1,000</p>
+        <p className="text-zinc-600 dark:text-zinc-400 mt-1 text-base">ตอบผลลัพธ์ของโจทย์ลบ 2 หรือ 3 จำนวน โดยผลลัพธ์ไม่เกิน 1,000</p>
       </header>
 
       <main className="max-w-6xl mx-auto p-6 pt-3">
         {/* === Control Panel === */}
         <div className="control-panel flex flex-wrap items-center gap-2 mb-4">
           {/* จำนวนข้อ */}
-          <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 shadow-sm">
-            <span className="text-sm text-zinc-600">{t('settings.problemCount')}:</span>
+          <div className="flex items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 dark:border-slate-600 shadow-sm">
+            <span className="text-sm text-zinc-600 dark:text-zinc-300">{t('settings.problemCount')}:</span>
             {[10, 15, 30, 40].map((n) => (
-              <button key={n} onClick={() => applyNewCount(n)} className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${count === n ? "bg-sky-600 text-white border-sky-600" : "bg-zinc-50 hover:bg-zinc-100"}`}>{n}</button>
+              <button key={n} onClick={() => applyNewCount(n)} className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${count === n ? "bg-sky-600 text-white border-sky-600" : "bg-zinc-50 dark:bg-slate-700 hover:bg-zinc-100 dark:hover:bg-slate-600 dark:text-zinc-200"}`}>{n}</button>
             ))}
           </div>
 
           {/* ระดับ */}
-          <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 shadow-sm">
-            <span className="text-sm text-zinc-600">{t('common.difficulty')}:</span>
+          <div className="flex items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 dark:border-slate-600 shadow-sm">
+            <span className="text-sm text-zinc-600 dark:text-zinc-300">{t('common.difficulty')}:</span>
             {[{ key: "easy", label: t('common.easy') }, { key: "medium", label: t('common.medium') }, { key: "hard", label: t('common.hard') }].map((lv) => (
-              <button key={lv.key} onClick={() => applyLevel(lv.key)} className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${level === lv.key ? "bg-purple-600 text-white border-purple-600" : "bg-zinc-50 hover:bg-zinc-100"}`}>{lv.label}</button>
+              <button key={lv.key} onClick={() => applyLevel(lv.key)} className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${level === lv.key ? "bg-purple-600 text-white border-purple-600" : "bg-zinc-50 dark:bg-slate-700 hover:bg-zinc-100 dark:hover:bg-slate-600 dark:text-zinc-200"}`}>{lv.label}</button>
             ))}
           </div>
 
           {/* จำนวนหลัก */}
-          <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 shadow-sm">
-            <span className="text-sm text-zinc-600">{t('common.digits')}:</span>
+          <div className="flex items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 dark:border-slate-600 shadow-sm">
+            <span className="text-sm text-zinc-600 dark:text-zinc-300">{t('common.digits')}:</span>
             {[1, 2, 3].map((d) => (
-              <button key={d} onClick={() => applyDigits(d)} className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${digits === d ? "bg-indigo-600 text-white border-indigo-600" : "bg-zinc-50 hover:bg-zinc-100"}`}>{d} {t('common.digit')}</button>
+              <button key={d} onClick={() => applyDigits(d)} className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${digits === d ? "bg-indigo-600 text-white border-indigo-600" : "bg-zinc-50 dark:bg-slate-700 hover:bg-zinc-100 dark:hover:bg-slate-600 dark:text-zinc-200"}`}>{d} {t('common.digit')}</button>
             ))}
           </div>
 
           {/* การยืม */}
-          <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 shadow-sm">
-            <span className="text-sm text-zinc-600">{t('subtraction.borrowOption')}:</span>
+          <div className="flex items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 dark:border-slate-600 shadow-sm">
+            <span className="text-sm text-zinc-600 dark:text-zinc-300">{t('subtraction.borrowOption')}:</span>
             {[{ val: true, label: t('subtraction.hasBorrow') }, { val: false, label: t('subtraction.noBorrow') }].map((opt) => (
-              <button key={opt.label} onClick={() => applyBorrow(opt.val)} className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${allowBorrow === opt.val ? "bg-rose-600 text-white border-rose-600" : "bg-zinc-50 hover:bg-zinc-100"}`}>{opt.label}</button>
+              <button key={opt.label} onClick={() => applyBorrow(opt.val)} className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${allowBorrow === opt.val ? "bg-rose-600 text-white border-rose-600" : "bg-zinc-50 dark:bg-slate-700 hover:bg-zinc-100 dark:hover:bg-slate-600 dark:text-zinc-200"}`}>{opt.label}</button>
             ))}
           </div>
 
           {/* จำนวนชุดตัวเลข */}
-          <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 shadow-sm">
-            <span className="text-sm text-zinc-600">{t('subtraction.operands')}:</span>
+          <div className="flex items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 dark:border-slate-600 shadow-sm">
+            <span className="text-sm text-zinc-600 dark:text-zinc-300">{t('subtraction.operands')}:</span>
             {[{k:2,label:t('subtraction.twoNumbers')},{k:3,label:t('subtraction.threeNumbers')}].map(op => (
-              <button key={op.k} onClick={() => applyOperands(op.k)} className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${operands===op.k?"bg-teal-600 text-white border-teal-600":"bg-zinc-50 hover:bg-zinc-100"}`}>{op.label}</button>
+              <button key={op.k} onClick={() => applyOperands(op.k)} className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${operands===op.k?"bg-teal-600 text-white border-teal-600":"bg-zinc-50 dark:bg-slate-700 hover:bg-zinc-100 dark:hover:bg-slate-600 dark:text-zinc-200"}`}>{op.label}</button>
             ))}
           </div>
 
           {/* Logo Upload Section */}
-          <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 shadow-sm">
-            <span className="text-sm text-zinc-600">{t('pdf.schoolLogo')}:</span>
+          <div className="flex items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 dark:border-slate-600 shadow-sm">
+            <span className="text-sm text-zinc-600 dark:text-zinc-300">{t('pdf.schoolLogo')}:</span>
             <input
               ref={logoInputRef}
               type="file"
@@ -636,7 +638,7 @@ const SubtractionApp: React.FC = () => {
             ) : (
               <label
                 htmlFor="logo-upload"
-                className="px-4 py-2 rounded-full text-base font-semibold border-2 bg-zinc-50 hover:bg-zinc-100 cursor-pointer flex items-center gap-2"
+                className="px-4 py-2 rounded-full text-base font-semibold border-2 bg-zinc-50 dark:bg-slate-700 hover:bg-zinc-100 dark:hover:bg-slate-600 cursor-pointer flex items-center gap-2 dark:text-zinc-200"
               >
                 <Upload size={16} />
                 {t('pdf.uploadLogo')}
@@ -663,7 +665,7 @@ const SubtractionApp: React.FC = () => {
           </button>
 
           {/* Live timer */}
-          <div className="ml-auto text-base bg-sky-50 border-2 border-sky-200 rounded-full px-4 py-2 font-semibold">⏱️ {t('results.timeUsed')}: <span className="font-semibold">{formatMS(elapsedMs)}</span>{startedAt && !finishedAt && <span className="text-zinc-400"> ({t('common.counting')})</span>}</div>
+          <div className="ml-auto text-base bg-sky-50 dark:bg-slate-700 border-2 border-sky-200 dark:border-slate-600 rounded-full px-4 py-2 font-semibold dark:text-zinc-200">⏱️ {t('results.timeUsed')}: <span className="font-semibold">{formatMS(elapsedMs)}</span>{startedAt && !finishedAt && <span className="text-zinc-400 dark:text-zinc-500"> ({t('common.counting')})</span>}</div>
         </div>
 
         {/* Problems grid */}
