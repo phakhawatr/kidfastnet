@@ -36,6 +36,7 @@ const ShapeSeriesApp = () => {
   const [timer, setTimer] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [showAnswers, setShowAnswers] = useState(false);
 
   // Timer effect
   useEffect(() => {
@@ -179,6 +180,7 @@ const ShapeSeriesApp = () => {
     setProblems(newProblems);
     setSelectedAnswers(new Array(problemCount).fill(-1));
     setIsSubmitted(false);
+    setShowAnswers(false);
     setCorrectCount(0);
     setTimer(0);
     setIsRunning(true);
@@ -320,7 +322,7 @@ const ShapeSeriesApp = () => {
             </div>
           </div>
 
-          <div className="mt-4 flex gap-2">
+          <div className="mt-4 flex gap-2 flex-wrap">
             <Button
               onClick={generateProblems}
               className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
@@ -330,11 +332,11 @@ const ShapeSeriesApp = () => {
             
             {!isSubmitted && problems.length > 0 && (
               <Button
-                onClick={handleCheckAnswers}
-                disabled={selectedAnswers.every(a => a === -1)}
-                className="bg-green-600 hover:bg-green-700 text-white"
+                onClick={() => setShowAnswers(!showAnswers)}
+                variant="outline"
+                className="border-yellow-500 text-yellow-400 hover:bg-yellow-500/10 hover:text-yellow-300"
               >
-                {t('common.checkAnswers')}
+                {showAnswers ? t('common.hideAnswers') : t('common.showAnswers')}
               </Button>
             )}
           </div>
@@ -391,13 +393,13 @@ const ShapeSeriesApp = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   {problem.choices.map((choice, choiceIndex) => {
                     const isSelected = selectedAnswers[problemIndex] === choiceIndex;
-                    const showAsCorrect = isSubmitted && shapesEqual(choice, problem.answer);
+                    const showAsCorrect = (isSubmitted || showAnswers) && shapesEqual(choice, problem.answer);
                     
                     return (
                       <button
                         key={choiceIndex}
                         onClick={() => handleSelectAnswer(problemIndex, choiceIndex)}
-                        disabled={isSubmitted}
+                        disabled={isSubmitted || showAnswers}
                         className={`p-4 rounded-lg border-2 transition-all ${
                           showAsCorrect
                             ? 'border-green-500 bg-green-900/50'
@@ -406,7 +408,7 @@ const ShapeSeriesApp = () => {
                             : isSelected
                             ? 'border-blue-500 bg-blue-900/50'
                             : 'border-slate-400 hover:border-white bg-slate-700/80 hover:bg-slate-600/80'
-                        } ${isSubmitted ? 'cursor-default' : 'cursor-pointer hover:scale-105'}`}
+                        } ${(isSubmitted || showAnswers) ? 'cursor-default' : 'cursor-pointer hover:scale-105'}`}
                       >
                         <div className="flex justify-center items-center">
                           <ShapeDisplay shape={`${choice.type}-${choice.color}`} size={64} />
@@ -424,9 +426,31 @@ const ShapeSeriesApp = () => {
                   </p>
                 </div>
               )}
+              
+              {showAnswers && !isSubmitted && (
+                <div className="mt-4 p-3 rounded-lg bg-yellow-900/50 border border-yellow-500">
+                  <p className="font-medium text-yellow-300">
+                    💡 {t('common.answersShown')}
+                  </p>
+                </div>
+              )}
             </Card>
           );
         })}
+        
+        {/* Check Answers Button - After all problems */}
+        {!isSubmitted && problems.length > 0 && !showAnswers && (
+          <Card className="bg-slate-800/90 backdrop-blur-sm border-slate-700 p-6">
+            <Button
+              onClick={handleCheckAnswers}
+              disabled={selectedAnswers.every(a => a === -1)}
+              className="w-full bg-green-600 hover:bg-green-700 text-white text-lg py-6"
+              size="lg"
+            >
+              ✓ {t('common.checkAnswers')}
+            </Button>
+          </Card>
+        )}
       </div>
 
       {/* Results */}
