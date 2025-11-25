@@ -5,6 +5,7 @@ import { useTeacherRole } from '../hooks/useTeacherRole';
 import LanguageSwitcher from './LanguageSwitcher';
 import logoAIBrain from '../assets/logo-ai-final.png';
 import { FileQuestion, Rocket, RefreshCw, Atom, GraduationCap } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 const Header = () => {
   const { isLoggedIn, logout, registrationId } = useAuth();
@@ -45,14 +46,21 @@ const Header = () => {
                   {t('startPractice')}
                 </Link>
                 
-                {/* STEMxAI Button */}
-                <Link 
-                  to="/stem" 
-                  className="px-4 py-2 rounded-full bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 text-white font-medium transition-all duration-300 hover:scale-105 text-sm flex items-center gap-2 shadow-md hover:shadow-lg"
-                >
-                  <Atom className="w-4 h-4" />
-                  {t('stemxai')}
-                </Link>
+                {/* STEMxAI Button with Beta Badge */}
+                <div className="relative">
+                  <Link 
+                    to="/stem" 
+                    className="px-4 py-2 rounded-full bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 text-white font-medium transition-all duration-300 hover:scale-105 text-sm flex items-center gap-2 shadow-md hover:shadow-lg"
+                  >
+                    <Atom className="w-4 h-4" />
+                    {t('stemxai')}
+                  </Link>
+                  <Badge 
+                    className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-0.5 animate-pulse shadow-lg border-2 border-white"
+                  >
+                    Beta
+                  </Badge>
+                </div>
                 
                 <Link 
                   to="/quiz" 
