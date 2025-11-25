@@ -9,7 +9,7 @@ import { ArrowLeft, Brain, Target, Clock, Zap, Trophy, Star, Flame, Sparkles, Pa
 import { toast } from 'sonner';
 
 const TodayFocusMode = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('trainingCalendar');
   const navigate = useNavigate();
   const { missions, streak, isLoading, userId, startMission, generateTodayMission } = useTrainingCalendar();
   const [isGenerating, setIsGenerating] = useState(false);
@@ -28,7 +28,7 @@ const TodayFocusMode = () => {
 
   useEffect(() => {
     if (!userId && !isLoading) {
-      toast.error(t('trainingCalendar.loginRequired'));
+      toast.error(t('loginRequired'));
       navigate('/login');
     }
   }, [userId, isLoading, navigate, t]);
