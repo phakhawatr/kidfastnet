@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { userId } = await req.json();
+    const { userId, localDate } = await req.json();
 
     if (!userId) {
       return new Response(
@@ -76,7 +76,8 @@ serve(async (req) => {
     }
 
     // Check if today's missions already exist (3 missions)
-    const today = new Date().toISOString().split('T')[0];
+    // Use localDate from client to avoid timezone issues
+    const today = localDate || new Date().toISOString().split('T')[0];
     const existingMissions = recentMissions?.filter(m => m.mission_date === today) || [];
 
     // If we have 3 complete missions for today, return them

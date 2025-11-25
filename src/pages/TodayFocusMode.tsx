@@ -29,14 +29,22 @@ const TodayFocusMode = () => {
   const [selectedMission, setSelectedMission] = useState<DailyMission | null>(null);
   const hasAttemptedGeneration = useRef(false);
 
+  // Helper function to get date string in local timezone (YYYY-MM-DD)
+  const getLocalDateString = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const todayStr = getLocalDateString(today);
   
-  // Get all missions for today (now we have 3 options)
+  // Get all missions for today (now we have 3 options) - use string comparison for timezone-safe filtering
   const todayMissions = missions.filter(m => {
-    const missionDate = new Date(m.mission_date);
-    missionDate.setHours(0, 0, 0, 0);
-    return missionDate.getTime() === today.getTime();
+    // mission_date is in format "2025-11-25" or "2025-11-25T00:00:00+07:00"
+    const missionDateStr = m.mission_date.split('T')[0];
+    return missionDateStr === todayStr;
   }).sort((a, b) => ((a as any).mission_option || 1) - ((b as any).mission_option || 1));
 
   const dayOfWeek = today.getDay();

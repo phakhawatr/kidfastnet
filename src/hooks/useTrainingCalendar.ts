@@ -316,6 +316,14 @@ export const useTrainingCalendar = () => {
     }
   };
 
+  // Helper function to get local date string
+  const getLocalDateString = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   // Generate today's mission using AI
   const generateTodayMission = async () => {
     if (!userId) {
@@ -330,8 +338,11 @@ export const useTrainingCalendar = () => {
     try {
       setIsGenerating(true);
 
+      // Send local date to avoid timezone issues
+      const localDate = getLocalDateString(new Date());
+
       const { data, error } = await supabase.functions.invoke('generate-daily-mission', {
-        body: { userId },
+        body: { userId, localDate },
       });
 
       if (error) {
@@ -395,12 +406,12 @@ export const useTrainingCalendar = () => {
       setIsGenerating(true);
 
       // Delete ALL today's missions (including completed) to regenerate fresh
-      const today = new Date().toISOString().split('T')[0];
+      const localDate = getLocalDateString(new Date());
       const { error: deleteError } = await supabase
         .from('daily_missions')
         .delete()
         .eq('user_id', userId)
-        .eq('mission_date', today);
+        .eq('mission_date', localDate);
         // Remove .neq('status', 'completed') to delete all missions including completed ones
 
       if (deleteError) throw deleteError;
@@ -408,7 +419,7 @@ export const useTrainingCalendar = () => {
       // Call edge function to generate new missions
       const { data: functionData, error: functionError } = await supabase.functions.invoke(
         'generate-daily-mission',
-        { body: { userId } }
+        { body: { userId, localDate } }
       );
 
       if (functionError) throw functionError;
