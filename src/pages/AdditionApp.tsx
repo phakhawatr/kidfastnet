@@ -8,6 +8,8 @@ import { useBackgroundMusic } from "../hooks/useBackgroundMusic";
 import { BackgroundMusic } from "../components/BackgroundMusic";
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useTrainingCalendar } from "@/hooks/useTrainingCalendar";
+import { MissionCompleteModal } from "@/components/MissionCompleteModal";
 
 // ================= Utilities =================
 function randInt(min, max) {
@@ -341,6 +343,10 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
 export default function AdditionApp() {
   const { t } = useTranslation('exercises');
   const [searchParams] = useSearchParams();
+  const { completeMission } = useTrainingCalendar();
+  
+  // Get missionId from URL params
+  const missionId = searchParams.get('missionId');
   
   // Background music with 3 track options - beautiful instrumental music
   const backgroundMusic = useBackgroundMusic([
@@ -375,6 +381,16 @@ export default function AdditionApp() {
   // summary modal states
   const [showSummary, setShowSummary] = useState(false);
   const [summary, setSummary] = useState(null);
+  
+  // mission complete modal states
+  const [showMissionComplete, setShowMissionComplete] = useState(false);
+  const [missionResult, setMissionResult] = useState<{
+    stars: number;
+    correct: number;
+    total: number;
+    timeSpent: number;
+    isPassed: boolean;
+  } | null>(null);
   
   // LINE sending states
   const [isSendingLine, setIsSendingLine] = useState(false);
@@ -693,6 +709,13 @@ export default function AdditionApp() {
     };
     setHistory((prev) => [entry, ...prev].slice(0, 10));
     
+    // If mission mode, complete mission and show MissionCompleteModal
+    if (missionId) {
+      handleCompleteMission(correctCount, count, duration);
+      return;
+    }
+    
+    // Otherwise show regular summary modal
     setSummary({
       correct: correctCount,
       total: problems.length,
@@ -708,6 +731,53 @@ export default function AdditionApp() {
       setTimeout(() => setCelebrate(false), 2000);
     } else {
       setCelebrate(false);
+    }
+  }
+  
+  async function handleCompleteMission(correct: number, total: number, timeMs: number) {
+    const accuracy = (correct / total) * 100;
+    const timeSeconds = Math.floor(timeMs / 1000);
+    
+    // Pass threshold: >80%
+    const isPassed = accuracy > 80;
+    
+    // Calculate stars (only if passed)
+    let stars = 0;
+    if (isPassed) {
+      const timeMinutes = timeSeconds / 60;
+      if (accuracy >= 90 && timeMinutes <= 10) {
+        stars = 3;
+      } else if (accuracy >= 80) {
+        stars = 2;
+      } else if (accuracy >= 70) {
+        stars = 1;
+      }
+    }
+    
+    // Save to database
+    try {
+      await completeMission(missionId!, {
+        total_questions: total,
+        correct_answers: correct,
+        time_spent: timeSeconds
+      });
+    } catch (error) {
+      console.error('Error completing mission:', error);
+    }
+    
+    // Show mission complete modal
+    setMissionResult({
+      stars,
+      correct,
+      total,
+      timeSpent: timeSeconds,
+      isPassed
+    });
+    setShowMissionComplete(true);
+    
+    if (isPassed) {
+      setCelebrate(true);
+      setTimeout(() => setCelebrate(false), 2000);
     }
   }
 
@@ -1555,6 +1625,24 @@ export default function AdditionApp() {
         onShowAnswers={() => showAll({ openSummary: false })}
         alreadyShowing={showAnswers}
       />
+
+      {/* Mission Complete Modal */}
+      {missionResult && (
+        <MissionCompleteModal
+          open={showMissionComplete}
+          onOpenChange={setShowMissionComplete}
+          stars={missionResult.stars}
+          correct={missionResult.correct}
+          total={missionResult.total}
+          timeSpent={missionResult.timeSpent}
+          isPassed={missionResult.isPassed}
+          onRetry={() => {
+            // Reset for retry
+            resetAll();
+            setShowMissionComplete(false);
+          }}
+        />
+      )}
 
       <BackgroundMusic
         isPlaying={backgroundMusic.isPlaying}

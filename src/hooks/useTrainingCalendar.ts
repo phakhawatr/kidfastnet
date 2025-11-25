@@ -185,15 +185,18 @@ export const useTrainingCalendar = () => {
       const accuracy = (results.correct_answers / results.total_questions) * 100;
       const timeMinutes = results.time_spent / 60;
 
-      // Calculate stars
-      let stars = 0;
-      if (accuracy >= 90 && timeMinutes <= 10) {
-        stars = 3;
-      } else if (accuracy >= 70) {
-        stars = 2;
-      } else if (accuracy >= 50) {
-        stars = 1;
-      }
+  // Calculate stars - updated threshold for >80%
+  let stars = 0;
+  if (accuracy > 80) {
+    const timeMinutes = results.time_spent / 60;
+    if (accuracy >= 90 && timeMinutes <= 10) {
+      stars = 3;
+    } else if (accuracy >= 80) {
+      stars = 2;
+    } else if (accuracy >= 70) {
+      stars = 1;
+    }
+  }
 
       // Update mission
       const { error } = await supabase
