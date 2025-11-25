@@ -120,7 +120,7 @@ function StudentExamResult() {
             <XCircle className="w-16 h-16 mx-auto mb-4 text-destructive" />
             <p className="text-destructive">{error || 'ไม่พบข้อมูลผลสอบ'}</p>
             <Button onClick={() => navigate('/')} className="mt-4">
-              กลับหน้าหลัก
+              เข้าสู่ระบบ KidFastAI
             </Button>
           </CardContent>
         </Card>
@@ -141,7 +141,7 @@ function StudentExamResult() {
           className="mb-6"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          กลับหน้าหลัก
+          เข้าสู่ระบบ KidFastAI
         </Button>
 
         <Card className="mb-6 bg-gradient-to-br from-primary/10 to-secondary/10 border-2">
