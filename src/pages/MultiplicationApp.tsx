@@ -9,6 +9,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { useBackgroundMusic } from '../hooks/useBackgroundMusic';
 import { BackgroundMusic } from '../components/BackgroundMusic';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Problem {
@@ -644,39 +645,41 @@ const MultiplicationApp = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 transition-colors">
       <Header />
       
       <main className="container mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
-          <Link to="/profile" className="btn-secondary">
+          <Link to="/profile" className="btn-secondary dark:bg-slate-700 dark:border-slate-600 dark:text-zinc-200 dark:hover:bg-slate-600">
             <ArrowLeft className="w-4 h-4" />
             {t('common.back')}
           </Link>
           <div>
-            <h1 className="text-3xl font-bold text-primary mb-2">{t('multiplication.title')}</h1>
-            <p className="text-muted-foreground">{t('multiplication.subtitle')}</p>
+            <h1 className="text-3xl font-bold text-primary dark:text-zinc-100 mb-2">{t('multiplication.title')}</h1>
+            <p className="text-muted-foreground dark:text-zinc-400">{t('multiplication.subtitle')}</p>
           </div>
           
+          <ThemeToggle />
+          
           {/* Timer */}
-          <div className="ml-auto flex items-center gap-2 bg-white rounded-lg px-4 py-2 shadow-md">
-            <Timer className="w-5 h-5 text-blue-600" />
-            <span className="font-mono text-lg font-semibold text-blue-600">
+          <div className="ml-auto flex items-center gap-2 bg-white dark:bg-slate-800 rounded-lg px-4 py-2 shadow-md dark:border dark:border-slate-700">
+            <Timer className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <span className="font-mono text-lg font-semibold text-blue-600 dark:text-blue-400">
               {formatTime(currentTime)}
             </span>
           </div>
         </div>
 
         {/* Logo Upload Section */}
-        <div className="card-glass p-4 mb-6">
-          <label className="block text-sm font-medium mb-3">{t('pdf.uploadLogo')}</label>
+        <div className="card-glass dark:bg-slate-800/80 dark:border-slate-700 p-4 mb-6">
+          <label className="block text-sm font-medium mb-3 dark:text-zinc-200">{t('pdf.uploadLogo')}</label>
           {schoolLogo ? (
             <div className="relative inline-block">
               <img 
                 src={schoolLogo} 
                 alt="School Logo" 
-                className="h-20 w-auto object-contain border-2 border-gray-200 rounded-lg p-2"
+                className="h-20 w-auto object-contain border-2 border-gray-200 dark:border-slate-600 rounded-lg p-2 dark:bg-slate-700"
               />
               <button
                 onClick={handleRemoveLogo}
@@ -704,11 +707,11 @@ const MultiplicationApp = () => {
         </div>
 
         {/* Controls */}
-        <div className="card-glass p-6 mb-6">
+        <div className="card-glass dark:bg-slate-800/80 dark:border-slate-700 p-6 mb-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Problem Count */}
             <div>
-              <label className="block text-sm font-medium mb-2">{t('settings.problemCount')}</label>
+              <label className="block text-sm font-medium mb-2 dark:text-zinc-200">{t('settings.problemCount')}</label>
               <div className="flex flex-wrap gap-1">
                 {[10, 15, 30, 40].map(count => (
                   <button

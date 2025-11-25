@@ -8,6 +8,7 @@ import jsPDF from 'jspdf';
 import { useTranslation } from 'react-i18next';
 import { useBackgroundMusic } from '../hooks/useBackgroundMusic';
 import { BackgroundMusic } from '../components/BackgroundMusic';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { supabase } from '@/integrations/supabase/client';
 
 // Types and interfaces
@@ -637,45 +638,46 @@ const DivisionApp: React.FC = () => {
       }
     };
   }, []);
-  return <div className="min-h-screen bg-white p-4">
+  return <div className="min-h-screen bg-white dark:bg-slate-900 p-4 transition-colors">
       <div className="max-w-7xl mx-auto">
         {/* Back button */}
-        <div className="mb-4">
+        <div className="mb-4 flex items-center justify-between">
           <Button
             variant="outline"
             onClick={() => navigate('/profile')}
-            className="flex items-center gap-2 px-4 py-2"
+            className="flex items-center gap-2 px-4 py-2 dark:bg-slate-800 dark:border-slate-600 dark:text-zinc-200 dark:hover:bg-slate-700"
           >
             <ArrowLeft className="w-4 h-4" />
             {t('common.backToProfile', { defaultValue: 'กลับหน้าหลัก' })}
           </Button>
+          <ThemeToggle />
         </div>
 
         {/* Header */}
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-foreground mb-2">{t('division.title')}</h1>
+            <h1 className="text-3xl font-bold text-foreground dark:text-zinc-100 mb-2">{t('division.title')}</h1>
             <div className="flex items-center justify-between">
-              <Button variant="outline" size="sm" onClick={printPDF} className="text-sm flex items-center gap-2" disabled={problems.length === 0}>
+              <Button variant="outline" size="sm" onClick={printPDF} className="text-sm flex items-center gap-2 dark:bg-slate-800 dark:border-slate-600 dark:text-zinc-200" disabled={problems.length === 0}>
                 <Printer className="w-4 h-4" />
                 {t('pdf.print')}
               </Button>
-            <div className="text-lg font-mono bg-card rounded-lg px-4 py-2 shadow-sm">
+            <div className="text-lg font-mono bg-card dark:bg-slate-800 dark:border dark:border-slate-700 dark:text-zinc-200 rounded-lg px-4 py-2 shadow-sm">
               {t('results.timeUsed')}: {formatTime(elapsedMs)}
             </div>
-            <Button variant="outline" size="sm" onClick={() => setShowStats(true)} className="text-sm">
+            <Button variant="outline" size="sm" onClick={() => setShowStats(true)} className="text-sm dark:bg-slate-800 dark:border-slate-600 dark:text-zinc-200">
               {t('results.viewResults')}
             </Button>
           </div>
         </div>
 
         {/* Controls */}
-        <div className="bg-card rounded-2xl p-6 shadow-lg mb-6">
+        <div className="bg-card dark:bg-slate-800 dark:border dark:border-slate-700 rounded-2xl p-6 shadow-lg mb-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
             {/* Question count */}
             <div>
-              <label className="block text-sm font-medium mb-2">{t('settings.problemCount')}:</label>
+              <label className="block text-sm font-medium mb-2 dark:text-zinc-200">{t('settings.problemCount')}:</label>
               <div className="flex gap-2">
-                {[10, 15, 20, 30].map(num => <Button key={num} variant={count === num ? "default" : "outline"} size="sm" onClick={() => setCount(num)} className={`flex-1 ${count === num ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-100 hover:bg-gray-200'}`}>
+                {[10, 15, 20, 30].map(num => <Button key={num} variant={count === num ? "default" : "outline"} size="sm" onClick={() => setCount(num)} className={`flex-1 ${count === num ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 dark:text-zinc-200'}`}>
                     {num}
                   </Button>)}
               </div>
@@ -683,7 +685,7 @@ const DivisionApp: React.FC = () => {
 
             {/* Difficulty level */}
             <div>
-              <label className="block text-sm font-medium mb-2">{t('common.difficulty')}:</label>
+              <label className="block text-sm font-medium mb-2 dark:text-zinc-200">{t('common.difficulty')}:</label>
               <div className="flex gap-2">
                 {[{
                 key: 'easy',
@@ -694,7 +696,7 @@ const DivisionApp: React.FC = () => {
               }, {
                 key: 'hard',
                 label: t('common.hard')
-              }].map(lvl => <Button key={lvl.key} variant={level === lvl.key ? "secondary" : "outline"} size="sm" onClick={() => setLevel(lvl.key as Level)} className={`flex-1 ${level === lvl.key ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-100 hover:bg-gray-200'}`}>
+              }].map(lvl => <Button key={lvl.key} variant={level === lvl.key ? "secondary" : "outline"} size="sm" onClick={() => setLevel(lvl.key as Level)} className={`flex-1 ${level === lvl.key ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 dark:text-zinc-200'}`}>
                     {lvl.label}
                   </Button>)}
               </div>
@@ -702,13 +704,13 @@ const DivisionApp: React.FC = () => {
 
             {/* Decimal Option */}
             <div>
-              <label className="block text-sm font-medium mb-2">{t('division.resultType')}:</label>
+              <label className="block text-sm font-medium mb-2 dark:text-zinc-200">{t('division.resultType')}:</label>
               <div className="grid grid-cols-3 gap-2">
                 <Button
                   variant={divisionType === 'integer' ? "default" : "outline"}
                   size="sm"
                   onClick={() => setDivisionType('integer')}
-                  className={`${divisionType === 'integer' ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-100 hover:bg-gray-200'}`}
+                  className={`${divisionType === 'integer' ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 dark:text-zinc-200'}`}
                 >
                   {t('division.integer')}
                 </Button>
@@ -716,7 +718,7 @@ const DivisionApp: React.FC = () => {
                   variant={divisionType === 'decimal' ? "default" : "outline"}
                   size="sm"
                   onClick={() => setDivisionType('decimal')}
-                  className={`${divisionType === 'decimal' ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-100 hover:bg-gray-200'}`}
+                  className={`${divisionType === 'decimal' ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 dark:text-zinc-200'}`}
                 >
                   {t('division.decimal')}
                 </Button>
@@ -724,7 +726,7 @@ const DivisionApp: React.FC = () => {
                   variant={divisionType === 'remainder' ? "default" : "outline"}
                   size="sm"
                   onClick={() => setDivisionType('remainder')}
-                  className={`${divisionType === 'remainder' ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-100 hover:bg-gray-200'}`}
+                  className={`${divisionType === 'remainder' ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 dark:text-zinc-200'}`}
                 >
                   {t('division.withRemainder')}
                 </Button>
@@ -735,7 +737,7 @@ const DivisionApp: React.FC = () => {
           <div className="mt-4">
             {/* Actions */}
             <div>
-              <label className="block text-sm font-medium mb-2">{t('common.actions', { defaultValue: 'การดำเนินการ' })}:</label>
+              <label className="block text-sm font-medium mb-2 dark:text-zinc-200">{t('common.actions', { defaultValue: 'การดำเนินการ' })}:</label>
               <div className="space-y-2">
                 <button 
                   onClick={generateNewSet} 
