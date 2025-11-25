@@ -47,6 +47,30 @@ const TodayFocusMode = () => {
     }
   }, [userId, isLoading, navigate, t]);
 
+  // Auto-generate missions if not enough (less than 3) or none
+  useEffect(() => {
+    const autoGenerateMissions = async () => {
+      if (isLoading || isGenerating || !userId) return;
+      
+      // If it's weekend, don't auto-generate
+      if (isWeekend) return;
+      
+      // If we have 3+ missions for today, no need to generate
+      if (todayMissions.length >= 3) return;
+      
+      // Auto-generate: either regenerate (if some exist) or generate fresh
+      if (todayMissions.length > 0 && todayMissions.length < 3) {
+        // Has some missions but not 3, regenerate all
+        await regenerateMissions();
+      } else if (todayMissions.length === 0) {
+        // No missions, generate new
+        await generateTodayMission();
+      }
+    };
+    
+    autoGenerateMissions();
+  }, [userId, isLoading, isGenerating, todayMissions.length, isWeekend]);
+
   const getSkillRoute = (skillName: string): string => {
     // Expanded skill routes mapping with variants
     const skillRoutes: Record<string, string> = {
@@ -199,12 +223,15 @@ const TodayFocusMode = () => {
     }
   };
 
-  if (isLoading) {
+  // Loading or generating state
+  if (isLoading || isGenerating) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-white mx-auto mb-4"></div>
-          <p className="text-white text-lg">กำลังโหลด...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-yellow-400 mx-auto mb-4"></div>
+          <p className="text-white text-lg">
+            {isGenerating ? 'AI กำลังสร้างภารกิจให้คุณ...' : 'กำลังโหลด...'}
+          </p>
         </div>
       </div>
     );
@@ -241,102 +268,6 @@ const TodayFocusMode = () => {
               className="bg-blue-500 hover:bg-blue-600"
             >
               ดูปฏิทินการฝึก
-            </Button>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
-  // If missions incomplete (less than 3), show regenerate option
-  if (todayMissions.length > 0 && todayMissions.length < 3 && !isWeekend) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
-        <div className="max-w-4xl mx-auto">
-          <Button
-            onClick={() => navigate('/training-calendar')}
-            variant="ghost"
-            className="mb-4 text-white hover:bg-white/10"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            กลับสู่หน้าปฏิทินของฉัน
-          </Button>
-
-          <Card className="bg-slate-800/90 backdrop-blur-sm border-slate-700 text-center p-8">
-            <div className="mb-6">
-              <Sparkles className="w-16 h-16 mx-auto mb-4 text-yellow-400 animate-pulse" />
-              <h2 className="text-2xl font-bold text-white mb-2">
-                พบภารกิจไม่ครบ 3 รายการ
-              </h2>
-              <p className="text-slate-300">
-                ให้ AI สร้างภารกิจใหม่ 3 รายการให้คุณเลือกทำ
-              </p>
-            </div>
-            <Button
-              onClick={handleRegenerateMissions}
-              disabled={isGenerating}
-              size="lg"
-              className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-slate-900 font-semibold"
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  กำลังสร้างภารกิจ...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-5 h-5 mr-2" />
-                  ขอให้ AI สร้างภารกิจใหม่ 3 รายการ
-                </>
-              )}
-            </Button>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
-  // If no missions for today and it's not weekend, show generate button
-  if (todayMissions.length === 0 && !isWeekend) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
-        <div className="max-w-4xl mx-auto">
-          <Button
-            onClick={() => navigate('/training-calendar')}
-            variant="ghost"
-            className="mb-4 text-white hover:bg-white/10"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            กลับสู่หน้าปฏิทินของฉัน
-          </Button>
-
-          <Card className="bg-slate-800/90 backdrop-blur-sm border-slate-700 text-center p-8">
-            <div className="mb-6">
-              <Sparkles className="w-16 h-16 mx-auto mb-4 text-yellow-400 animate-pulse" />
-              <h2 className="text-2xl font-bold text-white mb-2">
-                ยังไม่มีภารกิจสำหรับวันนี้
-              </h2>
-              <p className="text-slate-300">
-                ให้ AI สร้างภารกิจฝึกคณิตศาสตร์ให้คุณ 3 รายการ เพื่อให้คุณเลือกทำ
-              </p>
-            </div>
-            <Button
-              onClick={handleGenerateMission}
-              disabled={isGenerating}
-              size="lg"
-              className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-slate-900 font-semibold"
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  กำลังสร้างภารกิจ...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-5 h-5 mr-2" />
-                  สร้างภารกิจประจำวัน
-                </>
-              )}
             </Button>
           </Card>
         </div>
