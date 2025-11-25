@@ -413,7 +413,7 @@ const FractionInput: React.FC<{
     <div className="flex flex-col items-center gap-4">
       <div className="flex items-center gap-2">
         <div className="flex flex-col items-center">
-          <Label className="text-sm text-slate-300 mb-1">{t('fractionShapes.numerator')}</Label>
+          <Label className="text-sm text-slate-700 mb-1">{t('fractionShapes.numerator')}</Label>
           <Input
             type="text"
             inputMode="numeric"
@@ -423,17 +423,17 @@ const FractionInput: React.FC<{
             className={`w-20 text-center text-lg font-semibold ${
               isSubmitted
                 ? isCorrect
-                  ? 'bg-green-900/50 border-green-500 text-green-300'
-                  : 'bg-red-900/50 border-red-500 text-red-300'
+                  ? 'bg-green-100 border-green-500 text-green-800'
+                  : 'bg-red-100 border-red-500 text-red-800'
                 : showAnswer
-                ? 'bg-yellow-900/50 border-yellow-500 text-yellow-300'
-                : 'bg-slate-700 border-slate-500 text-white'
+                ? 'bg-amber-100 border-amber-500 text-amber-800'
+                : 'bg-white border-slate-300 text-slate-900'
             }`}
           />
         </div>
-        <div className="text-3xl font-bold text-slate-300 pb-6">⁄</div>
+        <div className="text-3xl font-bold text-slate-700 pb-6">⁄</div>
         <div className="flex flex-col items-center">
-          <Label className="text-sm text-slate-300 mb-1">{t('fractionShapes.denominator')}</Label>
+          <Label className="text-sm text-slate-700 mb-1">{t('fractionShapes.denominator')}</Label>
           <Input
             type="text"
             inputMode="numeric"
@@ -443,24 +443,24 @@ const FractionInput: React.FC<{
             className={`w-20 text-center text-lg font-semibold ${
               isSubmitted
                 ? isCorrect
-                  ? 'bg-green-900/50 border-green-500 text-green-300'
-                  : 'bg-red-900/50 border-red-500 text-red-300'
+                  ? 'bg-green-100 border-green-500 text-green-800'
+                  : 'bg-red-100 border-red-500 text-red-800'
                 : showAnswer
-                ? 'bg-yellow-900/50 border-yellow-500 text-yellow-300'
-                : 'bg-slate-700 border-slate-500 text-white'
+                ? 'bg-amber-100 border-amber-500 text-amber-800'
+                : 'bg-white border-slate-300 text-slate-900'
             }`}
           />
         </div>
       </div>
 
       {isSubmitted && !isCorrect && (
-        <div className="text-sm text-red-300">
+        <div className="text-sm text-red-700 font-semibold">
           {t('common.correct')}: {correctAnswer.numerator}/{correctAnswer.denominator}
         </div>
       )}
 
       {showAnswer && !isSubmitted && (
-        <div className="text-sm text-yellow-300">
+        <div className="text-sm text-amber-700 font-semibold">
           {t('common.correct')}: {correctAnswer.numerator}/{correctAnswer.denominator}
         </div>
       )}
@@ -616,36 +616,36 @@ const FractionShapesApp: React.FC = () => {
   }, [problemCount, difficulty]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <Link to="/profile">
             <Button
               variant="outline"
-              className="border-slate-400 text-slate-200 hover:bg-slate-700 hover:text-white"
+              className="border-slate-300 text-slate-700 hover:bg-slate-100 hover:text-slate-900 bg-white"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               {t('common.backToProfile')}
             </Button>
           </Link>
           <div className="text-center">
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+            <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">
               {t('fractionShapes.title')}
             </h1>
-            <p className="text-slate-300">{t('fractionShapes.instruction')}</p>
+            <p className="text-slate-700">{t('fractionShapes.instruction')}</p>
           </div>
-          <div className="text-xl font-mono text-white bg-slate-800/80 px-4 py-2 rounded-lg border border-slate-600">
+          <div className="text-xl font-mono text-slate-900 bg-white px-4 py-2 rounded-lg border-2 border-slate-300 shadow-sm">
             ⏱️ {formatTime(timer)}
           </div>
         </div>
 
         {/* Settings Panel */}
-        <Card className="bg-slate-800/90 backdrop-blur-sm border-slate-700 p-6 mb-6">
+        <Card className="bg-white border-slate-200 shadow-md p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Difficulty */}
             <div>
-              <Label className="text-slate-200 font-semibold mb-2 block">
+              <Label className="text-slate-800 font-semibold mb-2 block">
                 {t('common.difficulty')}
               </Label>
               <div className="flex gap-2">
@@ -656,8 +656,8 @@ const FractionShapesApp: React.FC = () => {
                     variant={difficulty === level ? 'default' : 'outline'}
                     className={
                       difficulty === level
-                        ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                        : 'border-slate-500 text-slate-300 hover:bg-slate-700 hover:text-white'
+                        ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600'
+                        : 'border-slate-300 text-slate-700 hover:bg-slate-100 bg-white'
                     }
                   >
                     {t(`common.${level}`)}
@@ -668,7 +668,7 @@ const FractionShapesApp: React.FC = () => {
 
             {/* Problem Count */}
             <div>
-              <Label className="text-slate-200 font-semibold mb-2 block">
+              <Label className="text-slate-800 font-semibold mb-2 block">
                 {t('settings.problemCount')}
               </Label>
               <div className="flex gap-2">
@@ -679,8 +679,8 @@ const FractionShapesApp: React.FC = () => {
                     variant={problemCount === count ? 'default' : 'outline'}
                     className={
                       problemCount === count
-                        ? 'bg-green-600 hover:bg-green-700 text-white'
-                        : 'border-slate-500 text-slate-300 hover:bg-slate-700 hover:text-white'
+                        ? 'bg-green-600 hover:bg-green-700 text-white border-green-600'
+                        : 'border-slate-300 text-slate-700 hover:bg-slate-100 bg-white'
                     }
                   >
                     {count}
@@ -691,7 +691,7 @@ const FractionShapesApp: React.FC = () => {
 
             {/* Actions */}
             <div>
-              <Label className="text-slate-200 font-semibold mb-2 block">{t('common.settings')}</Label>
+              <Label className="text-slate-800 font-semibold mb-2 block">{t('common.settings')}</Label>
               <div className="flex gap-2 flex-wrap">
                 <Button
                   onClick={generateProblems}
@@ -705,12 +705,12 @@ const FractionShapesApp: React.FC = () => {
                   <Button
                     onClick={() => setShowAnswers(!showAnswers)}
                     variant="outline"
-                    className="border-yellow-500 text-yellow-400 hover:bg-yellow-500/10 hover:text-yellow-300"
+                    className="border-amber-500 text-amber-700 hover:bg-amber-50 bg-white"
                   >
                     {showAnswers ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
                     {showAnswers ? t('common.hideAnswers') : t('common.showAnswers')}
                   </Button>
-                )}
+                ))}
               </div>
             </div>
           </div>
@@ -719,11 +719,11 @@ const FractionShapesApp: React.FC = () => {
         {/* Problems */}
         <div className="space-y-6 mb-6">
           {problems.map((problem, index) => (
-            <Card key={problem.id} className="bg-slate-800/90 backdrop-blur-sm border-slate-700 p-6">
+            <Card key={problem.id} className="bg-white border-slate-200 shadow-md p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
                 {/* Shape Display */}
                 <div className="flex flex-col items-center">
-                  <div className="text-lg font-semibold text-slate-200 mb-4">
+                  <div className="text-lg font-semibold text-slate-800 mb-4">
                     {t('common.question')} {problem.id}
                   </div>
                   <ShapeRenderer problem={problem} />
@@ -731,7 +731,7 @@ const FractionShapesApp: React.FC = () => {
 
                 {/* Answer Input */}
                 <div className="flex flex-col items-center justify-center">
-                  <p className="text-slate-300 mb-4 text-center">{t('fractionShapes.instruction')}</p>
+                  <p className="text-slate-700 mb-4 text-center">{t('fractionShapes.instruction')}</p>
                   <FractionInput
                     value={userAnswers[index]}
                     onChange={(answer) => updateAnswer(index, answer)}
@@ -751,7 +751,7 @@ const FractionShapesApp: React.FC = () => {
 
         {/* Check Answers Button */}
         {!isSubmitted && problems.length > 0 && !showAnswers && (
-          <Card className="bg-slate-800/90 backdrop-blur-sm border-slate-700 p-6">
+          <Card className="bg-white border-slate-200 shadow-md p-6">
             <Button
               onClick={handleCheckAnswers}
               disabled={userAnswers.some((ans) => ans.numerator === '' || ans.denominator === '')}
@@ -766,25 +766,25 @@ const FractionShapesApp: React.FC = () => {
 
         {/* Results */}
         {isSubmitted && (
-          <Card className="bg-gradient-to-br from-slate-800/95 to-purple-900/95 backdrop-blur-sm border-purple-500 p-8">
+          <Card className="bg-gradient-to-br from-green-50 to-blue-50 border-green-300 shadow-lg p-8">
             <div className="text-center">
-              <h2 className="text-3xl font-bold text-white mb-6">{t('results.completed')}</h2>
+              <h2 className="text-3xl font-bold text-slate-900 mb-6">{t('results.completed')}</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div className="bg-slate-800/80 p-6 rounded-lg border border-slate-600">
-                  <div className="text-4xl font-bold text-green-400 mb-2">
+                <div className="bg-white p-6 rounded-lg border-2 border-green-300 shadow-md">
+                  <div className="text-4xl font-bold text-green-600 mb-2">
                     {correctCount}/{problems.length}
                   </div>
-                  <div className="text-slate-300">{t('results.correctAnswers')}</div>
+                  <div className="text-slate-700 font-semibold">{t('results.correctAnswers')}</div>
                 </div>
-                <div className="bg-slate-800/80 p-6 rounded-lg border border-slate-600">
-                  <div className="text-4xl font-bold text-blue-400 mb-2">{formatTime(timer)}</div>
-                  <div className="text-slate-300">{t('results.timeUsed')}</div>
+                <div className="bg-white p-6 rounded-lg border-2 border-blue-300 shadow-md">
+                  <div className="text-4xl font-bold text-blue-600 mb-2">{formatTime(timer)}</div>
+                  <div className="text-slate-700 font-semibold">{t('results.timeUsed')}</div>
                 </div>
-                <div className="bg-slate-800/80 p-6 rounded-lg border border-slate-600">
-                  <div className="text-4xl font-bold text-yellow-400 mb-2">
+                <div className="bg-white p-6 rounded-lg border-2 border-amber-300 shadow-md">
+                  <div className="text-4xl font-bold text-amber-600 mb-2">
                     {Math.round((correctCount / problems.length) * 100)}%
                   </div>
-                  <div className="text-slate-300">{t('results.accuracy')}</div>
+                  <div className="text-slate-700 font-semibold">{t('results.accuracy')}</div>
                 </div>
               </div>
               <Button
