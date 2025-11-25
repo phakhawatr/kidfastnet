@@ -380,13 +380,13 @@ const TodayFocusMode = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          <Card className="bg-gradient-to-r from-orange-500/20 to-red-500/20 backdrop-blur-sm border-orange-500/30">
+          <Card className="bg-slate-800/90 backdrop-blur-sm border-orange-500/50">
             <CardContent className="p-6 flex items-center gap-4">
               <div className="p-3 bg-orange-500 rounded-full">
                 <Flame className="w-8 h-8 text-white" />
               </div>
               <div>
-                <p className="text-slate-300 text-sm">สตรีคปัจจุบัน</p>
+                <p className="text-orange-300 text-sm font-medium">สตรีคปัจจุบัน</p>
                 <p className="text-3xl font-bold text-white">
                   {streak?.current_streak || 0} วัน
                 </p>
@@ -394,13 +394,13 @@ const TodayFocusMode = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-r from-yellow-500/20 to-amber-500/20 backdrop-blur-sm border-yellow-500/30">
+          <Card className="bg-slate-800/90 backdrop-blur-sm border-yellow-500/50">
             <CardContent className="p-6 flex items-center gap-4">
               <div className="p-3 bg-yellow-500 rounded-full">
                 <Star className="w-8 h-8 text-white" />
               </div>
               <div>
-                <p className="text-slate-300 text-sm">ดาวที่เก็บได้</p>
+                <p className="text-yellow-300 text-sm font-medium">ดาวที่เก็บได้</p>
                 <p className="text-3xl font-bold text-white">
                   {streak?.total_stars_earned || 0} ดาว
                 </p>
