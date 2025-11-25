@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useTrainingCalendar, DailyMission } from '@/hooks/useTrainingCalendar';
@@ -26,6 +26,7 @@ const TodayFocusMode = () => {
     regenerateMissions 
   } = useTrainingCalendar();
   const [selectedMission, setSelectedMission] = useState<DailyMission | null>(null);
+  const hasAttemptedGeneration = useRef(false);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -47,9 +48,11 @@ const TodayFocusMode = () => {
     }
   }, [userId, isLoading, navigate, t]);
 
-  // Auto-generate missions if not enough (less than 3) or none
+  // Auto-generate missions if not enough (less than 3) or none - only once per mount
   useEffect(() => {
     const autoGenerateMissions = async () => {
+      // Prevent infinite loops - only attempt once
+      if (hasAttemptedGeneration.current) return;
       if (isLoading || isGenerating || !userId) return;
       
       // If it's weekend, don't auto-generate
@@ -57,6 +60,9 @@ const TodayFocusMode = () => {
       
       // If we have 3+ missions for today, no need to generate
       if (todayMissions.length >= 3) return;
+      
+      // Mark that we've attempted generation
+      hasAttemptedGeneration.current = true;
       
       // Auto-generate: either regenerate (if some exist) or generate fresh
       if (todayMissions.length > 0 && todayMissions.length < 3) {
