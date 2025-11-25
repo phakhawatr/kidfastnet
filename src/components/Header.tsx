@@ -62,13 +62,21 @@ const Header = () => {
                   </Badge>
                 </div>
                 
-                <Link 
-                  to="/quiz" 
-                  className="px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium transition-all duration-300 hover:scale-105 text-sm flex items-center gap-2 shadow-md hover:shadow-lg"
-                >
-                  <FileQuestion className="w-4 h-4" />
-                  {t('quiz')}
-                </Link>
+                {/* Quiz Button with New Badge */}
+                <div className="relative">
+                  <Link 
+                    to="/quiz" 
+                    className="px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium transition-all duration-300 hover:scale-105 text-sm flex items-center gap-2 shadow-md hover:shadow-lg"
+                  >
+                    <FileQuestion className="w-4 h-4" />
+                    {t('quiz')}
+                  </Link>
+                  <Badge 
+                    className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-0.5 animate-pulse shadow-lg border-2 border-white"
+                  >
+                    New !
+                  </Badge>
+                </div>
 
                 {isTeacher && (
                   <Link 
