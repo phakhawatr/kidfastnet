@@ -5,7 +5,9 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, Check, Eye, EyeOff, RotateCcw } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 // Shape Types
 type ShapeType = 'circle' | 'triangle' | 'pentagon' | 'heptagon' | 'flower' | 'star' | 'plus' | 'cube';
@@ -471,6 +473,16 @@ const FractionInput: React.FC<{
 // Main App Component
 const FractionShapesApp: React.FC = () => {
   const { t } = useTranslation('exercises');
+  const [searchParams] = useSearchParams();
+
+  // Mission mode integration
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
 
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
   const [problemCount, setProblemCount] = useState<5 | 10 | 15>(5);
@@ -568,7 +580,7 @@ const FractionShapesApp: React.FC = () => {
   };
 
   // Check answers
-  const handleCheckAnswers = () => {
+  const handleCheckAnswers = async () => {
     let correct = 0;
     for (let i = 0; i < problems.length; i++) {
       const userAns = userAnswers[i];
@@ -581,8 +593,17 @@ const FractionShapesApp: React.FC = () => {
       }
     }
     setCorrectCount(correct);
-    setIsSubmitted(true);
     setIsRunning(false);
+    
+    // If mission mode, complete mission
+    if (isMissionMode) {
+      const duration = timer * 1000; // Convert seconds to milliseconds
+      await handleCompleteMission(correct, problems.length, duration);
+      return;
+    }
+    
+    // Otherwise, show regular results
+    setIsSubmitted(true);
   };
 
   // Format time
@@ -797,6 +818,23 @@ const FractionShapesApp: React.FC = () => {
               </Button>
             </div>
           </Card>
+        )}
+
+        {/* Mission Complete Modal */}
+        {missionResult && (
+          <MissionCompleteModal
+            open={showMissionComplete}
+            onOpenChange={setShowMissionComplete}
+            stars={missionResult.stars}
+            correct={missionResult.correct}
+            total={missionResult.total}
+            timeSpent={missionResult.timeSpent}
+            isPassed={missionResult.isPassed}
+            onRetry={() => {
+              generateProblems();
+              setShowMissionComplete(false);
+            }}
+          />
         )}
       </div>
     </div>

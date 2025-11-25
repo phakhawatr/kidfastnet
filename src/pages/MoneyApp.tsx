@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useMoneyGame } from '../hooks/useMoneyGame';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,8 @@ import { ArrowLeft, ArrowRight, Check, RotateCcw, Settings, Lightbulb, Trophy, C
 import Confetti from 'react-confetti';
 import { getCoinEmoji, getMoneyColor } from '../utils/moneyUtils';
 import { useTranslation } from 'react-i18next';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 // Import mascots and images
 import moneyMascot from '../assets/mascot-money.png';
@@ -50,7 +52,17 @@ const getMoneyImage = (value: number, unit: string) => {
 const MoneyApp = () => {
   const { t } = useTranslation('exercises');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [showSettings, setShowSettings] = useState(false);
+  
+  // Mission mode integration
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
   
   const {
     problemCount,
@@ -62,6 +74,7 @@ const MoneyApp = () => {
     showResults,
     showHints,
     showCelebration,
+    startTimer,
     handleAnswer,
     submitAnswer,
     nextProblem,
@@ -78,6 +91,45 @@ const MoneyApp = () => {
   } = useMoneyGame();
   
   const currentProblem = getCurrentProblem();
+  
+  // Track time for mission mode
+  const [missionStartTime, setMissionStartTime] = useState<number | null>(null);
+  
+  // Start mission timer when entering mission mode
+  useEffect(() => {
+    if (isMissionMode && !missionStartTime && !showResults) {
+      setMissionStartTime(Date.now());
+      startTimer(); // Start the game timer too
+    }
+  }, [isMissionMode, missionStartTime, showResults, startTimer]);
+  
+  // Wrap submitAllAnswers to handle mission mode
+  const handleSubmitAllAnswers = async () => {
+    // Check all answers first
+    const updatedProblems = problems.map(problem => {
+      if (problem.isCorrect === null) {
+        const userAns = parseFloat(problem.userAnswer || '0');
+        const correctAns = problem.correctAnswer;
+        return {
+          ...problem,
+          isCorrect: Math.abs(userAns - correctAns) < 0.01
+        };
+      }
+      return problem;
+    });
+    
+    // If mission mode, complete mission
+    if (isMissionMode) {
+      const correctCount = updatedProblems.filter(p => p.isCorrect === true).length;
+      // Calculate actual duration from mission start time
+      const duration = missionStartTime ? Date.now() - missionStartTime : 10000; // Default 10s if no start time
+      await handleCompleteMission(correctCount, problems.length, duration);
+      return;
+    }
+    
+    // Otherwise, use regular flow
+    submitAllAnswers();
+  };
   
   if (!currentProblem && !showResults) {
     return (
@@ -200,11 +252,28 @@ const MoneyApp = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Mission Complete Modal */}
+          {missionResult && (
+            <MissionCompleteModal
+              open={showMissionComplete}
+              onOpenChange={setShowMissionComplete}
+              stars={missionResult.stars}
+              correct={missionResult.correct}
+              total={missionResult.total}
+              timeSpent={missionResult.timeSpent}
+              isPassed={missionResult.isPassed}
+              onRetry={() => {
+                regenerateProblems();
+                setShowMissionComplete(false);
+              }}
+            />
+          )}
         </div>
       </div>
     );
   }
-  
+
   // Settings Panel
   if (showSettings) {
     return (
@@ -468,7 +537,7 @@ const MoneyApp = () => {
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           ) : (
-            <Button onClick={submitAllAnswers} className="bg-green-600 hover:bg-green-700">
+            <Button onClick={handleSubmitAllAnswers} className="bg-green-600 hover:bg-green-700">
               <Trophy className="mr-2 h-4 w-4" />
               {t('common.submitAll')}
             </Button>
