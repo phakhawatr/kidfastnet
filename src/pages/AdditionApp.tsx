@@ -1257,7 +1257,7 @@ export default function AdditionApp() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-sky-50 via-white to-pink-50 text-zinc-800">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-purple-900 to-slate-900 text-zinc-800">
       <header className="max-w-6xl mx-auto p-6 pb-2">
         <div className="flex items-center gap-4 mb-4">
           <Link 
