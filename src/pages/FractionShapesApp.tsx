@@ -623,7 +623,7 @@ const FractionShapesApp: React.FC = () => {
           <Link to="/profile">
             <Button
               variant="outline"
-              className="border-slate-300 text-slate-700 hover:bg-slate-100 hover:text-slate-900 bg-white"
+              className="border-slate-400 text-slate-900 hover:bg-slate-100 hover:text-slate-900 bg-white font-semibold"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               {t('common.backToProfile')}
@@ -656,8 +656,8 @@ const FractionShapesApp: React.FC = () => {
                     variant={difficulty === level ? 'default' : 'outline'}
                     className={
                       difficulty === level
-                        ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600'
-                        : 'border-slate-300 text-slate-700 hover:bg-slate-100 bg-white'
+                        ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 font-semibold'
+                        : 'border-slate-400 text-slate-900 hover:bg-slate-100 bg-white font-semibold'
                     }
                   >
                     {t(`common.${level}`)}
@@ -679,8 +679,8 @@ const FractionShapesApp: React.FC = () => {
                     variant={problemCount === count ? 'default' : 'outline'}
                     className={
                       problemCount === count
-                        ? 'bg-green-600 hover:bg-green-700 text-white border-green-600'
-                        : 'border-slate-300 text-slate-700 hover:bg-slate-100 bg-white'
+                        ? 'bg-green-600 hover:bg-green-700 text-white border-green-600 font-semibold'
+                        : 'border-slate-400 text-slate-900 hover:bg-slate-100 bg-white font-semibold'
                     }
                   >
                     {count}
@@ -705,12 +705,12 @@ const FractionShapesApp: React.FC = () => {
                   <Button
                     onClick={() => setShowAnswers(!showAnswers)}
                     variant="outline"
-                    className="border-amber-500 text-amber-700 hover:bg-amber-50 bg-white"
+                    className="border-amber-500 text-amber-900 hover:bg-amber-50 bg-white font-semibold"
                   >
                     {showAnswers ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
                     {showAnswers ? t('common.hideAnswers') : t('common.showAnswers')}
                   </Button>
-                ))}
+                )}
               </div>
             </div>
           </div>
