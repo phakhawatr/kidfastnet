@@ -385,14 +385,14 @@ export const useTrainingCalendar = () => {
     try {
       setIsGenerating(true);
 
-      // Delete today's incomplete missions
+      // Delete ALL today's missions (including completed) to regenerate fresh
       const today = new Date().toISOString().split('T')[0];
       const { error: deleteError } = await supabase
         .from('daily_missions')
         .delete()
         .eq('user_id', userId)
-        .eq('mission_date', today)
-        .neq('status', 'completed');
+        .eq('mission_date', today);
+        // Remove .neq('status', 'completed') to delete all missions including completed ones
 
       if (deleteError) throw deleteError;
 
