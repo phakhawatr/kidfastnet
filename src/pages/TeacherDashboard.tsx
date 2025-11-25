@@ -10,6 +10,8 @@ import Footer from '@/components/Footer';
 import ExamLinkQRCode from '@/components/ExamLinkQRCode';
 import QuestionBankSelector from '@/components/QuestionBankSelector';
 import ImageUploader from '@/components/ImageUploader';
+import QuestionTextRenderer from '@/components/QuestionTextRenderer';
+import ChoiceRenderer from '@/components/ChoiceRenderer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -1370,7 +1372,7 @@ const TeacherDashboard = () => {
                             {/* Question Text */}
                             <div className="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
                               <p className="text-xs text-muted-foreground mb-1">โจทย์</p>
-                              <p className="font-medium text-base">{q.question}</p>
+                              <QuestionTextRenderer text={q.question} className="font-medium text-base" />
                             </div>
                             
                               <div className="space-y-2">
@@ -1402,9 +1404,11 @@ const TeacherDashboard = () => {
                                         }`}>
                                           {choiceNumber}
                                         </span>
-                                        <span className={`text-lg font-semibold text-blue-600 dark:text-blue-400 ${isCorrectChoice || isStudentChoice ? 'font-semibold' : ''}`}>
-                                          {choice}
-                                        </span>
+                                        <ChoiceRenderer 
+                                          choice={choice} 
+                                          size={48} 
+                                          className={`text-lg font-semibold text-blue-600 dark:text-blue-400 ${isCorrectChoice || isStudentChoice ? 'font-semibold' : ''}`}
+                                        />
                                         {isCorrectChoice && (
                                           <span className="ml-auto text-green-600 dark:text-green-400 font-bold flex items-center gap-1">
                                             <CheckCircle className="w-4 h-4" /> คำตอบที่ถูก
