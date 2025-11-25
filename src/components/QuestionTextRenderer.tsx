@@ -13,10 +13,12 @@ const QuestionTextRenderer: React.FC<QuestionTextRendererProps> = ({ text, class
   const textStr = String(text);
 
   // Pattern 1: [shapes:circle-red,triangle-yellow,square-sky] - multiple shapes in a box
-  const multiShapePattern = /\[shapes:([^\]]+)\]/g;
+  const multiShapePattern = /\[shapes:([^\]]+)\]/gi;
   
-  // Pattern 2: [circle-red] - single shape inline
-  const singleShapePattern = /\[([a-z]+-[a-z]+)\]/g;
+  // Pattern 2: [circle-red] - single shape inline (more flexible: handles uppercase and numbers)
+  const singleShapePattern = /\[([a-z0-9]+-[a-z0-9]+)\]/gi;
+  
+  console.log('📝 QuestionTextRenderer processing:', { textStr });
   const elements: React.ReactNode[] = [];
   let lastIndex = 0;
 
