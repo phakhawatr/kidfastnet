@@ -57,6 +57,11 @@
     "checkAnswer": "Check Answer",
     "submitAll": "Submit All"
   },
+  "themeToggle": {
+    "light": "Light",
+    "dark": "Dark",
+    "toggle": "Toggle theme"
+  },
   "results": {
     "excellent": "Excellent!",
     "greatJob": "Great Job!",
