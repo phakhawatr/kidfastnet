@@ -345,15 +345,15 @@ const TodayFocusMode = () => {
 
             {/* AI Reasoning */}
             {todayMission.ai_reasoning && (
-              <Card className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-purple-300/30">
+              <Card className="bg-gradient-to-br from-purple-600/60 to-pink-600/60 border-purple-400/40 backdrop-blur-sm">
                 <CardContent className="p-6">
                   <div className="flex items-start gap-3">
-                    <Brain className="w-6 h-6 text-purple-300 flex-shrink-0 mt-1" />
+                    <Brain className="w-6 h-6 text-purple-100 flex-shrink-0 mt-1" />
                     <div className="flex-1">
-                      <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
+                      <h3 className="text-white font-bold mb-3 flex items-center gap-2 text-lg">
                         💡 AI แนะนำว่าทำไม
                       </h3>
-                      <p className="text-white/90 leading-relaxed">
+                      <p className="text-white leading-relaxed text-base">
                         {todayMission.ai_reasoning}
                       </p>
                     </div>
