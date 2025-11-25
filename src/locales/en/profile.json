@@ -198,7 +198,8 @@
     "weight": "Weight",
     "shapes": "Shapes",
     "length": "Length",
-    "quickMath": "Quick Math"
+    "quickMath": "Quick Math",
+    "shapeSeries": "Shape Series"
   },
   
   "appDetails": {
