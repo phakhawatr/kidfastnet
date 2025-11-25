@@ -230,10 +230,10 @@ const ShapeSeriesApp = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Initialize problems on mount
+  // Initialize problems on mount and when settings change
   useEffect(() => {
     generateProblems();
-  }, []);
+  }, [problemCount, difficulty]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-slate-950 dark:via-purple-950 dark:to-slate-950 text-foreground p-4 sm:p-6">
@@ -281,7 +281,6 @@ const ShapeSeriesApp = () => {
                     variant={difficulty === level ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setDifficulty(level as 'easy' | 'medium' | 'hard')}
-                    disabled={isRunning}
                     className={difficulty === level 
                       ? 'bg-green-600 hover:bg-green-700 text-white font-medium border-green-600' 
                       : 'border-slate-400 bg-slate-700/80 text-white hover:bg-slate-600/80 hover:border-slate-300'}
@@ -304,7 +303,6 @@ const ShapeSeriesApp = () => {
                     variant={problemCount === count ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setProblemCount(count)}
-                    disabled={isRunning}
                     className={problemCount === count 
                       ? 'bg-blue-600 hover:bg-blue-700 text-white font-medium border-blue-600' 
                       : 'border-slate-400 bg-slate-700/80 text-white hover:bg-slate-600/80 hover:border-slate-300'}
