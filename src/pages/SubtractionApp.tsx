@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Printer, Upload, X } from "lucide-react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -9,6 +9,8 @@ import { ProblemCard } from "../components/ProblemCard";
 import { useBackgroundMusic } from "../hooks/useBackgroundMusic";
 import { BackgroundMusic } from "../components/BackgroundMusic";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useMissionMode } from "@/hooks/useMissionMode";
+import { MissionCompleteModal } from "@/components/MissionCompleteModal";
 import { 
   formatMS, 
   fmtDate, 
@@ -21,6 +23,16 @@ import {
 
 const SubtractionApp: React.FC = () => {
   const { t } = useTranslation('exercises');
+  const [searchParams] = useSearchParams();
+  
+  // Mission mode integration
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
   
   // Background music with 3 track options - beautiful instrumental music
   const backgroundMusic = useBackgroundMusic([
@@ -48,8 +60,25 @@ const SubtractionApp: React.FC = () => {
   };
 
   // Wrap checkAnswers to stop music
-  const wrappedCheckAnswers = () => {
+  const wrappedCheckAnswers = async () => {
     backgroundMusic.stop();
+    
+    // If mission mode, calculate results and complete mission
+    if (isMissionMode) {
+      // Manually calculate correct count
+      let correctCount = 0;
+      problems.forEach((prob, idx) => {
+        const userNum = answerToNumber(answers[idx], digits);
+        const correctAns = prob.c != null ? prob.a - prob.b - prob.c : prob.a - prob.b;
+        if (userNum === correctAns) correctCount++;
+      });
+      
+      const duration = startedAt ? Date.now() - startedAt : elapsedMs;
+      await handleCompleteMission(correctCount, problems.length, duration);
+      return;
+    }
+    
+    // Otherwise, use regular checkAnswers
     checkAnswers();
   };
   
@@ -762,6 +791,23 @@ const SubtractionApp: React.FC = () => {
         item={detailItem} 
         onClose={() => setDetailOpen(false)} 
       />
+
+      {/* Mission Complete Modal */}
+      {missionResult && (
+        <MissionCompleteModal
+          open={showMissionComplete}
+          onOpenChange={setShowMissionComplete}
+          stars={missionResult.stars}
+          correct={missionResult.correct}
+          total={missionResult.total}
+          timeSpent={missionResult.timeSpent}
+          isPassed={missionResult.isPassed}
+          onRetry={() => {
+            resetAll();
+            setShowMissionComplete(false);
+          }}
+        />
+      )}
     </div>
   );
 };

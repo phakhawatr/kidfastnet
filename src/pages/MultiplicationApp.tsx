@@ -11,6 +11,9 @@ import { useBackgroundMusic } from '../hooks/useBackgroundMusic';
 import { BackgroundMusic } from '../components/BackgroundMusic';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { supabase } from '@/integrations/supabase/client';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
+import { useSearchParams } from 'react-router-dom';
 
 interface Problem {
   multiplicand: string;
@@ -28,6 +31,16 @@ interface Answer {
 const MultiplicationApp = () => {
   const { t } = useTranslation('exercises');
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  
+  // Mission mode integration
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
   
   // Background music with 3 track options - beautiful instrumental music
   const backgroundMusic = useBackgroundMusic([
@@ -241,16 +254,18 @@ const MultiplicationApp = () => {
   };
 
   // Check answers
-  const checkAnswers = () => {
+  const checkAnswers = async () => {
     if (!problems.length) return;
     
     backgroundMusic.stop(); // Stop background music when checking
     
     let allCorrect = true;
+    let correctCount = 0;
     const newResults = [...results];
     
     problems.forEach((problem, problemIdx) => {
       // Check partial products
+      let problemCorrect = true;
       problem.partialProducts.forEach((correctProduct, rowIdx) => {
         const userAnswer = answers[problemIdx].partialProducts[rowIdx].join('');
         const isCorrect = userAnswer === correctProduct;
@@ -261,7 +276,10 @@ const MultiplicationApp = () => {
           }
         }
         
-        if (!isCorrect) allCorrect = false;
+        if (!isCorrect) {
+          allCorrect = false;
+          problemCorrect = false;
+        }
       });
       
       // Check final answer
@@ -275,12 +293,26 @@ const MultiplicationApp = () => {
         }
       }
       
-      if (!isCorrect) allCorrect = false;
+      if (!isCorrect) {
+        allCorrect = false;
+        problemCorrect = false;
+      }
+      
+      if (problemCorrect) correctCount++;
     });
     
     setResults(newResults);
     setLineSent(false); // Reset sent status when checking new answers
-    setShowResultsModal(true); // Show results modal
+    
+    // If mission mode, complete mission
+    if (isMissionMode) {
+      const duration = startTime ? Date.now() - startTime : currentTime;
+      await handleCompleteMission(correctCount, problems.length, duration);
+      return;
+    }
+    
+    // Otherwise, show regular results modal
+    setShowResultsModal(true);
     
     if (allCorrect) {
       setIsCompleted(true);
@@ -1190,18 +1222,34 @@ const MultiplicationApp = () => {
                   onClick={() => setShowPdfPreview(false)}
                   className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
                 >
-                  ปิด
+                  {t('pdf.cancel')}
                 </button>
                 <button
                   onClick={savePdfFromPreview}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center gap-2"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                 >
-                  <Printer className="w-4 h-4" />
-                  บันทึก PDF
+                  {t('pdf.downloadPdf')}
                 </button>
               </div>
             </div>
           </div>
+        )}
+
+        {/* Mission Complete Modal */}
+        {missionResult && (
+          <MissionCompleteModal
+            open={showMissionComplete}
+            onOpenChange={setShowMissionComplete}
+            stars={missionResult.stars}
+            correct={missionResult.correct}
+            total={missionResult.total}
+            timeSpent={missionResult.timeSpent}
+            isPassed={missionResult.isPassed}
+            onRetry={() => {
+              generateProblems();
+              setShowMissionComplete(false);
+            }}
+          />
         )}
       </main>
 
