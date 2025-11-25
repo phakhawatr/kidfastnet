@@ -48,6 +48,7 @@ import AstronomyLabApp from "./pages/AstronomyLabApp";
 import STEMProgressDashboard from "./pages/STEMProgressDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import QuestionBank from "./pages/QuestionBank";
+import TrainingCalendar from "./pages/TrainingCalendar";
 import AdminQuestionBank from "./pages/AdminQuestionBank";
 import TagManagement from "./pages/TagManagement";
 import PublicExam from "./pages/PublicExam";
@@ -107,6 +108,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <STEMHub />
+              </ProtectedRoute>
+            } 
+          />
+          <Route
+            path="/training-calendar" 
+            element={
+              <ProtectedRoute>
+                <TrainingCalendar />
               </ProtectedRoute>
             } 
           />
