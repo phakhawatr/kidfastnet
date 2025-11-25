@@ -32,11 +32,13 @@ const recommendationStructure = {
     { key: 'addition', icon: '➕', link: '/addition', color: 'bg-[hsl(var(--grade-1))]' },
     { key: 'lengthComparison', icon: '📏', link: '/length-comparison', color: 'bg-[hsl(var(--grade-2))]' },
     { key: 'numberSeries', icon: '🔢', link: '/NumberSeries', color: 'bg-[hsl(var(--grade-3))]' },
+    { key: 'shapeSeries', icon: '🔄', link: '/shape-series', color: 'bg-[hsl(var(--grade-2))]' },
     { key: 'shapeMatching', icon: '🔷', link: '/shape-matching', color: 'bg-[hsl(var(--grade-3))]' }
   ],
   '2': [
     { key: 'subtraction', icon: '➖', link: '/subtraction', color: 'bg-[hsl(var(--grade-2))]' },
     { key: 'addition', icon: '➕', link: '/addition', color: 'bg-[hsl(var(--grade-1))]' },
+    { key: 'shapeSeries', icon: '🔄', link: '/shape-series', color: 'bg-[hsl(var(--grade-2))]' },
     { key: 'shapeMatching', icon: '🔷', link: '/shape-matching', color: 'bg-[hsl(var(--grade-3))]' },
     { key: 'lengthComparison', icon: '📏', link: '/length-comparison', color: 'bg-[hsl(var(--grade-2))]' }
   ],

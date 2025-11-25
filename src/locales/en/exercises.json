@@ -567,6 +567,18 @@
     "sum": "Sum",
     "fillGrid": "Fill the grid"
   },
+  "shapeSeries": {
+    "title": "Shape Series",
+    "subtitle": "Find the next shape in the repeating pattern",
+    "whatComesNext": "Which shape comes next in the repeating pattern?",
+    "selectAnswer": "Select answer:",
+    "problemCount": "Number of Problems",
+    "timer": "Timer",
+    "patternAB": "Pattern AB",
+    "patternABC": "Pattern ABC",
+    "patternAABB": "Pattern AABB",
+    "patternABBA": "Pattern ABBA"
+  },
   "multiplicationTable": {
     "title": "Multiplication Table",
     "subtitle": "Practice Times Tables",
