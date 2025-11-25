@@ -10,7 +10,7 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday
 import { th } from 'date-fns/locale';
 
 const TrainingCalendar = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('trainingCalendar');
   const navigate = useNavigate();
   const { missions, streak, isLoading, userId } = useTrainingCalendar();
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -146,10 +146,10 @@ const TrainingCalendar = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 flex items-center justify-center">
         <Card className="p-8 text-center max-w-md">
-          <h2 className="text-2xl font-bold mb-4 text-slate-800">{t('trainingCalendar.loginRequired')}</h2>
-          <p className="text-slate-600 mb-6">{t('trainingCalendar.loginMessage')}</p>
+          <h2 className="text-2xl font-bold mb-4 text-slate-800">{t('loginRequired')}</h2>
+          <p className="text-slate-600 mb-6">{t('loginMessage')}</p>
           <Button onClick={() => navigate('/login')} size="lg" className="w-full">
-            {t('trainingCalendar.goToLogin')}
+            {t('goToLogin')}
           </Button>
         </Card>
       </div>

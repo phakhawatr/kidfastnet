@@ -53,9 +53,20 @@ export const useTrainingCalendar = () => {
       if (user) {
         setUserId(user.id);
       } else {
-        const storedUserId = localStorage.getItem('currentUserId');
-        if (storedUserId) {
-          setUserId(storedUserId);
+        // Try to get userId from kidfast_auth in localStorage
+        const authData = localStorage.getItem('kidfast_auth');
+        if (authData) {
+          try {
+            const parsed = JSON.parse(authData);
+            if (parsed.registrationId) {
+              setUserId(parsed.registrationId);
+            } else {
+              setIsLoading(false);
+            }
+          } catch (e) {
+            console.error('Error parsing auth data:', e);
+            setIsLoading(false);
+          }
         } else {
           setIsLoading(false);
         }
