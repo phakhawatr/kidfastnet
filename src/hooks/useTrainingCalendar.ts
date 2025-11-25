@@ -181,22 +181,26 @@ export const useTrainingCalendar = () => {
 
   // Complete a mission with results
   const completeMission = async (missionId: string, results: MissionResults) => {
+    console.log('🔵 useTrainingCalendar.completeMission called:', { missionId, results });
+    
     try {
       const accuracy = (results.correct_answers / results.total_questions) * 100;
-      const timeMinutes = results.time_spent / 60;
+      console.log('📊 Accuracy:', accuracy);
 
-  // Calculate stars - updated threshold for >80%
-  let stars = 0;
-  if (accuracy > 80) {
-    const timeMinutes = results.time_spent / 60;
-    if (accuracy >= 90 && timeMinutes <= 10) {
-      stars = 3;
-    } else if (accuracy >= 80) {
-      stars = 2;
-    } else if (accuracy >= 70) {
-      stars = 1;
-    }
-  }
+      // Calculate stars - updated threshold for >80%
+      let stars = 0;
+      if (accuracy > 80) {
+        const timeMinutes = results.time_spent / 60;
+        if (accuracy >= 90 && timeMinutes <= 10) {
+          stars = 3;
+        } else if (accuracy >= 80) {
+          stars = 2;
+        } else if (accuracy >= 70) {
+          stars = 1;
+        }
+      }
+
+      console.log('⭐ Calculated stars:', stars);
 
       // Update mission
       const { error } = await supabase
@@ -211,7 +215,12 @@ export const useTrainingCalendar = () => {
         })
         .eq('id', missionId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Supabase update error:', error);
+        throw error;
+      }
+      
+      console.log('✅ Mission updated successfully in database');
 
       // Trigger will update streak automatically
       await fetchStreak();
@@ -226,7 +235,7 @@ export const useTrainingCalendar = () => {
 
       return { success: true, stars };
     } catch (error) {
-      console.error('Error completing mission:', error);
+      console.error('❌ completeMission error:', error);
       toast({
         title: 'เกิดข้อผิดพลาด',
         description: 'ไม่สามารถบันทึกผลได้',

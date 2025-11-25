@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { 
   ArrowLeft, Brain, Target, Zap, Trophy, Star, Flame, Sparkles, 
-  PartyPopper, CheckCircle2, Calendar, Loader2 
+  PartyPopper, CheckCircle2, Calendar, Loader2, Clock
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -23,7 +23,8 @@ const TodayFocusMode = () => {
     userId, 
     startMission, 
     generateTodayMission,
-    regenerateMissions 
+    regenerateMissions,
+    fetchMissions
   } = useTrainingCalendar();
   const [selectedMission, setSelectedMission] = useState<DailyMission | null>(null);
   const hasAttemptedGeneration = useRef(false);
@@ -76,6 +77,20 @@ const TodayFocusMode = () => {
     
     autoGenerateMissions();
   }, [userId, isLoading, isGenerating, todayMissions.length, isWeekend]);
+
+  // Auto-refresh missions when window regains focus
+  useEffect(() => {
+    const handleFocus = () => {
+      console.log('🔄 Window focused, refreshing missions...');
+      if (userId) {
+        const today = new Date();
+        fetchMissions(today.getMonth() + 1, today.getFullYear());
+      }
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [userId, fetchMissions]);
 
   const getSkillRoute = (skillName: string): string => {
     // Expanded skill routes mapping with variants
@@ -489,6 +504,48 @@ const TodayFocusMode = () => {
                       )}>
                         💡 {mission.ai_reasoning}
                       </p>
+                    )}
+
+                    {/* Show status: pending or completed */}
+                    {mission.status === 'pending' && (
+                      <div className="mt-3 p-3 bg-slate-700/50 border border-slate-600 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-5 h-5 text-slate-400" />
+                          <span className="text-slate-300 font-medium">ยังไม่ได้เริ่มทำ</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {mission.status === 'completed' && (
+                      <div className="mt-3 p-3 bg-green-900/30 border-2 border-green-500 rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                          <CheckCircle2 className="w-5 h-5 text-green-400" />
+                          <span className="text-green-300 font-bold text-base">✅ ทำสำเร็จแล้ว!</span>
+                        </div>
+                        <div className="flex items-center gap-1 mb-2">
+                          {Array.from({ length: mission.stars_earned || 0 }).map((_, i) => (
+                            <Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                          ))}
+                          {mission.stars_earned === 0 && (
+                            <span className="text-orange-300 font-semibold text-sm">❌ ยังไม่ผ่าน</span>
+                          )}
+                        </div>
+                        <p className="text-white font-medium text-base">
+                          คะแนน: {mission.correct_answers}/{mission.total_questions} ข้อ
+                          ({Math.round((mission.correct_answers! / mission.total_questions) * 100)}%)
+                        </p>
+                        {mission.can_retry && (
+                          <button
+                            className="mt-3 w-full px-4 py-2 text-sm font-semibold text-yellow-300 border border-yellow-400 rounded-lg hover:bg-yellow-500/20 transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedMission(mission);
+                            }}
+                          >
+                            🔄 ทำใหม่
+                          </button>
+                        )}
+                      </div>
                     )}
                     
                     {/* Show results for completed missions */}
