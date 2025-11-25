@@ -644,7 +644,7 @@ const MultiplicationApp = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
       <Header />
       
       <main className="container mx-auto px-4 py-6">
