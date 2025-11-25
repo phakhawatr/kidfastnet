@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useRef, useEffect } from "react";
 import { ArrowLeft, Printer, Upload, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { useTranslation } from 'react-i18next';
@@ -340,6 +340,7 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
 // ================= Main App =================
 export default function AdditionApp() {
   const { t } = useTranslation('exercises');
+  const [searchParams] = useSearchParams();
   
   // Background music with 3 track options - beautiful instrumental music
   const backgroundMusic = useBackgroundMusic([
@@ -431,6 +432,39 @@ export default function AdditionApp() {
     } catch {}
     try { window.scrollTo({ top: 0, left: 0, behavior: 'auto' }); } catch {}
   }, []);
+
+  // Auto-start from mission params
+  useEffect(() => {
+    const autoStart = searchParams.get('autoStart');
+    const paramLevel = searchParams.get('level');
+    const paramCount = searchParams.get('count');
+    
+    if (autoStart === 'true') {
+      const newLevel = paramLevel || 'easy';
+      const newCount = paramCount ? parseInt(paramCount) : 15;
+      
+      // Set level and count
+      setLevel(newLevel);
+      setCount(newCount);
+      
+      // Determine carry option based on level
+      const newCarryOption = newLevel === 'easy' ? 'none' : 'any';
+      setCarryOption(newCarryOption);
+      
+      // Generate problems with new settings
+      const next = generateAdditionProblems(newCount, newLevel, digits, newCarryOption, operands);
+      setProblems(next);
+      setAnswers(createAnswersArray(next, operands));
+      setResults(next.map(() => "pending"));
+      setShowAnswers(false);
+      setCelebrate(false);
+      
+      // Start timer immediately
+      setStartedAt(Date.now());
+      setElapsedMs(0);
+      backgroundMusic.play();
+    }
+  }, []); // Run once on mount
 
   // keep answers shape in sync with problems/digits
   useEffect(() => {
