@@ -53,7 +53,7 @@ const STEMHub = () => {
             </div>
             
             <button 
-              className="px-6 py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+              className="px-6 py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-light text-2xl rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
               style={{ animation: 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}
             >
               ทดลองการใช้งาน
