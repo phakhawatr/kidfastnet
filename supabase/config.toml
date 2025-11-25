@@ -3,6 +3,9 @@ project_id = "yxvuivtnyrcrtiqxhbkl"
 [functions.ai-math-tutor]
 verify_jwt = false
 
+[functions.generate-daily-mission]
+verify_jwt = false
+
 [functions.line-webhook]
 verify_jwt = false
 
