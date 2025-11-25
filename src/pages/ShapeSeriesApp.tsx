@@ -282,7 +282,9 @@ const ShapeSeriesApp = () => {
                     size="sm"
                     onClick={() => setDifficulty(level as 'easy' | 'medium' | 'hard')}
                     disabled={isRunning}
-                    className={difficulty === level ? 'bg-green-600 hover:bg-green-700' : 'border-slate-600 text-slate-300'}
+                    className={difficulty === level 
+                      ? 'bg-green-600 hover:bg-green-700 text-white font-medium border-green-600' 
+                      : 'border-slate-400 bg-slate-700/80 text-white hover:bg-slate-600/80 hover:border-slate-300'}
                   >
                     {t(`common.${level}`)}
                   </Button>
@@ -303,7 +305,9 @@ const ShapeSeriesApp = () => {
                     size="sm"
                     onClick={() => setProblemCount(count)}
                     disabled={isRunning}
-                    className={problemCount === count ? 'bg-blue-600 hover:bg-blue-700' : 'border-slate-600 text-slate-300'}
+                    className={problemCount === count 
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white font-medium border-blue-600' 
+                      : 'border-slate-400 bg-slate-700/80 text-white hover:bg-slate-600/80 hover:border-slate-300'}
                   >
                     {count}
                   </Button>
@@ -403,7 +407,7 @@ const ShapeSeriesApp = () => {
                             ? 'border-red-500 bg-red-900/50'
                             : isSelected
                             ? 'border-blue-500 bg-blue-900/50'
-                            : 'border-slate-600 hover:border-slate-500 bg-slate-800/50'
+                            : 'border-slate-400 hover:border-white bg-slate-700/80 hover:bg-slate-600/80'
                         } ${isSubmitted ? 'cursor-default' : 'cursor-pointer hover:scale-105'}`}
                       >
                         <div className="flex justify-center items-center">
