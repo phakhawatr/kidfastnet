@@ -39,6 +39,12 @@
   "viewResults": "View Results",
   "tryAgain": "Try Again",
   "backToHome": "Back to Home",
+  "grades": {
+    "grade4": "Grade 4 - Multi-millions, Fractions, Decimals, Angles, Area",
+    "grade5": "Grade 5 - Advanced Fractions, Percentage, Ratios, Volume",
+    "grade6": "Grade 6 - Algebra, Statistics, Probability, Advanced Geometry",
+    "grade7": "Secondary School Entrance Prep - Review all Grade 1-6 topics with advanced problems"
+  },
   "skills": {
     "counting": "Counting",
     "comparing": "Comparing Numbers",
@@ -68,7 +74,11 @@
     "algebra": "Algebra",
     "geometry": "Geometry",
     "statistics": "Statistics",
-    "probability": "Probability"
+    "probability": "Probability",
+    "estimation": "Estimation",
+    "mixedProblems": "Mixed Problems",
+    "quadrilaterals": "Quadrilaterals",
+    "graphReading": "Graph Reading"
   },
   "questionTypes": {
     "twoDigitPlusOneDigit": "Two-Digit + One-Digit Addition",

@@ -280,24 +280,57 @@ export const curriculumConfig: Record<string, Record<string, SkillConfig[]>> = {
   },
   grade6: {
     semester1: [
-      { skill: 'algebra', difficulty: 'medium', count: 10 },
-      { skill: 'ratios', difficulty: 'hard', count: 10 },
-      { skill: 'percentage', difficulty: 'hard', count: 10 },
-      { skill: 'geometry', difficulty: 'hard', count: 10 }
+      // พีชคณิต (25-30%)
+      { skill: 'algebra', difficulty: 'medium', count: 10, range: [1, 100], description: 'ตัวแปร สมการเชิงเส้น การแก้สมการ โจทย์ปัญหา' },
+      // อัตราส่วน-สัดส่วน (25-30%)
+      { skill: 'ratios', difficulty: 'hard', count: 10, range: [1, 1000], description: 'อัตราส่วน สัดส่วน การขยาย-ย่ออัตราส่วน การแบ่งตามสัดส่วน' },
+      // ร้อยละ (20-25%)
+      { skill: 'percentage', difficulty: 'hard', count: 10, range: [0, 100], description: 'ร้อยละขั้นสูง ดอกเบี้ย ส่วนลด ภาษี กำไร-ขาดทุน' },
+      // เรขาคณิต (20-25%)
+      { skill: 'geometry', difficulty: 'hard', count: 10, range: [1, 100], description: 'ทรงกลม ทรงกระบอก ปริมาตร พื้นที่ผิว การแปลงรูป' }
     ],
     semester2: [
-      { skill: 'algebra', difficulty: 'hard', count: 10 },
-      { skill: 'statistics', difficulty: 'medium', count: 10 },
-      { skill: 'probability', difficulty: 'easy', count: 10 },
-      { skill: 'geometry', difficulty: 'hard', count: 10 }
+      // พีชคณิตขั้นสูง (25-30%)
+      { skill: 'algebra', difficulty: 'hard', count: 10, range: [1, 100], description: 'สมการเชิงเส้นขั้นสูง อสมการ กราฟเส้นตรง' },
+      // สถิติ (25-30%)
+      { skill: 'statistics', difficulty: 'medium', count: 10, range: [1, 100], description: 'ค่าเฉลี่ย มัธยฐาน ฐานนิยม พิสัย การเก็บข้อมูล การวิเคราะห์กราฟ' },
+      // ความน่าจะเป็น (20-25%)
+      { skill: 'probability', difficulty: 'easy', count: 10, range: [1, 10], description: 'ความน่าจะเป็นเบื้องต้น การนับเหตุการณ์ ทดลองโยนเหรียญ-ทอยลูกเต๋า' },
+      // เรขาคณิตขั้นสูง (20-25%)
+      { skill: 'geometry', difficulty: 'hard', count: 10, range: [1, 100], description: 'ปริซึม พีระมิด วงกลม เส้นรอบวงกลม พื้นที่วงกลม' }
     ]
+  },
+  grade7: {
+    semester1: [
+      // ทบทวนทุกหัวข้อ ป.1-6 สำหรับเตรียมสอบเข้า ม.1
+      { skill: 'counting', difficulty: 'hard', count: 4, range: [0, 1000000], description: 'ทบทวนจำนวนนับและค่าประจำหลัก ทุกระดับ' },
+      { skill: 'addition', difficulty: 'hard', count: 3, range: [100, 1000000], description: 'ทบทวนการบวก ระดับยาก' },
+      { skill: 'subtraction', difficulty: 'hard', count: 3, range: [100, 1000000], description: 'ทบทวนการลบ ระดับยาก' },
+      { skill: 'multiplication', difficulty: 'hard', count: 4, range: [10, 9999], description: 'ทบทวนการคูณ หลายหลัก' },
+      { skill: 'division', difficulty: 'hard', count: 4, range: [100, 99999], description: 'ทบทวนการหาร หารยาว' },
+      { skill: 'fractions', difficulty: 'hard', count: 6, description: 'ทบทวนเศษส่วน บวก-ลบ-คูณ-หาร เศษส่วนเท่ากัน' },
+      { skill: 'decimals', difficulty: 'hard', count: 5, range: [0, 1000], description: 'ทบทวนทศนิยม ค่าประจำหลัก บวก-ลบ-คูณ-หาร' },
+      { skill: 'percentage', difficulty: 'hard', count: 4, range: [0, 100], description: 'ทบทวนร้อยละ ดอกเบี้ย ส่วนลด กำไร-ขาดทุน' },
+      { skill: 'ratios', difficulty: 'hard', count: 4, range: [1, 100], description: 'ทบทวนอัตราส่วน สัดส่วน การแบ่งตามสัดส่วน' },
+      { skill: 'algebra', difficulty: 'hard', count: 3, range: [1, 100], description: 'พื้นฐานพีชคณิต สมการเชิงเส้น ตัวแปร' },
+      { skill: 'geometry', difficulty: 'hard', count: 5, range: [1, 100], description: 'ทบทวนเรขาคณิต พื้นที่ ปริมาตร รูปเรขาคณิต 2D-3D' },
+      { skill: 'mixedOperations', difficulty: 'hard', count: 4, description: 'โจทย์ผสม 4 กระบวนการ วงเล็บ โจทย์ปัญหาซับซ้อน' },
+      { skill: 'time', difficulty: 'hard', count: 2, description: 'เวลา ตารางเวลา โจทย์ปัญหา' },
+      { skill: 'measurement', difficulty: 'hard', count: 2, description: 'การวัด แปลงหน่วย โจทย์ปัญหา' },
+      { skill: 'statistics', difficulty: 'medium', count: 2, range: [1, 100], description: 'สถิติ ค่าเฉลี่ย การนำเสนอข้อมูล' }
+    ],
+    semester2: [] // ใช้เหมือน semester1 สำหรับเตรียมสอบ
   }
 };
 
 export const getGradeOptions = () => [
   { value: 1, label: 'ประถมศึกษาปีที่ 1' },
   { value: 2, label: 'ประถมศึกษาปีที่ 2' },
-  { value: 3, label: 'ประถมศึกษาปีที่ 3' }
+  { value: 3, label: 'ประถมศึกษาปีที่ 3' },
+  { value: 4, label: 'ประถมศึกษาปีที่ 4' },
+  { value: 5, label: 'ประถมศึกษาปีที่ 5' },
+  { value: 6, label: 'ประถมศึกษาปีที่ 6' },
+  { value: 7, label: 'เตรียมสอบเข้า ม.1' }
 ];
 
 export const getSemesterOptions = () => [
