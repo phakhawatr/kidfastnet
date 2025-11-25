@@ -217,7 +217,7 @@ const LengthComparisonApp: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 p-4 relative overflow-hidden">
       {/* Floating cartoon decorations - gentler animations */}
       <div className="absolute top-10 left-10 animate-pulse">
         <img src={giraffeMascot} alt="Giraffe" className="w-16 h-16 opacity-40" />

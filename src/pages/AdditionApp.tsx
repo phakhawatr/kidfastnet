@@ -217,8 +217,8 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
   const bg = pastel[idx % pastel.length];
 
   return (
-    <div className={`rounded-3xl border-2 ${border} bg-slate-800/90 backdrop-blur shadow-md p-5 flex flex-col gap-3`}>
-      <div className="text-base text-slate-300">⭐ {t('common.question')} {idx + 1}</div>
+    <div className={`rounded-3xl border-2 ${border} ${bg} shadow-md p-5 flex flex-col gap-3`}>
+      <div className="text-base text-zinc-600">⭐ {t('common.question')} {idx + 1}</div>
 
       {/* Column format like worksheet image + per-digit answer */}
       <div className="flex justify-center mt-1 select-none">
@@ -232,7 +232,7 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
                 inputMode="numeric"
                 maxLength={1}
                 disabled={showAnswer}
-                className={`w-12 h-9 text-center border rounded-md text-xl bg-slate-700 text-white ${showAnswer ? 'opacity-60 border-slate-500' : 'border-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-400'}`}
+                className={`w-12 h-9 text-center border rounded-md text-xl bg-white ${showAnswer ? 'opacity-60 border-zinc-200' : 'border-zinc-300 focus:outline-none focus:ring-2 focus:ring-violet-200'}`}
                 value={carry[j] || ""}
                 onChange={(e) => {
                   const v = e.target.value.replace(/\D/g, '').slice(0,1);
@@ -246,31 +246,31 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
             {/* Row 1: empty plus cell + digits of a */}
             <div className="w-12 h-12" />
             {String(prob.a).padStart(actualDigits, " ").split("").map((ch, i) => (
-              <div key={`a${i}`} className="w-12 h-12 border border-purple-400 bg-slate-700 rounded-md flex items-center justify-center text-3xl font-extrabold text-white">{ch.trim()}</div>
+              <div key={`a${i}`} className="w-12 h-12 border border-sky-200 bg-white rounded-md flex items-center justify-center text-3xl font-extrabold">{ch.trim()}</div>
             ))}
             {/* Row 2: plus sign + digits of b */}
-            <div className="w-12 h-12 border border-purple-400 bg-slate-700 rounded-md flex items-center justify-center text-3xl font-extrabold text-purple-300">+</div>
+            <div className="w-12 h-12 border border-sky-200 bg-white rounded-md flex items-center justify-center text-3xl font-extrabold text-zinc-500">+</div>
             {String(prob.b).padStart(actualDigits, " ").split("").map((ch, i) => (
-              <div key={`b${i}`} className="w-12 h-12 border border-purple-400 bg-slate-700 rounded-md flex items-center justify-center text-3xl font-extrabold text-white">{ch.trim()}</div>
+              <div key={`b${i}`} className="w-12 h-12 border border-sky-200 bg-white rounded-md flex items-center justify-center text-3xl font-extrabold">{ch.trim()}</div>
             ))}
             {/* Row 3: plus sign + digits of c (if 3 operands) */}
             {operands === 3 && (
               <>
-                <div className="w-12 h-12 border border-purple-400 bg-slate-700 rounded-md flex items-center justify-center text-3xl font-extrabold text-purple-300">+</div>
+                <div className="w-12 h-12 border border-sky-200 bg-white rounded-md flex items-center justify-center text-3xl font-extrabold text-zinc-500">+</div>
                 {String(prob.c).padStart(actualDigits, " ").split("").map((ch, i) => (
-                  <div key={`c${i}`} className="w-12 h-12 border border-purple-400 bg-slate-700 rounded-md flex items-center justify-center text-3xl font-extrabold text-white">{ch.trim()}</div>
+                  <div key={`c${i}`} className="w-12 h-12 border border-sky-200 bg-white rounded-md flex items-center justify-center text-3xl font-extrabold">{ch.trim()}</div>
                 ))}
               </>
             )}
           </div>
           {/* underline */}
-          <div className="ml-12 border-t-4 border-purple-400 mt-2" />
+          <div className="ml-12 border-t-4 border-zinc-400 mt-2" />
           {/* Answer row: answer cells (inputs or revealed) */}
           <div className="grid gap-1 mt-2" style={{ gridTemplateColumns: `repeat(${actualDigits + 1}, 3rem)` }}>
             <div className="w-12 h-12" />
             {showAnswer
               ? String(correct).padStart(actualDigits, " ").slice(-actualDigits).split("").map((ch, j) => (
-                  <div key={`ans${j}`} className="w-12 h-12 border-2 border-green-400 bg-slate-700 rounded-md flex items-center justify-center text-3xl font-extrabold text-green-300">
+                  <div key={`ans${j}`} className="w-12 h-12 border-2 border-sky-300 bg-white rounded-md flex items-center justify-center text-3xl font-extrabold text-sky-700">
                     {ch.trim()}
                   </div>
                 ))
@@ -280,7 +280,7 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
                     ref={(el) => { if (j === 0) inputRef.current = el; inputRefs.current[j] = el; }}
                     inputMode="numeric"
                     maxLength={1}
-                    className="w-12 h-12 text-center border-2 border-purple-400 rounded-md text-3xl font-extrabold text-white bg-slate-700 shadow focus:outline-none focus:ring-2 focus:ring-purple-400"
+                    className="w-12 h-12 text-center border-2 border-sky-300 rounded-md text-3xl font-extrabold text-sky-700 bg-white shadow focus:outline-none focus:ring-2 focus:ring-sky-300"
                     value={Array.isArray(answer) ? (answer[j] || "") : ""}
                     onFocus={() => {
                       // Start music immediately when user focuses on any input field
@@ -1257,32 +1257,32 @@ export default function AdditionApp() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
+    <div className="min-h-screen bg-gradient-to-b from-sky-50 via-white to-pink-50 text-zinc-800">
       <header className="max-w-6xl mx-auto p-6 pb-2">
         <div className="flex items-center gap-4 mb-4">
           <Link 
             to="/profile" 
-            className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-purple-400 bg-slate-800/90 hover:bg-slate-700 transition-all text-white font-medium"
+            className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-zinc-300 bg-white hover:bg-zinc-50 hover:border-zinc-400 transition-all text-zinc-700 font-medium"
           >
             <ArrowLeft className="w-5 h-5" />
             <span>{t('common.backToProfile')}</span>
           </Link>
         </div>
         <h1 className="text-3xl sm:text-4xl font-black flex items-center gap-2">🧮 {t('addition.title')}</h1>
-        <p className="text-slate-300 mt-1 text-base">{t('addition.subtitle')}</p>
+        <p className="text-zinc-600 mt-1 text-base">{t('addition.subtitle')}</p>
       </header>
 
       <main className="max-w-6xl mx-auto p-6 pt-3">
         {/* Logo Upload Section */}
-        <div className="mb-6 bg-slate-800/80 backdrop-blur rounded-2xl p-4 border-2 border-slate-600 shadow-sm">
+        <div className="mb-6 bg-white/80 backdrop-blur rounded-2xl p-4 border-2 border-sky-100 shadow-sm">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-3">
-              <h3 className="text-sm font-semibold text-slate-200">{t('pdf.uploadLogo')}</h3>
+              <h3 className="text-sm font-semibold text-zinc-700">{t('pdf.uploadLogo')}</h3>
               {schoolLogo && (
                 <img 
                   src={schoolLogo} 
                   alt={t('pdf.schoolLogo')} 
-                  className="w-12 h-12 object-contain border border-slate-500 rounded-lg bg-slate-700 p-1"
+                  className="w-12 h-12 object-contain border border-zinc-200 rounded-lg bg-white p-1"
                 />
               )}
             </div>
@@ -1321,18 +1321,18 @@ export default function AdditionApp() {
               </button>
             </div>
           </div>
-          <p className="text-xs text-slate-400 mt-2">{t('pdf.supportedFormats')}</p>
+          <p className="text-xs text-zinc-500 mt-2">{t('pdf.supportedFormats')}</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 mb-4">
-          <div className="flex items-center gap-2 bg-slate-800/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-slate-600 shadow-sm">
-            <span className="text-sm text-slate-300">{t('settings.problemCount')}:</span>
+          <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 shadow-sm">
+            <span className="text-sm text-zinc-600">{t('settings.problemCount')}:</span>
             {[10, 15, 30, 40].map((n) => (
               <button
                 key={n}
                 onClick={() => applyNewCount(n)}
                 className={`px-4 py-2 rounded-full text-base font-semibold border-2 ${
-                  count === n ? "bg-purple-600 text-white border-purple-600" : "bg-slate-700 hover:bg-slate-600 text-white border-slate-600"
+                  count === n ? "bg-sky-600 text-white border-sky-600" : "bg-zinc-50 hover:bg-zinc-100"
                 }`}
               >
                 {n}
@@ -1340,8 +1340,8 @@ export default function AdditionApp() {
             ))}
           </div>
 
-          <div className="flex items-center gap-2 bg-slate-800/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-slate-600 shadow-sm">
-            <span className="text-sm text-slate-300">{t('common.difficulty')}:</span>
+          <div className="flex items-center gap-2 bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border-2 border-sky-100 shadow-sm">
+            <span className="text-sm text-zinc-600">{t('common.difficulty')}:</span>
             {[
               { key: "easy", label: t('common.easy') },
               { key: "medium", label: t('common.medium') },

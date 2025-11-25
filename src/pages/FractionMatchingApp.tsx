@@ -328,7 +328,7 @@ const FractionMatchingApp: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white p-4">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-pink-50 to-red-50 p-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -339,7 +339,7 @@ const FractionMatchingApp: React.FC = () => {
                 {t('common.back')}
               </Button>
             </Link>
-            <h1 className="text-2xl font-bold text-white">{t('fractions.title')}</h1>
+            <h1 className="text-2xl font-bold text-gray-800">{t('fractions.title')}</h1>
           </div>
 
           <Badge variant="secondary" className="text-sm">
@@ -349,18 +349,20 @@ const FractionMatchingApp: React.FC = () => {
         </div>
 
         {/* Game Instructions */}
-        <div className="mb-6 bg-slate-800/90 backdrop-blur rounded-lg p-4 border border-slate-600">
-          <p className="text-center text-slate-200">
-            🎯 {t('fractions.instructions')}
-          </p>
-        </div>
+        <Card className="mb-6">
+          <CardContent className="p-4">
+            <p className="text-center text-gray-600">
+              🎯 {t('fractions.instructions')}
+            </p>
+          </CardContent>
+        </Card>
 
         {/* Game Area */}
         <div className="relative">
           <div className="grid grid-cols-2 gap-2 sm:gap-4 md:gap-6 lg:gap-8">
             {/* Left Side - Visual Fractions */}
             <div className="space-y-2">
-              <h2 className="text-sm sm:text-lg font-semibold text-slate-200 mb-2 sm:mb-4">{t('fractions.visualFractions')}</h2>
+              <h2 className="text-sm sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-4">{t('fractions.visualFractions')}</h2>
               {questions.map((question) => {
                 const connection = getConnectionForLeft(question.id);
                 const isSelected = selectedLeft === question.id;
@@ -382,7 +384,7 @@ const FractionMatchingApp: React.FC = () => {
 
             {/* Right Side - Fraction Numbers */}
             <div className="space-y-2">
-              <h2 className="text-sm sm:text-lg font-semibold text-slate-200 mb-2 sm:mb-4">{t('fractions.numberFractions')}</h2>
+              <h2 className="text-sm sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-4">{t('fractions.numberFractions')}</h2>
               {shuffledAnswers.map((answer) => {
                 const connection = isRightConnected(answer.id);
                 const isConnected = connection !== undefined;
@@ -405,34 +407,38 @@ const FractionMatchingApp: React.FC = () => {
 
         {/* Results */}
         {isCompleted && (
-          <div className="mt-6 bg-slate-800/90 backdrop-blur rounded-lg p-6 border border-slate-600">
-            <h3 className="text-center flex items-center justify-center gap-2 text-xl font-bold mb-4 text-white">
-              <Trophy className="w-6 h-6 text-yellow-400" />
-              {t('fractions.results')}
-            </h3>
-            <div className="text-center space-y-4">
-              <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
-                <div className="bg-green-500/20 p-4 rounded-lg border border-green-500/30">
-                  <div className="text-2xl font-bold text-green-300">{score}</div>
-                  <div className="text-sm text-slate-300">{t('fractions.score')}</div>
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle className="text-center flex items-center justify-center gap-2">
+                <Trophy className="w-6 h-6 text-yellow-500" />
+                {t('fractions.results')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center space-y-4">
+                <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
+                  <div className="bg-green-50 p-4 rounded-lg">
+                    <div className="text-2xl font-bold text-green-600">{score}</div>
+                    <div className="text-sm text-gray-600">{t('fractions.score')}</div>
+                  </div>
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-600">{formatTime(timeElapsed)}</div>
+                    <div className="text-sm text-gray-600">{t('fractions.timeUsed')}</div>
+                  </div>
                 </div>
-                <div className="bg-blue-500/20 p-4 rounded-lg border border-blue-500/30">
-                  <div className="text-2xl font-bold text-blue-300">{formatTime(timeElapsed)}</div>
-                  <div className="text-sm text-slate-300">{t('fractions.timeUsed')}</div>
+                
+                <div className="flex gap-3 justify-center">
+                  <Button onClick={resetGame} variant="outline">
+                    <RotateCcw className="w-4 h-4 mr-2" />
+                    {t('fractions.playAgain')}
+                  </Button>
+                  <Button onClick={nextSet}>
+                    {t('fractions.nextSet')}
+                  </Button>
                 </div>
               </div>
-              
-              <div className="flex gap-3 justify-center">
-                <Button onClick={resetGame} variant="outline">
-                  <RotateCcw className="w-4 h-4 mr-2" />
-                  {t('fractions.playAgain')}
-                </Button>
-                <Button onClick={nextSet}>
-                  {t('fractions.nextSet')}
-                </Button>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* Controls */}

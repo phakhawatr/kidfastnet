@@ -644,7 +644,7 @@ const MultiplicationApp = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50">
       <Header />
       
       <main className="container mx-auto px-4 py-6">
@@ -1097,9 +1097,9 @@ const MultiplicationApp = () => {
                   disabled={isSendingLine || lineSent || (lineQuota && lineQuota.remaining <= 0)}
                   className={`w-full px-4 py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors ${
                     lineSent 
-                      ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
+                      ? 'bg-zinc-100 text-zinc-500 cursor-not-allowed'
                       : (lineQuota && lineQuota.remaining <= 0)
-                      ? 'bg-red-500/20 text-red-300 cursor-not-allowed border border-red-500/30'
+                      ? 'bg-red-100 text-red-600 cursor-not-allowed'
                       : isSendingLine
                       ? 'bg-green-400 text-white cursor-wait'
                       : 'bg-green-500 text-white hover:bg-green-600'
@@ -1135,7 +1135,7 @@ const MultiplicationApp = () => {
                 
                 <button 
                   onClick={() => setShowResultsModal(false)}
-                  className="w-full px-4 py-3 rounded-xl font-medium bg-slate-700 hover:bg-slate-600 text-white"
+                  className="w-full px-4 py-3 rounded-xl font-medium bg-zinc-100 hover:bg-zinc-200"
                 >
                   ปิด
                 </button>
@@ -1147,10 +1147,10 @@ const MultiplicationApp = () => {
         {/* Celebration Modal */}
         {showCelebration && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-slate-800 rounded-xl p-8 text-center max-w-md mx-4 animate-bounce border border-slate-600">
+            <div className="bg-white rounded-xl p-8 text-center max-w-md mx-4 animate-bounce">
               <div className="text-6xl mb-4">🎉</div>
-              <h2 className="text-2xl font-bold text-green-300 mb-2">ยอดเยี่ยม!</h2>
-              <p className="text-slate-300 mb-4">
+              <h2 className="text-2xl font-bold text-green-600 mb-2">ยอดเยี่ยม!</h2>
+              <p className="text-gray-600 mb-4">
                 คุณทำได้ครบทุกข้อใน {formatTime(currentTime)}
               </p>
               <button 
@@ -1166,17 +1166,17 @@ const MultiplicationApp = () => {
         {/* PDF Preview Modal */}
         {showPdfPreview && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-slate-800 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-slate-600">
-              <div className="p-4 border-b border-slate-600 flex justify-between items-center">
-                <h3 className="text-xl font-bold text-white">ตัวอย่าง PDF</h3>
+            <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+              <div className="p-4 border-b flex justify-between items-center">
+                <h3 className="text-xl font-bold">ตัวอย่าง PDF</h3>
                 <button
                   onClick={() => setShowPdfPreview(false)}
-                  className="text-slate-400 hover:text-slate-200"
+                  className="text-gray-500 hover:text-gray-700"
                 >
                   <X className="w-6 h-6" />
                 </button>
               </div>
-              <div className="flex-1 overflow-auto p-4 bg-slate-900">
+              <div className="flex-1 overflow-auto p-4 bg-gray-100">
                 <div 
                   id="pdf-preview-content"
                   dangerouslySetInnerHTML={{ __html: pdfPreviewContent }}

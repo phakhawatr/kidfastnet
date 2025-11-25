@@ -295,29 +295,29 @@ const SumGridPuzzles: React.FC = () => {
   }, [grids]);
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white ${contrast ? 'contrast' : ''}`}>
+    <div className={`min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 ${contrast ? 'contrast' : ''}`}>
       <Header />
       
       {/* Sticky Header */}
-      <header className="sticky top-0 z-20 bg-slate-900/95 backdrop-blur-md shadow-md border-b border-slate-700">
+      <header className="sticky top-0 z-20 bg-white/92 backdrop-blur-sm shadow-md">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center gap-4 mb-2">
-            <Link to="/profile" className="flex items-center gap-2 text-purple-300 hover:text-purple-200 transition-colors">
+            <Link to="/profile" className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors">
               <ChevronLeft className="w-5 h-5" />
               <span>กลับ</span>
             </Link>
-            <h1 className="text-2xl md:text-3xl font-bold text-white">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
               {t('sumGridPuzzles.title')}
             </h1>
           </div>
           
-          <p className="text-slate-300 text-sm md:text-base mb-4">
+          <p className="text-gray-600 text-sm md:text-base mb-4">
             {t('sumGridPuzzles.description')}
           </p>
           
           {/* Controls */}
           <div className="flex flex-wrap gap-3 items-center">
-            <div className="flex gap-2 bg-slate-800/90 backdrop-blur rounded-xl p-2 shadow-sm border border-slate-600">
+            <div className="flex gap-2 bg-white rounded-xl p-2 shadow-sm">
               <button
                 onClick={initializePuzzles}
                 className="px-6 py-3.5 rounded-full text-lg font-bold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2.5"
@@ -337,7 +337,7 @@ const SumGridPuzzles: React.FC = () => {
               </button>
             </div>
             
-            <div className="flex gap-2 bg-slate-800/90 backdrop-blur rounded-xl p-2 shadow-sm border border-slate-600">
+            <div className="flex gap-2 bg-white rounded-xl p-2 shadow-sm">
               <button
                 onClick={() => setSound(!sound)}
                 className={`btn-ghost text-sm ${sound ? 'text-green-600' : 'text-gray-400'}`}
@@ -362,9 +362,9 @@ const SumGridPuzzles: React.FC = () => {
               </button>
             </div>
             
-            <div className="bg-slate-800/90 backdrop-blur rounded-xl p-3 shadow-sm border border-slate-600">
-              <span className="text-sm text-slate-300">
-                สำเร็จ: <span className="font-bold text-purple-300">{correct}</span>/{tasks.length}
+            <div className="bg-white rounded-xl p-3 shadow-sm">
+              <span className="text-sm text-gray-600">
+                สำเร็จ: <span className="font-bold text-blue-600">{correct}</span>/{tasks.length}
               </span>
             </div>
           </div>
@@ -378,9 +378,9 @@ const SumGridPuzzles: React.FC = () => {
             if (!Array.isArray(grid) || grid.length === 0) return null;
             
             return (
-              <div key={gridIndex} className="bg-slate-800/90 backdrop-blur rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow border border-slate-600">
+              <div key={gridIndex} className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-lg text-white">
+                  <h3 className="font-bold text-lg text-gray-800">
                     {tasks[gridIndex]?.icon} {tasks[gridIndex]?.name}
                   </h3>
                   <div className="text-2xl">
@@ -409,13 +409,13 @@ const SumGridPuzzles: React.FC = () => {
                             h-12 border-2 rounded-lg flex items-center justify-center font-bold text-lg
                             ${cell.isInput 
                               ? cell.isCorrect 
-                                ? 'border-green-400 bg-green-500/20 text-green-300' 
-                                : 'border-purple-400 bg-slate-700 text-white'
+                                ? 'border-green-400 bg-green-50 text-green-700' 
+                                : 'border-blue-300 bg-white'
                               : rowIndex === 3 || colIndex === 3
                                 ? isGridCompleted
-                                  ? 'border-green-400 bg-green-500/20 text-green-300 font-bold'
-                                  : 'border-red-400 bg-red-500/20 text-red-300 font-bold'
-                                : 'border-slate-500 bg-slate-700/50 text-slate-200'
+                                  ? 'border-green-400 bg-green-50 text-green-700 font-bold' // Green when completed
+                                  : 'border-red-300 bg-red-50 text-red-700 font-bold' // Red when not completed
+                                : 'border-gray-200 bg-gray-50 text-gray-700'
                             }
                           `}
                         >
@@ -440,7 +440,7 @@ const SumGridPuzzles: React.FC = () => {
                   )}
                 </div>
                 
-                <p className="text-xs text-slate-400 text-center">
+                <p className="text-xs text-gray-500 text-center">
                   แก้ปริศนาตารางบวก: กรอกตัวเลขในช่องว่างให้ผลรวมในแถวและคอลัมน์ถูกต้อง
                 </p>
               </div>
