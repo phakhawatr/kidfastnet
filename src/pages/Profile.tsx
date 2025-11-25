@@ -1124,7 +1124,8 @@ const Profile = () => {
               { nameKey: 'recentApps.weight', icon: '⚖️', color: 'bg-gradient-to-br from-yellow-200 to-yellow-300', link: '/weighing' },
               { nameKey: 'recentApps.shapes', icon: '🔷', color: 'bg-gradient-to-br from-indigo-200 to-indigo-300', link: '/shape-matching' },
               { nameKey: 'recentApps.length', icon: '📏', color: 'bg-gradient-to-br from-teal-200 to-teal-300', link: '/length-comparison' },
-              { nameKey: 'recentApps.quickMath', icon: '⚡', color: 'bg-gradient-to-br from-red-200 to-red-300', link: '/quick-math' }
+              { nameKey: 'recentApps.quickMath', icon: '⚡', color: 'bg-gradient-to-br from-red-200 to-red-300', link: '/quick-math' },
+              { nameKey: 'recentApps.shapeSeries', icon: '🔄', color: 'bg-gradient-to-br from-violet-200 to-violet-300', link: '/shape-series' }
             ].map((app, index) => (
               <Link 
                 key={index} 
@@ -1161,7 +1162,7 @@ const Profile = () => {
               <div className="text-sm text-[hsl(var(--text-muted))] mt-2">{t('appDetails.technology')}</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-orange-500 mb-1">21+</div>
+              <div className="text-2xl font-bold text-orange-500 mb-1">22+</div>
               <div className="text-sm text-[hsl(var(--text-muted))]">{t('appDetails.lessons')}</div>
             </div>
             <div className="text-center">

@@ -198,7 +198,8 @@
     "weight": "น้ำหนัก",
     "shapes": "รูปทรง",
     "length": "ความยาว",
-    "quickMath": "คณิตเร็ว"
+    "quickMath": "คณิตเร็ว",
+    "shapeSeries": "อนุกรมรูปทรง"
   },
   
   "appDetails": {
