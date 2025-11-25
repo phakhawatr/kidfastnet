@@ -56,9 +56,9 @@ const Header = () => {
                     {t('stemxai')}
                   </Link>
                   <Badge 
-                    className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-0.5 animate-pulse shadow-lg border-2 border-white"
+                    className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] px-1.5 py-0.5 animate-pulse shadow-lg border-2 border-white whitespace-nowrap"
                   >
-                    Beta
+                    ทดลองใช้งาน
                   </Badge>
                 </div>
                 
