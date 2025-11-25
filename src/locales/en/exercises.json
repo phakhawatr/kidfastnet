@@ -51,7 +51,11 @@
     "musicCalm": "Calm Music",
     "musicFocus": "Focus Music",
     "student": "Student",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "showHint": "Show Hint",
+    "hideHint": "Hide Hint",
+    "checkAnswer": "Check Answer",
+    "submitAll": "Submit All"
   },
   "results": {
     "excellent": "Excellent!",
@@ -216,7 +220,25 @@
       "good": "Good job! Keep practicing! 💪"
     },
     "hint": "Hint",
-    "paymentResult": "Payment Result"
+    "paymentResult": "Payment Result",
+    "excellent": "Excellent!",
+    "youScored": "You scored",
+    "problems": "problems",
+    "problemSummary": "Problem Summary",
+    "problem": "Problem",
+    "correctAnswer": "Correct Answer",
+    "baht": "Baht",
+    "yourAnswer": "Your Answer",
+    "backToGame": "Back to Game",
+    "gameSettings": "Game Settings",
+    "counting": "Counting",
+    "change": "Change",
+    "shopping": "Shopping",
+    "mixed": "Mixed",
+    "startNew": "Start New",
+    "pieces": "pieces",
+    "coins": "coins",
+    "enterAnswer": "Enter Answer"
   },
   "time": {
     "title": "Practice Telling Time",
