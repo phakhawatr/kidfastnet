@@ -425,11 +425,11 @@ const TodayFocusMode = () => {
               <Card
                 key={mission.id}
                 className={cn(
-                  "cursor-pointer transition-all duration-300 hover:scale-105",
+                  "cursor-pointer transition-all duration-300 hover:scale-105 border-2",
                   selectedMission?.id === mission.id
-                    ? "bg-gradient-to-br from-blue-500/30 to-purple-500/30 border-blue-500 shadow-lg shadow-blue-500/50"
+                    ? "bg-gradient-to-br from-blue-500/30 to-purple-500/30 border-blue-400 shadow-lg shadow-blue-500/50"
                     : mission.status === 'completed'
-                    ? "bg-green-500/20 border-green-500/30"
+                    ? "bg-slate-800 border-green-500"
                     : "bg-slate-800/90 border-slate-700 hover:bg-slate-800"
                 )}
                 onClick={() => {
@@ -440,50 +440,53 @@ const TodayFocusMode = () => {
               >
                 <CardHeader>
                   <div className="flex items-center justify-between mb-2">
-                    <Badge className={getDifficultyColor(mission.difficulty)}>
+                    <Badge className={cn(
+                      getDifficultyColor(mission.difficulty),
+                      "text-white font-semibold"
+                    )}>
                       {getDifficultyLabel(mission.difficulty)}
                     </Badge>
                     {mission.status === 'completed' && (
-                      <CheckCircle2 className="w-6 h-6 text-green-500" />
+                      <CheckCircle2 className="w-6 h-6 text-green-400" />
                     )}
                     {mission.mission_option && (
-                      <Badge variant="outline" className="text-white border-white/30">
+                      <Badge variant="outline" className="text-slate-200 border-slate-500">
                         ตัวเลือกที่ {mission.mission_option}
                       </Badge>
                     )}
                   </div>
-                  <CardTitle className="text-white text-lg">
+                  <CardTitle className="text-white text-xl font-bold">
                     {mission.skill_name}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2 text-slate-300">
-                    <div className="flex items-center gap-2">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-slate-200">
                       <Target className="w-4 h-4" />
-                      <span>{mission.total_questions} ข้อ</span>
+                      <span className="font-medium">{mission.total_questions} ข้อ</span>
                     </div>
                     {mission.ai_reasoning && (
-                      <p className="text-sm mt-3 p-3 bg-slate-900 rounded-lg text-slate-200 font-medium">
+                      <p className="text-sm mt-3 p-3 bg-slate-900/80 rounded-lg text-slate-100 font-medium border border-slate-700">
                         💡 {mission.ai_reasoning}
                       </p>
                     )}
                     
                     {/* Show results for completed missions */}
                     {mission.status === 'completed' && (
-                      <div className="mt-3 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                      <div className="mt-3 p-3 bg-green-900/30 border-2 border-green-500 rounded-lg">
                         <div className="flex items-center gap-2 mb-2">
-                          <CheckCircle2 className="w-4 h-4 text-green-400" />
-                          <span className="text-green-300 font-semibold text-sm">ทำสำเร็จแล้ว!</span>
+                          <CheckCircle2 className="w-5 h-5 text-green-400" />
+                          <span className="text-green-300 font-bold text-base">ทำสำเร็จแล้ว!</span>
                         </div>
-                        <div className="flex items-center gap-1 mb-1">
+                        <div className="flex items-center gap-1 mb-2">
                           {Array.from({ length: mission.stars_earned || 0 }).map((_, i) => (
-                            <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                            <Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />
                           ))}
                           {mission.stars_earned === 0 && (
-                            <span className="text-slate-400 text-xs">ยังไม่ผ่าน</span>
+                            <span className="text-orange-300 font-semibold text-sm">❌ ยังไม่ผ่าน</span>
                           )}
                         </div>
-                        <p className="text-slate-300 text-sm">
+                        <p className="text-white font-medium text-base">
                           คะแนน: {mission.correct_answers}/{mission.total_questions} ข้อ
                           ({Math.round((mission.correct_answers! / mission.total_questions) * 100)}%)
                         </p>
@@ -491,7 +494,7 @@ const TodayFocusMode = () => {
                           <Button 
                             size="sm" 
                             variant="outline" 
-                            className="mt-2 w-full text-yellow-300 border-yellow-500/50 hover:bg-yellow-500/10"
+                            className="mt-3 w-full text-yellow-300 border-yellow-400 hover:bg-yellow-500/20 hover:text-yellow-200 font-semibold"
                             onClick={(e) => {
                               e.stopPropagation();
                               setSelectedMission(mission);
