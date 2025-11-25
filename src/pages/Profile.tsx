@@ -968,6 +968,34 @@ const Profile = () => {
                   </div>
                 </Link>
 
+                {/* Training Calendar Button */}
+                <Link 
+                  to="/training-calendar"
+                  className="block w-full mt-4"
+                >
+                  <div className="bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 hover:from-orange-600 hover:via-amber-600 hover:to-yellow-600 text-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] cursor-pointer">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+                          <Trophy className="w-6 h-6" />
+                          ปฏิทินการฝึกของฉัน
+                        </h3>
+                        <p className="text-sm text-white/90 mb-3">
+                          ติดตามความก้าวหน้าในแต่ละวัน พร้อม AI ช่วยสร้างภารกิจที่เหมาะกับคุณ
+                        </p>
+                        <ul className="text-xs space-y-1 text-white/80">
+                          <li>🎯 ภารกิจประจำวันจาก AI</li>
+                          <li>🔥 สะสม Streak และดาว</li>
+                          <li>🏆 แลกรางวัลพิเศษ</li>
+                        </ul>
+                      </div>
+                      <div className="text-6xl ml-4">
+                        📅
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+
                 {/* Quick Tips */}
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div className="bg-white/50 rounded-lg p-3 text-center border border-purple-200">
