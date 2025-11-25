@@ -425,9 +425,9 @@ const TodayFocusMode = () => {
               <Card
                 key={mission.id}
                 className={cn(
-                  "cursor-pointer transition-all duration-300 hover:scale-105 border-2",
+                  "cursor-pointer transition-all duration-300 hover:scale-105 border-2 relative overflow-hidden",
                   selectedMission?.id === mission.id
-                    ? "bg-gradient-to-br from-blue-500/30 to-purple-500/30 border-blue-400 shadow-lg shadow-blue-500/50"
+                    ? "bg-gradient-to-br from-blue-600 to-purple-600 border-yellow-400 shadow-2xl shadow-blue-500/50 ring-4 ring-yellow-400/30"
                     : mission.status === 'completed'
                     ? "bg-slate-800 border-green-500"
                     : "bg-slate-800/90 border-slate-700 hover:bg-slate-800"
@@ -438,35 +438,55 @@ const TodayFocusMode = () => {
                   }
                 }}
               >
-                <CardHeader>
+                {/* Selected overlay for better contrast */}
+                {selectedMission?.id === mission.id && (
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/40 to-purple-500/40 pointer-events-none" />
+                )}
+                <CardHeader className="relative z-10">
                   <div className="flex items-center justify-between mb-2">
                     <Badge className={cn(
                       getDifficultyColor(mission.difficulty),
-                      "text-white font-semibold"
+                      "text-white font-semibold shadow-lg"
                     )}>
                       {getDifficultyLabel(mission.difficulty)}
                     </Badge>
                     {mission.status === 'completed' && (
                       <CheckCircle2 className="w-6 h-6 text-green-400" />
                     )}
-                    {mission.mission_option && (
-                      <Badge variant="outline" className="text-slate-200 border-slate-500">
+                    {selectedMission?.id === mission.id && (
+                      <Badge className="bg-yellow-400 text-slate-900 font-bold animate-pulse">
+                        ✓ เลือกแล้ว
+                      </Badge>
+                    )}
+                    {mission.mission_option && !selectedMission && (
+                      <Badge variant="outline" className="text-slate-200 border-slate-500 bg-slate-900/50">
                         ตัวเลือกที่ {mission.mission_option}
                       </Badge>
                     )}
                   </div>
-                  <CardTitle className="text-white text-xl font-bold">
+                  <CardTitle className={cn(
+                    "text-xl font-bold",
+                    selectedMission?.id === mission.id ? "text-white drop-shadow-lg" : "text-white"
+                  )}>
                     {mission.skill_name}
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="relative z-10">
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-slate-200">
-                      <Target className="w-4 h-4" />
-                      <span className="font-medium">{mission.total_questions} ข้อ</span>
+                    <div className={cn(
+                      "flex items-center gap-2 font-medium",
+                      selectedMission?.id === mission.id ? "text-white" : "text-slate-200"
+                    )}>
+                      <Target className="w-5 h-5" />
+                      <span className="font-semibold">{mission.total_questions} ข้อ</span>
                     </div>
                     {mission.ai_reasoning && (
-                      <p className="text-sm mt-3 p-3 bg-slate-900/80 rounded-lg text-slate-100 font-medium border border-slate-700">
+                      <p className={cn(
+                        "text-sm mt-3 p-3 rounded-lg font-medium border",
+                        selectedMission?.id === mission.id
+                          ? "bg-slate-900/90 text-white border-slate-600 shadow-lg"
+                          : "bg-slate-900/80 text-slate-100 border-slate-700"
+                      )}>
                         💡 {mission.ai_reasoning}
                       </p>
                     )}
