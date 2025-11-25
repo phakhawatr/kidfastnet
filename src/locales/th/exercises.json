@@ -57,6 +57,11 @@
     "checkAnswer": "ตรวจคำตอบ",
     "submitAll": "ส่งทั้งหมด"
   },
+  "themeToggle": {
+    "light": "สว่าง",
+    "dark": "มืด",
+    "toggle": "สลับธีม"
+  },
   "results": {
     "excellent": "ยอดเยี่ยม!",
     "greatJob": "ดีมาก!",
