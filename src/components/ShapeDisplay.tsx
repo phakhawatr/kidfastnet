@@ -1,9 +1,12 @@
+import React from 'react';
+
 interface ShapeDisplayProps {
   shape: string;
   size?: number;
 }
 
-const ShapeDisplay = ({ shape, size = 48 }: ShapeDisplayProps) => {
+const ShapeDisplay: React.FC<ShapeDisplayProps> = ({ shape, size = 48 }) => {
+  console.log('🎨 ShapeDisplay rendering:', { shape, size });
   const shapeColors: Record<string, string> = {
     'circle-red': '#ef4444',
     'circle-blue': '#3b82f6',
