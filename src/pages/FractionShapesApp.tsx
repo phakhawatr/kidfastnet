@@ -727,9 +727,6 @@ const FractionShapesApp: React.FC = () => {
                     {t('common.question')} {problem.id}
                   </div>
                   <ShapeRenderer problem={problem} />
-                  <div className="mt-4 text-sm text-slate-400">
-                    {t('fractionShapes.coloredParts')}: {problem.filledParts} / {problem.totalParts}
-                  </div>
                 </div>
 
                 {/* Answer Input */}
