@@ -414,7 +414,7 @@ const Quiz = () => {
                 </RadioGroup>
               </div>
 
-              {selectedGrade !== 3 && (
+              {selectedGrade !== 3 && selectedGrade !== 7 && (
                 <div>
                   <Label className="text-lg mb-3 block font-semibold">เลือกเทอม</Label>
                   <RadioGroup value={String(selectedSemester)} onValueChange={(v) => setSelectedSemester(Number(v))}>
