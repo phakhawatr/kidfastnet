@@ -44,11 +44,17 @@ const STEMHub = () => {
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
         <div className="text-center mb-12 animate-fade-in">
-          <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full mb-6">
-            <Atom className="w-8 h-8 text-yellow-300 animate-spin-slow" />
-            <h1 className="text-4xl md:text-5xl font-bold text-white">
-              {t('title')}
-            </h1>
+          <div className="flex justify-center items-center gap-4 mb-6">
+            <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full">
+              <Atom className="w-8 h-8 text-yellow-300 animate-spin-slow" />
+              <h1 className="text-4xl md:text-5xl font-bold text-white">
+                {t('title')}
+              </h1>
+            </div>
+            
+            <button className="px-6 py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 animate-pulse">
+              ทดลองการใช้งาน
+            </button>
           </div>
           <p className="text-xl text-white/90 mb-4">{t('subtitle')}</p>
           <p className="text-lg text-white/80 max-w-2xl mx-auto">
