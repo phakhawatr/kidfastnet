@@ -92,15 +92,15 @@ serve(async (req) => {
       );
     }
 
-    // Delete any existing incomplete missions for today before generating new ones
+    // Delete ALL existing missions for today before generating new ones
     if (existingMissions.length > 0) {
       console.log(`Deleting ${existingMissions.length} existing missions for today...`);
       const { error: deleteError } = await supabase
         .from('daily_missions')
         .delete()
         .eq('user_id', userId)
-        .eq('mission_date', today)
-        .neq('status', 'completed');
+        .eq('mission_date', today);
+        // Remove .neq('status', 'completed') to delete all missions including completed ones
 
       if (deleteError) {
         console.error('Error deleting existing missions:', deleteError);
