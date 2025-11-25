@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { useTranslation } from 'react-i18next';
+import { useMissionMode } from "@/hooks/useMissionMode";
+import { MissionCompleteModal } from "@/components/MissionCompleteModal";
 
 // ---------- Utilities ----------
 function randInt(min, max) {
@@ -201,12 +203,23 @@ function Card({ idx, time, answer, setAnswer, result, showAnswer, onReset }) {
 // ---------- Main App ----------
 export default function TimeApp() {
   const { t } = useTranslation('exercises');
+  
+  // Mission mode integration
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
+  
   const [questionCount, setQuestionCount] = useState(10);
   const [times, setTimes] = useState(() => generateRandomTimes(10));
   const [answers, setAnswers] = useState(() => times.map(() => ({ h: "", m: "" })));
   const [results, setResults] = useState(() => times.map(() => "pending"));
   const [showAnswers, setShowAnswers] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
+  const [startedAt, setStartedAt] = useState<number | null>(null);
   
   // PDF states
   const [showPdfPreview, setShowPdfPreview] = useState(false);
@@ -248,7 +261,9 @@ export default function TimeApp() {
     }, 0);
   }
 
-  function checkAnswers() {
+  async function checkAnswers() {
+    if (!startedAt) setStartedAt(Date.now());
+    
     const newResults = times.map((t, i) => {
       const hh = normalizeHour12(answers[i].h);
       const mm = parseInt(answers[i].m, 10);
@@ -257,7 +272,17 @@ export default function TimeApp() {
       return hh === t.h && mm === t.m ? "correct" : "wrong";
     });
     setResults(newResults);
+    
+    const correctCount = newResults.filter((r) => r === "correct").length;
+    
+    // Mission mode
+    if (isMissionMode) {
+      const timeSpent = Date.now() - (startedAt || Date.now());
+      await handleCompleteMission(correctCount, times.length, timeSpent);
+      return;
+    }
 
+    // Regular mode
     if (newResults.every((r) => r === "correct")) {
       setCelebrate(true);
       setTimeout(() => setCelebrate(false), 2500);
@@ -603,6 +628,23 @@ export default function TimeApp() {
       </main>
 
       {celebrate && <Confetti />}
+      
+      {/* Mission Complete Modal */}
+      {missionResult && (
+        <MissionCompleteModal
+          open={showMissionComplete}
+          onOpenChange={setShowMissionComplete}
+          stars={missionResult.stars}
+          correct={missionResult.correct}
+          total={missionResult.total}
+          timeSpent={missionResult.timeSpent}
+          isPassed={missionResult.isPassed}
+          onRetry={() => {
+            resetAll();
+            setShowMissionComplete(false);
+          }}
+        />
+      )}
 
       <footer className="max-w-6xl mx-auto p-6 text-xs text-zinc-500">
         © Interactive worksheet for kids — You can set your own times using the buttons above.

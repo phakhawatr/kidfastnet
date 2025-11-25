@@ -10,6 +10,8 @@ import { useBackgroundMusic } from '../hooks/useBackgroundMusic';
 import { BackgroundMusic } from '../components/BackgroundMusic';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { supabase } from '@/integrations/supabase/client';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 // Types and interfaces
 type DivisionType = 'integer' | 'decimal' | 'remainder';
@@ -87,6 +89,15 @@ const DivisionApp: React.FC = () => {
   const [pdfPreviewContent, setPdfPreviewContent] = useState('');
   const [schoolLogo, setSchoolLogo] = useState('');
   const logoInputRef = useRef<HTMLInputElement>(null);
+  
+  // Mission mode integration
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
 
   // Generate remainder options for multiple choice
   const generateRemainderOptions = (problem: Problem): { quotient: number; remainder: number }[] => {
@@ -313,7 +324,7 @@ const DivisionApp: React.FC = () => {
   };
 
   // Check all answers
-  const checkAnswers = () => {
+  const checkAnswers = async () => {
     backgroundMusic.stop();
     
     if (intervalRef.current) {
@@ -345,6 +356,15 @@ const DivisionApp: React.FC = () => {
     });
     setCorrectCount(correct);
     setResults('checked');
+    
+    // If mission mode, complete mission
+    if (isMissionMode) {
+      const timeSpent = startedAt ? now - startedAt : elapsedMs;
+      await handleCompleteMission(correct, problems.length, timeSpent);
+      return;
+    }
+    
+    // Regular mode
     setShowResults(true);
     setLineSent(false); // Reset sent status when checking new answers
 
@@ -991,6 +1011,23 @@ const DivisionApp: React.FC = () => {
           </Button>
         </DialogContent>
       </Dialog>
+      
+      {/* Mission Complete Modal */}
+      {missionResult && (
+        <MissionCompleteModal
+          open={showMissionComplete}
+          onOpenChange={setShowMissionComplete}
+          stars={missionResult.stars}
+          correct={missionResult.correct}
+          total={missionResult.total}
+          timeSpent={missionResult.timeSpent}
+          isPassed={missionResult.isPassed}
+          onRetry={() => {
+            generateNewSet();
+            setShowMissionComplete(false);
+          }}
+        />
+      )}
       
       <BackgroundMusic
         isPlaying={backgroundMusic.isPlaying}
