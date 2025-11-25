@@ -393,8 +393,20 @@ export const useTrainingCalendar = () => {
 
       if (deleteError) throw deleteError;
 
-      // Generate new 3 missions
-      return await generateTodayMission();
+      // Call edge function to generate new missions
+      const { data: functionData, error: functionError } = await supabase.functions.invoke(
+        'generate-daily-mission',
+        { body: { userId } }
+      );
+
+      if (functionError) throw functionError;
+
+      if (functionData?.missions) {
+        await fetchMissions(new Date().getMonth() + 1, new Date().getFullYear());
+        return { success: true };
+      }
+
+      return { success: false };
     } catch (error) {
       console.error('Error regenerating missions:', error);
       toast({

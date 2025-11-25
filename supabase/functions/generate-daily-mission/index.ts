@@ -79,15 +79,33 @@ serve(async (req) => {
     const today = new Date().toISOString().split('T')[0];
     const existingMissions = recentMissions?.filter(m => m.mission_date === today) || [];
 
-    if (existingMissions.length >= 3) {
+    // If we have 3 complete missions for today, return them
+    const completedMissions = existingMissions.filter(m => m.status === 'completed');
+    if (completedMissions.length >= 3) {
       return new Response(
         JSON.stringify({ 
           success: true, 
-          missions: existingMissions,
+          missions: completedMissions,
           message: 'Missions already exist for today'
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    // Delete any existing incomplete missions for today before generating new ones
+    if (existingMissions.length > 0) {
+      console.log(`Deleting ${existingMissions.length} existing missions for today...`);
+      const { error: deleteError } = await supabase
+        .from('daily_missions')
+        .delete()
+        .eq('user_id', userId)
+        .eq('mission_date', today)
+        .neq('status', 'completed');
+
+      if (deleteError) {
+        console.error('Error deleting existing missions:', deleteError);
+        throw deleteError;
+      }
     }
 
     // Prepare data for AI
