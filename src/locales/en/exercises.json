@@ -598,5 +598,40 @@
     "completed": "Completed",
     "grid": "Grid",
     "instructions": "Solve the sum grid puzzle: Fill numbers in empty cells so row and column sums are correct"
+  },
+  "shapeSeries": {
+    "title": "Shape Series",
+    "instruction": "Look at the shape sequence and select the next shape",
+    "patternType": "Pattern Type",
+    "any": "Any",
+    "ab": "AB (2 shapes)",
+    "abc": "ABC (3 shapes)",
+    "aabb": "AABB (Double)",
+    "abba": "ABBA (Mirror)",
+    "abcd": "ABCD (4 shapes)",
+    "selectNext": "Select Next",
+    "nextShape": "Next Shape",
+    "pattern": "Pattern",
+    "yourChoice": "Your Choice",
+    "foundPattern": "Found Pattern"
+  },
+  "fractionShapes": {
+    "title": "Fraction Shapes",
+    "instruction": "What fraction is the colored part of the whole shape? Enter the fraction",
+    "numerator": "Numerator",
+    "denominator": "Denominator",
+    "of": "of",
+    "coloredParts": "Colored Parts",
+    "totalParts": "Total Parts",
+    "shapes": {
+      "circle": "Circle",
+      "triangle": "Triangle",
+      "pentagon": "Pentagon",
+      "heptagon": "Heptagon",
+      "flower": "Flower",
+      "star": "Star",
+      "plus": "Plus",
+      "cube": "Cube"
+    }
   }
 }

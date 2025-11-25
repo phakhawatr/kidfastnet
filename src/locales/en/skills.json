@@ -122,6 +122,10 @@
       "title": "Fractions",
       "desc": "Understand fractions, learn division and comparison"
     },
+    "fractionShapes": {
+      "title": "Fraction Shapes",
+      "desc": "Practice fractions with various shapes: circles, triangles, flowers, stars, and more"
+    },
     "percentage": {
       "title": "Percentage",
       "desc": "Learn percentage calculations, understand decimal conversions"
