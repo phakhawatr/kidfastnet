@@ -162,6 +162,16 @@ const getDefaultSkills = (t: any): Skill[] => [{
   hrefPreview: '/shape-series',
   translationKey: 'shapeSeries'
 }, {
+  icon: Shapes,
+  title: t('skills.fractionShapes.title'),
+  desc: t('skills.fractionShapes.desc'),
+  backgroundGradient: 'bg-gradient-to-br from-amber-400 via-orange-500 to-red-600',
+  textColor: 'text-white',
+  sticker: '🧩',
+  hrefPreview: '/fraction-shapes',
+  mascotImage: fractionsMascot,
+  translationKey: 'fractionShapes'
+}, {
   icon: Table,
   title: t('skills.multiplicationTable.title'),
   desc: t('skills.multiplicationTable.desc'),
