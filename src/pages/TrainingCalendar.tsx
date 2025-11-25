@@ -12,7 +12,7 @@ import { th } from 'date-fns/locale';
 const TrainingCalendar = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { missions, streak, isLoading, fetchMissions } = useTrainingCalendar();
+  const { missions, streak, isLoading, userId } = useTrainingCalendar();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
@@ -21,10 +21,6 @@ const TrainingCalendar = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  useEffect(() => {
-    fetchMissions(currentDate.getMonth() + 1, currentDate.getFullYear());
-  }, [currentDate]);
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
@@ -145,6 +141,20 @@ const TrainingCalendar = () => {
   const progressPercentage = workDays > 0 ? (completedMissions / workDays) * 100 : 0;
 
   const totalStarsThisMonth = missions.reduce((sum, m) => sum + (m.stars_earned || 0), 0);
+
+  if (!userId && !isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 flex items-center justify-center">
+        <Card className="p-8 text-center max-w-md">
+          <h2 className="text-2xl font-bold mb-4 text-slate-800">{t('trainingCalendar.loginRequired')}</h2>
+          <p className="text-slate-600 mb-6">{t('trainingCalendar.loginMessage')}</p>
+          <Button onClick={() => navigate('/login')} size="lg" className="w-full">
+            {t('trainingCalendar.goToLogin')}
+          </Button>
+        </Card>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

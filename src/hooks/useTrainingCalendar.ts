@@ -56,6 +56,8 @@ export const useTrainingCalendar = () => {
         const storedUserId = localStorage.getItem('currentUserId');
         if (storedUserId) {
           setUserId(storedUserId);
+        } else {
+          setIsLoading(false);
         }
       }
     };
@@ -65,7 +67,10 @@ export const useTrainingCalendar = () => {
 
   // Fetch missions for a specific month
   const fetchMissions = async (month: number, year: number) => {
-    if (!userId) return;
+    if (!userId) {
+      setIsLoading(false);
+      return;
+    }
 
     try {
       setIsLoading(true);
