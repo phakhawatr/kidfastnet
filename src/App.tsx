@@ -252,7 +252,7 @@ const App = () => {
             } 
           />
           <Route 
-            path="/NumberSeries" 
+            path="/number-series" 
             element={
               <ProtectedRoute>
                 <NumberSeriesApp />
@@ -260,7 +260,7 @@ const App = () => {
             } 
           />
           <Route 
-            path="/SumGridPuzzles" 
+            path="/sum-grid" 
             element={
               <ProtectedRoute>
                 <SumGridPuzzles />
