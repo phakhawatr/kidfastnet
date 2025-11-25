@@ -735,6 +735,8 @@ export default function AdditionApp() {
   }
   
   async function handleCompleteMission(correct: number, total: number, timeMs: number) {
+    console.log('🎯 handleCompleteMission called:', { correct, total, timeMs, missionId });
+    
     const accuracy = (correct / total) * 100;
     const timeSeconds = Math.floor(timeMs / 1000);
     
@@ -754,15 +756,19 @@ export default function AdditionApp() {
       }
     }
     
+    console.log('📊 Mission stats:', { accuracy, isPassed, stars, timeSeconds });
+    
     // Save to database
     try {
-      await completeMission(missionId!, {
+      console.log('💾 Calling completeMission with:', missionId);
+      const result = await completeMission(missionId!, {
         total_questions: total,
         correct_answers: correct,
         time_spent: timeSeconds
       });
+      console.log('✅ completeMission result:', result);
     } catch (error) {
-      console.error('Error completing mission:', error);
+      console.error('❌ Error completing mission:', error);
     }
     
     // Show mission complete modal
