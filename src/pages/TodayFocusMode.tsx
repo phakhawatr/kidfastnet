@@ -281,10 +281,10 @@ const TodayFocusMode = () => {
     );
   }
 
-  // Check if all completed
-  const allCompleted = todayMissions.every(m => m.status === 'completed');
+  // Check if all completed - require exactly 3 missions AND all completed
+  const allCompleted = todayMissions.length >= 3 && todayMissions.every(m => m.status === 'completed');
 
-  // Show completed view
+  // Show completed view only when ALL 3 missions are done
   if (allCompleted) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
@@ -430,10 +430,13 @@ const TodayFocusMode = () => {
                     ? "bg-gradient-to-br from-blue-500/30 to-purple-500/30 border-blue-500 shadow-lg shadow-blue-500/50"
                     : mission.status === 'completed'
                     ? "bg-green-500/20 border-green-500/30"
-                    : "bg-slate-800/90 border-slate-700 hover:bg-slate-800",
-                  mission.status === 'completed' && "opacity-75"
+                    : "bg-slate-800/90 border-slate-700 hover:bg-slate-800"
                 )}
-                onClick={() => mission.status !== 'completed' && setSelectedMission(mission)}
+                onClick={() => {
+                  if (mission.status !== 'completed' || mission.can_retry) {
+                    setSelectedMission(mission);
+                  }
+                }}
               >
                 <CardHeader>
                   <div className="flex items-center justify-between mb-2">
@@ -464,6 +467,41 @@ const TodayFocusMode = () => {
                         💡 {mission.ai_reasoning}
                       </p>
                     )}
+                    
+                    {/* Show results for completed missions */}
+                    {mission.status === 'completed' && (
+                      <div className="mt-3 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-400" />
+                          <span className="text-green-300 font-semibold text-sm">ทำสำเร็จแล้ว!</span>
+                        </div>
+                        <div className="flex items-center gap-1 mb-1">
+                          {Array.from({ length: mission.stars_earned || 0 }).map((_, i) => (
+                            <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                          ))}
+                          {mission.stars_earned === 0 && (
+                            <span className="text-slate-400 text-xs">ยังไม่ผ่าน</span>
+                          )}
+                        </div>
+                        <p className="text-slate-300 text-sm">
+                          คะแนน: {mission.correct_answers}/{mission.total_questions} ข้อ
+                          ({Math.round((mission.correct_answers! / mission.total_questions) * 100)}%)
+                        </p>
+                        {mission.can_retry && (
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="mt-2 w-full text-yellow-300 border-yellow-500/50 hover:bg-yellow-500/10"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedMission(mission);
+                            }}
+                          >
+                            🔄 ทำใหม่อีกครั้ง
+                          </Button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -474,12 +512,12 @@ const TodayFocusMode = () => {
           <div className="flex flex-col items-center gap-3">
             <Button
               onClick={() => handleStartMission(selectedMission)}
-              disabled={!selectedMission || selectedMission?.status === 'completed'}
+              disabled={!selectedMission}
               size="lg"
               className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold px-12 disabled:opacity-50"
             >
               <Zap className="w-5 h-5 mr-2" />
-              เริ่มภารกิจที่เลือก
+              {selectedMission?.status === 'completed' ? 'ทำภารกิจอีกครั้ง' : 'เริ่มภารกิจที่เลือก'}
             </Button>
 
             {/* Regenerate Button */}
