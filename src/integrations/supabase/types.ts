@@ -319,9 +319,11 @@ export type Database = {
           completed_questions: number | null
           correct_answers: number | null
           created_at: string | null
+          daily_message: string | null
           difficulty: string
           id: string
           mission_date: string
+          mission_option: number | null
           skill_name: string
           stars_earned: number | null
           status: string
@@ -336,9 +338,11 @@ export type Database = {
           completed_questions?: number | null
           correct_answers?: number | null
           created_at?: string | null
+          daily_message?: string | null
           difficulty: string
           id?: string
           mission_date: string
+          mission_option?: number | null
           skill_name: string
           stars_earned?: number | null
           status?: string
@@ -353,9 +357,11 @@ export type Database = {
           completed_questions?: number | null
           correct_answers?: number | null
           created_at?: string | null
+          daily_message?: string | null
           difficulty?: string
           id?: string
           mission_date?: string
+          mission_option?: number | null
           skill_name?: string
           stars_earned?: number | null
           status?: string

@@ -17,6 +17,8 @@ export interface DailyMission {
   can_retry: boolean;
   user_id: string;
   created_at: string;
+  mission_option?: number;
+  daily_message?: string;
 }
 
 export interface UserStreak {
