@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { CheckCircle2, XCircle, ArrowLeft, Trophy, Clock, Target } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { compareAnswers } from '@/utils/examReportUtils';
+import QuestionTextRenderer from '@/components/QuestionTextRenderer';
+import ChoiceRenderer from '@/components/ChoiceRenderer';
 
 interface QuestionResult {
   question: string;
@@ -258,22 +260,26 @@ function StudentExamResult() {
                         </span>
                       </div>
                       
-                      <p className="text-foreground mb-3">{q.question}</p>
+                      <QuestionTextRenderer text={q.question} className="text-foreground mb-3" />
                       
                       <div className="space-y-2">
                         <div className="flex items-start gap-2">
                           <span className="text-muted-foreground whitespace-nowrap">คำตอบของคุณ:</span>
-                          <span className={`font-medium ${isCorrect ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
-                            {displayUserAnswer}
-                          </span>
+                          <ChoiceRenderer 
+                            choice={displayUserAnswer} 
+                            size={48} 
+                            className={`font-medium ${isCorrect ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}
+                          />
                         </div>
                         
                         {!isCorrect && (
                           <div className="flex items-start gap-2">
                             <span className="text-muted-foreground whitespace-nowrap">เฉลย:</span>
-                            <span className="font-medium text-green-700 dark:text-green-400">
-                              {q.correctAnswer}
-                            </span>
+                            <ChoiceRenderer 
+                              choice={q.correctAnswer} 
+                              size={48} 
+                              className="font-medium text-green-700 dark:text-green-400"
+                            />
                           </div>
                         )}
                       </div>
