@@ -365,11 +365,11 @@ const TodayFocusMode = () => {
 
           {/* AI Daily Message */}
           {dailyMessage && (
-            <Card className="mt-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-sm border-purple-500/30">
+            <Card className="mt-4 bg-slate-800/95 backdrop-blur-sm border-yellow-500/50">
               <CardContent className="p-4">
                 <div className="flex items-start gap-3">
                   <Sparkles className="w-6 h-6 text-yellow-400 flex-shrink-0 mt-1" />
-                  <p className="text-white text-left">
+                  <p className="text-white text-left font-medium">
                     {dailyMessage}
                   </p>
                 </div>
@@ -488,7 +488,7 @@ const TodayFocusMode = () => {
               disabled={isGenerating}
               variant="outline"
               size="sm"
-              className="text-slate-300 border-slate-600 hover:bg-slate-800"
+              className="text-white font-medium border-slate-500 bg-slate-800/80 hover:bg-slate-700 hover:border-yellow-500/50"
             >
               {isGenerating ? (
                 <>
