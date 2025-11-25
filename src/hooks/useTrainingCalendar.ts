@@ -368,6 +368,46 @@ export const useTrainingCalendar = () => {
     }
   };
 
+  // Regenerate missions (delete old incomplete ones and create new)
+  const regenerateMissions = async () => {
+    if (!userId) {
+      toast({
+        title: 'ไม่พบข้อมูลผู้ใช้',
+        description: 'กรุณาเข้าสู่ระบบใหม่',
+        variant: 'destructive',
+      });
+      return { success: false };
+    }
+
+    try {
+      setIsGenerating(true);
+
+      // Delete today's incomplete missions
+      const today = new Date().toISOString().split('T')[0];
+      const { error: deleteError } = await supabase
+        .from('daily_missions')
+        .delete()
+        .eq('user_id', userId)
+        .eq('mission_date', today)
+        .neq('status', 'completed');
+
+      if (deleteError) throw deleteError;
+
+      // Generate new 3 missions
+      return await generateTodayMission();
+    } catch (error) {
+      console.error('Error regenerating missions:', error);
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: 'ไม่สามารถสร้างภารกิจใหม่ได้',
+        variant: 'destructive',
+      });
+      return { success: false };
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   // Initialize data on mount
   useEffect(() => {
     if (userId) {
@@ -389,5 +429,6 @@ export const useTrainingCalendar = () => {
     completeMission,
     catchUpMission,
     generateTodayMission,
+    regenerateMissions,
   };
 };
