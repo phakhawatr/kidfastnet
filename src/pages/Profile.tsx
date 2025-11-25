@@ -1119,13 +1119,13 @@ const Profile = () => {
               { nameKey: 'recentApps.subtraction', icon: '➖', color: 'bg-gradient-to-br from-blue-200 to-blue-300', link: '/subtraction' },
               { nameKey: 'recentApps.multiplication', icon: '✖️', color: 'bg-gradient-to-br from-purple-200 to-purple-300', link: '/multiply' },
               { nameKey: 'recentApps.division', icon: '➗', color: 'bg-gradient-to-br from-green-200 to-green-300', link: '/division' },
+              { nameKey: 'recentApps.shapeSeries', icon: '🔄', color: 'bg-gradient-to-br from-violet-200 to-violet-300', link: '/shape-series' },
               { nameKey: 'recentApps.fractions', icon: '🍕', color: 'bg-gradient-to-br from-orange-200 to-orange-300', link: '/fraction-matching' },
               { nameKey: 'recentApps.time', icon: '🕐', color: 'bg-gradient-to-br from-cyan-200 to-cyan-300', link: '/time' },
               { nameKey: 'recentApps.weight', icon: '⚖️', color: 'bg-gradient-to-br from-yellow-200 to-yellow-300', link: '/weighing' },
               { nameKey: 'recentApps.shapes', icon: '🔷', color: 'bg-gradient-to-br from-indigo-200 to-indigo-300', link: '/shape-matching' },
               { nameKey: 'recentApps.length', icon: '📏', color: 'bg-gradient-to-br from-teal-200 to-teal-300', link: '/length-comparison' },
-              { nameKey: 'recentApps.quickMath', icon: '⚡', color: 'bg-gradient-to-br from-red-200 to-red-300', link: '/quick-math' },
-              { nameKey: 'recentApps.shapeSeries', icon: '🔄', color: 'bg-gradient-to-br from-violet-200 to-violet-300', link: '/shape-series' }
+              { nameKey: 'recentApps.quickMath', icon: '⚡', color: 'bg-gradient-to-br from-red-200 to-red-300', link: '/quick-math' }
             ].map((app, index) => (
               <Link 
                 key={index} 
