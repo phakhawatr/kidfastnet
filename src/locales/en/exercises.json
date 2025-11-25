@@ -60,6 +60,8 @@
     "notBad": "Not Bad!",
     "keepTrying": "Keep Trying!",
     "youScored": "You scored {{correct}}/{{total}}",
+    "completed": "Completed!",
+    "correctAnswers": "Correct {{correct}}/{{total}}",
     "timeUsed": "Time",
     "playAgain": "Play Again",
     "summary": "Score and Time for This Round",
@@ -115,7 +117,17 @@
     "class": "Class:",
     "school": "School:",
     "date": "Date:",
-    "footer": "Created by {{appName}} | {{date}} | Page {{page}}/{{total}}"
+    "footer": "Created by {{appName}} | {{date}} | Page {{page}}/{{total}}",
+    "changeLogo": "Change Logo",
+    "supportedFormats": "Supports PNG, JPG (max 1MB)",
+    "schoolLogo": "School Logo",
+    "invalidFileType": "Please select an image file (PNG or JPG)",
+    "fileTooLarge": "File size exceeds 1MB",
+    "generationError": "Unable to generate PDF",
+    "saveError": "Unable to save PDF",
+    "page": "Page",
+    "number": "No:",
+    "downloaded": "PDF downloaded successfully"
   },
   "addition": {
     "title": "Addition",
@@ -357,6 +369,14 @@
     "tens": "Tens",
     "hundreds": "Hundreds",
     "thousands": "Thousands",
+    "backToHome": "Back to Home",
+    "digits": "digits",
+    "numberOfProblems": "Number of Problems",
+    "startNewGame": "Start New Game",
+    "answerPlaceholder": "Type your answer...",
+    "decomposeInstruction": "Enter the value for each place",
+    "decompose2Digits": "e.g. 23 = 20 + 3",
+    "decompose3Digits": "e.g. 345 = 300 + 40 + 5",
     "breakApart": "Break Apart",
     "whatIsValue": "What is the value of {{number}}?"
   },
@@ -366,14 +386,26 @@
     "totalBars": "Total Bars",
     "partBars": "Part Bars",
     "findTotal": "Find Total",
-    "findPart": "Find Part"
+    "findPart": "Find Part",
+    "resultsTitle": "Exercise Results",
+    "score": "Score",
+    "timeUsed": "Time Used",
+    "answerDetails": "Answer Details",
+    "startNew": "Start New",
+    "correct": "Correct!",
+    "incorrect": "Incorrect"
   },
   "areaModel": {
     "title": "Area Model",
     "subtitle": "Multiply with Area",
     "multiply": "Multiply",
     "breakdown": "Breakdown",
-    "total": "Total"
+    "total": "Total",
+    "backToHome": "Back to Home",
+    "digits": "digits",
+    "numberOfProblems": "Number of Problems",
+    "startNewGame": "Start New Game",
+    "answer": "Answer"
   },
   "numberBonds": {
     "title": "Number Bonds",
@@ -389,7 +421,18 @@
     "addition": "Addition",
     "subtraction": "Subtraction",
     "mixed": "Mixed",
-    "timeLimit": "Time Limit"
+    "timeLimit": "Time Limit",
+    "backToHome": "Back to Home",
+    "makeRound10": "Make Round 10",
+    "digits": "digits",
+    "makeRound100": "Make Round 100",
+    "numberOfProblems": "Number of Problems",
+    "startNewGame": "Start New Game",
+    "answer": "Answer",
+    "showThinking": "Show Thinking",
+    "avgPerQuestion": "Avg per question",
+    "yourAnswer": "Your answer",
+    "correct": "Correct answer"
   },
   "numberSeries": {
     "title": "Number Series",

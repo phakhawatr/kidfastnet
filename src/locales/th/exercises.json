@@ -60,6 +60,8 @@
     "notBad": "ใช้ได้!",
     "keepTrying": "สู้ต่ออีกนิด!",
     "youScored": "คุณทำได้ {{correct}}/{{total}} ข้อ",
+    "completed": "เสร็จสิ้น!",
+    "correctAnswers": "ตอบถูก {{correct}}/{{total}} ข้อ",
     "timeUsed": "เวลา",
     "playAgain": "เล่นอีกครั้ง",
     "summary": "ผลคะแนนและเวลาในรอบนี้",
@@ -115,7 +117,17 @@
     "class": "ชั้น:",
     "school": "โรงเรียน:",
     "date": "วันที่:",
-    "footer": "สร้างโดย {{appName}} | {{date}} | หน้า {{page}}/{{total}}"
+    "footer": "สร้างโดย {{appName}} | {{date}} | หน้า {{page}}/{{total}}",
+    "changeLogo": "เปลี่ยนโลโก้",
+    "supportedFormats": "รองรับไฟล์ PNG, JPG (ไม่เกิน 1MB)",
+    "schoolLogo": "โลโก้โรงเรียน",
+    "invalidFileType": "กรุณาเลือกไฟล์รูปภาพ (PNG หรือ JPG)",
+    "fileTooLarge": "ไฟล์มีขนาดใหญ่เกิน 1MB",
+    "generationError": "ไม่สามารถสร้าง PDF ได้",
+    "saveError": "ไม่สามารถบันทึก PDF ได้",
+    "page": "หน้า",
+    "number": "เลขที่:",
+    "downloaded": "ดาวน์โหลด PDF สำเร็จ"
   },
   "addition": {
     "title": "โจทย์บวก",
@@ -357,6 +369,14 @@
     "tens": "สิบ",
     "hundreds": "ร้อย",
     "thousands": "พัน",
+    "backToHome": "กลับหน้าหลัก",
+    "digits": "หลัก",
+    "numberOfProblems": "จำนวนโจทย์",
+    "startNewGame": "เริ่มเกมใหม่",
+    "answerPlaceholder": "พิมพ์คำตอบ...",
+    "decomposeInstruction": "กรอกจำนวนในแต่ละหลัก",
+    "decompose2Digits": "เช่น 23 = 20 + 3",
+    "decompose3Digits": "เช่น 345 = 300 + 40 + 5",
     "breakApart": "แยกหลักค่า",
     "whatIsValue": "เลข {{number}} มีค่าเท่าไร?"
   },
@@ -366,14 +386,26 @@
     "totalBars": "แท่งทั้งหมด",
     "partBars": "แท่งแบ่งส่วน",
     "findTotal": "หาค่ารวม",
-    "findPart": "หาค่าส่วน"
+    "findPart": "หาค่าส่วน",
+    "resultsTitle": "ผลการทำแบบฝึกหัด",
+    "score": "คะแนน",
+    "timeUsed": "เวลาที่ใช้",
+    "answerDetails": "รายละเอียดคำตอบ",
+    "startNew": "เริ่มใหม่",
+    "correct": "ถูกต้อง!",
+    "incorrect": "ไม่ถูกต้อง"
   },
   "areaModel": {
     "title": "พื้นที่แสดงผล",
     "subtitle": "คูณด้วยพื้นที่",
     "multiply": "คูณ",
     "breakdown": "แบ่งส่วน",
-    "total": "รวม"
+    "total": "รวม",
+    "backToHome": "กลับหน้าหลัก",
+    "digits": "หลัก",
+    "numberOfProblems": "จำนวนโจทย์",
+    "startNewGame": "เริ่มเกมใหม่",
+    "answer": "ตอบ"
   },
   "numberBonds": {
     "title": "การแยกจำนวน",
@@ -389,7 +421,18 @@
     "addition": "บวก",
     "subtraction": "ลบ",
     "mixed": "ผสม",
-    "timeLimit": "เวลาจำกัด"
+    "timeLimit": "เวลาจำกัด",
+    "backToHome": "กลับหน้าหลัก",
+    "makeRound10": "ทำให้กลม 10",
+    "digits": "หลัก",
+    "makeRound100": "ทำให้กลม 100",
+    "numberOfProblems": "จำนวนโจทย์",
+    "startNewGame": "เริ่มเกมใหม่",
+    "answer": "ตอบ",
+    "showThinking": "ดูวิธีคิด",
+    "avgPerQuestion": "เฉลี่ยต่อข้อ",
+    "yourAnswer": "คำตอบของคุณ",
+    "correct": "คำตอบที่ถูก"
   },
   "numberSeries": {
     "title": "ลำดับตัวเลข",
