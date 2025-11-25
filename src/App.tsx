@@ -49,6 +49,7 @@ import STEMProgressDashboard from "./pages/STEMProgressDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import QuestionBank from "./pages/QuestionBank";
 import TrainingCalendar from "./pages/TrainingCalendar";
+import TodayFocusMode from "./pages/TodayFocusMode";
 import AdminQuestionBank from "./pages/AdminQuestionBank";
 import TagManagement from "./pages/TagManagement";
 import PublicExam from "./pages/PublicExam";
@@ -116,6 +117,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <TrainingCalendar />
+              </ProtectedRoute>
+            } 
+          />
+          <Route
+            path="/today-mission" 
+            element={
+              <ProtectedRoute>
+                <TodayFocusMode />
               </ProtectedRoute>
             } 
           />
