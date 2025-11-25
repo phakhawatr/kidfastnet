@@ -1,6 +1,10 @@
 {
   "title": "My Training Calendar",
   "subtitle": "Track your daily progress",
+  "loading": "Loading calendar...",
+  "loginRequired": "Login Required",
+  "loginMessage": "Please login to view your training calendar",
+  "goToLogin": "Go to Login",
   "todayMission": "Today's Mission",
   "startNow": "Start Now!",
   "viewMission": "View Mission",
