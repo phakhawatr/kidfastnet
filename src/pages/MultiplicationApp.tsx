@@ -660,7 +660,7 @@ const MultiplicationApp = () => {
             <p className="text-muted-foreground dark:text-zinc-400">{t('multiplication.subtitle')}</p>
           </div>
           
-          <ThemeToggle />
+          {/* <ThemeToggle /> */}
           
           {/* Timer */}
           <div className="ml-auto flex items-center gap-2 bg-white dark:bg-slate-800 rounded-lg px-4 py-2 shadow-md dark:border dark:border-slate-700">

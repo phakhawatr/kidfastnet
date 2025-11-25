@@ -1268,7 +1268,7 @@ export default function AdditionApp() {
             <ArrowLeft className="w-5 h-5" />
             <span>{t('common.backToProfile')}</span>
           </Link>
-          <ThemeToggle />
+          {/* <ThemeToggle /> */}
         </div>
         <h1 className="text-3xl sm:text-4xl font-black flex items-center gap-2">🧮 {t('addition.title')}</h1>
         <p className="text-zinc-600 dark:text-zinc-400 mt-1 text-base">{t('addition.subtitle')}</p>

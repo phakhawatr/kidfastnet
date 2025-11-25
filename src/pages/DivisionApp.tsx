@@ -650,7 +650,7 @@ const DivisionApp: React.FC = () => {
             <ArrowLeft className="w-4 h-4" />
             {t('common.backToProfile', { defaultValue: 'กลับหน้าหลัก' })}
           </Button>
-          <ThemeToggle />
+          {/* <ThemeToggle /> */}
         </div>
 
         {/* Header */}

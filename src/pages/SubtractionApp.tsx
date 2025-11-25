@@ -564,7 +564,7 @@ const SubtractionApp: React.FC = () => {
             <ArrowLeft size={20} />
             <span>{t('common.backToProfile')}</span>
           </Link>
-          <ThemeToggle />
+          {/* <ThemeToggle /> */}
         </div>
         <h1 className="text-3xl sm:text-4xl font-black flex items-center gap-2">➖ การลบที่ผลลัพธ์ไม่เกิน 1,000</h1>
         <p className="text-zinc-600 dark:text-zinc-400 mt-1 text-base">ตอบผลลัพธ์ของโจทย์ลบ 2 หรือ 3 จำนวน โดยผลลัพธ์ไม่เกิน 1,000</p>
