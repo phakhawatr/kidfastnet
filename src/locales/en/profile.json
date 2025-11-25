@@ -81,6 +81,10 @@
           "title": "Number Sequence",
           "description": "Practice observing and finding numbers in sequence. Develop analytical thinking skills!"
         },
+        "shapeSeries": {
+          "title": "Shape Series",
+          "description": "Practice observing and predicting the next shape in repeating patterns. Develop logical thinking skills!"
+        },
         "shapeMatching": {
           "title": "Shape Matching",
           "description": "Learn different geometric shapes. Develop spatial visualization skills!"
@@ -94,6 +98,10 @@
         "addition": {
           "title": "Review Addition",
           "description": "Review addition to improve accuracy. A strong foundation is very important!"
+        },
+        "shapeSeries": {
+          "title": "Shape Series",
+          "description": "Practice observing and predicting the next shape in repeating patterns. Develop logical thinking skills!"
         },
         "shapeMatching": {
           "title": "Shape Matching",

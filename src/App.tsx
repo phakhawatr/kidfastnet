@@ -23,6 +23,7 @@ import FractionMatchingApp from "./pages/FractionMatchingApp";
 import PercentageApp from "./pages/PercentageApp";
 import NumberSeriesApp from "./pages/NumberSeriesApp";
 import SumGridPuzzles from "./pages/SumGridPuzzles";
+import ShapeSeriesApp from "./pages/ShapeSeriesApp";
 import BackgroundRemoverPage from "./pages/BackgroundRemover";
 import ParentDashboard from "./pages/ParentDashboard";
 import AnalyticsDashboard from "./pages/AnalyticsDashboard";
@@ -244,6 +245,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <SumGridPuzzles />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/shape-series" 
+            element={
+              <ProtectedRoute>
+                <ShapeSeriesApp />
               </ProtectedRoute>
             } 
           />

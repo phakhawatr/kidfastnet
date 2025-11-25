@@ -567,6 +567,18 @@
     "sum": "ผลรวม",
     "fillGrid": "เติมตัวเลขในตาราง"
   },
+  "shapeSeries": {
+    "title": "อนุกรมรูปทรง",
+    "subtitle": "ทายรูปทรงที่มาต่อในแบบรูปซ้ำ",
+    "whatComesNext": "รูปใดมาต่อในแบบรูปซ้ำ?",
+    "selectAnswer": "เลือกคำตอบ:",
+    "problemCount": "จำนวนข้อ",
+    "timer": "เวลา",
+    "patternAB": "แบบ AB",
+    "patternABC": "แบบ ABC",
+    "patternAABB": "แบบ AABB",
+    "patternABBA": "แบบ ABBA"
+  },
   "multiplicationTable": {
     "title": "สูตรคูณ",
     "subtitle": "ฝึกท่องสูตรคูณ",
