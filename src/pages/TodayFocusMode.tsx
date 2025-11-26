@@ -86,6 +86,15 @@ const TodayFocusMode = () => {
     autoGenerateMissions();
   }, [userId, isLoading, isGenerating, todayMissions.length, isWeekend]);
 
+  // Auto-refresh missions on mount (when page loads)
+  useEffect(() => {
+    if (userId) {
+      console.log('📥 TodayFocusMode mounted: Fetching missions...');
+      const today = new Date();
+      fetchMissions(today.getMonth() + 1, today.getFullYear());
+    }
+  }, [userId]);
+
   // Auto-refresh missions when window regains focus
   useEffect(() => {
     const handleFocus = () => {
