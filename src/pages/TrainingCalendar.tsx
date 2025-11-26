@@ -5,7 +5,7 @@ import { useTrainingCalendar } from '@/hooks/useTrainingCalendar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, ChevronLeft, ChevronRight, Lock, Calendar, Trophy, Star, Flame } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Lock, Calendar, Trophy, Star, Flame, TrendingUp } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isBefore, isAfter, getDay } from 'date-fns';
 import { th } from 'date-fns/locale';
 
@@ -179,7 +179,23 @@ const TrainingCalendar = () => {
             </Button>
           </Link>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              onClick={() => navigate('/weekly-progress')}
+              variant="outline"
+              className="border-purple-300 text-purple-700 hover:bg-purple-50"
+            >
+              <TrendingUp className="w-4 h-4 mr-2" />
+              รายงานสัปดาห์
+            </Button>
+            <Button
+              onClick={() => navigate('/mission-history')}
+              variant="outline"
+              className="border-blue-300 text-blue-700 hover:bg-blue-50"
+            >
+              <Calendar className="w-4 h-4 mr-2" />
+              ประวัติภารกิจ
+            </Button>
             <Button
               onClick={() => navigate('/rewards-shop')}
               className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold"

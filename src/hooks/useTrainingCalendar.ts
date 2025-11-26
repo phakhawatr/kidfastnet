@@ -443,6 +443,88 @@ export const useTrainingCalendar = () => {
     }
   };
 
+  // Fetch all missions for history/analytics
+  const fetchAllMissions = async (userId: string): Promise<DailyMission[]> => {
+    const { data, error } = await supabase
+      .from('daily_missions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('mission_date', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching all missions:', error);
+      return [];
+    }
+
+    return (data || []) as DailyMission[];
+  };
+
+  // Calculate skill statistics
+  const getSkillStats = (missions: DailyMission[]) => {
+    const skillMap = new Map<string, { count: number; totalAccuracy: number; totalStars: number }>();
+
+    missions.forEach(mission => {
+      if (mission.status === 'completed' || mission.status === 'catchup') {
+        const existing = skillMap.get(mission.skill_name) || { count: 0, totalAccuracy: 0, totalStars: 0 };
+        const accuracy = mission.total_questions > 0 
+          ? (mission.correct_answers! / mission.total_questions) * 100 
+          : 0;
+        
+        skillMap.set(mission.skill_name, {
+          count: existing.count + 1,
+          totalAccuracy: existing.totalAccuracy + accuracy,
+          totalStars: existing.totalStars + (mission.stars_earned || 0),
+        });
+      }
+    });
+
+    return Array.from(skillMap.entries())
+      .map(([skill, stats]) => ({
+        skill,
+        count: stats.count,
+        avgAccuracy: stats.totalAccuracy / stats.count,
+        totalStars: stats.totalStars,
+      }))
+      .sort((a, b) => b.count - a.count);
+  };
+
+  // Calculate weekly trends (last 8 weeks)
+  const getWeeklyTrends = (missions: DailyMission[]) => {
+    const weeks: { week: string; avgAccuracy: number; missions: number; stars: number }[] = [];
+    const now = new Date();
+
+    for (let i = 7; i >= 0; i--) {
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - (i * 7 + 6));
+      weekStart.setHours(0, 0, 0, 0);
+
+      const weekEnd = new Date(now);
+      weekEnd.setDate(now.getDate() - (i * 7));
+      weekEnd.setHours(23, 59, 59, 999);
+
+      const weekMissions = missions.filter(m => {
+        const missionDate = new Date(m.mission_date);
+        return missionDate >= weekStart && missionDate <= weekEnd && 
+               (m.status === 'completed' || m.status === 'catchup');
+      });
+
+      const totalAccuracy = weekMissions.reduce((sum, m) => {
+        return sum + (m.total_questions > 0 ? (m.correct_answers! / m.total_questions) * 100 : 0);
+      }, 0);
+
+      const totalStars = weekMissions.reduce((sum, m) => sum + (m.stars_earned || 0), 0);
+
+      weeks.push({
+        week: `สัปดาห์ ${8 - i}`,
+        avgAccuracy: weekMissions.length > 0 ? totalAccuracy / weekMissions.length : 0,
+        missions: weekMissions.length,
+        stars: totalStars,
+      });
+    }
+
+    return weeks;
+  };
+
   // Initialize data on mount
   useEffect(() => {
     if (userId) {
@@ -465,5 +547,8 @@ export const useTrainingCalendar = () => {
     catchUpMission,
     generateTodayMission,
     regenerateMissions,
+    fetchAllMissions,
+    getSkillStats,
+    getWeeklyTrends,
   };
 };

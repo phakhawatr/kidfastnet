@@ -55,5 +55,43 @@
     "starsEarned": "Stars Earned",
     "perfectDays": "Perfect Days",
     "totalMissions": "Total Missions"
+  },
+  "weeklyReport": {
+    "title": "Weekly Progress Report",
+    "subtitle": "Analyze your learning outcomes and development",
+    "currentStreak": "Current Streak",
+    "totalStars": "Total Stars",
+    "totalMissions": "Total Missions",
+    "perfectDays": "Perfect Days",
+    "weeklySummary": "This Week vs Last Week",
+    "missionsCompleted": "Missions Completed",
+    "avgAccuracy": "Average Accuracy",
+    "lastWeek": "Last week",
+    "mostPracticedSkills": "Most Practiced Skills",
+    "improvementTrends": "Improvement Trends"
+  },
+  "missionHistory": {
+    "title": "Mission History",
+    "subtitle": "Review your past mission results",
+    "filters": "Filters",
+    "dateRange": "Date Range",
+    "skill": "Skill",
+    "stars": "Stars",
+    "status": "Status",
+    "all": "All",
+    "thisWeek": "This Week",
+    "thisMonth": "This Month",
+    "completed": "✅ Completed",
+    "catchup": "⏰ Catch Up",
+    "totalMissions": "Total Missions",
+    "avgAccuracy": "Average Accuracy",
+    "totalStars": "Total Stars",
+    "totalTime": "Total Time",
+    "accuracyChart": "Accuracy Chart",
+    "missionList": "Mission List",
+    "noMissions": "No missions found matching criteria",
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard"
   }
 }

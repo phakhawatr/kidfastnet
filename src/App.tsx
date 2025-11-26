@@ -50,6 +50,8 @@ import TeacherDashboard from "./pages/TeacherDashboard";
 import QuestionBank from "./pages/QuestionBank";
 import TrainingCalendar from "./pages/TrainingCalendar";
 import TodayFocusMode from "./pages/TodayFocusMode";
+import WeeklyProgressReport from "./pages/WeeklyProgressReport";
+import MissionHistory from "./pages/MissionHistory";
 import AdminQuestionBank from "./pages/AdminQuestionBank";
 import TagManagement from "./pages/TagManagement";
 import PublicExam from "./pages/PublicExam";
@@ -125,6 +127,22 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <TodayFocusMode />
+              </ProtectedRoute>
+            } 
+          />
+          <Route
+            path="/weekly-progress" 
+            element={
+              <ProtectedRoute>
+                <WeeklyProgressReport />
+              </ProtectedRoute>
+            } 
+          />
+          <Route
+            path="/mission-history" 
+            element={
+              <ProtectedRoute>
+                <MissionHistory />
               </ProtectedRoute>
             } 
           />

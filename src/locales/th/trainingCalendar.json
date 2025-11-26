@@ -55,5 +55,43 @@
     "starsEarned": "ดาวที่ได้",
     "perfectDays": "วันสมบูรณ์",
     "totalMissions": "ภารกิจทั้งหมด"
+  },
+  "weeklyReport": {
+    "title": "รายงานความก้าวหน้าประจำสัปดาห์",
+    "subtitle": "วิเคราะห์ผลการเรียนรู้และพัฒนาการของคุณ",
+    "currentStreak": "Streak ปัจจุบัน",
+    "totalStars": "ดาวรวม",
+    "totalMissions": "ภารกิจรวม",
+    "perfectDays": "วันสมบูรณ์",
+    "weeklySummary": "สรุปสัปดาห์นี้ เทียบกับสัปดาห์ก่อน",
+    "missionsCompleted": "จำนวนภารกิจที่ทำ",
+    "avgAccuracy": "ค่าเฉลี่ยความแม่นยำ",
+    "lastWeek": "สัปดาห์ก่อน",
+    "mostPracticedSkills": "ทักษะที่ฝึกบ่อยที่สุด",
+    "improvementTrends": "แนวโน้มพัฒนาการ"
+  },
+  "missionHistory": {
+    "title": "ประวัติภารกิจทั้งหมด",
+    "subtitle": "ทบทวนผลการทำภารกิจย้อนหลัง",
+    "filters": "ตัวกรอง",
+    "dateRange": "ช่วงเวลา",
+    "skill": "ทักษะ",
+    "stars": "ดาว",
+    "status": "สถานะ",
+    "all": "ทั้งหมด",
+    "thisWeek": "สัปดาห์นี้",
+    "thisMonth": "เดือนนี้",
+    "completed": "✅ ทำสำเร็จ",
+    "catchup": "⏰ ทำย้อนหลัง",
+    "totalMissions": "ภารกิจทั้งหมด",
+    "avgAccuracy": "ค่าเฉลี่ยความแม่นยำ",
+    "totalStars": "ดาวรวม",
+    "totalTime": "เวลารวม",
+    "accuracyChart": "กราฟความแม่นยำ",
+    "missionList": "รายการภารกิจ",
+    "noMissions": "ไม่พบภารกิจที่ตรงกับเงื่อนไข",
+    "easy": "ง่าย",
+    "medium": "ปานกลาง",
+    "hard": "ยาก"
   }
 }
