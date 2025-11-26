@@ -179,79 +179,102 @@ export const useTrainingCalendar = () => {
     }
   };
 
-  // Complete a mission with results
+  // Complete a mission with results - WITH RETRY LOGIC
   const completeMission = async (missionId: string, results: MissionResults) => {
     console.log('🔵 useTrainingCalendar.completeMission called:', { missionId, results });
     
-    try {
-      const accuracy = (results.correct_answers / results.total_questions) * 100;
-      console.log('📊 Accuracy:', accuracy);
+    // Calculate accuracy and stars first
+    const accuracy = (results.correct_answers / results.total_questions) * 100;
+    console.log('📊 Accuracy:', accuracy);
 
-      // Calculate stars - updated threshold for >80%
-      let stars = 0;
-      if (accuracy > 80) {
-        const timeMinutes = results.time_spent / 60;
-        if (accuracy >= 90 && timeMinutes <= 10) {
-          stars = 3;
-        } else if (accuracy >= 80) {
-          stars = 2;
-        } else if (accuracy >= 70) {
-          stars = 1;
+    let stars = 0;
+    if (accuracy > 80) {
+      const timeMinutes = results.time_spent / 60;
+      if (accuracy >= 90 && timeMinutes <= 10) {
+        stars = 3;
+      } else if (accuracy >= 80) {
+        stars = 2;
+      } else if (accuracy >= 70) {
+        stars = 1;
+      }
+    }
+    console.log('⭐ Calculated stars:', stars);
+
+    // Retry logic: up to 3 attempts
+    let lastError = null;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        console.log(`💾 Attempt ${attempt}/3: Updating mission ${missionId}...`);
+        
+        const { data, error } = await supabase
+          .from('daily_missions')
+          .update({
+            status: 'completed',
+            completed_questions: results.total_questions,
+            correct_answers: results.correct_answers,
+            time_spent: results.time_spent,
+            stars_earned: stars,
+            completed_at: new Date().toISOString(),
+          })
+          .eq('id', missionId)
+          .select()
+          .single(); // Use .single() to ensure only 1 row
+
+        console.log(`📦 Attempt ${attempt} response:`, { data, error });
+
+        if (error) {
+          console.error(`❌ Attempt ${attempt} Supabase error:`, JSON.stringify(error, null, 2));
+          throw error;
+        }
+
+        if (!data) {
+          console.error(`❌ Attempt ${attempt}: No data returned`);
+          throw new Error('No data returned from update');
+        }
+
+        // Verify the status was updated
+        if (data.status !== 'completed') {
+          console.error(`❌ Attempt ${attempt}: Status not updated. Current status: ${data.status}`);
+          throw new Error('Status not updated correctly');
+        }
+
+        console.log(`✅ Attempt ${attempt} SUCCESS! Mission updated:`, data);
+
+        // Success! Update streak and show toast
+        await fetchStreak();
+
+        toast({
+          title: `สำเร็จ! ได้ ${stars} ดาว ⭐`,
+          description: `ความแม่น: ${accuracy.toFixed(0)}%`,
+        });
+
+        // Generate next day's mission (don't block on this)
+        generateTodayMission().catch(err => 
+          console.warn('Failed to generate next mission:', err)
+        );
+
+        return { success: true, stars };
+      } catch (error) {
+        lastError = error;
+        console.error(`❌ Attempt ${attempt} failed:`, error);
+        
+        // Wait before retry (exponential backoff: 500ms, 1000ms, 1500ms)
+        if (attempt < 3) {
+          const delayMs = 500 * attempt;
+          console.log(`⏳ Waiting ${delayMs}ms before retry...`);
+          await new Promise(resolve => setTimeout(resolve, delayMs));
         }
       }
-
-      console.log('⭐ Calculated stars:', stars);
-
-      // Update mission with detailed logging
-      console.log('💾 Attempting Supabase update for mission:', missionId);
-      const { data, error } = await supabase
-        .from('daily_missions')
-        .update({
-          status: 'completed',
-          completed_questions: results.total_questions,
-          correct_answers: results.correct_answers,
-          time_spent: results.time_spent,
-          stars_earned: stars,
-          completed_at: new Date().toISOString(),
-        })
-        .eq('id', missionId)
-        .select(); // Get updated row back to verify
-
-      console.log('📦 Supabase response:', { data, error, rowsAffected: data?.length });
-
-      if (error) {
-        console.error('❌ Supabase UPDATE error:', JSON.stringify(error, null, 2));
-        throw error;
-      }
-
-      if (!data || data.length === 0) {
-        console.error('❌ No rows updated! RLS might be blocking or mission not found.');
-        throw new Error('No rows updated - possible RLS issue or invalid mission ID');
-      }
-      
-      console.log('✅ Mission updated successfully in database:', data[0]);
-
-      // Trigger will update streak automatically
-      await fetchStreak();
-
-      toast({
-        title: `สำเร็จ! ได้ ${stars} ดาว ⭐`,
-        description: `ความแม่น: ${accuracy.toFixed(0)}%`,
-      });
-
-      // Generate next day's mission
-      await generateTodayMission();
-
-      return { success: true, stars };
-    } catch (error) {
-      console.error('❌ completeMission error:', error);
-      toast({
-        title: 'เกิดข้อผิดพลาด',
-        description: 'ไม่สามารถบันทึกผลได้',
-        variant: 'destructive',
-      });
-      return { success: false, stars: 0 };
     }
+
+    // All attempts failed
+    console.error('❌ All 3 attempts failed. Last error:', lastError);
+    toast({
+      title: 'เกิดข้อผิดพลาด',
+      description: 'ไม่สามารถบันทึกผลได้ กรุณาลองใหม่อีกครั้ง',
+      variant: 'destructive',
+    });
+    return { success: false, stars: 0 };
   };
 
   // Catch up a skipped mission

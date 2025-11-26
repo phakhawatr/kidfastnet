@@ -143,7 +143,7 @@ export function MissionCompleteModal({
                 <Button
                   onClick={() => {
                     onOpenChange(false);
-                    navigate('/training-calendar');
+                    navigate('/today-mission?refresh=true');
                   }}
                   className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold text-lg py-6"
                 >
@@ -153,7 +153,7 @@ export function MissionCompleteModal({
                 <Button
                   onClick={() => {
                     onOpenChange(false);
-                    navigate('/training-calendar');
+                    navigate('/mission-history');
                   }}
                   variant="outline"
                   className="w-full border-slate-600 text-white hover:bg-slate-800"
@@ -177,7 +177,7 @@ export function MissionCompleteModal({
                 <Button
                   onClick={() => {
                     onOpenChange(false);
-                    navigate('/training-calendar');
+                    navigate('/today-mission?refresh=true');
                   }}
                   variant="outline"
                   className="w-full border-slate-600 text-white hover:bg-slate-800"

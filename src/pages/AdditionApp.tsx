@@ -759,7 +759,7 @@ export default function AdditionApp() {
     
     console.log('📊 Mission stats:', { accuracy, isPassed, stars, timeSeconds });
     
-    // Save to database FIRST and wait for result
+    // Save to database with retry and localStorage backup
     let saveSuccess = false;
     try {
       console.log('💾 Calling completeMission with:', missionId);
@@ -770,15 +770,31 @@ export default function AdditionApp() {
       });
       console.log('✅ completeMission result:', result);
       saveSuccess = result.success;
+      
+      if (result.success) {
+        // Clear any pending results on success
+        localStorage.removeItem('pendingMissionResult');
+      }
     } catch (error) {
       console.error('❌ Error completing mission:', error);
       saveSuccess = false;
     }
     
-    // Show warning if save failed
+    // Store pending result in localStorage if save failed
     if (!saveSuccess) {
+      localStorage.setItem('pendingMissionResult', JSON.stringify({
+        missionId: missionId,
+        results: { 
+          total_questions: total, 
+          correct_answers: correct, 
+          time_spent: timeSeconds 
+        },
+        timestamp: Date.now()
+      }));
+      
       toast.error('ไม่สามารถบันทึกผลได้', {
-        description: 'กรุณาลองใหม่อีกครั้ง หรือติดต่อผู้ดูแลระบบ'
+        description: 'ระบบจะลองบันทึกใหม่เมื่อกลับสู่ปฏิทิน',
+        duration: 5000,
       });
     }
     

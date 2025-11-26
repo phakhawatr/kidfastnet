@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useTrainingCalendar, DailyMission } from '@/hooks/useTrainingCalendar';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 const TodayFocusMode = () => {
   const { t } = useTranslation('trainingCalendar');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { 
     missions, 
     streak, 
@@ -24,10 +25,12 @@ const TodayFocusMode = () => {
     startMission, 
     generateTodayMission,
     regenerateMissions,
-    fetchMissions
+    fetchMissions,
+    completeMission
   } = useTrainingCalendar();
   const [selectedMission, setSelectedMission] = useState<DailyMission | null>(null);
   const hasAttemptedGeneration = useRef(false);
+  const needsRefresh = searchParams.get('refresh') === 'true';
 
   // Helper function to get date string in local timezone (YYYY-MM-DD)
   const getLocalDateString = (date: Date): string => {
@@ -86,14 +89,55 @@ const TodayFocusMode = () => {
     autoGenerateMissions();
   }, [userId, isLoading, isGenerating, todayMissions.length, isWeekend]);
 
-  // Auto-refresh missions on mount (when page loads)
+  // Retry pending mission results from localStorage
   useEffect(() => {
+    const retryPendingResult = async () => {
+      const pending = localStorage.getItem('pendingMissionResult');
+      if (!pending) return;
+      
+      try {
+        const { missionId, results, timestamp } = JSON.parse(pending);
+        
+        // Only retry if less than 1 hour old
+        if (Date.now() - timestamp > 3600000) {
+          console.log('⏰ Pending result expired, removing...');
+          localStorage.removeItem('pendingMissionResult');
+          return;
+        }
+        
+        console.log('🔄 Retrying pending mission result...', { missionId, results });
+        const result = await completeMission(missionId, results);
+        
+        if (result.success) {
+          localStorage.removeItem('pendingMissionResult');
+          toast.success('บันทึกผลสำเร็จ! ⭐', {
+            description: `ได้ ${result.stars} ดาว`
+          });
+          
+          // Refresh missions after successful retry
+          const today = new Date();
+          fetchMissions(today.getMonth() + 1, today.getFullYear());
+        } else {
+          console.warn('⚠️ Retry failed, will try again later');
+        }
+      } catch (e) {
+        console.error('❌ Retry failed:', e);
+      }
+    };
+    
     if (userId) {
-      console.log('📥 TodayFocusMode mounted: Fetching missions...');
+      retryPendingResult();
+    }
+  }, [userId, completeMission, fetchMissions]);
+
+  // Auto-refresh missions on mount or when refresh=true query param
+  useEffect(() => {
+    if (userId && (needsRefresh || !missions.length)) {
+      console.log('📥 TodayFocusMode: Fetching missions...', { needsRefresh });
       const today = new Date();
       fetchMissions(today.getMonth() + 1, today.getFullYear());
     }
-  }, [userId]);
+  }, [userId, needsRefresh]);
 
   // Auto-refresh missions when window regains focus
   useEffect(() => {
