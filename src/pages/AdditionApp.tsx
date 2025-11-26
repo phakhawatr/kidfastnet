@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useTrainingCalendar } from "@/hooks/useTrainingCalendar";
 import { MissionCompleteModal } from "@/components/MissionCompleteModal";
+import { toast } from "sonner";
 
 // ================= Utilities =================
 function randInt(min, max) {
@@ -735,7 +736,7 @@ export default function AdditionApp() {
   }
   
   async function handleCompleteMission(correct: number, total: number, timeMs: number) {
-    console.log('🎯 handleCompleteMission called:', { correct, total, timeMs, missionId });
+    console.log('🎯 handleCompleteMission START:', { correct, total, timeMs, missionId });
     
     const accuracy = (correct / total) * 100;
     const timeSeconds = Math.floor(timeMs / 1000);
@@ -758,7 +759,8 @@ export default function AdditionApp() {
     
     console.log('📊 Mission stats:', { accuracy, isPassed, stars, timeSeconds });
     
-    // Save to database
+    // Save to database FIRST and wait for result
+    let saveSuccess = false;
     try {
       console.log('💾 Calling completeMission with:', missionId);
       const result = await completeMission(missionId!, {
@@ -767,21 +769,30 @@ export default function AdditionApp() {
         time_spent: timeSeconds
       });
       console.log('✅ completeMission result:', result);
+      saveSuccess = result.success;
     } catch (error) {
       console.error('❌ Error completing mission:', error);
+      saveSuccess = false;
+    }
+    
+    // Show warning if save failed
+    if (!saveSuccess) {
+      toast.error('ไม่สามารถบันทึกผลได้', {
+        description: 'กรุณาลองใหม่อีกครั้ง หรือติดต่อผู้ดูแลระบบ'
+      });
     }
     
     // Show mission complete modal
     setMissionResult({
-      stars,
+      stars: saveSuccess ? stars : 0,  // Only show stars if saved successfully
       correct,
       total,
       timeSpent: timeSeconds,
-      isPassed
+      isPassed: saveSuccess && isPassed  // Only mark as passed if saved
     });
     setShowMissionComplete(true);
     
-    if (isPassed) {
+    if (isPassed && saveSuccess) {
       setCelebrate(true);
       setTimeout(() => setCelebrate(false), 2000);
     }

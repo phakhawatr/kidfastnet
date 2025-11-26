@@ -202,8 +202,9 @@ export const useTrainingCalendar = () => {
 
       console.log('⭐ Calculated stars:', stars);
 
-      // Update mission
-      const { error } = await supabase
+      // Update mission with detailed logging
+      console.log('💾 Attempting Supabase update for mission:', missionId);
+      const { data, error } = await supabase
         .from('daily_missions')
         .update({
           status: 'completed',
@@ -213,14 +214,22 @@ export const useTrainingCalendar = () => {
           stars_earned: stars,
           completed_at: new Date().toISOString(),
         })
-        .eq('id', missionId);
+        .eq('id', missionId)
+        .select(); // Get updated row back to verify
+
+      console.log('📦 Supabase response:', { data, error, rowsAffected: data?.length });
 
       if (error) {
-        console.error('❌ Supabase update error:', error);
+        console.error('❌ Supabase UPDATE error:', JSON.stringify(error, null, 2));
         throw error;
       }
+
+      if (!data || data.length === 0) {
+        console.error('❌ No rows updated! RLS might be blocking or mission not found.');
+        throw new Error('No rows updated - possible RLS issue or invalid mission ID');
+      }
       
-      console.log('✅ Mission updated successfully in database');
+      console.log('✅ Mission updated successfully in database:', data[0]);
 
       // Trigger will update streak automatically
       await fetchStreak();
