@@ -736,7 +736,16 @@ export default function AdditionApp() {
   }
   
   async function handleCompleteMission(correct: number, total: number, timeMs: number) {
-    console.log('🎯 handleCompleteMission START:', { correct, total, timeMs, missionId });
+    console.log('🎯 handleCompleteMission START');
+    console.log('📝 missionId:', missionId);
+    console.log('📝 missionId type:', typeof missionId);
+    console.log('📝 missionId length:', missionId?.length);
+    
+    if (!missionId) {
+      console.error('❌ missionId is null or undefined!');
+      toast.error('ไม่พบ missionId');
+      return;
+    }
     
     const accuracy = (correct / total) * 100;
     const timeSeconds = Math.floor(timeMs / 1000);
@@ -762,7 +771,7 @@ export default function AdditionApp() {
     // Save to database with retry and localStorage backup
     let saveSuccess = false;
     try {
-      console.log('💾 Calling completeMission with:', missionId);
+      console.log('💾 Calling completeMission with missionId:', missionId);
       const result = await completeMission(missionId!, {
         total_questions: total,
         correct_answers: correct,
@@ -774,14 +783,20 @@ export default function AdditionApp() {
       if (result.success) {
         // Clear any pending results on success
         localStorage.removeItem('pendingMissionResult');
+        
+        // Show success toast
+        toast.success(`บันทึกสำเร็จ! ได้ ${stars} ดาว ⭐`, {
+          description: `คะแนน ${correct}/${total} (${accuracy.toFixed(0)}%)`,
+          duration: 3000,
+        });
+      } else {
+        throw new Error('Mission completion failed');
       }
     } catch (error) {
       console.error('❌ Error completing mission:', error);
       saveSuccess = false;
-    }
-    
-    // Store pending result in localStorage if save failed
-    if (!saveSuccess) {
+      
+      // Store pending result in localStorage if save failed
       localStorage.setItem('pendingMissionResult', JSON.stringify({
         missionId: missionId,
         results: { 
@@ -792,7 +807,7 @@ export default function AdditionApp() {
         timestamp: Date.now()
       }));
       
-      toast.error('ไม่สามารถบันทึกผลได้', {
+      toast.error('บันทึกไม่สำเร็จ', {
         description: 'ระบบจะลองบันทึกใหม่เมื่อกลับสู่ปฏิทิน',
         duration: 5000,
       });
