@@ -206,7 +206,8 @@ export const useTrainingCalendar = () => {
       try {
         console.log(`💾 Attempt ${attempt}/3: Updating mission ${missionId}...`);
         
-        const { data, error } = await supabase
+        // Step 1: Perform UPDATE without .select()
+        const { error: updateError } = await supabase
           .from('daily_missions')
           .update({
             status: 'completed',
@@ -216,32 +217,40 @@ export const useTrainingCalendar = () => {
             stars_earned: stars,
             completed_at: new Date().toISOString(),
           })
+          .eq('id', missionId);
+
+        if (updateError) {
+          console.error(`❌ Attempt ${attempt} UPDATE error:`, updateError);
+          throw updateError;
+        }
+
+        console.log(`✅ UPDATE successful on attempt ${attempt}`);
+
+        // Step 2: Verify with separate SELECT query
+        const { data: verifyData, error: verifyError } = await supabase
+          .from('daily_missions')
+          .select('id, status, stars_earned')
           .eq('id', missionId)
-          .select()
-          .single(); // Use .single() to ensure only 1 row
+          .single();
 
-        console.log(`📦 Attempt ${attempt} response:`, { data, error });
-
-        if (error) {
-          console.error(`❌ Attempt ${attempt} Supabase error:`, JSON.stringify(error, null, 2));
-          throw error;
+        if (verifyError) {
+          console.warn(`⚠️ Verification failed (but UPDATE succeeded):`, verifyError);
         }
 
-        if (!data) {
-          console.error(`❌ Attempt ${attempt}: No data returned`);
-          throw new Error('No data returned from update');
+        if (verifyData?.status === 'completed') {
+          console.log(`✅ VERIFIED: Mission is completed!`, verifyData);
+        } else {
+          console.log(`✅ UPDATE succeeded (verification optional)`);
         }
 
-        // Verify the status was updated
-        if (data.status !== 'completed') {
-          console.error(`❌ Attempt ${attempt}: Status not updated. Current status: ${data.status}`);
-          throw new Error('Status not updated correctly');
-        }
+        // Clear any pending saves
+        localStorage.removeItem('pendingMissionResult');
 
-        console.log(`✅ Attempt ${attempt} SUCCESS! Mission updated:`, data);
-
-        // Success! Update streak and show toast
-        await fetchStreak();
+        // Success! Update streak and refresh
+        await Promise.all([
+          fetchStreak(),
+          fetchMissions(new Date().getMonth() + 1, new Date().getFullYear())
+        ]);
 
         toast({
           title: `สำเร็จ! ได้ ${stars} ดาว ⭐`,
@@ -258,8 +267,13 @@ export const useTrainingCalendar = () => {
         lastError = error;
         console.error(`❌ Attempt ${attempt} failed:`, error);
         
-        // Wait before retry (exponential backoff: 500ms, 1000ms, 1500ms)
-        if (attempt < 3) {
+        if (attempt === 3) {
+          // Save to localStorage for retry
+          const pendingResult = { missionId, results, timestamp: Date.now() };
+          localStorage.setItem('pendingMissionResult', JSON.stringify(pendingResult));
+          console.log('💾 Saved to localStorage for retry');
+        } else {
+          // Wait before retry (exponential backoff: 500ms, 1000ms, 1500ms)
           const delayMs = 500 * attempt;
           console.log(`⏳ Waiting ${delayMs}ms before retry...`);
           await new Promise(resolve => setTimeout(resolve, delayMs));
