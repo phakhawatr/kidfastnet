@@ -205,9 +205,10 @@ export const useTrainingCalendar = () => {
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
         console.log(`💾 Attempt ${attempt}/3: Updating mission ${missionId}...`);
+        console.log(`📝 Mission ID type: ${typeof missionId}, length: ${missionId?.length}`);
         
-        // Step 1: Perform UPDATE without .select()
-        const { error: updateError } = await supabase
+        // Perform UPDATE with .select() to verify data is returned
+        const { data: updateData, error: updateError } = await supabase
           .from('daily_missions')
           .update({
             status: 'completed',
@@ -217,31 +218,28 @@ export const useTrainingCalendar = () => {
             stars_earned: stars,
             completed_at: new Date().toISOString(),
           })
-          .eq('id', missionId);
+          .eq('id', missionId)
+          .select()
+          .single();
 
         if (updateError) {
           console.error(`❌ Attempt ${attempt} UPDATE error:`, updateError);
           throw updateError;
         }
 
-        console.log(`✅ UPDATE successful on attempt ${attempt}`);
-
-        // Step 2: Verify with separate SELECT query
-        const { data: verifyData, error: verifyError } = await supabase
-          .from('daily_missions')
-          .select('id, status, stars_earned')
-          .eq('id', missionId)
-          .single();
-
-        if (verifyError) {
-          console.warn(`⚠️ Verification failed (but UPDATE succeeded):`, verifyError);
+        // Strict verification: Check if data was returned
+        if (!updateData) {
+          console.error(`❌ Attempt ${attempt}: No data returned from update!`);
+          throw new Error('No data returned - mission might not exist');
         }
 
-        if (verifyData?.status === 'completed') {
-          console.log(`✅ VERIFIED: Mission is completed!`, verifyData);
-        } else {
-          console.log(`✅ UPDATE succeeded (verification optional)`);
+        // Strict verification: Check if status is actually 'completed'
+        if (updateData.status !== 'completed') {
+          console.error(`❌ Attempt ${attempt}: Status not updated! Current: ${updateData.status}`);
+          throw new Error(`Status was not updated correctly: ${updateData.status}`);
         }
+
+        console.log(`✅ Attempt ${attempt} SUCCESS! Mission verified:`, updateData);
 
         // Clear any pending saves
         localStorage.removeItem('pendingMissionResult');
