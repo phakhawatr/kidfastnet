@@ -403,6 +403,12 @@ export const useTrainingCalendar = () => {
       return { success: false };
     }
 
+    // Prevent multiple simultaneous calls
+    if (isGenerating) {
+      console.log('⚠️ Mission generation already in progress, skipping...');
+      return { success: false };
+    }
+
     try {
       setIsGenerating(true);
 
@@ -470,6 +476,12 @@ export const useTrainingCalendar = () => {
       return { success: false };
     }
 
+    // Prevent multiple simultaneous calls
+    if (isGenerating) {
+      console.log('⚠️ Mission regeneration already in progress, skipping...');
+      return { success: false };
+    }
+
     try {
       setIsGenerating(true);
 
@@ -483,6 +495,9 @@ export const useTrainingCalendar = () => {
         // Remove .neq('status', 'completed') to delete all missions including completed ones
 
       if (deleteError) throw deleteError;
+
+      // Wait a moment to ensure deletions are processed
+      await new Promise(resolve => setTimeout(resolve, 200));
 
       // Call edge function to generate new missions
       const { data: functionData, error: functionError } = await supabase.functions.invoke(
