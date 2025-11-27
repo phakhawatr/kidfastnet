@@ -93,12 +93,13 @@ serve(async (req) => {
       );
     }
 
-    // Delete ALL existing missions for today before generating new ones
-    if (existingMissions.length > 0) {
-      console.log(`Deleting ${existingMissions.length} existing missions for today...`);
+    // Delete only NON-COMPLETED missions for today before generating new ones
+    const missionsToDelete = existingMissions.filter(m => m.status !== 'completed');
+    if (missionsToDelete.length > 0) {
+      console.log(`Deleting ${missionsToDelete.length} non-completed missions...`);
       
       // Delete missions one by one to avoid conflicts
-      for (const mission of existingMissions) {
+      for (const mission of missionsToDelete) {
         const { error: deleteError } = await supabase
           .from('daily_missions')
           .delete()
@@ -113,6 +114,24 @@ serve(async (req) => {
       // Wait a moment to ensure deletions are processed
       await new Promise(resolve => setTimeout(resolve, 100));
     }
+
+    // Calculate how many new missions we need (3 - completed count)
+    const completedCount = existingMissions.filter(m => m.status === 'completed').length;
+    const missionsNeeded = 3 - completedCount;
+
+    if (missionsNeeded <= 0) {
+      console.log('All missions already completed for today');
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          missions: existingMissions.filter(m => m.status === 'completed'),
+          message: 'All missions completed'
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log(`Generating ${missionsNeeded} new missions (${completedCount} already completed)...`);
 
     // Prepare data for AI
     const missionHistory = (recentMissions || []).map(m => ({
@@ -137,8 +156,8 @@ serve(async (req) => {
 
     const recentSkills = missionHistory.slice(0, 3).map(m => m.skill);
 
-    // Construct AI prompt - Generate 3 mission options
-    const systemPrompt = `คุณเป็น AI ครูคณิตศาสตร์สำหรับเด็กไทย มีหน้าที่สร้าง 3 ภารกิจให้เลือกในแต่ละวัน ที่เหมาะสมกับระดับของนักเรียน
+    // Construct AI prompt - Generate missions based on need
+    const systemPrompt = `คุณเป็น AI ครูคณิตศาสตร์สำหรับเด็กไทย มีหน้าที่สร้างภารกิจให้เลือกในแต่ละวัน ที่เหมาะสมกับระดับของนักเรียน
 
 หลักการสร้าง 3 ภารกิจ:
 1. **ภารกิจที่ 1 - พัฒนาจุดอ่อน**: ทักษะที่อ่อนที่สุด/ต้องปรับปรุง (ระดับง่าย-กลาง) เน้นทบทวนพื้นฐาน
@@ -153,6 +172,8 @@ serve(async (req) => {
 - แต่ละภารกิจควรใช้ App ฝึกที่แตกต่างกัน!
 
 ทักษะที่มี: การบวกเลข, การลบเลข, การคูณเลข, การหารเลข, เศษส่วน, ทศนิยม, ร้อยละ, เงินและการเงิน, การบอกเวลา, การชั่งน้ำหนัก, การวัดความยาว, รูปทรงจับคู่, อนุกรมรูปทรง, อนุกรมตัวเลข, พันธะตัวเลข, โมเดลบาร์, โมเดลพื้นที่, คิดเลขเร็ว, สูตรคูณ, ปริศนาตารางผลบวก, โจทย์ปัญหา
+
+สร้าง ${missionsNeeded} ภารกิจ สำหรับวันนี้ (มี ${completedCount} ภารกิจทำสำเร็จแล้ว)
 
 ตอบกลับในรูปแบบ JSON:
 {
@@ -256,19 +277,24 @@ ${recentSkills.length > 0 ? recentSkills.join(', ') : 'ไม่มี'}
       console.error('JSON parse error:', parseError);
       console.error('AI content:', aiContent);
       
-      // Fallback 3 missions for new students
+      // Fallback missions for new students (generate only what's needed)
+      const fallbackMissions = [
+        { skill_name: 'การบวกเลข', difficulty: 'easy', total_questions: 10, reasoning: 'เริ่มต้นด้วยทักษะพื้นฐาน' },
+        { skill_name: 'การลบเลข', difficulty: 'easy', total_questions: 10, reasoning: 'ฝึกทักษะพื้นฐานที่สอง' },
+        { skill_name: 'รูปทรงจับคู่', difficulty: 'medium', total_questions: 10, reasoning: 'ท้าทายด้วยรูปทรง' },
+      ];
+      
       missionData = {
-        missions: [
-          { skill_name: 'การบวกเลข', difficulty: 'easy', total_questions: 10, reasoning: 'เริ่มต้นด้วยทักษะพื้นฐาน' },
-          { skill_name: 'การลบเลข', difficulty: 'easy', total_questions: 10, reasoning: 'ฝึกทักษะพื้นฐานที่สอง' },
-          { skill_name: 'รูปทรงจับคู่', difficulty: 'medium', total_questions: 10, reasoning: 'ท้าทายด้วยรูปทรง' },
-        ],
+        missions: fallbackMissions.slice(0, missionsNeeded),
         daily_message: 'วันนี้มาฝึกฝนกันเถอะ! 💪',
       };
     }
 
-    // Create 3 missions in database
-    const missionsToInsert = (missionData.missions || []).map((mission: any, index: number) => ({
+    // Calculate starting option number (e.g., if 1 completed, start at option 2)
+    const startingOption = completedCount + 1;
+
+    // Create missions in database (only the needed count)
+    const missionsToInsert = (missionData.missions || []).slice(0, missionsNeeded).map((mission: any, index: number) => ({
       user_id: userId,
       mission_date: today,
       skill_name: mission.skill_name,
@@ -276,7 +302,7 @@ ${recentSkills.length > 0 ? recentSkills.join(', ') : 'ไม่มี'}
       total_questions: mission.total_questions || 15,
       status: 'pending',
       ai_reasoning: mission.reasoning,
-      mission_option: index + 1,
+      mission_option: startingOption + index, // Use correct option numbers
       daily_message: missionData.daily_message,
       can_retry: true,
     }));
@@ -301,12 +327,20 @@ ${recentSkills.length > 0 ? recentSkills.join(', ') : 'ไม่มี'}
       p_feature_type: 'daily_mission_generation',
     });
 
-    console.log('3 Missions created successfully:', newMissions.map(m => m.id));
+    console.log(`${missionsNeeded} Missions created successfully:`, newMissions.map(m => m.id));
+
+    // Combine completed missions with new missions for response
+    const allMissions = [
+      ...existingMissions.filter(m => m.status === 'completed'),
+      ...newMissions
+    ];
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        missions: newMissions,
+        missions: allMissions,
+        completedCount,
+        newCount: missionsNeeded,
         daily_message: missionData.daily_message,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

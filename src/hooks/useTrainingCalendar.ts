@@ -279,11 +279,6 @@ export const useTrainingCalendar = () => {
           description: `ความแม่น: ${accuracy.toFixed(0)}%`,
         });
 
-        // Generate next day's mission (don't block on this)
-        generateTodayMission().catch(err => 
-          console.warn('Failed to generate next mission:', err)
-        );
-
         return { success: true, stars };
       } catch (error) {
         lastError = error;
@@ -485,14 +480,14 @@ export const useTrainingCalendar = () => {
     try {
       setIsGenerating(true);
 
-      // Delete ALL today's missions (including completed) to regenerate fresh
+      // Delete only NON-COMPLETED missions to preserve completed work
       const localDate = getLocalDateString(new Date());
       const { error: deleteError } = await supabase
         .from('daily_missions')
         .delete()
         .eq('user_id', userId)
-        .eq('mission_date', localDate);
-        // Remove .neq('status', 'completed') to delete all missions including completed ones
+        .eq('mission_date', localDate)
+        .neq('status', 'completed'); // Keep completed missions
 
       if (deleteError) throw deleteError;
 
