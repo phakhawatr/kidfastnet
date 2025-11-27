@@ -52,6 +52,7 @@ import TrainingCalendar from "./pages/TrainingCalendar";
 import TodayFocusMode from "./pages/TodayFocusMode";
 import WeeklyProgressReport from "./pages/WeeklyProgressReport";
 import MissionHistory from "./pages/MissionHistory";
+import SkillProgressTracking from "./pages/SkillProgressTracking";
 import AdminQuestionBank from "./pages/AdminQuestionBank";
 import TagManagement from "./pages/TagManagement";
 import PublicExam from "./pages/PublicExam";
@@ -143,6 +144,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <MissionHistory />
+              </ProtectedRoute>
+            } 
+          />
+          <Route
+            path="/skill-progress" 
+            element={
+              <ProtectedRoute>
+                <SkillProgressTracking />
               </ProtectedRoute>
             } 
           />

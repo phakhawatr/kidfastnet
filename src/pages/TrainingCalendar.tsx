@@ -5,7 +5,7 @@ import { useTrainingCalendar } from '@/hooks/useTrainingCalendar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, ChevronLeft, ChevronRight, Lock, Calendar, Trophy, Star, Flame, TrendingUp } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Lock, Calendar, Trophy, Star, Flame, TrendingUp, Target } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isBefore, isAfter, getDay } from 'date-fns';
 import { th } from 'date-fns/locale';
 
@@ -187,6 +187,14 @@ const TrainingCalendar = () => {
             >
               <TrendingUp className="w-4 h-4 mr-2" />
               รายงานสัปดาห์
+            </Button>
+            <Button
+              onClick={() => navigate('/skill-progress')}
+              variant="outline"
+              className="border-indigo-300 text-indigo-700 hover:bg-indigo-50"
+            >
+              <Target className="w-4 h-4 mr-2" />
+              ความคืบหน้าทักษะ
             </Button>
             <Button
               onClick={() => navigate('/mission-history')}
