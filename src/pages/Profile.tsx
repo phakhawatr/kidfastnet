@@ -16,7 +16,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Users, Sparkles, Edit, Upload, X, Trophy, GraduationCap, ChevronRight, Star, Clock, CheckCircle, Zap } from 'lucide-react';
+import { Users, Sparkles, Edit, Upload, X, Trophy, GraduationCap, ChevronRight, Star, Clock, CheckCircle, Zap, ChevronDown, ChevronUp, Target, Award, Calendar as CalendarIcon } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 import { SubscriptionTab } from '../components/SubscriptionTab';
 
 // Import mascot images
@@ -118,8 +120,18 @@ const Profile = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'overview';
   
+  // Helper function to get mission status display
+  const getMissionStatusDisplay = (status: string, completed_at: string | null) => {
+    const isCompleted = status === 'completed' || completed_at !== null;
+    if (isCompleted) return { icon: '✅', text: 'สำเร็จ', color: 'bg-green-500/30 text-green-200 border-green-400' };
+    if (status === 'skipped') return { icon: '⏭️', text: 'ข้าม', color: 'bg-red-500/30 text-red-200 border-red-400' };
+    if (status === 'catchup') return { icon: '🔄', text: 'ตามทัน', color: 'bg-blue-500/30 text-blue-200 border-blue-400' };
+    return { icon: '⏳', text: 'รอทำ', color: 'bg-yellow-500/30 text-yellow-200 border-yellow-400' };
+  };
+
   // Profile editing states
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [showAllMissions, setShowAllMissions] = useState(false);
   const [nickname, setNickname] = useState('');
   const [studentClass, setStudentClass] = useState('');
   const [schoolName, setSchoolName] = useState('');
@@ -1060,23 +1072,42 @@ const Profile = () => {
                           </div>
                         </div>
                         
-                        {/* Mission Cards (Mini) */}
+                        {/* Progress Bar */}
+                        <div className="w-full bg-white/10 rounded-full h-2 mb-3">
+                          <div 
+                            className="bg-gradient-to-r from-green-400 to-emerald-500 h-2 rounded-full transition-all duration-500"
+                            style={{ width: `${(completedCount / todayMissions.length) * 100}%` }}
+                          />
+                        </div>
+
+                        {/* Mission Cards (Full List) */}
                         <div className="space-y-2">
-                          {todayMissions.slice(0, 3).map((mission, idx) => {
+                          {(showAllMissions ? todayMissions : todayMissions.slice(0, 5)).map((mission, idx) => {
+                            const statusDisplay = getMissionStatusDisplay(mission.status, mission.completed_at);
                             const isCompleted = mission.status === 'completed' || mission.completed_at !== null;
                             return (
                               <div 
                                 key={mission.id} 
-                                className={`flex items-center gap-3 p-2 rounded-lg ${isCompleted ? 'bg-green-500/30' : 'bg-white/10'}`}
+                                className={`flex items-start gap-3 p-3 rounded-lg ${isCompleted ? 'bg-green-500/20' : 'bg-white/10'} border border-white/20`}
                               >
-                                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${isCompleted ? 'bg-green-500' : 'bg-white/20'}`}>
-                                  {isCompleted ? <CheckCircle className="w-4 h-4" /> : <span className="text-xs">{idx + 1}</span>}
+                                <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${isCompleted ? 'bg-green-500' : 'bg-white/20'}`}>
+                                  {isCompleted ? <CheckCircle className="w-4 h-4" /> : <span className="text-xs font-bold">{mission.mission_option || (idx + 1)}</span>}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-medium truncate">{mission.skill_name}</p>
-                                  <p className="text-xs text-white/70">{mission.difficulty}</p>
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <p className="text-sm font-semibold truncate">{mission.skill_name}</p>
+                                  </div>
+                                  <div className="flex items-center gap-2 flex-wrap text-xs text-white/70">
+                                    <span className="flex items-center gap-1">
+                                      <Target className="w-3 h-3" />
+                                      {mission.difficulty === 'easy' ? 'ง่าย' : mission.difficulty === 'medium' ? 'ปานกลาง' : 'ยาก'}
+                                    </span>
+                                    <Badge variant="outline" className={`${statusDisplay.color} text-xs px-2 py-0`}>
+                                      {statusDisplay.icon} {statusDisplay.text}
+                                    </Badge>
+                                  </div>
                                 </div>
-                                {isCompleted && mission.stars_earned !== null && (
+                                {isCompleted && mission.stars_earned !== null && mission.stars_earned > 0 && (
                                   <div className="flex items-center gap-0.5">
                                     {[...Array(mission.stars_earned)].map((_, i) => (
                                       <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
@@ -1087,6 +1118,26 @@ const Profile = () => {
                             );
                           })}
                         </div>
+
+                        {/* Expand/Collapse Button */}
+                        {todayMissions.length > 5 && (
+                          <button
+                            onClick={() => setShowAllMissions(!showAllMissions)}
+                            className="w-full mt-2 py-2 text-xs text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors flex items-center justify-center gap-1"
+                          >
+                            {showAllMissions ? (
+                              <>
+                                <ChevronUp className="w-4 h-4" />
+                                ย่อลง
+                              </>
+                            ) : (
+                              <>
+                                <ChevronDown className="w-4 h-4" />
+                                แสดงทั้งหมด ({todayMissions.length - 5} ภารกิจ)
+                              </>
+                            )}
+                          </button>
+                        )}
                       </>
                     )}
                   </div>
