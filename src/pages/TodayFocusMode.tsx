@@ -347,15 +347,48 @@ const TodayFocusMode = () => {
     }
   };
 
+  // Loading timeout state
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
+  
+  // Auto-timeout after 35 seconds
+  useEffect(() => {
+    if (isLoading || isGenerating) {
+      setLoadingTimeout(false);
+      const timer = setTimeout(() => {
+        setLoadingTimeout(true);
+      }, 35000);
+      
+      return () => clearTimeout(timer);
+    } else {
+      setLoadingTimeout(false);
+    }
+  }, [isLoading, isGenerating]);
+
   // Loading or generating state
   if (isLoading || isGenerating) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-yellow-400 mx-auto mb-4"></div>
-          <p className="text-white text-lg">
+          <p className="text-white text-lg mb-4">
             {isGenerating ? 'AI กำลังสร้างภารกิจให้คุณ...' : 'กำลังโหลด...'}
           </p>
+          
+          {loadingTimeout && (
+            <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4 max-w-md mx-auto">
+              <Clock className="w-8 h-8 mx-auto mb-2 text-yellow-400" />
+              <p className="text-yellow-300 mb-3">
+                AI ใช้เวลานานกว่าปกติ กรุณารอสักครู่หรือลองใหม่อีกครั้ง
+              </p>
+              <Button
+                onClick={() => window.location.reload()}
+                variant="outline"
+                className="bg-yellow-500/20 border-yellow-500 text-yellow-300 hover:bg-yellow-500/30"
+              >
+                ลองใหม่อีกครั้ง
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     );
