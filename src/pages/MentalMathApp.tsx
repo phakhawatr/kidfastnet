@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 import { Home, Settings, RefreshCw, Lightbulb, Award, Clock, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -18,6 +20,16 @@ import Confetti from 'react-confetti';
 const MentalMathApp = () => {
   const navigate = useNavigate();
   const { t } = useTranslation('exercises');
+  const [searchParams] = useSearchParams();
+  
+  // Mission mode
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
   
   // Settings
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
@@ -130,8 +142,13 @@ const MentalMathApp = () => {
       setTimeout(() => setShowConfetti(false), 5000);
     }
 
-    // Save to Supabase
-    await savePracticeSession(correctCount, problems.length, elapsedTime);
+    // Mission mode completion
+    if (isMissionMode) {
+      await handleCompleteMission(correctCount, problems.length, elapsedTime);
+    } else {
+      // Save to Supabase (only in normal mode)
+      await savePracticeSession(correctCount, problems.length, elapsedTime);
+    }
   };
 
   const savePracticeSession = async (correctCount: number, totalCount: number, durationMs: number) => {
@@ -426,7 +443,7 @@ const MentalMathApp = () => {
             </div>
           </div>
         </div>
-      ) : (
+      ) : !isMissionMode ? (
         <ResultsScreen
           problems={problems}
           userAnswers={userAnswers}
@@ -434,6 +451,20 @@ const MentalMathApp = () => {
           elapsedTime={elapsedTime}
           onRestart={startNewGame}
           onHome={() => navigate('/profile')}
+        />
+      ) : null}
+      
+      {/* Mission Complete Modal */}
+      {isMissionMode && missionResult && (
+        <MissionCompleteModal
+          open={showMissionComplete}
+          onOpenChange={setShowMissionComplete}
+          stars={missionResult.stars}
+          correct={missionResult.correct}
+          total={missionResult.total}
+          timeSpent={missionResult.timeSpent}
+          isPassed={missionResult.isPassed}
+          onRetry={startNewGame}
         />
       )}
     </div>
