@@ -221,7 +221,7 @@ serve(async (req) => {
 
 สร้าง ${missionsNeeded} ภารกิจ สำหรับวันนี้ (มี ${completedCount} ภารกิจทำสำเร็จแล้ว)`;
 
-ตอบกลับในรูปแบบ JSON:
+ตอบกลับในรูปแบบ JSON เท่านั้น:
 {
   "missions": [
     {
@@ -229,26 +229,16 @@ serve(async (req) => {
       "difficulty": "easy|medium|hard",
       "total_questions": 10-15,
       "reasoning": "เหตุผลสั้นๆ ว่าทำไมเลือกทักษะนี้"
-    },
-    {
-      "skill_name": "ทักษะที่ 2 (ต่างจากที่ 1)",
-      "difficulty": "easy|medium|hard",
-      "total_questions": 10-15,
-      "reasoning": "เหตุผล"
-    },
-    {
-      "skill_name": "ทักษะที่ 3 (ต่างจากที่ 1 และ 2)",
-      "difficulty": "easy|medium|hard",
-      "total_questions": 10-15,
-      "reasoning": "เหตุผล"
     }
   ],
   "daily_message": "ข้อความให้กำลังใจนักเรียนสำหรับวันนี้ (1-2 ประโยค)"
-}`;
+}
 
-    const userPrompt = addSingleMission
-      ? `วิเคราะห์ข้อมูลนักเรียนและสร้าง 1 ภารกิจเพิ่มเติมสำหรับวันนี้:`
-      : `วิเคราะห์ข้อมูลนักเรียนและสร้าง 3 ภารกิจให้เลือกสำหรับวันนี้:`;
+หมายเหตุ: จำนวน missions ใน array ให้สร้างตามจำนวนที่ต้องการ (${missionsNeeded} ภารกิจ)`;
+
+    const userPrompt = `${addSingleMission
+      ? 'วิเคราะห์ข้อมูลนักเรียนและสร้าง 1 ภารกิจเพิ่มเติมสำหรับวันนี้'
+      : 'วิเคราะห์ข้อมูลนักเรียนและสร้าง 3 ภารกิจให้เลือกสำหรับวันนี้'}:
 
 **ประวัติการทำภารกิจ 7 วันที่ผ่านมา:**
 ${missionHistory.length > 0 ? JSON.stringify(missionHistory, null, 2) : 'ยังไม่มีประวัติ (นักเรียนใหม่)'}
@@ -260,8 +250,10 @@ ${weakSkills.length > 0 ? JSON.stringify(weakSkills, null, 2) : 'ไม่มี
 ${recentSkills.length > 0 ? recentSkills.join(', ') : 'ไม่มี'}
 
 ${addSingleMission 
-  ? `สร้าง 1 ภารกิจเพิ่มเติมสำหรับวันนี้ (${today}) โดย:
-- เลือกทักษะที่แตกต่างจากที่มีอยู่แล้ววันนี้: ${existingSkillsToday.join(', ') || 'ไม่มี'}
+  ? `**ทักษะที่มีอยู่แล้ววันนี้:** ${existingSkillsToday.join(', ') || 'ไม่มี'}
+
+สร้าง 1 ภารกิจเพิ่มเติมสำหรับวันนี้ (${today}) โดย:
+- เลือกทักษะที่แตกต่างจากที่มีอยู่แล้ววันนี้
 - หลีกเลี่ยงทักษะที่ทำซ้ำ 3 วันติด
 - ปรับระดับตามประวัติการทำ`
   : `สร้าง 3 ภารกิจสำหรับวันนี้ (${today}) โดย:
