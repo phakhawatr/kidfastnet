@@ -8,6 +8,7 @@ import AchievementBadge from '../components/AchievementBadge';
 import { useAuth } from '../hooks/useAuth';
 import { useAchievements } from '../hooks/useAchievements';
 import { useTeacherRole } from '../hooks/useTeacherRole';
+import { useTrainingCalendar } from '../hooks/useTrainingCalendar';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -15,7 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Users, Sparkles, Edit, Upload, X, Trophy, GraduationCap, ChevronRight } from 'lucide-react';
+import { Users, Sparkles, Edit, Upload, X, Trophy, GraduationCap, ChevronRight, Star, Clock, CheckCircle, Zap } from 'lucide-react';
 import { SubscriptionTab } from '../components/SubscriptionTab';
 
 // Import mascot images
@@ -98,6 +99,20 @@ const Profile = () => {
   const { isTeacher, isLoading: teacherLoading } = useTeacherRole(registrationId);
   
   const { userAchievements, getAchievementProgress } = useAchievements(registrationId || null);
+  
+  // Training calendar data
+  const { missions, streak, isLoading: missionsLoading } = useTrainingCalendar();
+  
+  // Helper function to get local date string
+  const getLocalDateString = (date: Date) => {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  };
+  
+  // Calculate today's missions
+  const todayStr = getLocalDateString(new Date());
+  const todayMissions = missions.filter(m => m.mission_date.split('T')[0] === todayStr);
+  const completedCount = todayMissions.filter(m => m.status === 'completed' || m.completed_at !== null).length;
+  const totalStarsToday = todayMissions.reduce((sum, m) => sum + (m.stars_earned || 0), 0);
   
   // Get active tab from URL
   const [searchParams, setSearchParams] = useSearchParams();
@@ -989,12 +1004,93 @@ const Profile = () => {
                           <li>🏆 แลกรางวัลพิเศษ</li>
                         </ul>
                       </div>
-                      <div className="text-6xl ml-4">
-                        📅
+                      <div className="flex flex-col items-center bg-white/20 rounded-xl p-3 shadow-lg ml-4">
+                        <span className="text-xs font-bold uppercase tracking-wide">
+                          {new Date().toLocaleString('th-TH', { month: 'short' })}
+                        </span>
+                        <span className="text-4xl font-bold">{new Date().getDate()}</span>
                       </div>
                     </div>
                   </div>
                 </Link>
+
+                {/* Today's Missions Summary */}
+                {!isDemo && registrationData && (
+                  <div className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl p-5 mt-4 shadow-lg">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-bold flex items-center gap-2">
+                        <Zap className="w-5 h-5" />
+                        ภารกิจวันนี้
+                      </h4>
+                      <Link to="/today-mission" className="text-xs bg-white/20 px-3 py-1 rounded-full hover:bg-white/30 transition-colors">
+                        ดูทั้งหมด →
+                      </Link>
+                    </div>
+                    
+                    {missionsLoading ? (
+                      <div className="text-center py-4">
+                        <div className="animate-spin w-6 h-6 border-2 border-white border-t-transparent rounded-full mx-auto" />
+                      </div>
+                    ) : todayMissions.length === 0 ? (
+                      <div className="text-center py-3">
+                        <p className="text-white/80 text-sm">ยังไม่มีภารกิจวันนี้</p>
+                        <Link to="/today-mission" className="text-xs underline mt-1 inline-block">
+                          สร้างภารกิจใหม่ →
+                        </Link>
+                      </div>
+                    ) : (
+                      <>
+                        {/* Progress Summary */}
+                        <div className="grid grid-cols-3 gap-3 mb-3">
+                          <div className="bg-white/20 rounded-lg p-2 text-center">
+                            <div className="text-2xl font-bold">{completedCount}/{todayMissions.length}</div>
+                            <div className="text-xs text-white/80">ภารกิจสำเร็จ</div>
+                          </div>
+                          <div className="bg-white/20 rounded-lg p-2 text-center">
+                            <div className="text-2xl font-bold flex items-center justify-center gap-1">
+                              {totalStarsToday} <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                            </div>
+                            <div className="text-xs text-white/80">ดาววันนี้</div>
+                          </div>
+                          <div className="bg-white/20 rounded-lg p-2 text-center">
+                            <div className="text-2xl font-bold flex items-center justify-center gap-1">
+                              {streak?.current_streak || 0} <span className="text-lg">🔥</span>
+                            </div>
+                            <div className="text-xs text-white/80">Streak</div>
+                          </div>
+                        </div>
+                        
+                        {/* Mission Cards (Mini) */}
+                        <div className="space-y-2">
+                          {todayMissions.slice(0, 3).map((mission, idx) => {
+                            const isCompleted = mission.status === 'completed' || mission.completed_at !== null;
+                            return (
+                              <div 
+                                key={mission.id} 
+                                className={`flex items-center gap-3 p-2 rounded-lg ${isCompleted ? 'bg-green-500/30' : 'bg-white/10'}`}
+                              >
+                                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${isCompleted ? 'bg-green-500' : 'bg-white/20'}`}>
+                                  {isCompleted ? <CheckCircle className="w-4 h-4" /> : <span className="text-xs">{idx + 1}</span>}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium truncate">{mission.skill_name}</p>
+                                  <p className="text-xs text-white/70">{mission.difficulty}</p>
+                                </div>
+                                {isCompleted && mission.stars_earned !== null && (
+                                  <div className="flex items-center gap-0.5">
+                                    {[...Array(mission.stars_earned)].map((_, i) => (
+                                      <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
 
                 {/* Quick Tips */}
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
