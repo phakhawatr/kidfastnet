@@ -188,7 +188,7 @@ const TrainingCalendar = () => {
         {/* Header */}
         <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
           <Link to="/profile">
-            <Button variant="outline" className="border-slate-600 text-white hover:bg-slate-800">
+            <Button variant="outline" className="bg-slate-800 border-slate-600 text-white hover:bg-slate-700">
               <ArrowLeft className="w-4 h-4 mr-2" />
               กลับ
             </Button>
