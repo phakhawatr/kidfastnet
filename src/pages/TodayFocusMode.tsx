@@ -305,7 +305,10 @@ const TodayFocusMode = () => {
   };
 
   const handleAddSingleMission = async () => {
+    console.log('🚀 handleAddSingleMission called');
+    console.log('📊 Current missions count:', todayMissions.length);
     const result = await addSingleMission();
+    console.log('📥 Result:', result);
     if (result.success) {
       toast.success('เพิ่มภารกิจใหม่สำเร็จ! 🎯');
     }
