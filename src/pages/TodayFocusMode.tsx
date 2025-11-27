@@ -24,6 +24,7 @@ const TodayFocusMode = () => {
     userId, 
     startMission, 
     generateTodayMission,
+    addSingleMission,
     regenerateMissions,
     fetchMissions,
     completeMission
@@ -303,6 +304,13 @@ const TodayFocusMode = () => {
     }
   };
 
+  const handleAddSingleMission = async () => {
+    const result = await addSingleMission();
+    if (result.success) {
+      toast.success('เพิ่มภารกิจใหม่สำเร็จ! 🎯');
+    }
+  };
+
   const handleRegenerateMissions = async () => {
     const result = await regenerateMissions();
     if (result.success) {
@@ -526,9 +534,22 @@ const TodayFocusMode = () => {
             <h2 className="text-2xl font-bold text-white mb-2">
               เลือกภารกิจที่คุณต้องการทำวันนี้
             </h2>
-            <p className="text-slate-300">
-              AI เลือกภารกิจที่เหมาะสมให้คุณ 3 รายการ เลือกอันที่ชอบได้เลย!
+            <p className="text-slate-300 mb-2">
+              AI เลือกภารกิจที่เหมาะสมให้คุณ เลือกอันที่ชอบได้เลย!
             </p>
+            {/* Mission Counter */}
+            {!isViewingPast && (
+              <div className="mt-2">
+                <span className={cn(
+                  "text-lg font-semibold px-4 py-1.5 rounded-full",
+                  todayMissions.length >= 10 ? "bg-red-500/20 text-red-400" :
+                  todayMissions.length >= 8 ? "bg-orange-500/20 text-orange-400" :
+                  "bg-slate-700 text-slate-300"
+                )}>
+                  ภารกิจวันนี้: {todayMissions.length}/10
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -669,23 +690,28 @@ const TodayFocusMode = () => {
                   {selectedMission?.status === 'completed' ? 'ทำภารกิจอีกครั้ง' : 'เริ่มภารกิจที่เลือก'}
                 </Button>
 
-                {/* Regenerate Button */}
+                {/* Add Single Mission Button */}
                 <Button
-                  onClick={handleRegenerateMissions}
-                  disabled={isGenerating}
+                  onClick={handleAddSingleMission}
+                  disabled={isGenerating || todayMissions.length >= 10}
                   variant="outline"
                   size="sm"
-                  className="text-white font-semibold border-slate-400 bg-slate-800 hover:bg-slate-700"
+                  className="text-white font-semibold border-slate-400 bg-slate-800 hover:bg-slate-700 disabled:opacity-50"
                 >
                   {isGenerating ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      กำลังสร้างภารกิจใหม่...
+                      กำลังเพิ่มภารกิจ...
+                    </>
+                  ) : todayMissions.length >= 10 ? (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 mr-2" />
+                      ครบ 10 ภารกิจแล้ว
                     </>
                   ) : (
                     <>
                       <Sparkles className="w-4 h-4 mr-2" />
-                      สร้างภารกิจใหม่
+                      ➕ เพิ่มภารกิจใหม่
                     </>
                   )}
                 </Button>

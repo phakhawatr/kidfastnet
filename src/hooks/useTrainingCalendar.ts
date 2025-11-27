@@ -388,6 +388,85 @@ export const useTrainingCalendar = () => {
     return `${year}-${month}-${day}`;
   };
 
+  // Add a single mission (for incremental addition)
+  const addSingleMission = async () => {
+    if (!userId) {
+      toast({
+        title: 'ไม่พบข้อมูลผู้ใช้',
+        description: 'กรุณาเข้าสู่ระบบใหม่',
+        variant: 'destructive',
+      });
+      return { success: false };
+    }
+
+    // Prevent multiple simultaneous calls
+    if (isGenerating) {
+      console.log('⚠️ Mission generation already in progress, skipping...');
+      return { success: false };
+    }
+
+    try {
+      setIsGenerating(true);
+
+      // Send local date to avoid timezone issues
+      const localDate = getLocalDateString(new Date());
+
+      const { data, error } = await supabase.functions.invoke('generate-daily-mission', {
+        body: { userId, localDate, addSingleMission: true },
+      });
+
+      if (error) {
+        if (error.message?.includes('429')) {
+          toast({
+            title: 'ใช้งานบ่อยเกินไป',
+            description: 'กรุณารอสักครู่แล้วลองใหม่',
+            variant: 'destructive',
+          });
+        } else if (error.message?.includes('402')) {
+          toast({
+            title: 'โควต้า AI หมด',
+            description: 'กรุณาติดต่อผู้ดูแลระบบ',
+            variant: 'destructive',
+          });
+        } else if (error.message?.includes('max_missions_reached')) {
+          toast({
+            title: 'ถึงขีดจำกัดแล้ว',
+            description: 'ไม่สามารถสร้างภารกิจเกิน 10 รายการต่อวันได้',
+            variant: 'destructive',
+          });
+        } else {
+          throw error;
+        }
+        return { success: false };
+      }
+
+      if (data?.success) {
+        toast({
+          title: 'เพิ่มภารกิจใหม่สำเร็จ! 🎯',
+          description: data.missions?.[0]?.skill_name || 'ภารกิจใหม่',
+        });
+
+        // Refresh missions
+        const today = new Date();
+        await fetchMissions(today.getMonth() + 1, today.getFullYear());
+
+        return { success: true };
+      } else {
+        throw new Error(data?.error || 'Unknown error');
+      }
+    } catch (error) {
+      console.error('Error adding mission:', error);
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: 'ไม่สามารถเพิ่มภารกิจได้',
+        variant: 'destructive',
+      });
+      return { success: false };
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   // Generate today's mission using AI
   const generateTodayMission = async () => {
     if (!userId) {
@@ -630,6 +709,7 @@ export const useTrainingCalendar = () => {
     completeMission,
     catchUpMission,
     generateTodayMission,
+    addSingleMission,
     regenerateMissions,
     fetchAllMissions,
     getSkillStats,
