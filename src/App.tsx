@@ -27,6 +27,7 @@ import ShapeSeriesApp from "./pages/ShapeSeriesApp";
 import FractionShapesApp from "./pages/FractionShapesApp";
 import BackgroundRemoverPage from "./pages/BackgroundRemover";
 import ParentDashboard from "./pages/ParentDashboard";
+import ChildProgressDashboard from "./pages/ChildProgressDashboard";
 import AnalyticsDashboard from "./pages/AnalyticsDashboard";
 import AIMathTutor from "./pages/AIMathTutor";
 import AdaptiveLearningPath from "./pages/AdaptiveLearningPath";
@@ -96,6 +97,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <ParentDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route
+            path="/parent/progress" 
+            element={
+              <ProtectedRoute>
+                <ChildProgressDashboard />
               </ProtectedRoute>
             } 
           />

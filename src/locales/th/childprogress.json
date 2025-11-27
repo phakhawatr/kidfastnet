@@ -1,0 +1,63 @@
+{
+  "pageTitle": "ความก้าวหน้าของลูก",
+  "backToParent": "กลับสู่หน้าหลัก",
+  "loading": "กำลังโหลดข้อมูล...",
+  
+  "streak": {
+    "title": "สถิติการฝึกซ้อม",
+    "current": "Streak ปัจจุบัน",
+    "longest": "Streak ยาวที่สุด",
+    "totalStars": "ดาวสะสม",
+    "perfectDays": "วันที่ได้ 3 ดาว",
+    "days": "วัน",
+    "stars": "ดาว"
+  },
+  
+  "weeklyProgress": {
+    "title": "ความก้าวหน้ารายสัปดาห์",
+    "accuracy": "ความถูกต้อง",
+    "noData": "ยังไม่มีข้อมูลการฝึกซ้อม"
+  },
+  
+  "skillsToImprove": {
+    "title": "ทักษะที่ควรพัฒนา",
+    "description": "5 ทักษะที่ต้องฝึกฝนเพิ่มเติม",
+    "practice": "ฝึกทักษะนี้",
+    "accuracy": "ความถูกต้อง",
+    "practiced": "ฝึกแล้ว",
+    "times": "ครั้ง",
+    "noWeakSkills": "ยอดเยี่ยม! ไม่มีทักษะที่ต้องปรับปรุง",
+    "allGood": "ทุกทักษะอยู่ในเกณฑ์ดีแล้ว"
+  },
+  
+  "recentMissions": {
+    "title": "ภารกิจล่าสุด",
+    "description": "7 วันที่ผ่านมา",
+    "date": "วันที่",
+    "skill": "ทักษะ",
+    "status": "สถานะ",
+    "stars": "ดาว",
+    "accuracy": "ความถูกต้อง",
+    "noMissions": "ยังไม่มีภารกิจที่เสร็จสิ้น"
+  },
+  
+  "notifications": {
+    "title": "ตั้งค่าการแจ้งเตือน LINE",
+    "description": "เปิด/ปิดการแจ้งเตือนผ่าน LINE",
+    "streakWarning": "เตือนเมื่อ Streak ใกล้หาย",
+    "enabled": "เปิดใช้งาน",
+    "disabled": "ปิดใช้งาน",
+    "reminderTime": "เวลาแจ้งเตือน",
+    "lineNotConnected": "ยังไม่เชื่อมต่อ LINE",
+    "connectLine": "เชื่อมต่อ LINE เพื่อรับการแจ้งเตือน",
+    "saveSuccess": "บันทึกการตั้งค่าเรียบร้อย",
+    "saveError": "เกิดข้อผิดพลาดในการบันทึก"
+  },
+  
+  "status": {
+    "completed": "เสร็จสมบูรณ์",
+    "pending": "ยังไม่ทำ",
+    "skipped": "ข้าม",
+    "catchup": "ทำทันภายหลัง"
+  }
+}
