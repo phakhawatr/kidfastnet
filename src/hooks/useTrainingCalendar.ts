@@ -540,12 +540,16 @@ export const useTrainingCalendar = () => {
     return (data || []) as DailyMission[];
   };
 
+  // Helper to check if mission is completed
+  const isMissionCompleted = (mission: DailyMission) => 
+    mission.status === 'completed' || mission.status === 'catchup' || mission.completed_at !== null;
+
   // Calculate skill statistics
   const getSkillStats = (missions: DailyMission[]) => {
     const skillMap = new Map<string, { count: number; totalAccuracy: number; totalStars: number }>();
 
     missions.forEach(mission => {
-      if (mission.status === 'completed' || mission.status === 'catchup') {
+      if (isMissionCompleted(mission)) {
         const existing = skillMap.get(mission.skill_name) || { count: 0, totalAccuracy: 0, totalStars: 0 };
         const accuracy = mission.total_questions > 0 
           ? (mission.correct_answers! / mission.total_questions) * 100 
@@ -585,8 +589,7 @@ export const useTrainingCalendar = () => {
 
       const weekMissions = missions.filter(m => {
         const missionDate = new Date(m.mission_date);
-        return missionDate >= weekStart && missionDate <= weekEnd && 
-               (m.status === 'completed' || m.status === 'catchup');
+        return missionDate >= weekStart && missionDate <= weekEnd && isMissionCompleted(m);
       });
 
       const totalAccuracy = weekMissions.reduce((sum, m) => {

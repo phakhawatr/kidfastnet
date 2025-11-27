@@ -36,13 +36,21 @@ const SkillProgressTracking = () => {
     }
   }, [userId]);
 
+  // Helper to check if mission is completed
+  const isMissionCompleted = (m: any) => 
+    m.status === 'completed' || m.status === 'catchup' || m.completed_at !== null;
+
   const loadData = async () => {
     if (!userId) return;
     
     setIsLoading(true);
     const missions = await fetchAllMissions(userId);
+    console.log(`[SkillProgress] Total missions: ${missions.length}`);
+    
     // Filter only completed missions
-    const completedMissions = missions.filter(m => m.completed_at !== null);
+    const completedMissions = missions.filter(m => isMissionCompleted(m));
+    console.log(`[SkillProgress] Completed missions: ${completedMissions.length}`);
+    
     setAllMissions(completedMissions);
     
     // Auto-select top 5 most practiced skills
@@ -226,6 +234,41 @@ const SkillProgressTracking = () => {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400 mx-auto mb-4"></div>
           <p className="text-slate-300">กำลังโหลดข้อมูล...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show message if no data
+  if (allMissions.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 md:p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-6">
+            <Link to="/training-calendar">
+              <Button variant="outline" className="border-slate-600 text-slate-200 hover:bg-slate-800">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                กลับ
+              </Button>
+            </Link>
+          </div>
+          
+          <Card className="bg-slate-800/80 backdrop-blur border-slate-700 shadow-xl">
+            <div className="p-12 text-center">
+              <TrendingUp className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-slate-300 mb-2">ยังไม่มีข้อมูลความคืบหน้า</h2>
+              <p className="text-slate-400 mb-6">
+                กรุณาทำภารกิจให้เสร็จสมบูรณ์อย่างน้อย 1 ภารกิจ<br />
+                เพื่อดูกราฟความคืบหน้าของแต่ละทักษะ
+              </p>
+              <Link to="/today-mission">
+                <Button className="bg-purple-600 hover:bg-purple-700">
+                  <Target className="w-4 h-4 mr-2" />
+                  ไปทำภารกิจวันนี้
+                </Button>
+              </Link>
+            </div>
+          </Card>
         </div>
       </div>
     );
