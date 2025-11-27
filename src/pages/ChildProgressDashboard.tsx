@@ -51,16 +51,72 @@ const ChildProgressDashboard = () => {
   const [notificationPrefs, setNotificationPrefs] = useState<NotificationPrefs>({ streak_warning: true });
   const [lineConnected, setLineConnected] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [isPublicView, setIsPublicView] = useState(false);
 
   useEffect(() => {
-    if (!authLoading) {
+    // Check if accessing via token (public view)
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    
+    if (token) {
+      loadPublicData(token);
+    } else if (!authLoading) {
       loadData();
     }
   }, [authLoading]);
 
+  const loadPublicData = async (token: string) => {
+    try {
+      setIsLoading(true);
+      setIsPublicView(true);
+      
+      // Verify token and get user_id
+      const { data: tokenData, error: tokenError } = await supabase
+        .from('progress_view_tokens')
+        .select('user_id, expires_at, accessed_at')
+        .eq('token', token)
+        .maybeSingle();
+
+      if (tokenError || !tokenData) {
+        toast.error('ลิงก์ไม่ถูกต้องหรือหมดอายุแล้ว');
+        navigate('/login');
+        return;
+      }
+
+      // Check if token is expired
+      if (new Date(tokenData.expires_at) < new Date()) {
+        toast.error('ลิงก์หมดอายุแล้ว (1 ชั่วโมง)');
+        navigate('/login');
+        return;
+      }
+
+      // Update accessed_at timestamp (first access only)
+      if (!tokenData.accessed_at) {
+        await supabase
+          .from('progress_view_tokens')
+          .update({ accessed_at: new Date().toISOString() })
+          .eq('token', token);
+      }
+
+      const registrationId = tokenData.user_id;
+      setUserId(registrationId);
+
+      // Load data for this user
+      await loadUserData(registrationId);
+
+    } catch (error) {
+      console.error('Error loading public data:', error);
+      toast.error('เกิดข้อผิดพลาดในการโหลดข้อมูล');
+      navigate('/login');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const loadData = async () => {
     try {
       setIsLoading(true);
+      setIsPublicView(false);
       
       // Get user ID from localStorage
       const authState = localStorage.getItem('kidfast_auth');
@@ -78,6 +134,20 @@ const ChildProgressDashboard = () => {
       }
 
       setUserId(registrationId);
+
+      // Load data for authenticated user
+      await loadUserData(registrationId);
+
+    } catch (error) {
+      console.error('Error loading data:', error);
+      toast.error('เกิดข้อผิดพลาดในการโหลดข้อมูล');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadUserData = async (registrationId: string) => {
+    try {
 
       // Check LINE connection
       const { data: userData } = await supabase
@@ -156,22 +226,22 @@ const ChildProgressDashboard = () => {
       
       setWeakSkills(weakSkillsList);
 
-      // Load notification preferences
-      const { data: prefs } = await supabase
-        .from('notification_preferences')
-        .select('*')
-        .eq('user_id', registrationId)
-        .maybeSingle();
-      
-      if (prefs) {
-        setNotificationPrefs({ streak_warning: prefs.streak_warning });
+      // Load notification preferences (only if not public view)
+      if (!isPublicView) {
+        const { data: prefs } = await supabase
+          .from('notification_preferences')
+          .select('*')
+          .eq('user_id', registrationId)
+          .maybeSingle();
+        
+        if (prefs) {
+          setNotificationPrefs({ streak_warning: prefs.streak_warning });
+        }
       }
 
     } catch (error) {
-      console.error('Error loading data:', error);
-      toast.error('เกิดข้อผิดพลาดในการโหลดข้อมูล');
-    } finally {
-      setIsLoading(false);
+      console.error('Error loading user data:', error);
+      throw error;
     }
   };
 
@@ -237,17 +307,24 @@ const ChildProgressDashboard = () => {
       <main className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('/parent')}
-            className="text-white hover:bg-white/10"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
+          {!isPublicView && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/parent')}
+              className="text-white hover:bg-white/10"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          )}
           <h1 className="text-4xl font-bold text-white">
             {t('pageTitle')}
           </h1>
+          {isPublicView && (
+            <Badge className="bg-blue-500 text-white">
+              โหมดดูความก้าวหน้า (Public View)
+            </Badge>
+          )}
         </div>
 
         {/* Streak Summary Cards */}
@@ -462,54 +539,56 @@ const ChildProgressDashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Notification Settings */}
-        <Card className="bg-slate-800/90 border-slate-700">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Bell className="w-5 h-5 text-blue-400" />
-              {t('notifications.title')}
-            </CardTitle>
-            <CardDescription className="text-slate-400">
-              {t('notifications.description')}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {lineConnected ? (
-              <div className="flex items-center justify-between p-4 bg-slate-700/50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  {notificationPrefs.streak_warning ? (
-                    <Bell className="w-5 h-5 text-green-400" />
-                  ) : (
-                    <BellOff className="w-5 h-5 text-slate-400" />
-                  )}
-                  <div>
-                    <p className="font-semibold text-white">{t('notifications.streakWarning')}</p>
-                    <p className="text-sm text-slate-400">
-                      {notificationPrefs.streak_warning ? t('notifications.enabled') : t('notifications.disabled')}
-                    </p>
+        {/* Notification Settings - Only show in authenticated view */}
+        {!isPublicView && (
+          <Card className="bg-slate-800/90 border-slate-700">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Bell className="w-5 h-5 text-blue-400" />
+                {t('notifications.title')}
+              </CardTitle>
+              <CardDescription className="text-slate-400">
+                {t('notifications.description')}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {lineConnected ? (
+                <div className="flex items-center justify-between p-4 bg-slate-700/50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    {notificationPrefs.streak_warning ? (
+                      <Bell className="w-5 h-5 text-green-400" />
+                    ) : (
+                      <BellOff className="w-5 h-5 text-slate-400" />
+                    )}
+                    <div>
+                      <p className="font-semibold text-white">{t('notifications.streakWarning')}</p>
+                      <p className="text-sm text-slate-400">
+                        {notificationPrefs.streak_warning ? t('notifications.enabled') : t('notifications.disabled')}
+                      </p>
+                    </div>
                   </div>
+                  <Switch
+                    checked={notificationPrefs.streak_warning}
+                    onCheckedChange={handleNotificationToggle}
+                  />
                 </div>
-                <Switch
-                  checked={notificationPrefs.streak_warning}
-                  onCheckedChange={handleNotificationToggle}
-                />
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <BellOff className="w-12 h-12 text-slate-500 mx-auto mb-3" />
-                <p className="text-slate-300 font-semibold mb-2">{t('notifications.lineNotConnected')}</p>
-                <p className="text-slate-400 text-sm">{t('notifications.connectLine')}</p>
-                <Button 
-                  onClick={() => navigate('/profile')}
-                  className="mt-4"
-                  variant="outline"
-                >
-                  {t('notifications.connectLine')}
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              ) : (
+                <div className="text-center py-8">
+                  <BellOff className="w-12 h-12 text-slate-500 mx-auto mb-3" />
+                  <p className="text-slate-300 font-semibold mb-2">{t('notifications.lineNotConnected')}</p>
+                  <p className="text-slate-400 text-sm">{t('notifications.connectLine')}</p>
+                  <Button 
+                    onClick={() => navigate('/profile')}
+                    className="mt-4"
+                    variant="outline"
+                  >
+                    {t('notifications.connectLine')}
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </main>
     </div>
   );

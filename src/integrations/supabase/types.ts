@@ -963,6 +963,41 @@ export type Database = {
         }
         Relationships: []
       }
+      progress_view_tokens: {
+        Row: {
+          accessed_at: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          token: string
+          user_id: string
+        }
+        Insert: {
+          accessed_at?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          token: string
+          user_id: string
+        }
+        Update: {
+          accessed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          token?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "progress_view_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       question_bank: {
         Row: {
           admin_id: string | null
@@ -1800,6 +1835,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      cleanup_expired_tokens: { Args: never; Returns: undefined }
       create_auth_user_from_registration: {
         Args: { admin_id: string; registration_id: string }
         Returns: {
