@@ -81,7 +81,10 @@ serve(async (req) => {
     const existingMissions = recentMissions?.filter(m => m.mission_date === today) || [];
 
     // If we have 3 complete missions for today, return them
-    const completedMissions = existingMissions.filter(m => m.status === 'completed');
+    // Check both status AND completed_at for robustness
+    const completedMissions = existingMissions.filter(m => 
+      m.status === 'completed' || m.completed_at !== null
+    );
     if (completedMissions.length >= 3) {
       return new Response(
         JSON.stringify({ 
@@ -94,7 +97,10 @@ serve(async (req) => {
     }
 
     // Delete only NON-COMPLETED missions for today before generating new ones
-    const missionsToDelete = existingMissions.filter(m => m.status !== 'completed');
+    // Check both status AND completed_at to avoid deleting completed missions
+    const missionsToDelete = existingMissions.filter(m => 
+      m.status !== 'completed' && m.completed_at === null
+    );
     if (missionsToDelete.length > 0) {
       console.log(`Deleting ${missionsToDelete.length} non-completed missions...`);
       
@@ -116,7 +122,8 @@ serve(async (req) => {
     }
 
     // Calculate how many new missions we need (3 - completed count)
-    const completedCount = existingMissions.filter(m => m.status === 'completed').length;
+    // Use completed_at as the source of truth for completion
+    const completedCount = existingMissions.filter(m => m.completed_at !== null).length;
     const missionsNeeded = 3 - completedCount;
 
     if (missionsNeeded <= 0) {
@@ -307,13 +314,10 @@ ${recentSkills.length > 0 ? recentSkills.join(', ') : 'ไม่มี'}
       can_retry: true,
     }));
 
-    // Create 3 missions in database using upsert to handle race conditions
+    // Insert new missions (use insert instead of upsert to prevent overwriting)
     const { data: newMissions, error: insertError } = await supabase
       .from('daily_missions')
-      .upsert(missionsToInsert, {
-        onConflict: 'user_id,mission_date,mission_option',
-        ignoreDuplicates: false
-      })
+      .insert(missionsToInsert)
       .select();
 
     if (insertError) {
@@ -330,8 +334,9 @@ ${recentSkills.length > 0 ? recentSkills.join(', ') : 'ไม่มี'}
     console.log(`${missionsNeeded} Missions created successfully:`, newMissions.map(m => m.id));
 
     // Combine completed missions with new missions for response
+    // Use completed_at to identify completed missions
     const allMissions = [
-      ...existingMissions.filter(m => m.status === 'completed'),
+      ...existingMissions.filter(m => m.completed_at !== null),
       ...newMissions
     ];
 

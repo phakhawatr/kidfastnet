@@ -63,6 +63,19 @@ const TodayFocusMode = () => {
   // Auto-generate missions if not enough (less than 3) or none - only once per mount
   useEffect(() => {
     const autoGenerateMissions = async () => {
+      // ถ้ามี refresh=true แสดงว่าเพิ่งกลับจากทำภารกิจ
+      // รอให้ข้อมูล sync ก่อน และ fetch ใหม่
+      if (needsRefresh) {
+        console.log('🔄 Refresh mode: waiting for data sync...');
+        await new Promise(resolve => setTimeout(resolve, 1500)); // รอ 1.5 วินาที
+        await fetchMissions(new Date().getMonth() + 1, new Date().getFullYear());
+        // ลบ refresh param จาก URL
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.delete('refresh');
+        navigate(`/today-mission?${newSearchParams.toString()}`, { replace: true });
+        return; // ไม่ auto-generate
+      }
+      
       // Prevent infinite loops - only attempt once
       if (hasAttemptedGeneration.current) return;
       if (isLoading || isGenerating || !userId) return;
@@ -87,7 +100,7 @@ const TodayFocusMode = () => {
     };
     
     autoGenerateMissions();
-  }, [userId, isLoading, isGenerating, todayMissions.length, isWeekend]);
+  }, [userId, isLoading, isGenerating, todayMissions.length, isWeekend, needsRefresh, searchParams, navigate]);
 
   // Retry pending mission results from localStorage
   useEffect(() => {
@@ -358,7 +371,8 @@ const TodayFocusMode = () => {
   }
 
   // Check if all completed - require exactly 3 missions AND all completed
-  const allCompleted = todayMissions.length >= 3 && todayMissions.every(m => m.status === 'completed');
+  // Use completed_at as source of truth for completion status
+  const allCompleted = todayMissions.length >= 3 && todayMissions.every(m => m.status === 'completed' || m.completed_at);
 
   // Show completed view only when ALL 3 missions are done
   if (allCompleted) {
