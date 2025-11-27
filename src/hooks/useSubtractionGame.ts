@@ -146,16 +146,44 @@ export function useSubtractionGame() {
   }
 
   function checkAnswers() {
+    console.log('🔍 useSubtractionGame.checkAnswers called');
+    console.log('📊 Current state:', {
+      problemsCount: problems.length,
+      answersCount: answers.length,
+      digits,
+      level,
+      count
+    });
+    
     const next = problems.map((p, i) => {
       const ans = answerToNumber(answers[i], digits);
       const corr = p.c != null ? p.a - p.b - p.c : p.a - p.b;
-      return ans === corr ? "correct" : "wrong";
+      const isCorrect = ans === corr;
+      
+      // Log incorrect answers for debugging
+      if (!isCorrect && i < 5) {
+        console.log(`❌ Problem ${i + 1} incorrect:`, {
+          problem: p,
+          userAnswer: ans,
+          correctAnswer: corr
+        });
+      }
+      
+      return isCorrect ? "correct" : "wrong";
     });
     setResults(next);
 
     const correctCount = next.filter((r) => r === "correct").length;
     const now = Date.now();
     if (startedAt) setElapsedMs(now - startedAt);
+    
+    console.log('✅ checkAnswers completed:', {
+      correctCount,
+      totalProblems: problems.length,
+      accuracy: ((correctCount / problems.length) * 100).toFixed(2) + '%',
+      timeMs: startedAt ? now - startedAt : elapsedMs
+    });
+    
     setSummary({ correct: correctCount, total: problems.length, elapsedMs: startedAt ? now - startedAt : elapsedMs, level, count });
     setLineSent(false); // Reset sent status when checking new answers
     setShowSummary(true);
