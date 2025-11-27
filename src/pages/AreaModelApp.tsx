@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Home, Settings, RefreshCw, Eye, EyeOff, Award, Clock, Grid3x3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,10 +15,21 @@ import {
 } from '@/utils/areaModelUtils';
 import { supabase } from '@/integrations/supabase/client';
 import Confetti from 'react-confetti';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 const AreaModelApp = () => {
   const navigate = useNavigate();
   const { t } = useTranslation('exercises');
+  const [searchParams] = useSearchParams();
+  
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
   
   // Settings
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
@@ -126,8 +137,13 @@ const AreaModelApp = () => {
       setTimeout(() => setShowConfetti(false), 5000);
     }
 
-    // Save to Supabase
-    await savePracticeSession(correctCount, problems.length, elapsedTime);
+    // Complete mission if in mission mode
+    if (isMissionMode) {
+      await handleCompleteMission(correctCount, problems.length, elapsedTime);
+    } else {
+      // Save to Supabase only if not in mission mode
+      await savePracticeSession(correctCount, problems.length, elapsedTime);
+    }
   };
 
   const savePracticeSession = async (correctCount: number, totalCount: number, durationMs: number) => {
@@ -379,7 +395,7 @@ const AreaModelApp = () => {
             </div>
           </div>
         </div>
-      ) : (
+      ) : !isMissionMode ? (
         <ResultsScreen
           problems={problems}
           userAnswers={userAnswers}
@@ -387,6 +403,23 @@ const AreaModelApp = () => {
           elapsedTime={elapsedTime}
           onRestart={startNewGame}
           onHome={() => navigate('/profile')}
+        />
+      ) : null}
+
+      {/* Mission Complete Modal */}
+      {isMissionMode && missionResult && (
+        <MissionCompleteModal
+          open={showMissionComplete}
+          onOpenChange={setShowMissionComplete}
+          stars={missionResult.stars}
+          correct={missionResult.correct}
+          total={missionResult.total}
+          timeSpent={missionResult.timeSpent}
+          isPassed={missionResult.isPassed}
+          onRetry={() => {
+            setShowMissionComplete(false);
+            startNewGame();
+          }}
         />
       )}
     </div>

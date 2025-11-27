@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -17,12 +17,23 @@ import {
 } from '@/utils/wordProblemsUtils';
 import { ArrowLeft, Clock, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 type GameState = 'menu' | 'category' | 'settings' | 'playing' | 'results';
 
 const WordProblemsApp = () => {
   const { t } = useTranslation(['wordproblems', 'common']);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
   
   const [gameState, setGameState] = useState<GameState>('category');
   const [selectedCategory, setSelectedCategory] = useState<ProblemCategory | null>(null);
@@ -94,7 +105,7 @@ const WordProblemsApp = () => {
     setShowExplanation(true);
   };
 
-  const handleNextQuestion = () => {
+  const handleNextQuestion = async () => {
     if (currentQuestionIndex < problems.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setSelectedAnswer(userAnswers[currentQuestionIndex + 1]);
@@ -102,7 +113,16 @@ const WordProblemsApp = () => {
       setShowSymbolHint(false);
       setShowConceptHint(false);
     } else {
-      setGameState('results');
+      // Last question - complete quiz
+      if (isMissionMode) {
+        const correctCount = userAnswers.filter(
+          (answer, index) => answer === problems[index].correctAnswer
+        ).length;
+        const timeSpent = Math.floor((Date.now() - startTime));
+        await handleCompleteMission(correctCount, problems.length, timeSpent);
+      } else {
+        setGameState('results');
+      }
     }
   };
 
@@ -489,6 +509,23 @@ const WordProblemsApp = () => {
           </div>
         )}
       </main>
+
+      {/* Mission Complete Modal */}
+      {isMissionMode && missionResult && (
+        <MissionCompleteModal
+          open={showMissionComplete}
+          onOpenChange={setShowMissionComplete}
+          stars={missionResult.stars}
+          correct={missionResult.correct}
+          total={missionResult.total}
+          timeSpent={missionResult.timeSpent}
+          isPassed={missionResult.isPassed}
+          onRetry={() => {
+            setShowMissionComplete(false);
+            handleStartQuiz();
+          }}
+        />
+      )}
 
       <Footer />
     </div>

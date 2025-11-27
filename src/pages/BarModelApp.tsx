@@ -9,12 +9,21 @@ import { BarVisualizer } from '@/components/BarVisualizer';
 import { useBarModelGame } from '@/hooks/useBarModelGame';
 import { formatTime } from '@/utils/barModelUtils';
 import Confetti from 'react-confetti';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 export default function BarModelApp() {
   console.log('🎯 BarModelApp loaded');
   const navigate = useNavigate();
   const { t } = useTranslation('exercises');
   const [showSettings, setShowSettings] = useState(false);
+  
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult
+  } = useMissionMode();
 
   const {
     count,
@@ -52,7 +61,7 @@ export default function BarModelApp() {
   }
 
   // Results Screen
-  if (showResults) {
+  if (showResults && !isMissionMode) {
     const correctCount = getCorrectCount();
     const stars = getStars();
     const encouragement = getEncouragementText();
@@ -61,7 +70,7 @@ export default function BarModelApp() {
       <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100 p-4">
         {celebrate && <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} numberOfPieces={500} />}
 
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto">{/* ... keep existing code */}
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <Button
@@ -161,6 +170,27 @@ export default function BarModelApp() {
             </div>
           </Card>
         </div>
+      </div>
+    );
+  }
+
+  // Mission Complete Modal - Show when mission is complete
+  if (isMissionMode && showMissionComplete && missionResult) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100 p-4">
+        <MissionCompleteModal
+          open={showMissionComplete}
+          onOpenChange={setShowMissionComplete}
+          stars={missionResult.stars}
+          correct={missionResult.correct}
+          total={missionResult.total}
+          timeSpent={missionResult.timeSpent}
+          isPassed={missionResult.isPassed}
+          onRetry={() => {
+            setShowMissionComplete(false);
+            regenerateProblems();
+          }}
+        />
       </div>
     );
   }
