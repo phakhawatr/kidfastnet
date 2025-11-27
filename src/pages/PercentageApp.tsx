@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ArrowLeft, RotateCcw, Clock, CheckCircle, XCircle, Trophy, Target, Shuffle, Eye, Printer, Upload, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +8,8 @@ import { Input } from '@/components/ui/input';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { useTranslation } from 'react-i18next';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 // Types for percentage problems
 interface PercentageProblem {
@@ -167,6 +169,16 @@ const generateProblems = (): PercentageProblem[] => {
 
 const PercentageApp: React.FC = () => {
   const { t } = useTranslation('exercises');
+  const [searchParams] = useSearchParams();
+  
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
+  
   const [problems, setProblems] = useState<PercentageProblem[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [timeElapsed, setTimeElapsed] = useState(0);
@@ -237,7 +249,7 @@ const PercentageApp: React.FC = () => {
     ));
   }, [problems]);
 
-  const checkAllAnswers = useCallback(() => {
+  const checkAllAnswers = useCallback(async () => {
     problems.forEach(problem => {
       if (problem.userAnswer.trim()) {
         const isCorrect = problem.userAnswer.trim().toLowerCase() === problem.correctAnswer.toLowerCase();
@@ -248,7 +260,15 @@ const PercentageApp: React.FC = () => {
     });
     setShowResults(true);
     setIsTimerRunning(false);
-  }, [problems]);
+    
+    // Complete mission if in mission mode
+    if (isMissionMode) {
+      const correctCount = problems.filter(p => 
+        p.userAnswer.trim().toLowerCase() === p.correctAnswer.toLowerCase()
+      ).length;
+      await handleCompleteMission(correctCount, problems.length, timeElapsed * 1000);
+    }
+  }, [problems, isMissionMode, handleCompleteMission, timeElapsed]);
 
   const getScore = useCallback(() => {
     const answeredProblems = problems.filter(p => p.isCorrect !== null);
@@ -647,8 +667,8 @@ const PercentageApp: React.FC = () => {
           </button>
         </div>
 
-        {/* Results Summary */}
-        {showResults && (
+        {/* Results Summary - Only show if NOT in mission mode */}
+        {showResults && !isMissionMode && (
           <Card className="mb-6 bg-gradient-to-r from-yellow-300 via-orange-400 to-pink-500 text-white border-4 border-white shadow-2xl animate-scale-in">
             <CardContent className="p-8">
               <div className="flex flex-col items-center justify-center gap-4">
@@ -670,6 +690,23 @@ const PercentageApp: React.FC = () => {
               </div>
             </CardContent>
           </Card>
+        )}
+
+        {/* Mission Complete Modal */}
+        {isMissionMode && missionResult && (
+          <MissionCompleteModal
+            open={showMissionComplete}
+            onOpenChange={setShowMissionComplete}
+            stars={missionResult.stars}
+            correct={missionResult.correct}
+            total={missionResult.total}
+            timeSpent={missionResult.timeSpent}
+            isPassed={missionResult.isPassed}
+            onRetry={() => {
+              setShowMissionComplete(false);
+              resetGame();
+            }}
+          />
         )}
 
         {/* Problems Grid */}
