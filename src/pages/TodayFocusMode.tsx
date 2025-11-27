@@ -693,31 +693,51 @@ const TodayFocusMode = () => {
                   {selectedMission?.status === 'completed' ? 'ทำภารกิจอีกครั้ง' : 'เริ่มภารกิจที่เลือก'}
                 </Button>
 
-                {/* Add Single Mission Button */}
-                <Button
-                  onClick={handleAddSingleMission}
-                  disabled={isGenerating || todayMissions.length >= 10}
-                  variant="outline"
-                  size="sm"
-                  className="text-white font-semibold border-slate-400 bg-slate-800 hover:bg-slate-700 disabled:opacity-50"
-                >
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      กำลังเพิ่มภารกิจ...
-                    </>
-                  ) : todayMissions.length >= 10 ? (
-                    <>
-                      <CheckCircle2 className="w-4 h-4 mr-2" />
-                      ครบ 10 ภารกิจแล้ว
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      ➕ เพิ่มภารกิจใหม่
-                    </>
-                  )}
-                </Button>
+                {/* Add Single Mission Button with Quota Display */}
+                <div className="flex items-center gap-3">
+                  <Button
+                    onClick={handleAddSingleMission}
+                    disabled={isGenerating || todayMissions.length >= 10}
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      "text-white font-semibold border-slate-400 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 transition-all duration-300",
+                      isGenerating && "animate-pulse scale-105 ring-2 ring-blue-400 shadow-lg shadow-blue-500/50"
+                    )}
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        <span className="animate-pulse">กำลังเพิ่มภารกิจ...</span>
+                      </>
+                    ) : todayMissions.length >= 10 ? (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        ครบ 10 ภารกิจแล้ว
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        ➕ เพิ่มภารกิจใหม่
+                      </>
+                    )}
+                  </Button>
+                  
+                  {/* Mission Quota Badge */}
+                  <Badge 
+                    variant="outline" 
+                    className={cn(
+                      "text-base font-bold px-3 py-1.5 transition-all duration-300",
+                      todayMissions.length >= 10 
+                        ? "bg-red-500/20 text-red-300 border-red-400 animate-pulse" 
+                        : todayMissions.length >= 7
+                        ? "bg-yellow-500/20 text-yellow-300 border-yellow-400"
+                        : "bg-green-500/20 text-green-300 border-green-400"
+                    )}
+                  >
+                    {todayMissions.length}/10
+                  </Badge>
+                </div>
               </>
             ) : (
               <>
