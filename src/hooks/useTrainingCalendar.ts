@@ -202,13 +202,27 @@ export const useTrainingCalendar = () => {
 
     // Retry logic: up to 3 attempts
     let lastError = null;
+    // Sanitize and validate missionId
+    const cleanMissionId = missionId?.trim();
+    console.log('🔍 Original missionId:', missionId);
+    console.log('🔍 Cleaned missionId:', cleanMissionId);
+    console.log('🔍 missionId length:', cleanMissionId?.length);
+    
+    if (!cleanMissionId) {
+      throw new Error('missionId is empty or undefined');
+    }
+    
+    if (cleanMissionId.length !== 36) {
+      console.error(`❌ Invalid missionId length: ${cleanMissionId.length} (expected 36)`);
+      throw new Error(`Invalid missionId format: ${cleanMissionId}`);
+    }
+    
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
-        console.log(`💾 Attempt ${attempt}/3: Updating mission ${missionId}...`);
-        console.log(`📝 Mission ID type: ${typeof missionId}, length: ${missionId?.length}`);
+        console.log(`💾 Attempt ${attempt}/3: Updating mission ${cleanMissionId}...`);
         
-        // Perform UPDATE with .select() to verify data is returned
-        const { data: updateData, error: updateError } = await supabase
+        // Perform UPDATE with explicit count check
+        const { data: updateData, error: updateError, count } = await supabase
           .from('daily_missions')
           .update({
             status: 'completed',
@@ -218,28 +232,38 @@ export const useTrainingCalendar = () => {
             stars_earned: stars,
             completed_at: new Date().toISOString(),
           })
-          .eq('id', missionId)
-          .select()
-          .single();
+          .eq('id', cleanMissionId)
+          .select('*');
+
+        console.log(`📊 Update result - Data length: ${updateData?.length}, Data:`, updateData);
+        console.log(`📊 Error:`, updateError);
 
         if (updateError) {
           console.error(`❌ Attempt ${attempt} UPDATE error:`, updateError);
           throw updateError;
         }
 
-        // Strict verification: Check if data was returned
-        if (!updateData) {
-          console.error(`❌ Attempt ${attempt}: No data returned from update!`);
-          throw new Error('No data returned - mission might not exist');
+        // Check if any rows were affected
+        const rowCount = updateData?.length || 0;
+        if (rowCount === 0) {
+          console.error(`❌ Attempt ${attempt}: No rows affected! Mission not found with id: ${cleanMissionId}`);
+          throw new Error(`No mission found with id: ${cleanMissionId}`);
         }
 
-        // Strict verification: Check if status is actually 'completed'
-        if (updateData.status !== 'completed') {
-          console.error(`❌ Attempt ${attempt}: Status not updated! Current: ${updateData.status}`);
-          throw new Error(`Status was not updated correctly: ${updateData.status}`);
+        // Verify data was returned
+        if (!updateData || updateData.length === 0) {
+          console.error(`❌ Attempt ${attempt}: No data returned despite count=${count}`);
+          throw new Error('No data returned from update');
         }
 
-        console.log(`✅ Attempt ${attempt} SUCCESS! Mission verified:`, updateData);
+        // Verify status is 'completed'
+        const updatedMission = updateData[0];
+        if (updatedMission.status !== 'completed') {
+          console.error(`❌ Attempt ${attempt}: Status not 'completed'! Current: ${updatedMission.status}`);
+          throw new Error(`Status was not updated correctly: ${updatedMission.status}`);
+        }
+
+        console.log(`✅ Attempt ${attempt} SUCCESS! Mission verified:`, updatedMission);
 
         // Clear any pending saves
         localStorage.removeItem('pendingMissionResult');
