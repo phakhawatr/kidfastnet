@@ -423,7 +423,22 @@ const ParentDashboard = () => {
         </h1>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 hover:shadow-lg transition-all cursor-pointer" onClick={() => navigate('/parent/progress')}>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-green-100 rounded-full">
+                  <TrendingUp className="w-8 h-8 text-green-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-green-900">ความก้าวหน้าของลูก</h3>
+                  <p className="text-sm text-green-700">ดูสถิติการเรียน Streak และทักษะที่ต้องพัฒนา</p>
+                </div>
+                <ChevronRight className="w-6 h-6 text-green-600" />
+              </div>
+            </CardContent>
+          </Card>
+
           <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50 hover:shadow-lg transition-all cursor-pointer" onClick={() => navigate('/analytics')}>
             <CardContent className="pt-6">
               <div className="flex items-center gap-4">

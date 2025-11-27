@@ -12,6 +12,7 @@ import loginTh from '../locales/th/login.json';
 import signupTh from '../locales/th/signup.json';
 import profileTh from '../locales/th/profile.json';
 import parentdashboardTh from '../locales/th/parentdashboard.json';
+import childprogressTh from '../locales/th/childprogress.json';
 import aiTh from '../locales/th/ai.json';
 import exercisesTh from '../locales/th/exercises.json';
 import wordproblemsTh from '../locales/th/wordproblems.json';
@@ -35,6 +36,7 @@ import loginEn from '../locales/en/login.json';
 import signupEn from '../locales/en/signup.json';
 import profileEn from '../locales/en/profile.json';
 import parentdashboardEn from '../locales/en/parentdashboard.json';
+import childprogressEn from '../locales/en/childprogress.json';
 import aiEn from '../locales/en/ai.json';
 import exercisesEn from '../locales/en/exercises.json';
 import wordproblemsEn from '../locales/en/wordproblems.json';
@@ -60,6 +62,7 @@ const resources = {
     signup: signupTh,
     profile: profileTh,
     parentdashboard: parentdashboardTh,
+    childprogress: childprogressTh,
     ai: aiTh,
     exercises: exercisesTh,
     wordproblems: wordproblemsTh,
@@ -84,6 +87,7 @@ const resources = {
     signup: signupEn,
     profile: profileEn,
     parentdashboard: parentdashboardEn,
+    childprogress: childprogressEn,
     ai: aiEn,
     exercises: exercisesEn,
     wordproblems: wordproblemsEn,

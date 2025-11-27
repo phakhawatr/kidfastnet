@@ -1,0 +1,63 @@
+{
+  "pageTitle": "Child's Progress",
+  "backToParent": "Back to Dashboard",
+  "loading": "Loading data...",
+  
+  "streak": {
+    "title": "Practice Statistics",
+    "current": "Current Streak",
+    "longest": "Longest Streak",
+    "totalStars": "Total Stars",
+    "perfectDays": "Perfect Days",
+    "days": "days",
+    "stars": "stars"
+  },
+  
+  "weeklyProgress": {
+    "title": "Weekly Progress",
+    "accuracy": "Accuracy",
+    "noData": "No practice data yet"
+  },
+  
+  "skillsToImprove": {
+    "title": "Skills to Improve",
+    "description": "5 skills that need more practice",
+    "practice": "Practice this skill",
+    "accuracy": "Accuracy",
+    "practiced": "Practiced",
+    "times": "times",
+    "noWeakSkills": "Excellent! No skills need improvement",
+    "allGood": "All skills are doing well"
+  },
+  
+  "recentMissions": {
+    "title": "Recent Missions",
+    "description": "Last 7 days",
+    "date": "Date",
+    "skill": "Skill",
+    "status": "Status",
+    "stars": "Stars",
+    "accuracy": "Accuracy",
+    "noMissions": "No completed missions yet"
+  },
+  
+  "notifications": {
+    "title": "LINE Notification Settings",
+    "description": "Enable/disable LINE notifications",
+    "streakWarning": "Warn when streak is at risk",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "reminderTime": "Reminder Time",
+    "lineNotConnected": "LINE not connected",
+    "connectLine": "Connect LINE to receive notifications",
+    "saveSuccess": "Settings saved successfully",
+    "saveError": "Error saving settings"
+  },
+  
+  "status": {
+    "completed": "Completed",
+    "pending": "Pending",
+    "skipped": "Skipped",
+    "catchup": "Catch-up"
+  }
+}
