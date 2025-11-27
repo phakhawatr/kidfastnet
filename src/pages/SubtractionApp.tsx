@@ -74,21 +74,32 @@ const SubtractionApp: React.FC = () => {
         sampleAnswer: answers[0]
       });
       
-      // Manually calculate correct count
+      // Manually calculate correct count with enhanced logging
       let correctCount = 0;
       problems.forEach((prob, idx) => {
         const userNum = answerToNumber(answers[idx], digits);
         const correctAns = prob.c != null ? prob.a - prob.b - prob.c : prob.a - prob.b;
-        const isCorrect = userNum === correctAns;
+        const isCorrect = !isNaN(userNum) && userNum === correctAns;
         if (isCorrect) correctCount++;
         
         // Log each problem for debugging
-        if (idx < 3 || !isCorrect) { // Log first 3 and all incorrect
+        if (idx < 3) { // Always log first 3
           console.log(`📝 Problem ${idx + 1}:`, {
             problem: prob,
-            userAnswer: userNum,
+            answerArray: answers[idx],
+            parsedAnswer: userNum,
             correctAnswer: correctAns,
-            isCorrect
+            isCorrect,
+            isNaN: isNaN(userNum)
+          });
+        }
+        
+        if (!isCorrect && idx < 10) { // Log first 10 incorrect
+          console.log(`❌ Problem ${idx + 1} incorrect:`, {
+            problem: prob,
+            answerArray: answers[idx],
+            parsedAnswer: userNum,
+            correctAnswer: correctAns
           });
         }
       });

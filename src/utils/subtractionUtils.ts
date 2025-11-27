@@ -161,9 +161,10 @@ export function praiseText(pct: number): string {
 
 export function answerToNumber(ansArr: string[], digits: number): number {
   if (!Array.isArray(ansArr)) return NaN;
-  if (ansArr.length !== digits) return NaN;
-  if (ansArr.some((d) => d === "")) return NaN;
-  return parseInt(ansArr.join(""), 10);
+  // Filter out empty strings and use actual filled digits
+  const cleanArr = ansArr.filter(d => d !== "");
+  if (cleanArr.length === 0) return NaN;
+  return parseInt(cleanArr.join(""), 10);
 }
 
 export interface HistoryItem {

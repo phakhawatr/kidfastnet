@@ -77,9 +77,10 @@ export function useSubtractionGame() {
   function finalizeAndLog(endTs = Date.now()) {
     const duration = startedAt ? endTs - startedAt : 0;
     const correct = problems.reduce((acc, p, i) => {
-      const ans = answerToNumber(answers[i], digits);
+      const userAns = answerToNumber(answers[i], digits);
       const corr = p.c != null ? p.a - p.b - p.c : p.a - p.b;
-      return acc + (ans === corr ? 1 : 0);
+      const isCorrect = !isNaN(userAns) && userAns === corr;
+      return acc + (isCorrect ? 1 : 0);
     }, 0);
     const entry: HistoryItem = { ts: endTs, level, count, durationMs: Math.max(0, duration), correct, stars: calcStars(correct, count) };
     setHistory((prev) => [entry, ...prev].slice(0, 10));
@@ -89,7 +90,11 @@ export function useSubtractionGame() {
     const end = finishedAt || Date.now();
     const duration = startedAt ? end - startedAt : 0;
     const snapshot = problems.map((p, i) => ({ a: p.a, b: p.b, c: p.c, answer: (answers[i] || []).join(""), correct: p.c != null ? p.a - p.b - p.c : p.a - p.b }));
-    const correct2 = snapshot.reduce((t, s, i) => t + ((answerToNumber(answers[i], digits) === s.correct) ? 1 : 0), 0);
+    const correct2 = snapshot.reduce((t, s, i) => {
+      const userAns = answerToNumber(answers[i], digits);
+      const isCorrect = !isNaN(userAns) && userAns === s.correct;
+      return t + (isCorrect ? 1 : 0);
+    }, 0);
     const entry2: HistoryItem = { ts: end, level, digits, count, durationMs: Math.max(0, duration), correct: correct2, stars: calcStars(correct2, count), snapshot };
     setHistory((prev) => [entry2, ...prev].slice(0, 10));
   }
@@ -156,15 +161,26 @@ export function useSubtractionGame() {
     });
     
     const next = problems.map((p, i) => {
-      const ans = answerToNumber(answers[i], digits);
+      const userAns = answerToNumber(answers[i], digits);
       const corr = p.c != null ? p.a - p.b - p.c : p.a - p.b;
-      const isCorrect = ans === corr;
+      const isCorrect = !isNaN(userAns) && userAns === corr;
       
-      // Log incorrect answers for debugging
-      if (!isCorrect && i < 5) {
+      // Enhanced logging for debugging
+      if (i < 3) { // Log first 3 problems
+        console.log(`📝 Problem ${i + 1}:`, {
+          problem: p,
+          answerArray: answers[i],
+          parsedAnswer: userAns,
+          correctAnswer: corr,
+          isCorrect
+        });
+      }
+      
+      if (!isCorrect && i < 10) { // Log first 10 incorrect
         console.log(`❌ Problem ${i + 1} incorrect:`, {
           problem: p,
-          userAnswer: ans,
+          answerArray: answers[i],
+          parsedAnswer: userAns,
           correctAnswer: corr
         });
       }
