@@ -75,16 +75,17 @@ const MissionHistory = () => {
   // Get unique skills for filter
   const uniqueSkills = Array.from(new Set(allMissions.map(m => m.skill_name)));
 
-  // Calculate summary stats
-  const totalMissions = filteredMissions.length;
-  const avgAccuracy = filteredMissions.length > 0
-    ? filteredMissions.reduce((sum, m) => sum + (m.correct_answers / m.total_questions * 100), 0) / filteredMissions.length
+  // Calculate summary stats - only count missions that have completed_at (regardless of status)
+  const completedMissions = filteredMissions.filter(m => m.completed_at !== null);
+  const totalMissions = completedMissions.length;
+  const avgAccuracy = completedMissions.length > 0
+    ? completedMissions.reduce((sum, m) => sum + (m.correct_answers / m.total_questions * 100), 0) / completedMissions.length
     : 0;
-  const totalStars = filteredMissions.reduce((sum, m) => sum + (m.stars_earned || 0), 0);
-  const totalTime = filteredMissions.reduce((sum, m) => sum + (m.time_spent || 0), 0);
+  const totalStars = completedMissions.reduce((sum, m) => sum + (m.stars_earned || 0), 0);
+  const totalTime = completedMissions.reduce((sum, m) => sum + (m.time_spent || 0), 0);
 
-  // Prepare chart data (last 30 missions)
-  const chartData = filteredMissions
+  // Prepare chart data (last 30 completed missions only)
+  const chartData = completedMissions
     .slice(0, 30)
     .reverse()
     .map((m, index) => ({
@@ -294,15 +295,15 @@ const MissionHistory = () => {
         {/* Mission List */}
         <Card className="bg-slate-800/80 backdrop-blur border-slate-700 shadow-xl">
           <div className="p-6">
-            <h2 className="text-xl font-bold text-slate-200 mb-6">รายการภารกิจ ({filteredMissions.length})</h2>
+            <h2 className="text-xl font-bold text-slate-200 mb-6">รายการภารกิจ ({completedMissions.length})</h2>
             <div className="space-y-3">
-              {filteredMissions.length === 0 ? (
+              {completedMissions.length === 0 ? (
                 <div className="text-center py-12 text-slate-400">
                   <Calendar className="w-16 h-16 mx-auto mb-4 opacity-50" />
                   <p>ไม่พบภารกิจที่ตรงกับเงื่อนไข</p>
                 </div>
               ) : (
-                filteredMissions.map((mission) => {
+                completedMissions.map((mission) => {
                   const accuracy = mission.total_questions > 0 
                     ? (mission.correct_answers / mission.total_questions * 100) 
                     : 0;

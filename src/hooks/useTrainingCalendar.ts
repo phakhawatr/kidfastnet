@@ -13,6 +13,7 @@ export interface DailyMission {
   completed_questions: number | null;
   correct_answers: number | null;
   time_spent: number | null;
+  completed_at: string | null;
   ai_reasoning: string | null;
   can_retry: boolean;
   user_id: string;
@@ -481,18 +482,20 @@ export const useTrainingCalendar = () => {
       setIsGenerating(true);
 
       // Delete only NON-COMPLETED missions to preserve completed work
+      // Check both status AND completed_at for extra safety
       const localDate = getLocalDateString(new Date());
       const { error: deleteError } = await supabase
         .from('daily_missions')
         .delete()
         .eq('user_id', userId)
         .eq('mission_date', localDate)
-        .neq('status', 'completed'); // Keep completed missions
+        .neq('status', 'completed') // Keep completed missions
+        .is('completed_at', null); // Extra check: don't delete if has completion timestamp
 
       if (deleteError) throw deleteError;
 
-      // Wait a moment to ensure deletions are processed
-      await new Promise(resolve => setTimeout(resolve, 200));
+      // Wait longer to ensure deletions are processed and database has synced
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       // Call edge function to generate new missions
       const { data: functionData, error: functionError } = await supabase.functions.invoke(
