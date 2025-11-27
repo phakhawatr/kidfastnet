@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { useTranslation } from 'react-i18next';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 interface WeighingTask {
   unit: 'kg' | 'g';
@@ -185,6 +187,16 @@ const WeighingApp: React.FC = () => {
   const [stepKg, setStepKg] = useState(0.5);
   const [stepG, setStepG] = useState(100);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const [startTime] = useState(Date.now());
+  
+  // Mission Mode
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
 
   const beep = useCallback((freq = 900, dur = 0.08, type: OscillatorType = 'triangle') => {
     if (!soundEnabled) return;
@@ -288,7 +300,15 @@ const WeighingApp: React.FC = () => {
       }
       
       if (newCorrectCount === tasks.length) {
-        setTimeout(() => setShowResults(true), 100);
+        setTimeout(async () => {
+          setShowResults(true);
+          
+          // Mission Mode: Complete mission
+          if (isMissionMode) {
+            const duration = Date.now() - startTime;
+            await handleCompleteMission(newCorrectCount, tasks.length, duration);
+          }
+        }, 100);
       }
     } else if (!isCorrect && playSound) {
       beep(220, 0.07, 'sawtooth');
@@ -509,6 +529,23 @@ const WeighingApp: React.FC = () => {
             <TaskCard key={index} task={task} index={index} />
           ))}
         </div>
+
+        {/* Mission Complete Modal */}
+        {showMissionComplete && missionResult && (
+          <MissionCompleteModal
+            open={showMissionComplete}
+            onOpenChange={setShowMissionComplete}
+            stars={missionResult.stars}
+            correct={missionResult.correct}
+            total={missionResult.total}
+            timeSpent={missionResult.timeSpent}
+            isPassed={missionResult.isPassed}
+            onRetry={() => {
+              setShowMissionComplete(false);
+              resetToRandom();
+            }}
+          />
+        )}
       </div>
     </div>
   );

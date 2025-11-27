@@ -9,12 +9,23 @@ import { BarVisualizer } from '@/components/BarVisualizer';
 import { useBarModelGame } from '@/hooks/useBarModelGame';
 import { formatTime } from '@/utils/barModelUtils';
 import Confetti from 'react-confetti';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 export default function BarModelApp() {
   console.log('🎯 BarModelApp loaded');
   const navigate = useNavigate();
   const { t } = useTranslation('exercises');
   const [showSettings, setShowSettings] = useState(false);
+  
+  // Mission Mode
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
 
   const {
     count,
@@ -440,13 +451,38 @@ export default function BarModelApp() {
             </Button>
           ) : (
             <Button
-              onClick={submitAllAnswers}
+              onClick={async () => {
+                await submitAllAnswers();
+                
+                // Mission Mode: Complete mission
+                if (isMissionMode) {
+                  const correctCount = getCorrectCount();
+                  await handleCompleteMission(correctCount, problems.length, elapsedTime * 1000);
+                }
+              }}
               className="flex-1 bg-gradient-to-r from-green-500 to-teal-500"
             >
               🏁 {t('barModel.submitAll')}
             </Button>
           )}
         </div>
+
+        {/* Mission Complete Modal */}
+        {showMissionComplete && missionResult && (
+          <MissionCompleteModal
+            open={showMissionComplete}
+            onOpenChange={setShowMissionComplete}
+            stars={missionResult.stars}
+            correct={missionResult.correct}
+            total={missionResult.total}
+            timeSpent={missionResult.timeSpent}
+            isPassed={missionResult.isPassed}
+            onRetry={() => {
+              setShowMissionComplete(false);
+              regenerateProblems();
+            }}
+          />
+        )}
       </div>
     </div>
   );

@@ -5,6 +5,8 @@ import { Home, Settings, RefreshCw, Eye, EyeOff, Award, Clock, Grid3x3 } from 'l
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import AreaModelVisualizer from '@/components/AreaModelVisualizer';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 import {
   generateAreaModelProblems,
   checkAnswer,
@@ -19,6 +21,15 @@ import Confetti from 'react-confetti';
 const AreaModelApp = () => {
   const navigate = useNavigate();
   const { t } = useTranslation('exercises');
+  
+  // Mission Mode
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
   
   // Settings
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
@@ -124,6 +135,12 @@ const AreaModelApp = () => {
     if (stars >= 2) {
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 5000);
+    }
+
+    // Mission Mode: Complete mission
+    if (isMissionMode) {
+      await handleCompleteMission(correctCount, problems.length, elapsedTime);
+      return;
     }
 
     // Save to Supabase
@@ -387,6 +404,23 @@ const AreaModelApp = () => {
           elapsedTime={elapsedTime}
           onRestart={startNewGame}
           onHome={() => navigate('/profile')}
+        />
+      )}
+
+      {/* Mission Complete Modal */}
+      {showMissionComplete && missionResult && (
+        <MissionCompleteModal
+          open={showMissionComplete}
+          onOpenChange={setShowMissionComplete}
+          stars={missionResult.stars}
+          correct={missionResult.correct}
+          total={missionResult.total}
+          timeSpent={missionResult.timeSpent}
+          isPassed={missionResult.isPassed}
+          onRetry={() => {
+            setShowMissionComplete(false);
+            startNewGame();
+          }}
         />
       )}
     </div>

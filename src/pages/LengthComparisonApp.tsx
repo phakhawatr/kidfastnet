@@ -8,6 +8,8 @@ import giraffeMascot from '@/assets/giraffe-mascot.png';
 import elephantMascot from '@/assets/elephant-mascot.png';
 import mouseMascot from '@/assets/mouse-mascot.png';
 import { useTranslation } from 'react-i18next';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 interface MatchingPair {
   id: number;
@@ -53,6 +55,16 @@ const questionSets: MatchingPair[][] = [
 
 const LengthComparisonApp: React.FC = () => {
   const { t } = useTranslation('exercises');
+  
+  // Mission Mode
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
+  
   const [currentSet, setCurrentSet] = useState(0);
   const [questions, setQuestions] = useState<MatchingPair[]>([]);
   const [shuffledAnswers, setShuffledAnswers] = useState<MatchingPair[]>([]);
@@ -135,6 +147,11 @@ const LengthComparisonApp: React.FC = () => {
       setScore(correctCount);
       setIsCompleted(true);
       setIsTimerRunning(false);
+      
+      // Mission Mode: Complete mission
+      if (isMissionMode) {
+        handleCompleteMission(correctCount, questions.length, timeElapsed * 1000);
+      }
     }
   };
 
@@ -449,6 +466,23 @@ const LengthComparisonApp: React.FC = () => {
             </button>
             <img src={mouseMascot} alt="Mouse" className="w-12 h-12" />
           </div>
+        )}
+
+        {/* Mission Complete Modal */}
+        {showMissionComplete && missionResult && (
+          <MissionCompleteModal
+            open={showMissionComplete}
+            onOpenChange={setShowMissionComplete}
+            stars={missionResult.stars}
+            correct={missionResult.correct}
+            total={missionResult.total}
+            timeSpent={missionResult.timeSpent}
+            isPassed={missionResult.isPassed}
+            onRetry={() => {
+              setShowMissionComplete(false);
+              resetGame();
+            }}
+          />
         )}
       </div>
     </div>

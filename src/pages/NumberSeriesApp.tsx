@@ -5,6 +5,8 @@ import { ChevronLeft } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useToast } from '../hooks/use-toast';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 interface Task {
   seq: number[];
   ans: number;
@@ -18,9 +20,16 @@ interface GameState {
 const NumberSeriesApp: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation('exercises');
+  const { toast } = useToast();
+  
+  // Mission Mode
   const {
-    toast
-  } = useToast();
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
   const [state, setState] = useState<GameState>({
     tasks: [],
     correct: 0,
@@ -29,6 +38,7 @@ const NumberSeriesApp: React.FC = () => {
   const [level, setLevel] = useState<string>('medium');
   const [count, setCount] = useState<number>(10);
   const [showCompleted, setShowCompleted] = useState<boolean>(false);
+  const [startTime] = useState(Date.now());
 
   // Preset problems matching the original HTML
   const PRESET: Task[] = [{
@@ -184,12 +194,18 @@ const NumberSeriesApp: React.FC = () => {
       beep(1040, 0.08, 'triangle');
       setTimeout(() => beep(1320, 0.09, 'triangle'), 90);
       if (state.correct + 1 === state.tasks.length) {
-        setTimeout(() => {
+        setTimeout(async () => {
           setShowCompleted(true);
           toast({
             title: "เยี่ยมมาก! 🎉",
             description: "ทำครบทุกข้อแล้ว"
           });
+          
+          // Mission Mode: Complete mission
+          if (isMissionMode) {
+            const duration = Date.now() - startTime;
+            await handleCompleteMission(state.correct + 1, state.tasks.length, duration);
+          }
         }, 100);
       }
     } else {

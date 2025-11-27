@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, RotateCcw, CheckCircle, Eye, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 // Object types for measurement problems
 type MeasurementObject = {
@@ -300,6 +302,16 @@ const ProblemCard: React.FC<{
 
 export default function QuickMathApp() {
   const { t } = useTranslation('exercises');
+  
+  // Mission Mode
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
+  
   const [problemCount, setProblemCount] = useState(6);
   const [problems, setProblems] = useState<MeasurementObject[]>([]);
   const [userAnswers, setUserAnswers] = useState<Array<{ cm: string; mm: string }>>([]);
@@ -346,7 +358,7 @@ export default function QuickMathApp() {
     setUserAnswers(newAnswers);
   };
 
-  const checkAnswers = () => {
+  const checkAnswers = async () => {
     const newResults = problems.map((problem, index) => {
       const userCm = parseFloat(userAnswers[index].cm) || 0;
       const userMm = parseFloat(userAnswers[index].mm) || 0;
@@ -361,6 +373,12 @@ export default function QuickMathApp() {
     
     setResults(newResults);
     setIsCompleted(true);
+    
+    // Mission Mode: Complete mission
+    if (isMissionMode) {
+      const correctCount = newResults.filter(r => r === 'correct').length;
+      await handleCompleteMission(correctCount, problems.length, elapsedTime);
+    }
   };
 
   const showAllAnswers = () => {

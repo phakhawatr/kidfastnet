@@ -4,6 +4,8 @@ import { ChevronLeft, RefreshCw, Eye, EyeOff, Volume2, VolumeX, Printer, Palette
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 type Task = {
   unit: string;
@@ -27,6 +29,16 @@ type GridSolution = {
 
 const SumGridPuzzles: React.FC = () => {
   const { t } = useTranslation('exercises');
+  
+  // Mission Mode
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
+  
   const [tasks, setTasks] = useState<Task[]>([]);
   const [grids, setGrids] = useState<Grid[]>([]);
   const [solutions, setSolutions] = useState<number[][][]>([]); // Store correct answers for each grid
@@ -34,6 +46,7 @@ const SumGridPuzzles: React.FC = () => {
   const [sound, setSound] = useState(true);
   const [showCompleted, setShowCompleted] = useState(false);
   const [contrast, setContrast] = useState(false);
+  const [startTime] = useState(Date.now());
 
   // เสียง beep
   const beep = useCallback((freq = 900, dur = 0.08, type: OscillatorType = 'triangle') => {
@@ -291,8 +304,12 @@ const SumGridPuzzles: React.FC = () => {
     
     setCorrect(completedCount);
     
-    // Removed popup trigger - just update the count
-  }, [grids]);
+    // Mission Mode: Complete mission when all grids completed
+    if (isMissionMode && completedCount === grids.length && completedCount > 0) {
+      const duration = Date.now() - startTime;
+      handleCompleteMission(completedCount, grids.length, duration);
+    }
+  }, [grids, isMissionMode, handleCompleteMission, startTime]);
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 ${contrast ? 'contrast' : ''}`}>
@@ -448,6 +465,23 @@ const SumGridPuzzles: React.FC = () => {
           })}
         </div>
       </main>
+
+      {/* Mission Complete Modal */}
+      {showMissionComplete && missionResult && (
+        <MissionCompleteModal
+          open={showMissionComplete}
+          onOpenChange={setShowMissionComplete}
+          stars={missionResult.stars}
+          correct={missionResult.correct}
+          total={missionResult.total}
+          timeSpent={missionResult.timeSpent}
+          isPassed={missionResult.isPassed}
+          onRetry={() => {
+            setShowMissionComplete(false);
+            initializePuzzles();
+          }}
+        />
+      )}
 
       <Footer />
     </div>

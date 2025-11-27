@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { Home, Settings, RefreshCw, Lightbulb, Award, Clock, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 import {
   generateMentalMathProblems,
   checkAnswer,
@@ -18,6 +20,15 @@ import Confetti from 'react-confetti';
 const MentalMathApp = () => {
   const navigate = useNavigate();
   const { t } = useTranslation('exercises');
+  
+  // Mission Mode
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
   
   // Settings
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
@@ -128,6 +139,12 @@ const MentalMathApp = () => {
     if (stars >= 2) {
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 5000);
+    }
+
+    // Mission Mode: Complete mission
+    if (isMissionMode) {
+      await handleCompleteMission(correctCount, problems.length, elapsedTime);
+      return;
     }
 
     // Save to Supabase
@@ -434,6 +451,23 @@ const MentalMathApp = () => {
           elapsedTime={elapsedTime}
           onRestart={startNewGame}
           onHome={() => navigate('/profile')}
+        />
+      )}
+
+      {/* Mission Complete Modal */}
+      {showMissionComplete && missionResult && (
+        <MissionCompleteModal
+          open={showMissionComplete}
+          onOpenChange={setShowMissionComplete}
+          stars={missionResult.stars}
+          correct={missionResult.correct}
+          total={missionResult.total}
+          timeSpent={missionResult.timeSpent}
+          isPassed={missionResult.isPassed}
+          onRetry={() => {
+            setShowMissionComplete(false);
+            startNewGame();
+          }}
         />
       )}
     </div>

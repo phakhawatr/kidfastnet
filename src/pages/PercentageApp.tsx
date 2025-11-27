@@ -8,6 +8,8 @@ import { Input } from '@/components/ui/input';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { useTranslation } from 'react-i18next';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 // Types for percentage problems
 interface PercentageProblem {
@@ -167,6 +169,16 @@ const generateProblems = (): PercentageProblem[] => {
 
 const PercentageApp: React.FC = () => {
   const { t } = useTranslation('exercises');
+  
+  // Mission Mode
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
+  
   const [problems, setProblems] = useState<PercentageProblem[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [timeElapsed, setTimeElapsed] = useState(0);
@@ -237,7 +249,7 @@ const PercentageApp: React.FC = () => {
     ));
   }, [problems]);
 
-  const checkAllAnswers = useCallback(() => {
+  const checkAllAnswers = useCallback(async () => {
     problems.forEach(problem => {
       if (problem.userAnswer.trim()) {
         const isCorrect = problem.userAnswer.trim().toLowerCase() === problem.correctAnswer.toLowerCase();
@@ -248,7 +260,15 @@ const PercentageApp: React.FC = () => {
     });
     setShowResults(true);
     setIsTimerRunning(false);
-  }, [problems]);
+    
+    // Mission Mode: Complete mission
+    if (isMissionMode) {
+      const correctCount = problems.filter(p => 
+        p.userAnswer.trim().toLowerCase() === p.correctAnswer.toLowerCase()
+      ).length;
+      await handleCompleteMission(correctCount, problems.length, timeElapsed * 1000);
+    }
+  }, [problems, isMissionMode, timeElapsed, handleCompleteMission]);
 
   const getScore = useCallback(() => {
     const answeredProblems = problems.filter(p => p.isCorrect !== null);

@@ -6,11 +6,22 @@ import { useNumberBondsGame } from '@/hooks/useNumberBondsGame';
 import { formatTime, calculateStars, getEncouragement } from '@/utils/numberBondsUtils';
 import Confetti from 'react-confetti';
 import { useTranslation } from 'react-i18next';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 const NumberBondsApp = () => {
   const { t } = useTranslation('exercises');
   const navigate = useNavigate();
   const [showSettings, setShowSettings] = useState(false);
+  
+  // Mission Mode
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
   
   const {
     count,
@@ -52,11 +63,17 @@ const NumberBondsApp = () => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (currentIndex < problems.length - 1) {
       nextProblem();
     } else {
-      submitAnswers();
+      await submitAnswers();
+      
+      // Mission Mode: Complete mission
+      if (isMissionMode) {
+        const correctCount = getCorrectCount();
+        await handleCompleteMission(correctCount, problems.length, elapsedTime * 1000);
+      }
     }
   };
 
@@ -353,6 +370,23 @@ const NumberBondsApp = () => {
               </Button>
             </div>
           </div>
+
+          {/* Mission Complete Modal */}
+          {showMissionComplete && missionResult && (
+            <MissionCompleteModal
+              open={showMissionComplete}
+              onOpenChange={setShowMissionComplete}
+              stars={missionResult.stars}
+              correct={missionResult.correct}
+              total={missionResult.total}
+              timeSpent={missionResult.timeSpent}
+              isPassed={missionResult.isPassed}
+              onRetry={() => {
+                setShowMissionComplete(false);
+                regenerateProblems();
+              }}
+            />
+          )}
         </div>
       )}
     </div>

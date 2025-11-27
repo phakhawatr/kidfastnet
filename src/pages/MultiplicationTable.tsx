@@ -6,10 +6,22 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '../hooks/use-toast';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 const MultiplicationTable = () => {
   const { t } = useTranslation('exercises');
   const navigate = useNavigate();
+  
+  // Mission Mode
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
+  
   const [selectedTable, setSelectedTable] = useState<number>(2);
   const [currentQuestion, setCurrentQuestion] = useState<number>(1);
   const [userAnswer, setUserAnswer] = useState<string>('');
@@ -22,6 +34,7 @@ const MultiplicationTable = () => {
   const [gameActive, setGameActive] = useState<boolean>(false);
   const [streak, setStreak] = useState<number>(0);
   const [bestStreak, setBestStreak] = useState<number>(0);
+  const [gameStartTime, setGameStartTime] = useState<number>(0);
   const { toast } = useToast();
 
   const correctAnswer = selectedTable * currentQuestion;
@@ -42,12 +55,13 @@ const MultiplicationTable = () => {
     setScore(0);
     setTotalQuestions(0);
     setStreak(0);
+    setGameStartTime(Date.now());
     setCurrentQuestion(Math.floor(Math.random() * 12) + 1);
     setUserAnswer('');
     setShowResult(false);
   };
 
-  const endGame = () => {
+  const endGame = async () => {
     setGameActive(false);
     if (streak > bestStreak) {
       setBestStreak(streak);
@@ -57,6 +71,12 @@ const MultiplicationTable = () => {
       title: "เกมส์จบแล้ว! 🎮",
       description: `คะแนน: ${score}/${totalQuestions} | Streak: ${streak}`,
     });
+    
+    // Mission Mode: Complete mission
+    if (isMissionMode && totalQuestions > 0) {
+      const duration = Date.now() - gameStartTime;
+      await handleCompleteMission(score, totalQuestions, duration);
+    }
   };
 
   const checkAnswer = () => {
@@ -436,6 +456,23 @@ const MultiplicationTable = () => {
             </Card>
           </div>
         </div>
+
+        {/* Mission Complete Modal */}
+        {showMissionComplete && missionResult && (
+          <MissionCompleteModal
+            open={showMissionComplete}
+            onOpenChange={setShowMissionComplete}
+            stars={missionResult.stars}
+            correct={missionResult.correct}
+            total={missionResult.total}
+            timeSpent={missionResult.timeSpent}
+            isPassed={missionResult.isPassed}
+            onRetry={() => {
+              setShowMissionComplete(false);
+              startGame();
+            }}
+          />
+        )}
       </main>
     </div>
   );

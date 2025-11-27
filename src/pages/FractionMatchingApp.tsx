@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useTranslation } from 'react-i18next';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 interface FractionPair {
   id: number;
@@ -167,6 +169,16 @@ const questionSets: FractionPair[][] = [
 
 const FractionMatchingApp: React.FC = () => {
   const { t } = useTranslation('exercises');
+  
+  // Mission Mode
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
+  
   const [currentSet, setCurrentSet] = useState(0);
   const [questions, setQuestions] = useState<FractionPair[]>([]);
   const [shuffledAnswers, setShuffledAnswers] = useState<FractionPair[]>([]);
@@ -262,6 +274,11 @@ const FractionMatchingApp: React.FC = () => {
       setScore(correctCount);
       setIsCompleted(true);
       setIsTimerRunning(false);
+      
+      // Mission Mode: Complete mission
+      if (isMissionMode) {
+        handleCompleteMission(correctCount, questions.length, timeElapsed * 1000);
+      }
     }
   };
 
@@ -459,6 +476,23 @@ const FractionMatchingApp: React.FC = () => {
               <span>{t('fractions.generateNew')}</span>
             </button>
           </div>
+        )}
+
+        {/* Mission Complete Modal */}
+        {showMissionComplete && missionResult && (
+          <MissionCompleteModal
+            open={showMissionComplete}
+            onOpenChange={setShowMissionComplete}
+            stars={missionResult.stars}
+            correct={missionResult.correct}
+            total={missionResult.total}
+            timeSpent={missionResult.timeSpent}
+            isPassed={missionResult.isPassed}
+            onRetry={() => {
+              setShowMissionComplete(false);
+              resetGame();
+            }}
+          />
         )}
       </div>
     </div>

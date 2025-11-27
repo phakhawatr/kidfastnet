@@ -2,6 +2,8 @@ import React, { useMemo, useState, useRef, useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 // ================= Utilities =================
 function randInt(min, max) {
@@ -238,6 +240,16 @@ function MeasurementCard({
 // ================= Main App =================
 export default function MeasurementApp() {
   const { t } = useTranslation('exercises');
+  
+  // Mission Mode
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
+  
   const [level, setLevel] = useState("easy");
   const [count, setCount] = useState(6);
   const [problems, setProblems] = useState(() => generateMeasurementProblems(6, "easy"));
@@ -337,9 +349,18 @@ export default function MeasurementApp() {
       return metersCorrect || totalCmCorrect ? "correct" : "wrong";
     });
     setResults(next);
-    if (next.every(r => r === "correct")) {
+    const allCorrect = next.every(r => r === "correct");
+    const correctCount = next.filter(r => r === "correct").length;
+    
+    if (allCorrect) {
       setCelebrate(true);
       setTimeout(() => setCelebrate(false), 2500);
+    }
+    
+    // Mission Mode: Complete mission
+    if (isMissionMode && allCorrect) {
+      const duration = elapsedMs;
+      handleCompleteMission(correctCount, problems.length, duration);
     }
   }
   function showAll() {

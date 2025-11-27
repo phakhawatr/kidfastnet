@@ -5,6 +5,8 @@ import { ArrowLeft, Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import ShapeDisplay from '@/components/ShapeDisplay';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 type ShapeType = 'circle' | 'square' | 'triangle' | 'ellipse';
 type ColorType = 'red' | 'blue' | 'green' | 'orange' | 'yellow' | 'sky' | 'purple' | 'pink' | 'teal';
@@ -26,6 +28,15 @@ const COLORS: ColorType[] = ['red', 'blue', 'green', 'orange', 'yellow', 'sky', 
 
 const ShapeSeriesApp = () => {
   const { t } = useTranslation('exercises');
+  
+  // Mission Mode
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
   
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
   const [problemCount, setProblemCount] = useState(5);
@@ -201,7 +212,7 @@ const ShapeSeriesApp = () => {
   };
 
   // Check answers
-  const handleCheckAnswers = () => {
+  const handleCheckAnswers = async () => {
     setIsRunning(false);
     setIsSubmitted(true);
     
@@ -222,6 +233,11 @@ const ShapeSeriesApp = () => {
         ? new Audio('/sounds/success.mp3') 
         : new Audio('/sounds/complete.mp3');
       audio.play().catch(() => {});
+    }
+    
+    // Mission Mode: Complete mission
+    if (isMissionMode) {
+      await handleCompleteMission(correct, problems.length, timer * 1000);
     }
   };
 
@@ -480,6 +496,23 @@ const ShapeSeriesApp = () => {
             </Button>
           </Card>
         </div>
+      )}
+
+      {/* Mission Complete Modal */}
+      {showMissionComplete && missionResult && (
+        <MissionCompleteModal
+          open={showMissionComplete}
+          onOpenChange={setShowMissionComplete}
+          stars={missionResult.stars}
+          correct={missionResult.correct}
+          total={missionResult.total}
+          timeSpent={missionResult.timeSpent}
+          isPassed={missionResult.isPassed}
+          onRetry={() => {
+            setShowMissionComplete(false);
+            generateProblems();
+          }}
+        />
       )}
     </div>
   );

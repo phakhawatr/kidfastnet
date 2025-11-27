@@ -8,6 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 import {
   ProblemCategory,
   Difficulty,
@@ -23,6 +25,15 @@ type GameState = 'menu' | 'category' | 'settings' | 'playing' | 'results';
 const WordProblemsApp = () => {
   const { t } = useTranslation(['wordproblems', 'common']);
   const navigate = useNavigate();
+  
+  // Mission Mode
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
   
   const [gameState, setGameState] = useState<GameState>('category');
   const [selectedCategory, setSelectedCategory] = useState<ProblemCategory | null>(null);
@@ -94,7 +105,7 @@ const WordProblemsApp = () => {
     setShowExplanation(true);
   };
 
-  const handleNextQuestion = () => {
+  const handleNextQuestion = async () => {
     if (currentQuestionIndex < problems.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setSelectedAnswer(userAnswers[currentQuestionIndex + 1]);
@@ -103,6 +114,14 @@ const WordProblemsApp = () => {
       setShowConceptHint(false);
     } else {
       setGameState('results');
+      
+      // Mission Mode: Complete mission
+      if (isMissionMode) {
+        const correctCount = userAnswers.filter(
+          (answer, index) => answer === problems[index].correctAnswer
+        ).length;
+        await handleCompleteMission(correctCount, problems.length, elapsedTime * 1000);
+      }
     }
   };
 
@@ -487,6 +506,23 @@ const WordProblemsApp = () => {
               </CardContent>
             </Card>
           </div>
+        )}
+
+        {/* Mission Complete Modal */}
+        {showMissionComplete && missionResult && (
+          <MissionCompleteModal
+            open={showMissionComplete}
+            onOpenChange={setShowMissionComplete}
+            stars={missionResult.stars}
+            correct={missionResult.correct}
+            total={missionResult.total}
+            timeSpent={missionResult.timeSpent}
+            isPassed={missionResult.isPassed}
+            onRetry={() => {
+              setShowMissionComplete(false);
+              handleStartQuiz();
+            }}
+          />
         )}
       </main>
 
