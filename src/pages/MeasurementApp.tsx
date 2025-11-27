@@ -1,7 +1,9 @@
 import React, { useMemo, useState, useRef, useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 // ================= Utilities =================
 function randInt(min, max) {
@@ -238,6 +240,17 @@ function MeasurementCard({
 // ================= Main App =================
 export default function MeasurementApp() {
   const { t } = useTranslation('exercises');
+  const [searchParams] = useSearchParams();
+  
+  // Mission mode
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
+  
   const [level, setLevel] = useState("easy");
   const [count, setCount] = useState(6);
   const [problems, setProblems] = useState(() => generateMeasurementProblems(6, "easy"));
@@ -322,7 +335,7 @@ export default function MeasurementApp() {
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
   }
-  function checkAnswers() {
+  async function checkAnswers() {
     const next = problems.map((p, i) => {
       const userMeters = parseInt(answers[i].meters) || 0;
       const userCm = parseInt(answers[i].centimeters) || 0;
@@ -337,9 +350,16 @@ export default function MeasurementApp() {
       return metersCorrect || totalCmCorrect ? "correct" : "wrong";
     });
     setResults(next);
+    const correctCount = next.filter(r => r === "correct").length;
+    
     if (next.every(r => r === "correct")) {
       setCelebrate(true);
       setTimeout(() => setCelebrate(false), 2500);
+      
+      // Mission mode completion
+      if (isMissionMode) {
+        await handleCompleteMission(correctCount, problems.length, elapsedMs);
+      }
     }
   }
   function showAll() {
@@ -463,5 +483,19 @@ export default function MeasurementApp() {
       <footer className="max-w-6xl mx-auto p-6 text-xs text-zinc-500">
         © แบบฝึกหัดการวัดความยาว — เรียนรู้การวัดและแปลงหน่วย
       </footer>
+      
+      {/* Mission Complete Modal */}
+      {isMissionMode && missionResult && (
+        <MissionCompleteModal
+          open={showMissionComplete}
+          onOpenChange={setShowMissionComplete}
+          stars={missionResult.stars}
+          correct={missionResult.correct}
+          total={missionResult.total}
+          timeSpent={missionResult.timeSpent}
+          isPassed={missionResult.isPassed}
+          onRetry={resetAll}
+        />
+      )}
     </div>;
 }

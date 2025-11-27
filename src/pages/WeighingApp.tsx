@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ArrowLeft, RotateCcw, Play, Eye, Settings, Volume2, VolumeX, Printer, Sun, Trophy } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -177,6 +179,17 @@ const ICONS = ['🎃', '🥣', '📦', '🍞', '🍬', '🍯', '🥛', '🍎', '
 
 const WeighingApp: React.FC = () => {
   const { t } = useTranslation('exercises');
+  const [searchParams] = useSearchParams();
+  
+  // Mission mode
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
+  
   const [tasks, setTasks] = useState<WeighingTask[]>(PRESET_TASKS);
   const [correctCount, setCorrectCount] = useState(0);
   const [showResults, setShowResults] = useState(false);
@@ -185,6 +198,9 @@ const WeighingApp: React.FC = () => {
   const [stepKg, setStepKg] = useState(0.5);
   const [stepG, setStepG] = useState(100);
   const audioContextRef = useRef<AudioContext | null>(null);
+  
+  // Timer for mission tracking
+  const [gameStartTime, setGameStartTime] = useState<number>(Date.now());
 
   const beep = useCallback((freq = 900, dur = 0.08, type: OscillatorType = 'triangle') => {
     if (!soundEnabled) return;
@@ -246,12 +262,14 @@ const WeighingApp: React.FC = () => {
     setTasks(PRESET_TASKS.map(task => ({ ...task, userAnswer: '', isCorrect: null })));
     setCorrectCount(0);
     setShowResults(false);
+    setGameStartTime(Date.now());
   }, []);
 
   const resetToRandom = useCallback(() => {
     setTasks(generateRandomTasks());
     setCorrectCount(0);
     setShowResults(false);
+    setGameStartTime(Date.now());
   }, [generateRandomTasks]);
 
   const handleAnswerChange = useCallback((index: number, answer: string) => {
@@ -260,7 +278,7 @@ const WeighingApp: React.FC = () => {
     ));
   }, []);
 
-  const checkAnswer = useCallback((index: number, playSound = false) => {
+  const checkAnswer = useCallback(async (index: number, playSound = false) => {
     const task = tasks[index];
     if (!task.userAnswer) return;
 
@@ -288,12 +306,19 @@ const WeighingApp: React.FC = () => {
       }
       
       if (newCorrectCount === tasks.length) {
-        setTimeout(() => setShowResults(true), 100);
+        // Mission mode completion
+        if (isMissionMode) {
+          // Calculate elapsed time
+          const elapsedMs = Date.now() - gameStartTime;
+          await handleCompleteMission(newCorrectCount, tasks.length, elapsedMs);
+        } else {
+          setTimeout(() => setShowResults(true), 100);
+        }
       }
     } else if (!isCorrect && playSound) {
       beep(220, 0.07, 'sawtooth');
     }
-  }, [tasks, correctCount, stepG, beep]);
+  }, [tasks, correctCount, stepG, beep, isMissionMode, handleCompleteMission]);
 
   const revealAnswers = useCallback(() => {
     setTasks(prev => prev.map(task => ({
@@ -510,6 +535,20 @@ const WeighingApp: React.FC = () => {
           ))}
         </div>
       </div>
+      
+      {/* Mission Complete Modal */}
+      {isMissionMode && missionResult && (
+        <MissionCompleteModal
+          open={showMissionComplete}
+          onOpenChange={setShowMissionComplete}
+          stars={missionResult.stars}
+          correct={missionResult.correct}
+          total={missionResult.total}
+          timeSpent={missionResult.timeSpent}
+          isPassed={missionResult.isPassed}
+          onRetry={resetToRandom}
+        />
+      )}
     </div>
   );
 };
