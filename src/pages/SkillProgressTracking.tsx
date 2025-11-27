@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ArrowLeft, TrendingUp, Target, Award, Calendar } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, isWithinInterval } from 'date-fns';
 import { th } from 'date-fns/locale';
 
@@ -154,6 +154,64 @@ const SkillProgressTracking = () => {
 
   const skillStats = getSkillStats();
 
+  // Calculate missions count per skill for bar chart
+  const getMissionsCountData = () => {
+    return selectedSkills.map((skill, index) => {
+      const skillMissions = allMissions.filter(m => m.skill_name === skill);
+      return {
+        skill: skill.length > 15 ? skill.substring(0, 15) + '...' : skill,
+        fullSkill: skill,
+        count: skillMissions.length,
+        color: SKILL_COLORS[allSkills.indexOf(skill) % SKILL_COLORS.length]
+      };
+    }).sort((a, b) => b.count - a.count);
+  };
+
+  const missionsCountData = getMissionsCountData();
+
+  // Calculate week-over-week improvement
+  const getWeekComparison = () => {
+    const now = new Date();
+    const thisWeekStart = startOfWeek(now, { locale: th });
+    const lastWeekStart = startOfWeek(subWeeks(now, 1), { locale: th });
+    const lastWeekEnd = endOfWeek(subWeeks(now, 1), { locale: th });
+
+    return selectedSkills.map((skill, index) => {
+      const thisWeekMissions = allMissions.filter(m => 
+        m.skill_name === skill &&
+        new Date(m.mission_date) >= thisWeekStart
+      );
+      const lastWeekMissions = allMissions.filter(m => 
+        m.skill_name === skill &&
+        isWithinInterval(new Date(m.mission_date), { start: lastWeekStart, end: lastWeekEnd })
+      );
+
+      const thisWeekAvg = thisWeekMissions.length > 0
+        ? thisWeekMissions.reduce((sum, m) => sum + (m.correct_answers / m.total_questions) * 100, 0) / thisWeekMissions.length
+        : 0;
+      const lastWeekAvg = lastWeekMissions.length > 0
+        ? lastWeekMissions.reduce((sum, m) => sum + (m.correct_answers / m.total_questions) * 100, 0) / lastWeekMissions.length
+        : 0;
+
+      const improvement = thisWeekAvg - lastWeekAvg;
+      const improvementPercent = lastWeekAvg > 0 ? (improvement / lastWeekAvg) * 100 : 0;
+
+      return {
+        skill,
+        color: SKILL_COLORS[allSkills.indexOf(skill) % SKILL_COLORS.length],
+        thisWeekAvg: Math.round(thisWeekAvg * 10) / 10,
+        lastWeekAvg: Math.round(lastWeekAvg * 10) / 10,
+        improvement: Math.round(improvement * 10) / 10,
+        improvementPercent: Math.round(improvementPercent * 10) / 10,
+        thisWeekCount: thisWeekMissions.length,
+        lastWeekCount: lastWeekMissions.length,
+      };
+    }).filter(s => s.thisWeekCount > 0 || s.lastWeekCount > 0)
+      .sort((a, b) => b.improvement - a.improvement);
+  };
+
+  const weekComparison = getWeekComparison();
+
   const toggleSkill = (skill: string) => {
     setSelectedSkills(prev => 
       prev.includes(skill) 
@@ -270,6 +328,128 @@ const SkillProgressTracking = () => {
               </Card>
             ))}
           </div>
+        )}
+
+        {/* Missions Count Bar Chart */}
+        {missionsCountData.length > 0 && (
+          <Card className="bg-slate-800/80 backdrop-blur border-slate-700 shadow-xl mb-8">
+            <div className="p-6">
+              <div className="flex items-center gap-2 mb-6">
+                <Award className="w-5 h-5 text-purple-400" />
+                <h2 className="text-xl font-bold text-slate-200">จำนวนภารกิจต่อทักษะ</h2>
+              </div>
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart data={missionsCountData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                  <XAxis 
+                    dataKey="skill" 
+                    stroke="#94a3b8" 
+                    tick={{ fill: '#94a3b8', fontSize: 11 }}
+                    angle={-45}
+                    textAnchor="end"
+                    height={100}
+                  />
+                  <YAxis 
+                    stroke="#94a3b8" 
+                    tick={{ fill: '#94a3b8' }}
+                    label={{ value: 'จำนวนภารกิจ', angle: -90, position: 'insideLeft', fill: '#94a3b8' }}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: '#1e293b', 
+                      border: '1px solid #475569', 
+                      borderRadius: '8px' 
+                    }}
+                    labelStyle={{ color: '#e2e8f0' }}
+                    formatter={(value: any, name: any, props: any) => [
+                      `${value} ภารกิจ`,
+                      props.payload.fullSkill
+                    ]}
+                  />
+                  <Bar 
+                    dataKey="count" 
+                    radius={[8, 8, 0, 0]}
+                  >
+                    {missionsCountData.map((entry, index) => (
+                      <Bar key={`bar-${index}`} dataKey="count" fill={entry.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+        )}
+
+        {/* Week-over-Week Comparison */}
+        {weekComparison.length > 0 && (
+          <Card className="bg-slate-800/80 backdrop-blur border-slate-700 shadow-xl mb-8">
+            <div className="p-6">
+              <div className="flex items-center gap-2 mb-6">
+                <TrendingUp className="w-5 h-5 text-green-400" />
+                <h2 className="text-xl font-bold text-slate-200">เปรียบเทียบทักษะระหว่างสัปดาห์</h2>
+                <Badge variant="outline" className="ml-2 text-slate-300 border-slate-600">
+                  สัปดาห์นี้ vs สัปดาห์ที่แล้ว
+                </Badge>
+              </div>
+              
+              <div className="space-y-4">
+                {weekComparison.map((comparison, index) => (
+                  <div
+                    key={comparison.skill}
+                    className="p-4 bg-slate-700/50 rounded-lg border border-slate-600"
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: comparison.color }}
+                        />
+                        <span className="text-slate-200 font-semibold">{comparison.skill}</span>
+                        {index === 0 && comparison.improvement > 0 && (
+                          <Badge className="bg-yellow-500 text-yellow-950">
+                            🏆 พัฒนาเร็วที่สุด
+                          </Badge>
+                        )}
+                      </div>
+                      <Badge
+                        variant="outline"
+                        className={`${
+                          comparison.improvement > 0 
+                            ? 'text-green-400 border-green-400/30 bg-green-400/10' 
+                            : comparison.improvement < 0
+                            ? 'text-red-400 border-red-400/30 bg-red-400/10'
+                            : 'text-slate-400 border-slate-600'
+                        }`}
+                      >
+                        {comparison.improvement > 0 ? '↗' : comparison.improvement < 0 ? '↘' : '→'} 
+                        {' '}{Math.abs(comparison.improvement)}%
+                        {comparison.improvementPercent !== 0 && (
+                          <span className="ml-1 text-xs">
+                            ({comparison.improvementPercent > 0 ? '+' : ''}{comparison.improvementPercent}%)
+                          </span>
+                        )}
+                      </Badge>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="space-y-1">
+                        <div className="text-slate-400">สัปดาห์นี้</div>
+                        <div className="text-slate-200 font-semibold">
+                          {comparison.thisWeekAvg}% ({comparison.thisWeekCount} ภารกิจ)
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="text-slate-400">สัปดาห์ที่แล้ว</div>
+                        <div className="text-slate-200 font-semibold">
+                          {comparison.lastWeekAvg}% ({comparison.lastWeekCount} ภารกิจ)
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Card>
         )}
 
         {/* Weekly Progress Chart */}
