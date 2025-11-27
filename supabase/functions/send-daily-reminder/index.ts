@@ -81,10 +81,10 @@ serve(async (req) => {
           continue;
         }
 
-        // Check for pending missions today
+        // Check for missions today with detailed info
         const { data: todayMissions, error: missionsError } = await supabase
           .from('daily_missions')
-          .select('id, skill_name, status, completed_at')
+          .select('id, skill_name, status, completed_at, total_questions, correct_answers, stars_earned')
           .eq('user_id', user.id)
           .eq('mission_date', bangkokDate);
 
@@ -93,12 +93,16 @@ serve(async (req) => {
           continue;
         }
 
-        // Count incomplete missions
+        // Separate completed and incomplete missions
+        const completedMissions = todayMissions?.filter(
+          m => m.status === 'completed' || m.completed_at !== null
+        ) || [];
+
         const incompleteMissions = todayMissions?.filter(
           m => m.status !== 'completed' && !m.completed_at
         ) || [];
 
-        console.log(`📊 ${user.nickname}: ${incompleteMissions.length} incomplete missions`);
+        console.log(`📊 ${user.nickname}: ${completedMissions.length} completed, ${incompleteMissions.length} incomplete missions`);
 
         // Get user streak data
         const { data: streak } = await supabase
@@ -118,56 +122,106 @@ serve(async (req) => {
           continue;
         }
 
-        // Build message based on streak status
-        const hasStreak = currentStreak > 0;
-        let message = '';
-        let emoji = '';
+        // Generate progress token (expires in 1 hour)
+        const token = crypto.randomUUID();
+        const expiresAt = new Date();
+        expiresAt.setHours(expiresAt.getHours() + 1);
 
-        if (hasStreak && currentStreak >= 7) {
-          emoji = '🔥';
-          message = `อย่าลืมทำภารกิจวันนี้นะ!\n\nStreak ${currentStreak} วันของ ${user.nickname} กำลังจะหาย! ⚠️\n\nเหลือภารกิจที่ยังไม่เสร็จ: ${incompleteMissions.length} ภารกิจ\n\nกดปุ่มด้านล่างเพื่อทำภารกิจต่อ 💪`;
-        } else if (hasStreak) {
-          emoji = '⏰';
-          message = `สวัสดีตอนเย็น! ภารกิจวันนี้ของ ${user.nickname} ยังไม่เสร็จนะ\n\nเหลืออีก: ${incompleteMissions.length} ภารกิจ\n\n${currentStreak > 0 ? `Streak ปัจจุบัน: ${currentStreak} วัน 🔥` : ''}\n\nกดปุ่มด้านล่างเพื่อทำภารกิจ`;
-        } else {
-          emoji = '🎯';
-          message = `ภารกิจวันนี้ของ ${user.nickname} ยังไม่เสร็จนะ\n\nเหลืออีก: ${incompleteMissions.length} ภารกิจ\n\nมาเริ่มสร้าง Streak กันเถอะ! 🚀`;
-        }
+        await supabase.from('progress_view_tokens').insert({
+          token,
+          user_id: user.id,
+          expires_at: expiresAt.toISOString(),
+        });
 
-        // Construct LINE Flex Message
+        // Build completed missions list with accuracy
+        const completedList = completedMissions.map(m => {
+          const accuracy = m.total_questions > 0 
+            ? Math.round((m.correct_answers / m.total_questions) * 100) 
+            : 0;
+          const passStatus = accuracy >= 80 ? 'ผ่าน' : 'ไม่ผ่าน';
+          const stars = '⭐'.repeat(m.stars_earned || 0);
+          return `• ${m.skill_name} - ${accuracy}% (${passStatus} ${stars})`;
+        }).join('\n');
+
+        // Build incomplete missions list
+        const incompleteList = incompleteMissions.map((m, i) => 
+          `• ${m.skill_name || `ภารกิจที่ ${i + 1}`}`
+        ).join('\n');
+
+        // Construct new LINE Flex Message with detailed mission info
         const flexMessage = {
           type: 'bubble',
-          hero: {
-            type: 'box',
-            layout: 'vertical',
-            contents: [
-              {
-                type: 'text',
-                text: emoji,
-                size: '5xl',
-                align: 'center',
-              },
-            ],
-            backgroundColor: hasStreak && currentStreak >= 7 ? '#FF6B6B' : '#4A90E2',
-            paddingAll: '20px',
-          },
           body: {
             type: 'box',
             layout: 'vertical',
             contents: [
+              // Header with greeting
               {
                 type: 'text',
-                text: hasStreak && currentStreak >= 7 ? '⚠️ Streak ใกล้หาย!' : '🎯 เตือนทำภารกิจ',
+                text: `⏰ สวัสดีท่านผู้ปกครองของ ${user.nickname} !`,
                 weight: 'bold',
-                size: 'xl',
-                color: hasStreak && currentStreak >= 7 ? '#FF6B6B' : '#4A90E2',
+                size: 'lg',
+                wrap: true,
+                color: '#1a1a1a',
               },
               {
                 type: 'text',
-                text: message,
+                text: incompleteMissions.length > 0 
+                  ? 'ภารกิจวันนี้ยังไม่เสร็จนะครับ !'
+                  : 'ยอดเยี่ยม! ภารกิจวันนี้เสร็จหมดแล้ว! 🎉',
+                color: incompleteMissions.length > 0 ? '#FF6B6B' : '#00B900',
+                margin: 'sm',
                 wrap: true,
-                margin: 'md',
-                color: '#666666',
+              },
+              // Separator
+              { type: 'separator', margin: 'lg' },
+              
+              // Completed section (if any)
+              ...(completedMissions.length > 0 ? [
+                {
+                  type: 'text',
+                  text: `✅ เสร็จแล้ว : ${completedMissions.length} ภารกิจ ได้แก่`,
+                  weight: 'bold',
+                  margin: 'lg',
+                  color: '#00B900',
+                },
+                {
+                  type: 'text',
+                  text: completedList,
+                  wrap: true,
+                  margin: 'sm',
+                  size: 'sm',
+                  color: '#555555',
+                },
+              ] : []),
+              
+              // Incomplete section (if any)
+              ...(incompleteMissions.length > 0 ? [
+                {
+                  type: 'text',
+                  text: `⏳ เหลืออีก: ${incompleteMissions.length} ภารกิจ ได้แก่`,
+                  weight: 'bold',
+                  margin: 'lg',
+                  color: '#FF6B6B',
+                },
+                {
+                  type: 'text',
+                  text: incompleteList,
+                  wrap: true,
+                  margin: 'sm',
+                  size: 'sm',
+                  color: '#555555',
+                },
+              ] : []),
+              
+              // Streak section
+              { type: 'separator', margin: 'lg' },
+              {
+                type: 'text',
+                text: `🔥 Streak ฝึกต่อเนื่องติดกันปัจจุบัน: ${currentStreak} วัน`,
+                weight: 'bold',
+                margin: 'lg',
+                color: currentStreak > 0 ? '#FF8C00' : '#999999',
               },
             ],
           },
@@ -179,11 +233,11 @@ serve(async (req) => {
                 type: 'button',
                 action: {
                   type: 'uri',
-                  label: '🚀 ทำภารกิจเลย',
-                  uri: 'https://kidfastai.com/today-mission',
+                  label: '🚀 ดูความก้าวหน้า',
+                  uri: `https://kidfastai.com/parent/progress?token=${token}`,
                 },
                 style: 'primary',
-                color: hasStreak && currentStreak >= 7 ? '#FF6B6B' : '#4A90E2',
+                color: '#4A90E2',
               },
             ],
           },
@@ -201,7 +255,7 @@ serve(async (req) => {
             messages: [
               {
                 type: 'flex',
-                altText: `${emoji} เตือนทำภารกิจประจำวัน - ${user.nickname}`,
+                altText: `⏰ เตือนความก้าวหน้าภารกิจ - ${user.nickname}`,
                 contents: flexMessage,
               },
             ],
