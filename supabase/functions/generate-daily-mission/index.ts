@@ -96,17 +96,22 @@ serve(async (req) => {
     // Delete ALL existing missions for today before generating new ones
     if (existingMissions.length > 0) {
       console.log(`Deleting ${existingMissions.length} existing missions for today...`);
-      const { error: deleteError } = await supabase
-        .from('daily_missions')
-        .delete()
-        .eq('user_id', userId)
-        .eq('mission_date', today);
-        // Remove .neq('status', 'completed') to delete all missions including completed ones
+      
+      // Delete missions one by one to avoid conflicts
+      for (const mission of existingMissions) {
+        const { error: deleteError } = await supabase
+          .from('daily_missions')
+          .delete()
+          .eq('id', mission.id);
 
-      if (deleteError) {
-        console.error('Error deleting existing missions:', deleteError);
-        throw deleteError;
+        if (deleteError) {
+          console.error('Error deleting mission:', mission.id, deleteError);
+          // Continue deleting others even if one fails
+        }
       }
+      
+      // Wait a moment to ensure deletions are processed
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
 
     // Prepare data for AI
@@ -276,9 +281,13 @@ ${recentSkills.length > 0 ? recentSkills.join(', ') : 'ไม่มี'}
       can_retry: true,
     }));
 
+    // Create 3 missions in database using upsert to handle race conditions
     const { data: newMissions, error: insertError } = await supabase
       .from('daily_missions')
-      .insert(missionsToInsert)
+      .upsert(missionsToInsert, {
+        onConflict: 'user_id,mission_date,mission_option',
+        ignoreDuplicates: false
+      })
       .select();
 
     if (insertError) {
