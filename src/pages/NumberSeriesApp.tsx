@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useToast } from '../hooks/use-toast';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 interface Task {
   seq: number[];
   ans: number;
@@ -18,9 +20,17 @@ interface GameState {
 const NumberSeriesApp: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation('exercises');
+  const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  
   const {
-    toast
-  } = useToast();
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
+  
   const [state, setState] = useState<GameState>({
     tasks: [],
     correct: 0,
@@ -29,6 +39,7 @@ const NumberSeriesApp: React.FC = () => {
   const [level, setLevel] = useState<string>('medium');
   const [count, setCount] = useState<number>(10);
   const [showCompleted, setShowCompleted] = useState<boolean>(false);
+  const [startTime, setStartTime] = useState<number>(Date.now());
 
   // Preset problems matching the original HTML
   const PRESET: Task[] = [{
@@ -170,32 +181,45 @@ const NumberSeriesApp: React.FC = () => {
       ...prev,
       tasks: PRESET.slice(0, count)
     }));
+    setStartTime(Date.now());
   }, [count]);
-  const handleInputChange = useCallback((taskIndex: number, value: string) => {
+  
+  const handleInputChange = useCallback(async (taskIndex: number, value: string) => {
     const numValue = Number(value.trim());
     if (!Number.isFinite(numValue)) return;
     const task = state.tasks[taskIndex];
     const isCorrect = numValue === task.ans;
     if (isCorrect) {
+      const newCorrect = state.correct + 1;
       setState(prev => ({
         ...prev,
-        correct: prev.correct + 1
+        correct: newCorrect
       }));
       beep(1040, 0.08, 'triangle');
       setTimeout(() => beep(1320, 0.09, 'triangle'), 90);
-      if (state.correct + 1 === state.tasks.length) {
-        setTimeout(() => {
-          setShowCompleted(true);
-          toast({
-            title: "เยี่ยมมาก! 🎉",
-            description: "ทำครบทุกข้อแล้ว"
-          });
+      
+      // Check if all tasks completed
+      if (newCorrect === state.tasks.length) {
+        setTimeout(async () => {
+          const timeSpent = Date.now() - startTime;
+          
+          if (isMissionMode) {
+            // Complete mission
+            await handleCompleteMission(newCorrect, state.tasks.length, timeSpent);
+          } else {
+            // Show normal completion modal
+            setShowCompleted(true);
+            toast({
+              title: "เยี่ยมมาก! 🎉",
+              description: "ทำครบทุกข้อแล้ว"
+            });
+          }
         }, 100);
       }
     } else {
       beep(220, 0.07, 'sawtooth');
     }
-  }, [state.tasks, state.correct, beep, toast]);
+  }, [state.tasks, state.correct, beep, toast, isMissionMode, handleCompleteMission, startTime]);
   const handlePreset = () => {
     setState(prev => ({
       ...prev,
@@ -203,6 +227,7 @@ const NumberSeriesApp: React.FC = () => {
       correct: 0
     }));
     setShowCompleted(false);
+    setStartTime(Date.now());
   };
   const handleRandom = () => {
     const tasks = generateRandomTasks(level, count);
@@ -212,6 +237,7 @@ const NumberSeriesApp: React.FC = () => {
       correct: 0
     }));
     setShowCompleted(false);
+    setStartTime(Date.now());
   };
   const handleReveal = () => {
     setState(prev => ({
@@ -234,6 +260,7 @@ const NumberSeriesApp: React.FC = () => {
       correct: 0
     }));
     setShowCompleted(false);
+    setStartTime(Date.now());
   };
   return <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
       <Header />
@@ -309,8 +336,8 @@ const NumberSeriesApp: React.FC = () => {
         </div>
       </main>
 
-      {/* Completion Modal */}
-      {showCompleted && <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      {/* Completion Modal - Only show if NOT in mission mode */}
+      {showCompleted && !isMissionMode && <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-card rounded-2xl p-6 max-w-md w-full text-center shadow-2xl">
             <h2 className="text-2xl font-bold text-foreground mb-2">เยี่ยมมาก! 🎉</h2>
             <p className="text-muted-foreground mb-6">ทำครบทุกข้อแล้ว</p>
@@ -324,6 +351,23 @@ const NumberSeriesApp: React.FC = () => {
             </div>
           </div>
         </div>}
+
+      {/* Mission Complete Modal */}
+      {isMissionMode && missionResult && (
+        <MissionCompleteModal
+          open={showMissionComplete}
+          onOpenChange={setShowMissionComplete}
+          stars={missionResult.stars}
+          correct={missionResult.correct}
+          total={missionResult.total}
+          timeSpent={missionResult.timeSpent}
+          isPassed={missionResult.isPassed}
+          onRetry={() => {
+            setShowMissionComplete(false);
+            handlePlayAgain();
+          }}
+        />
+      )}
 
       <Footer />
     </div>;

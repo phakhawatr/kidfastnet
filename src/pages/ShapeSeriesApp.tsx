@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import ShapeDisplay from '@/components/ShapeDisplay';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 type ShapeType = 'circle' | 'square' | 'triangle' | 'ellipse';
 type ColorType = 'red' | 'blue' | 'green' | 'orange' | 'yellow' | 'sky' | 'purple' | 'pink' | 'teal';
@@ -26,6 +28,15 @@ const COLORS: ColorType[] = ['red', 'blue', 'green', 'orange', 'yellow', 'sky', 
 
 const ShapeSeriesApp = () => {
   const { t } = useTranslation('exercises');
+  const [searchParams] = useSearchParams();
+  
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
   
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
   const [problemCount, setProblemCount] = useState(5);
@@ -201,7 +212,7 @@ const ShapeSeriesApp = () => {
   };
 
   // Check answers
-  const handleCheckAnswers = () => {
+  const handleCheckAnswers = async () => {
     setIsRunning(false);
     setIsSubmitted(true);
     
@@ -222,6 +233,11 @@ const ShapeSeriesApp = () => {
         ? new Audio('/sounds/success.mp3') 
         : new Audio('/sounds/complete.mp3');
       audio.play().catch(() => {});
+    }
+
+    // Complete mission if in mission mode
+    if (isMissionMode) {
+      await handleCompleteMission(correct, problems.length, timer * 1000);
     }
   };
 
@@ -453,8 +469,8 @@ const ShapeSeriesApp = () => {
         )}
       </div>
 
-      {/* Results */}
-      {isSubmitted && (
+      {/* Results - Only show if NOT in mission mode */}
+      {isSubmitted && !isMissionMode && (
         <div className="max-w-6xl mx-auto mt-6">
           <Card className="bg-gradient-to-br from-purple-900/90 to-pink-900/90 backdrop-blur-sm border-purple-600 p-6">
             <h2 className="text-2xl font-bold text-white mb-4">{t('results.completed')}</h2>
@@ -480,6 +496,23 @@ const ShapeSeriesApp = () => {
             </Button>
           </Card>
         </div>
+      )}
+
+      {/* Mission Complete Modal */}
+      {isMissionMode && missionResult && (
+        <MissionCompleteModal
+          open={showMissionComplete}
+          onOpenChange={setShowMissionComplete}
+          stars={missionResult.stars}
+          correct={missionResult.correct}
+          total={missionResult.total}
+          timeSpent={missionResult.timeSpent}
+          isPassed={missionResult.isPassed}
+          onRetry={() => {
+            setShowMissionComplete(false);
+            generateProblems();
+          }}
+        />
       )}
     </div>
   );
