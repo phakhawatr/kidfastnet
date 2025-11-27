@@ -61,27 +61,33 @@ const TrainingCalendar = () => {
   };
 
   const getDayStyles = (status: string) => {
-    const baseStyles = 'flex flex-col items-center justify-center p-2 rounded-xl transition-all duration-300 cursor-pointer relative';
+    const baseStyles = 'flex flex-col items-center justify-center p-2 rounded-xl transition-all duration-300 relative';
+    
+    // Add cursor-pointer for clickable days
+    const isClickable = ['today', 'perfect', 'good', 'pass', 'skipped', 'catchup', 'pending'].includes(status);
+    const clickableStyles = isClickable ? 'cursor-pointer' : 'cursor-default';
     
     switch (status) {
       case 'perfect':
-        return `${baseStyles} bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg shadow-green-500/30 hover:shadow-xl hover:scale-105`;
+        return `${baseStyles} ${clickableStyles} bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg shadow-green-500/30 hover:shadow-xl hover:scale-105`;
       case 'good':
-        return `${baseStyles} bg-gradient-to-br from-green-400 to-emerald-500 text-white shadow-md shadow-green-400/20 hover:shadow-lg hover:scale-105`;
+        return `${baseStyles} ${clickableStyles} bg-gradient-to-br from-green-400 to-emerald-500 text-white shadow-md shadow-green-400/20 hover:shadow-lg hover:scale-105`;
       case 'pass':
-        return `${baseStyles} bg-gradient-to-br from-green-300 to-emerald-400 text-white shadow-sm shadow-green-300/20 hover:shadow-md hover:scale-105`;
+        return `${baseStyles} ${clickableStyles} bg-gradient-to-br from-green-300 to-emerald-400 text-white shadow-sm shadow-green-300/20 hover:shadow-md hover:scale-105`;
       case 'skipped':
-        return `${baseStyles} bg-gradient-to-br from-red-400 to-rose-500 text-white shadow-md shadow-red-400/30 hover:shadow-lg hover:scale-105`;
+        return `${baseStyles} ${clickableStyles} bg-gradient-to-br from-red-400 to-rose-500 text-white shadow-md shadow-red-400/30 hover:shadow-lg hover:scale-105`;
       case 'today':
-        return `${baseStyles} bg-gradient-to-br from-orange-400 via-amber-400 to-yellow-400 text-white shadow-xl shadow-orange-400/50 hover:shadow-2xl hover:scale-110 animate-pulse`;
+        return `${baseStyles} ${clickableStyles} bg-gradient-to-br from-orange-400 via-amber-400 to-yellow-400 text-white shadow-xl shadow-orange-400/50 hover:shadow-2xl hover:scale-110 animate-pulse`;
       case 'rest':
-        return `${baseStyles} bg-gradient-to-br from-blue-100 to-sky-200 text-blue-700 border-2 border-blue-300`;
+        return `${baseStyles} ${clickableStyles} bg-gradient-to-br from-blue-100 to-sky-200 text-blue-700 border-2 border-blue-300`;
       case 'catchup':
-        return `${baseStyles} bg-gradient-to-br from-yellow-400 to-amber-500 text-white shadow-md shadow-yellow-400/30 hover:shadow-lg hover:scale-105`;
+        return `${baseStyles} ${clickableStyles} bg-gradient-to-br from-yellow-400 to-amber-500 text-white shadow-md shadow-yellow-400/30 hover:shadow-lg hover:scale-105`;
+      case 'pending':
+        return `${baseStyles} ${clickableStyles} bg-white text-slate-700 border border-slate-200 hover:shadow-md hover:scale-105`;
       case 'future':
-        return `${baseStyles} bg-gradient-to-br from-slate-100 to-slate-200 text-slate-400 border border-slate-300`;
+        return `${baseStyles} ${clickableStyles} bg-gradient-to-br from-slate-100 to-slate-200 text-slate-400 border border-slate-300`;
       default:
-        return `${baseStyles} bg-white text-slate-700 border border-slate-200`;
+        return `${baseStyles} ${clickableStyles} bg-white text-slate-700 border border-slate-200`;
     }
   };
 
@@ -110,13 +116,22 @@ const TrainingCalendar = () => {
 
   const handleDayClick = (day: Date, status: string) => {
     const mission = getMissionForDay(day);
+    const dateStr = format(day, 'yyyy-MM-dd'); // "2025-11-25"
     
-    if (status === 'today' || (status === 'skipped' && mission)) {
+    if (status === 'today') {
+      // Today → go to today's mission page
       navigate('/today-mission');
+    } else if (status === 'skipped' && mission) {
+      // Skipped day with mission → view history
+      navigate(`/today-mission?date=${dateStr}`);
     } else if (mission && (status === 'perfect' || status === 'good' || status === 'pass' || status === 'catchup')) {
-      // Could navigate to mission details
-      console.log('View mission details:', mission);
+      // Completed mission → view history
+      navigate(`/today-mission?date=${dateStr}`);
+    } else if (status === 'pending' && mission) {
+      // Pending mission → view history
+      navigate(`/today-mission?date=${dateStr}`);
     }
+    // Future and Rest → do nothing
   };
 
   const changeMonth = (direction: 'prev' | 'next') => {
