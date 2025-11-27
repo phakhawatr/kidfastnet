@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft, RefreshCw, Eye, EyeOff, Volume2, VolumeX, Printer, Palette } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -27,6 +29,17 @@ type GridSolution = {
 
 const SumGridPuzzles: React.FC = () => {
   const { t } = useTranslation('exercises');
+  const [searchParams] = useSearchParams();
+  
+  // Mission mode
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
+  
   const [tasks, setTasks] = useState<Task[]>([]);
   const [grids, setGrids] = useState<Grid[]>([]);
   const [solutions, setSolutions] = useState<number[][][]>([]); // Store correct answers for each grid
@@ -34,6 +47,7 @@ const SumGridPuzzles: React.FC = () => {
   const [sound, setSound] = useState(true);
   const [showCompleted, setShowCompleted] = useState(false);
   const [contrast, setContrast] = useState(false);
+  const [startTime] = useState<number>(Date.now());
 
   // เสียง beep
   const beep = useCallback((freq = 900, dur = 0.08, type: OscillatorType = 'triangle') => {
@@ -291,8 +305,12 @@ const SumGridPuzzles: React.FC = () => {
     
     setCorrect(completedCount);
     
-    // Removed popup trigger - just update the count
-  }, [grids]);
+    // Mission mode completion check
+    if (isMissionMode && completedCount === tasks.length && completedCount > 0) {
+      const elapsedMs = Date.now() - startTime;
+      handleCompleteMission(completedCount, tasks.length, elapsedMs);
+    }
+  }, [grids, isMissionMode, tasks.length, handleCompleteMission, startTime]);
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 ${contrast ? 'contrast' : ''}`}>
@@ -450,6 +468,20 @@ const SumGridPuzzles: React.FC = () => {
       </main>
 
       <Footer />
+      
+      {/* Mission Complete Modal */}
+      {isMissionMode && missionResult && (
+        <MissionCompleteModal
+          open={showMissionComplete}
+          onOpenChange={setShowMissionComplete}
+          stars={missionResult.stars}
+          correct={missionResult.correct}
+          total={missionResult.total}
+          timeSpent={missionResult.timeSpent}
+          isPassed={missionResult.isPassed}
+          onRetry={initializePuzzles}
+        />
+      )}
     </div>
   );
 };
