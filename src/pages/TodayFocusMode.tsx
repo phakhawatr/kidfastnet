@@ -597,7 +597,7 @@ const TodayFocusMode = () => {
                         </p>
                         {mission.can_retry && (
                           <button
-                            className="mt-3 w-full px-4 py-2 text-sm font-semibold text-yellow-300 border border-yellow-400 rounded-lg hover:bg-yellow-500/20 transition-colors"
+                            className="mt-3 w-full px-4 py-2 text-sm font-semibold bg-slate-800 text-yellow-300 border border-yellow-400 rounded-lg hover:bg-yellow-500/20 transition-colors"
                             onClick={(e) => {
                               e.stopPropagation();
                               setSelectedMission(mission);
@@ -632,7 +632,7 @@ const TodayFocusMode = () => {
                           <Button 
                             size="sm" 
                             variant="outline" 
-                            className="mt-3 w-full text-yellow-300 border-yellow-400 hover:bg-yellow-500/20 hover:text-yellow-200 font-semibold"
+                            className="mt-3 w-full bg-slate-800 text-yellow-300 border-yellow-400 hover:bg-yellow-500/20 hover:text-yellow-200 font-semibold"
                             onClick={(e) => {
                               e.stopPropagation();
                               setSelectedMission(mission);
