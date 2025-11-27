@@ -218,7 +218,7 @@ serve(async (req) => {
               { type: 'separator', margin: 'lg' },
               {
                 type: 'text',
-                text: `🔥 Streak ฝึกต่อเนื่องติดกันปัจจุบัน: ${currentStreak} วัน`,
+                text: `🔥 Streak: ${currentStreak} วัน`,
                 weight: 'bold',
                 margin: 'lg',
                 color: currentStreak > 0 ? '#FF8C00' : '#999999',
