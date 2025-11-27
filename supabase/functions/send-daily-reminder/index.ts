@@ -234,7 +234,7 @@ serve(async (req) => {
                 action: {
                   type: 'uri',
                   label: '🚀 ดูความก้าวหน้า',
-                  uri: `https://kidfastai.com/parent/progress?token=${token}`,
+                  uri: `https://kidfastai.com/view-progress?token=${token}`,
                 },
                 style: 'primary',
                 color: '#4A90E2',

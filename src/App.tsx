@@ -108,6 +108,8 @@ const App = () => {
               </ProtectedRoute>
             } 
           />
+          {/* Public view for progress (token-based from LINE) */}
+          <Route path="/view-progress" element={<ChildProgressDashboard />} />
           <Route
             path="/analytics" 
             element={
