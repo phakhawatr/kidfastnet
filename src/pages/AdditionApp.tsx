@@ -179,9 +179,10 @@ function praiseText(pct, t) {
 // convert per-digit answer array to number - now accepts flexible digits
 function answerToNumber(ansArr) {
   if (!Array.isArray(ansArr)) return NaN;
-  if (ansArr.length === 0) return NaN;
-  if (ansArr.some((d) => d === "")) return NaN;
-  return parseInt(ansArr.join(""), 10);
+  // Filter out empty strings and use actual filled digits
+  const cleanArr = ansArr.filter(d => d !== "");
+  if (cleanArr.length === 0) return NaN;
+  return parseInt(cleanArr.join(""), 10);
 }
 
 // Helper function to get actual digits needed for each problem

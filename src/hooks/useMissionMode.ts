@@ -45,6 +45,22 @@ export function useMissionMode() {
       return;
     }
     
+    // Validate inputs
+    if (correct < 0 || correct > total) {
+      console.error('❌ Invalid correct count:', { correct, total });
+      return { stars: 0, isPassed: false };
+    }
+    
+    if (total <= 0) {
+      console.error('❌ Invalid total:', total);
+      return { stars: 0, isPassed: false };
+    }
+    
+    if (timeMs < 0) {
+      console.error('❌ Invalid time:', timeMs);
+      return { stars: 0, isPassed: false };
+    }
+    
     const accuracy = (correct / total) * 100;
     const timeSeconds = Math.floor(timeMs / 1000);
     
