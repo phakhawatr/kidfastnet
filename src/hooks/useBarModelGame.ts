@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import {
   BarModelProblem,
@@ -9,9 +10,16 @@ import {
   calculateStars,
   getEncouragement,
 } from '@/utils/barModelUtils';
+import { useMissionMode } from '@/hooks/useMissionMode';
 
 export const useBarModelGame = () => {
   console.log('🎮 useBarModelGame initialized');
+  
+  const {
+    isMissionMode,
+    missionId,
+    handleCompleteMission: completeMission
+  } = useMissionMode();
   
   // Settings
   const [count, setCount] = useState(5);
@@ -112,8 +120,13 @@ export const useBarModelGame = () => {
       setTimeout(() => setCelebrate(false), 5000);
     }
 
-    // Save to Supabase
-    await savePracticeSession(correctCount, problems.length, elapsedTime, type);
+    // Complete mission if in mission mode
+    if (isMissionMode && missionId) {
+      await completeMission(correctCount, problems.length, elapsedTime);
+    } else {
+      // Save to Supabase only if not in mission mode
+      await savePracticeSession(correctCount, problems.length, elapsedTime, type);
+    }
   };
 
   const savePracticeSession = async (correctCount: number, totalCount: number, durationMs: number, problemType: ProblemType | 'mixed') => {
