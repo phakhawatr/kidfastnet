@@ -1092,21 +1092,6 @@ const Profile = () => {
                   </div>
                 )}
 
-                {/* Quick Tips */}
-                <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div className="bg-white/50 rounded-lg p-3 text-center border border-purple-200">
-                    <div className="text-2xl mb-1">💬</div>
-                    <p className="text-xs font-medium text-[hsl(var(--text-primary))]">{t('aiFeatures.quickTip1')}</p>
-                  </div>
-                  <div className="bg-white/50 rounded-lg p-3 text-center border border-pink-200">
-                    <div className="text-2xl mb-1">📝</div>
-                    <p className="text-xs font-medium text-[hsl(var(--text-primary))]">{t('aiFeatures.quickTip2')}</p>
-                  </div>
-                  <div className="bg-white/50 rounded-lg p-3 text-center border border-purple-200">
-                    <div className="text-2xl mb-1">🎯</div>
-                    <p className="text-xs font-medium text-[hsl(var(--text-primary))]">{t('aiFeatures.quickTip3')}</p>
-                  </div>
-                </div>
               </>
             ) : (
               /* Basic/No AI Access */
