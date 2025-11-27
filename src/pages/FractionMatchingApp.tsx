@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, RotateCcw, Clock, CheckCircle, XCircle, Trophy, Shuffle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useTranslation } from 'react-i18next';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 interface FractionPair {
   id: number;
@@ -167,6 +169,16 @@ const questionSets: FractionPair[][] = [
 
 const FractionMatchingApp: React.FC = () => {
   const { t } = useTranslation('exercises');
+  const [searchParams] = useSearchParams();
+  
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
+  
   const [currentSet, setCurrentSet] = useState(0);
   const [questions, setQuestions] = useState<FractionPair[]>([]);
   const [shuffledAnswers, setShuffledAnswers] = useState<FractionPair[]>([]);
@@ -234,7 +246,7 @@ const FractionMatchingApp: React.FC = () => {
     }
   };
 
-  const handleRightClick = (rightId: number) => {
+  const handleRightClick = async (rightId: number) => {
     if (selectedLeft === null) return;
 
     // Remove existing connection for this left item
@@ -262,6 +274,11 @@ const FractionMatchingApp: React.FC = () => {
       setScore(correctCount);
       setIsCompleted(true);
       setIsTimerRunning(false);
+      
+      // Complete mission if in mission mode
+      if (isMissionMode) {
+        await handleCompleteMission(correctCount, questions.length, timeElapsed * 1000);
+      }
     }
   };
 
@@ -405,8 +422,8 @@ const FractionMatchingApp: React.FC = () => {
           </div>
         </div>
 
-        {/* Results */}
-        {isCompleted && (
+        {/* Results - Only show if NOT in mission mode */}
+        {isCompleted && !isMissionMode && (
           <Card className="mt-6">
             <CardHeader>
               <CardTitle className="text-center flex items-center justify-center gap-2">
@@ -439,6 +456,23 @@ const FractionMatchingApp: React.FC = () => {
               </div>
             </CardContent>
           </Card>
+        )}
+
+        {/* Mission Complete Modal */}
+        {isMissionMode && missionResult && (
+          <MissionCompleteModal
+            open={showMissionComplete}
+            onOpenChange={setShowMissionComplete}
+            stars={missionResult.stars}
+            correct={missionResult.correct}
+            total={missionResult.total}
+            timeSpent={missionResult.timeSpent}
+            isPassed={missionResult.isPassed}
+            onRetry={() => {
+              setShowMissionComplete(false);
+              resetGame();
+            }}
+          />
         )}
 
         {/* Controls */}
