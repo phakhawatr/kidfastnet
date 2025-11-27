@@ -442,12 +442,29 @@ export const useTrainingCalendar = () => {
       // Send local date to avoid timezone issues
       const localDate = getLocalDateString(new Date());
 
-      const { data, error } = await supabase.functions.invoke('generate-daily-mission', {
-        body: { userId, localDate, addSingleMission: true },
+      const { data, error } = await Promise.race([
+        supabase.functions.invoke('generate-daily-mission', {
+          body: { userId, localDate, addSingleMission: true },
+        }),
+        new Promise<{ data: null; error: Error }>((_, reject) => 
+          setTimeout(() => reject(new Error('TIMEOUT')), 35000)
+        )
+      ]).catch((err) => {
+        if (err.message === 'TIMEOUT') {
+          return { data: null, error: new Error('Request timeout - AI took too long to respond') };
+        }
+        throw err;
       });
 
       if (error) {
-        if (error.message?.includes('429')) {
+        if (error.message?.includes('timeout') || error.message?.includes('TIMEOUT')) {
+          toast({
+            title: 'หมดเวลา',
+            description: 'AI ใช้เวลานานเกินไป กรุณาลองใหม่อีกครั้ง',
+            variant: 'destructive',
+          });
+          return { success: false };
+        } else if (error.message?.includes('429')) {
           toast({
             title: 'ใช้งานบ่อยเกินไป',
             description: 'กรุณารอสักครู่แล้วลองใหม่',
@@ -526,12 +543,29 @@ export const useTrainingCalendar = () => {
       // Send local date to avoid timezone issues
       const localDate = getLocalDateString(new Date());
 
-      const { data, error } = await supabase.functions.invoke('generate-daily-mission', {
-        body: { userId, localDate },
+      const { data, error } = await Promise.race([
+        supabase.functions.invoke('generate-daily-mission', {
+          body: { userId, localDate },
+        }),
+        new Promise<{ data: null; error: Error }>((_, reject) => 
+          setTimeout(() => reject(new Error('TIMEOUT')), 35000)
+        )
+      ]).catch((err) => {
+        if (err.message === 'TIMEOUT') {
+          return { data: null, error: new Error('Request timeout - AI took too long to respond') };
+        }
+        throw err;
       });
 
       if (error) {
-        if (error.message?.includes('429')) {
+        if (error.message?.includes('timeout') || error.message?.includes('TIMEOUT')) {
+          toast({
+            title: 'หมดเวลา',
+            description: 'AI ใช้เวลานานเกินไป กรุณาลองใหม่อีกครั้ง',
+            variant: 'destructive',
+          });
+          return { success: false };
+        } else if (error.message?.includes('429')) {
           toast({
             title: 'ใช้งานบ่อยเกินไป',
             description: 'กรุณารอสักครู่แล้วลองใหม่',

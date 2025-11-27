@@ -285,21 +285,84 @@ ${addSingleMission
     }
 
     console.log('Calling AI...');
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt },
-        ],
-        temperature: 0.7,
-      }),
-    });
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    
+    let aiResponse;
+    try {
+      aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt },
+          ],
+          temperature: 0.7,
+          max_tokens: 1000, // Reduced for faster response
+        }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+      
+      if (error.name === 'AbortError') {
+        console.error('AI API timeout after 30 seconds, using fallback missions');
+        
+        // Fallback missions for timeout
+        const fallbackMissions = [];
+        const skills = ['การบวกเลข', 'การลบเลข', 'การคูณเลข'];
+        const difficulties = ['easy', 'medium', 'hard'];
+        
+        for (let i = 0; i < missionsNeeded; i++) {
+          fallbackMissions.push({
+            skill_name: skills[i % skills.length],
+            difficulty: difficulties[i % difficulties.length],
+            total_questions: 10,
+            reasoning: 'ระบบสร้างภารกิจนี้โดยอัตโนมัติเนื่องจาก AI ใช้เวลานานเกินไป'
+          });
+        }
+        
+        const startingOption = addSingleMission 
+          ? existingMissions.length + 1 
+          : completedCount + 1;
+        
+        const { data: insertedMissions, error: insertError } = await supabaseAdmin
+          .from('daily_missions')
+          .insert(fallbackMissions.map((mission, index) => ({
+            user_id: userId,
+            mission_date: localDate,
+            skill_name: mission.skill_name,
+            difficulty: mission.difficulty,
+            total_questions: mission.total_questions,
+            ai_reasoning: mission.reasoning,
+            status: 'pending',
+            mission_option: startingOption + index,
+            daily_message: 'ภารกิจถูกสร้างขึ้นสำหรับคุณ เริ่มฝึกฝนกันเลย! 💪',
+          })))
+          .select();
+        
+        if (insertError) throw insertError;
+        
+        return new Response(JSON.stringify({
+          success: true,
+          missions: insertedMissions,
+          missionsCreated: missionsNeeded,
+          completedCount: completedMissions.length,
+          dailyMessage: 'ภารกิจถูกสร้างขึ้นสำหรับคุณ เริ่มฝึกฝนกันเลย! 💪',
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      throw error; // Re-throw other errors
+    }
 
     if (!aiResponse.ok) {
       const errorText = await aiResponse.text();
