@@ -32,10 +32,27 @@ export function useMissionMode() {
    * @param timeMs - Time spent in milliseconds
    */
   const handleCompleteMission = async (correct: number, total: number, timeMs: number) => {
-    if (!missionId) return;
+    console.log('🟢 useMissionMode.handleCompleteMission called:', {
+      missionId,
+      correct,
+      total,
+      timeMs,
+      isMissionMode
+    });
+    
+    if (!missionId) {
+      console.warn('⚠️ No missionId, skipping mission completion');
+      return;
+    }
     
     const accuracy = (correct / total) * 100;
     const timeSeconds = Math.floor(timeMs / 1000);
+    
+    console.log('📊 Calculated metrics:', {
+      accuracy: accuracy.toFixed(2) + '%',
+      timeSeconds,
+      timeMinutes: (timeSeconds / 60).toFixed(2)
+    });
     
     // Pass threshold: >80%
     const isPassed = accuracy > 80;
@@ -53,15 +70,23 @@ export function useMissionMode() {
       }
     }
     
+    console.log('⭐ Mission results:', {
+      isPassed,
+      stars,
+      passThreshold: '80%'
+    });
+    
     // Save to database
     try {
+      console.log('💾 Calling completeMission in useTrainingCalendar...');
       await completeMission(missionId, {
         total_questions: total,
         correct_answers: correct,
         time_spent: timeSeconds
       });
+      console.log('✅ completeMission succeeded');
     } catch (error) {
-      console.error('Error completing mission:', error);
+      console.error('❌ Error completing mission:', error);
     }
     
     // Show mission complete modal
@@ -73,6 +98,8 @@ export function useMissionMode() {
       isPassed
     });
     setShowMissionComplete(true);
+    
+    console.log('🎉 Mission complete modal shown');
     
     return { stars, isPassed };
   };
