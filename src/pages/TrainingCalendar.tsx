@@ -37,6 +37,11 @@ const TrainingCalendar = () => {
     return missions.find(m => isSameDay(new Date(m.mission_date), day));
   };
 
+  // Helper function to check if mission is completed
+  const isMissionCompleted = (mission: any) => {
+    return mission.status === 'completed' || mission.completed_at !== null;
+  };
+
   const getDayStatus = (day: Date) => {
     const mission = getMissionForDay(day);
     const dayOfWeek = getDay(day);
@@ -49,7 +54,8 @@ const TrainingCalendar = () => {
     if (isAfter(day, today)) return 'future';
     if (!mission) return 'skipped';
     
-    if (mission.status === 'completed') {
+    // Use isMissionCompleted helper
+    if (isMissionCompleted(mission)) {
       if (mission.stars_earned === 3) return 'perfect';
       if (mission.stars_earned === 2) return 'good';
       if (mission.stars_earned === 1) return 'pass';
@@ -152,7 +158,7 @@ const TrainingCalendar = () => {
     return dayOfWeek !== 0 && dayOfWeek !== 6 && !isAfter(day, new Date());
   }).length;
 
-  const completedMissions = missions.filter(m => m.status === 'completed' || m.status === 'catchup').length;
+  const completedMissions = missions.filter(m => isMissionCompleted(m) || m.status === 'catchup').length;
   const progressPercentage = workDays > 0 ? (completedMissions / workDays) * 100 : 0;
 
   const totalStarsThisMonth = missions.reduce((sum, m) => sum + (m.stars_earned || 0), 0);
