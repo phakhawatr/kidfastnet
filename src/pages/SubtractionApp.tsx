@@ -65,15 +65,44 @@ const SubtractionApp: React.FC = () => {
     
     // If mission mode, calculate results and complete mission
     if (isMissionMode) {
+      console.log('🔵 SubtractionApp - Starting mission completion calculation');
+      console.log('📊 Problems data:', {
+        problemsCount: problems.length,
+        answersCount: answers.length,
+        digits,
+        sampleProblem: problems[0],
+        sampleAnswer: answers[0]
+      });
+      
       // Manually calculate correct count
       let correctCount = 0;
       problems.forEach((prob, idx) => {
         const userNum = answerToNumber(answers[idx], digits);
         const correctAns = prob.c != null ? prob.a - prob.b - prob.c : prob.a - prob.b;
-        if (userNum === correctAns) correctCount++;
+        const isCorrect = userNum === correctAns;
+        if (isCorrect) correctCount++;
+        
+        // Log each problem for debugging
+        if (idx < 3 || !isCorrect) { // Log first 3 and all incorrect
+          console.log(`📝 Problem ${idx + 1}:`, {
+            problem: prob,
+            userAnswer: userNum,
+            correctAnswer: correctAns,
+            isCorrect
+          });
+        }
       });
       
       const duration = startedAt ? Date.now() - startedAt : elapsedMs;
+      
+      console.log('✅ SubtractionApp - Final calculation:', {
+        correctCount,
+        totalProblems: problems.length,
+        accuracy: ((correctCount / problems.length) * 100).toFixed(2) + '%',
+        durationMs: duration,
+        durationSeconds: Math.floor(duration / 1000)
+      });
+      
       await handleCompleteMission(correctCount, problems.length, duration);
       return;
     }

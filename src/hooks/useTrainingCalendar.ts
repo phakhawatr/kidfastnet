@@ -222,8 +222,8 @@ export const useTrainingCalendar = () => {
       try {
         console.log(`💾 Attempt ${attempt}/3: Updating mission ${cleanMissionId}...`);
         
-        // Perform UPDATE with explicit count check
-        const { data: updateData, error: updateError, count } = await supabase
+        // Perform UPDATE
+        const { error: updateError } = await supabase
           .from('daily_missions')
           .update({
             status: 'completed',
@@ -233,38 +233,69 @@ export const useTrainingCalendar = () => {
             stars_earned: stars,
             completed_at: new Date().toISOString(),
           })
-          .eq('id', cleanMissionId)
-          .select('*');
-
-        console.log(`📊 Update result - Data length: ${updateData?.length}, Data:`, updateData);
-        console.log(`📊 Error:`, updateError);
+          .eq('id', cleanMissionId);
 
         if (updateError) {
           console.error(`❌ Attempt ${attempt} UPDATE error:`, updateError);
           throw updateError;
         }
 
-        // Check if any rows were affected
-        const rowCount = updateData?.length || 0;
-        if (rowCount === 0) {
-          console.error(`❌ Attempt ${attempt}: No rows affected! Mission not found with id: ${cleanMissionId}`);
-          throw new Error(`No mission found with id: ${cleanMissionId}`);
+        console.log(`✅ Attempt ${attempt}: UPDATE succeeded, now verifying...`);
+
+        // Separate SELECT to verify data
+        const { data: verifyData, error: verifyError } = await supabase
+          .from('daily_missions')
+          .select('*')
+          .eq('id', cleanMissionId)
+          .single();
+
+        if (verifyError) {
+          console.error(`❌ Attempt ${attempt} VERIFY error:`, verifyError);
+          throw verifyError;
         }
 
-        // Verify data was returned
-        if (!updateData || updateData.length === 0) {
-          console.error(`❌ Attempt ${attempt}: No data returned despite count=${count}`);
-          throw new Error('No data returned from update');
+        if (!verifyData) {
+          console.error(`❌ Attempt ${attempt}: No data in verification!`);
+          throw new Error('Mission not found during verification');
         }
 
-        // Verify status is 'completed'
-        const updatedMission = updateData[0];
-        if (updatedMission.status !== 'completed') {
-          console.error(`❌ Attempt ${attempt}: Status not 'completed'! Current: ${updatedMission.status}`);
-          throw new Error(`Status was not updated correctly: ${updatedMission.status}`);
+        console.log(`📊 Verification data:`, verifyData);
+
+        // Verify all fields are correct
+        const verificationChecks = {
+          status: verifyData.status === 'completed',
+          correct_answers: verifyData.correct_answers === results.correct_answers,
+          total_questions: verifyData.completed_questions === results.total_questions,
+          time_spent: verifyData.time_spent === results.time_spent,
+          stars_earned: verifyData.stars_earned === stars,
+          completed_at: verifyData.completed_at !== null
+        };
+
+        console.log('🔍 Verification checks:', verificationChecks);
+
+        const allChecksPass = Object.values(verificationChecks).every(v => v === true);
+
+        if (!allChecksPass) {
+          console.error(`❌ Attempt ${attempt}: Verification failed!`, {
+            expected: {
+              status: 'completed',
+              correct_answers: results.correct_answers,
+              total_questions: results.total_questions,
+              time_spent: results.time_spent,
+              stars_earned: stars
+            },
+            actual: {
+              status: verifyData.status,
+              correct_answers: verifyData.correct_answers,
+              total_questions: verifyData.completed_questions,
+              time_spent: verifyData.time_spent,
+              stars_earned: verifyData.stars_earned
+            }
+          });
+          throw new Error('Data verification failed - values do not match');
         }
 
-        console.log(`✅ Attempt ${attempt} SUCCESS! Mission verified:`, updatedMission);
+        console.log(`✅ Attempt ${attempt} VERIFIED! All data matches expected values`);
 
         // Clear any pending saves
         localStorage.removeItem('pendingMissionResult');
