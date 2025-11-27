@@ -441,9 +441,14 @@ export const useTrainingCalendar = () => {
       }
 
       if (data?.success) {
+        // Get the newly added mission (last one in the array, with highest mission_option)
+        const newMission = data.missions?.sort((a, b) => 
+          (b.mission_option || 0) - (a.mission_option || 0)
+        )?.[0];
+        
         toast({
           title: 'เพิ่มภารกิจใหม่สำเร็จ! 🎯',
-          description: data.missions?.[0]?.skill_name || 'ภารกิจใหม่',
+          description: newMission?.skill_name || 'ภารกิจใหม่',
         });
 
         // Refresh missions
