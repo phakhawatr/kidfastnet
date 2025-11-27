@@ -83,11 +83,11 @@ const TrainingCalendar = () => {
       case 'catchup':
         return `${baseStyles} ${clickableStyles} bg-gradient-to-br from-yellow-400 to-amber-500 text-white shadow-md shadow-yellow-400/30 hover:shadow-lg hover:scale-105`;
       case 'pending':
-        return `${baseStyles} ${clickableStyles} bg-white text-slate-700 border border-slate-200 hover:shadow-md hover:scale-105`;
+        return `${baseStyles} ${clickableStyles} bg-slate-600 text-white border border-slate-500 hover:shadow-md hover:scale-105`;
       case 'future':
-        return `${baseStyles} ${clickableStyles} bg-gradient-to-br from-slate-100 to-slate-200 text-slate-400 border border-slate-300`;
+        return `${baseStyles} ${clickableStyles} bg-gradient-to-br from-slate-700 to-slate-800 text-slate-500 border border-slate-600`;
       default:
-        return `${baseStyles} ${clickableStyles} bg-white text-slate-700 border border-slate-200`;
+        return `${baseStyles} ${clickableStyles} bg-slate-600 text-white border border-slate-500`;
     }
   };
 
@@ -159,10 +159,10 @@ const TrainingCalendar = () => {
 
   if (!userId && !isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 flex items-center justify-center">
-        <Card className="p-8 text-center max-w-md">
-          <h2 className="text-2xl font-bold mb-4 text-slate-800">{t('loginRequired')}</h2>
-          <p className="text-slate-600 mb-6">{t('loginMessage')}</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <Card className="p-8 text-center max-w-md bg-slate-800/90 border-slate-700">
+          <h2 className="text-2xl font-bold mb-4 text-white">{t('loginRequired')}</h2>
+          <p className="text-slate-300 mb-6">{t('loginMessage')}</p>
           <Button onClick={() => navigate('/login')} size="lg" className="w-full">
             {t('goToLogin')}
           </Button>
@@ -173,22 +173,22 @@ const TrainingCalendar = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-slate-600">กำลังโหลดปฏิทิน...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400 mx-auto mb-4"></div>
+          <p className="text-slate-300">กำลังโหลดปฏิทิน...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
           <Link to="/profile">
-            <Button variant="outline" className="border-slate-300 text-slate-900 hover:bg-white">
+            <Button variant="outline" className="border-slate-600 text-white hover:bg-slate-800">
               <ArrowLeft className="w-4 h-4 mr-2" />
               กลับ
             </Button>
@@ -237,35 +237,35 @@ const TrainingCalendar = () => {
         </div>
 
         {/* Main Card */}
-        <Card className="bg-white/80 backdrop-blur-sm border-2 border-slate-200 shadow-2xl">
+        <Card className="bg-slate-800/90 backdrop-blur-sm border-2 border-slate-700 shadow-2xl">
           <div className="p-6 space-y-6">
             {/* Title & Month Navigation */}
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent flex items-center gap-3">
-                  <Calendar className="w-8 h-8 text-purple-600" />
+                <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent flex items-center gap-3">
+                  <Calendar className="w-8 h-8 text-purple-400" />
                   ปฏิทินการฝึกของฉัน
                 </h1>
-                <p className="text-slate-600 mt-2">ติดตามความก้าวหน้าในแต่ละวัน</p>
+                <p className="text-slate-300 mt-2">ติดตามความก้าวหน้าในแต่ละวัน</p>
               </div>
 
-              <div className="flex items-center gap-2 bg-slate-100 rounded-xl p-1">
+              <div className="flex items-center gap-2 bg-slate-700/50 rounded-xl p-1">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => changeMonth('prev')}
-                  className="hover:bg-white"
+                  className="hover:bg-slate-600 text-white"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </Button>
-                <span className="text-lg font-semibold px-4 text-slate-900">
+                <span className="text-lg font-semibold px-4 text-white">
                   {format(currentDate, 'MMMM yyyy', { locale: th })}
                 </span>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => changeMonth('next')}
-                  className="hover:bg-white"
+                  className="hover:bg-slate-600 text-white"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </Button>
@@ -314,19 +314,19 @@ const TrainingCalendar = () => {
             {/* Progress Bar */}
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="font-semibold text-slate-900">ภารกิจเดือนนี้</span>
-                <span className="text-slate-600">{completedMissions}/{workDays} วัน</span>
+                <span className="font-semibold text-white">ภารกิจเดือนนี้</span>
+                <span className="text-slate-300">{completedMissions}/{workDays} วัน</span>
               </div>
               <Progress value={progressPercentage} className="h-3" />
             </div>
 
             {/* Calendar Grid */}
-            <div className="bg-slate-50 rounded-xl p-4">
+            <div className="bg-slate-700/50 rounded-xl p-4">
               {/* Day Headers */}
               {!isMobile && (
                 <div className="grid grid-cols-7 gap-2 mb-2">
                   {['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'].map((day, index) => (
-                    <div key={index} className="text-center text-sm font-semibold text-slate-600 py-2">
+                    <div key={index} className="text-center text-sm font-semibold text-slate-300 py-2">
                       {day}
                     </div>
                   ))}
@@ -375,7 +375,7 @@ const TrainingCalendar = () => {
             </div>
 
             {/* Legend */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-slate-300">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-gradient-to-br from-green-500 to-emerald-600 rounded"></div>
                 <span>3 ดาว</span>
@@ -405,7 +405,7 @@ const TrainingCalendar = () => {
                 <span>ย้อนหลัง</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-gradient-to-br from-slate-100 to-slate-200 rounded border"></div>
+                <div className="w-4 h-4 bg-gradient-to-br from-slate-600 to-slate-700 rounded border border-slate-500"></div>
                 <span>อนาคต</span>
               </div>
             </div>
