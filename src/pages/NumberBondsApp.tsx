@@ -1,16 +1,28 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Settings, RotateCcw, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNumberBondsGame } from '@/hooks/useNumberBondsGame';
-import { formatTime, calculateStars, getEncouragement } from '@/utils/numberBondsUtils';
+import { formatTime, calculateStars, getEncouragement, checkBondAnswer } from '@/utils/numberBondsUtils';
 import Confetti from 'react-confetti';
 import { useTranslation } from 'react-i18next';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 const NumberBondsApp = () => {
   const { t } = useTranslation('exercises');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [showSettings, setShowSettings] = useState(false);
+  
+  // Mission mode
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
   
   const {
     count,
@@ -52,11 +64,19 @@ const NumberBondsApp = () => {
     }
   };
 
-  const handleSubmit = () => {
-    if (currentIndex < problems.length - 1) {
-      nextProblem();
+  const handleSubmit = async () => {
+    // Check if this is the last question
+    if (currentIndex === problems.length - 1) {
+      const correctCount = getCorrectCount() + (checkBondAnswer(getCurrentProblem().bond, currentProblem.userAnswer) ? 1 : 0);
+      
+      // Mission mode completion
+      if (isMissionMode) {
+        await handleCompleteMission(correctCount, problems.length, elapsedTime);
+      } else {
+        submitAnswers();
+      }
     } else {
-      submitAnswers();
+      nextProblem();
     }
   };
 
@@ -304,7 +324,7 @@ const NumberBondsApp = () => {
             </Button>
           </div>
         </div>
-      ) : (
+      ) : !isMissionMode ? (
         // Results Screen
         <div className="max-w-2xl mx-auto">
           <div className="bg-white rounded-3xl shadow-2xl p-8 text-center">
@@ -354,6 +374,20 @@ const NumberBondsApp = () => {
             </div>
           </div>
         </div>
+      ) : null}
+      
+      {/* Mission Complete Modal */}
+      {isMissionMode && missionResult && (
+        <MissionCompleteModal
+          open={showMissionComplete}
+          onOpenChange={setShowMissionComplete}
+          stars={missionResult.stars}
+          correct={missionResult.correct}
+          total={missionResult.total}
+          timeSpent={missionResult.timeSpent}
+          isPassed={missionResult.isPassed}
+          onRetry={regenerateProblems}
+        />
       )}
     </div>
   );

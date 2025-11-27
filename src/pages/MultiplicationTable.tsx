@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, RotateCcw, CheckCircle, X, Trophy, Target, Clock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useMissionMode } from '@/hooks/useMissionMode';
+import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +12,17 @@ import { useToast } from '../hooks/use-toast';
 const MultiplicationTable = () => {
   const { t } = useTranslation('exercises');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  
+  // Mission mode
+  const {
+    isMissionMode,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
+  
   const [selectedTable, setSelectedTable] = useState<number>(2);
   const [currentQuestion, setCurrentQuestion] = useState<number>(1);
   const [userAnswer, setUserAnswer] = useState<string>('');
@@ -47,16 +60,23 @@ const MultiplicationTable = () => {
     setShowResult(false);
   };
 
-  const endGame = () => {
+  const endGame = async () => {
     setGameActive(false);
     if (streak > bestStreak) {
       setBestStreak(streak);
       localStorage.setItem('multiplicationBestStreak', streak.toString());
     }
-    toast({
-      title: "เกมส์จบแล้ว! 🎮",
-      description: `คะแนน: ${score}/${totalQuestions} | Streak: ${streak}`,
-    });
+    
+    // Mission mode completion
+    if (isMissionMode && totalQuestions > 0) {
+      const elapsedMs = (30 - timeLeft) * 1000; // Time used
+      await handleCompleteMission(score, totalQuestions, elapsedMs);
+    } else {
+      toast({
+        title: "เกมส์จบแล้ว! 🎮",
+        description: `คะแนน: ${score}/${totalQuestions} | Streak: ${streak}`,
+      });
+    }
   };
 
   const checkAnswer = () => {
@@ -437,6 +457,20 @@ const MultiplicationTable = () => {
           </div>
         </div>
       </main>
+      
+      {/* Mission Complete Modal */}
+      {isMissionMode && missionResult && (
+        <MissionCompleteModal
+          open={showMissionComplete}
+          onOpenChange={setShowMissionComplete}
+          stars={missionResult.stars}
+          correct={missionResult.correct}
+          total={missionResult.total}
+          timeSpent={missionResult.timeSpent}
+          isPassed={missionResult.isPassed}
+          onRetry={startGame}
+        />
+      )}
     </div>
   );
 };
