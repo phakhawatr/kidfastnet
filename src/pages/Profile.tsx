@@ -1005,7 +1005,7 @@ const Profile = () => {
                         </ul>
                       </div>
                       <div className="flex flex-col items-center bg-white/20 rounded-xl p-3 shadow-lg ml-4">
-                        <span className="text-base font-bold uppercase tracking-wide">
+                        <span className="text-lg font-bold uppercase tracking-wide">
                           {new Date().toLocaleString('th-TH', { month: 'short' })}
                         </span>
                         <span className="text-4xl font-bold">{new Date().getDate()}</span>
