@@ -32,6 +32,12 @@ const TodayFocusMode = () => {
   const hasAttemptedGeneration = useRef(false);
   const needsRefresh = searchParams.get('refresh') === 'true';
 
+  // Helper function to check if mission is completed
+  // Mission is completed if EITHER status is 'completed' OR completed_at has a value
+  const isMissionCompleted = (mission: DailyMission): boolean => {
+    return mission.status === 'completed' || mission.completed_at !== null;
+  };
+
   // Helper function to get date string in local timezone (YYYY-MM-DD)
   const getLocalDateString = (date: Date): string => {
     const year = date.getFullYear();
@@ -371,8 +377,7 @@ const TodayFocusMode = () => {
   }
 
   // Check if all completed - require exactly 3 missions AND all completed
-  // Use completed_at as source of truth for completion status
-  const allCompleted = todayMissions.length >= 3 && todayMissions.every(m => m.status === 'completed' || m.completed_at);
+  const allCompleted = todayMissions.length >= 3 && todayMissions.every(m => isMissionCompleted(m));
 
   // Show completed view only when ALL 3 missions are done
   if (allCompleted) {
@@ -518,12 +523,12 @@ const TodayFocusMode = () => {
                   "cursor-pointer transition-all duration-300 hover:scale-105 border-2 relative overflow-hidden",
                   selectedMission?.id === mission.id
                     ? "bg-gradient-to-br from-blue-600 to-purple-600 border-yellow-400 shadow-2xl shadow-blue-500/50 ring-4 ring-yellow-400/30"
-                    : mission.status === 'completed'
+                    : isMissionCompleted(mission)
                     ? "bg-slate-800 border-green-500"
                     : "bg-slate-800/90 border-slate-700 hover:bg-slate-800"
                 )}
                 onClick={() => {
-                  if (mission.status !== 'completed' || mission.can_retry) {
+                  if (!isMissionCompleted(mission) || mission.can_retry) {
                     setSelectedMission(mission);
                   }
                 }}
@@ -540,7 +545,7 @@ const TodayFocusMode = () => {
                     )}>
                       {getDifficultyLabel(mission.difficulty)}
                     </Badge>
-                    {mission.status === 'completed' && (
+                    {isMissionCompleted(mission) && (
                       <CheckCircle2 className="w-6 h-6 text-green-400" />
                     )}
                     {selectedMission?.id === mission.id && (
@@ -581,8 +586,8 @@ const TodayFocusMode = () => {
                       </p>
                     )}
 
-                    {/* Show status: pending or completed */}
-                    {mission.status === 'pending' && (
+                    {/* Show status: not started or completed */}
+                    {!isMissionCompleted(mission) && (
                       <div className="mt-3 p-3 bg-slate-700/50 border border-slate-600 rounded-lg">
                         <div className="flex items-center gap-2">
                           <Clock className="w-5 h-5 text-slate-400" />
@@ -591,7 +596,7 @@ const TodayFocusMode = () => {
                       </div>
                     )}
 
-                    {mission.status === 'completed' && (
+                    {isMissionCompleted(mission) && (
                       <div className="mt-3 p-3 bg-green-900/30 border-2 border-green-500 rounded-lg">
                         <div className="flex items-center gap-2 mb-2">
                           <CheckCircle2 className="w-5 h-5 text-green-400" />
@@ -619,41 +624,6 @@ const TodayFocusMode = () => {
                           >
                             🔄 ทำใหม่
                           </button>
-                        )}
-                      </div>
-                    )}
-                    
-                    {/* Show results for completed missions */}
-                    {mission.status === 'completed' && (
-                      <div className="mt-3 p-3 bg-green-900/30 border-2 border-green-500 rounded-lg">
-                        <div className="flex items-center gap-2 mb-2">
-                          <CheckCircle2 className="w-5 h-5 text-green-400" />
-                          <span className="text-green-300 font-bold text-base">ทำสำเร็จแล้ว!</span>
-                        </div>
-                        <div className="flex items-center gap-1 mb-2">
-                          {Array.from({ length: mission.stars_earned || 0 }).map((_, i) => (
-                            <Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                          ))}
-                          {mission.stars_earned === 0 && (
-                            <span className="text-orange-300 font-semibold text-sm">❌ ยังไม่ผ่าน</span>
-                          )}
-                        </div>
-                        <p className="text-white font-medium text-base">
-                          คะแนน: {mission.correct_answers}/{mission.total_questions} ข้อ
-                          ({Math.round((mission.correct_answers! / mission.total_questions) * 100)}%)
-                        </p>
-                        {mission.can_retry && (
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            className="mt-3 w-full bg-slate-800 text-yellow-300 border-yellow-400 hover:bg-yellow-500/20 hover:text-yellow-200 font-semibold"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedMission(mission);
-                            }}
-                          >
-                            🔄 ทำใหม่อีกครั้ง
-                          </Button>
                         )}
                       </div>
                     )}
