@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { userId, localDate } = await req.json();
+    const { userId, localDate, addSingleMission } = await req.json();
 
     if (!userId) {
       return new Response(
@@ -75,17 +75,31 @@ serve(async (req) => {
       throw skillsError;
     }
 
-    // Check if today's missions already exist (3 missions)
+    // Check if today's missions already exist
     // Use localDate from client to avoid timezone issues
     const today = localDate || new Date().toISOString().split('T')[0];
     const existingMissions = recentMissions?.filter(m => m.mission_date === today) || [];
 
-    // If we have 3 complete missions for today, return them
+    // NEW: If addSingleMission mode, check limit of 10 missions per day
+    if (addSingleMission) {
+      if (existingMissions.length >= 10) {
+        return new Response(
+          JSON.stringify({ 
+            error: 'max_missions_reached', 
+            limit: 10,
+            message: 'ถึงขีดจำกัด 10 ภารกิจต่อวันแล้ว'
+          }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
+    // If we have 3 complete missions for today, return them (only for regular mode)
     // Check both status AND completed_at for robustness
     const completedMissions = existingMissions.filter(m => 
       m.status === 'completed' || m.completed_at !== null
     );
-    if (completedMissions.length >= 3) {
+    if (!addSingleMission && completedMissions.length >= 3) {
       return new Response(
         JSON.stringify({ 
           success: true, 
@@ -96,35 +110,44 @@ serve(async (req) => {
       );
     }
 
-    // Delete only NON-COMPLETED missions for today before generating new ones
-    // Check both status AND completed_at to avoid deleting completed missions
-    const missionsToDelete = existingMissions.filter(m => 
-      m.status !== 'completed' && m.completed_at === null
-    );
-    if (missionsToDelete.length > 0) {
-      console.log(`Deleting ${missionsToDelete.length} non-completed missions...`);
-      
-      // Delete missions one by one to avoid conflicts
-      for (const mission of missionsToDelete) {
-        const { error: deleteError } = await supabase
-          .from('daily_missions')
-          .delete()
-          .eq('id', mission.id);
+    // NEW: For addSingleMission mode, skip deletion and set missionsNeeded to 1
+    let missionsNeeded = 1;
+    let completedCount = 0;
+    
+    if (addSingleMission) {
+      // Single mission mode: just add 1 more
+      missionsNeeded = 1;
+      console.log('Single mission mode: creating 1 new mission...');
+    } else {
+      // Regular mode: delete non-completed and calculate needed
+      const missionsToDelete = existingMissions.filter(m => 
+        m.status !== 'completed' && m.completed_at === null
+      );
+      if (missionsToDelete.length > 0) {
+        console.log(`Deleting ${missionsToDelete.length} non-completed missions...`);
+        
+        // Delete missions one by one to avoid conflicts
+        for (const mission of missionsToDelete) {
+          const { error: deleteError } = await supabase
+            .from('daily_missions')
+            .delete()
+            .eq('id', mission.id);
 
-        if (deleteError) {
-          console.error('Error deleting mission:', mission.id, deleteError);
-          // Continue deleting others even if one fails
+          if (deleteError) {
+            console.error('Error deleting mission:', mission.id, deleteError);
+            // Continue deleting others even if one fails
+          }
         }
+        
+        // Wait a moment to ensure deletions are processed
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
-      
-      // Wait a moment to ensure deletions are processed
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
 
-    // Calculate how many new missions we need (3 - completed count)
-    // Use completed_at as the source of truth for completion
-    const completedCount = existingMissions.filter(m => m.completed_at !== null).length;
-    const missionsNeeded = 3 - completedCount;
+      // Calculate how many new missions we need (3 - completed count)
+      // Use completed_at as the source of truth for completion
+      completedCount = existingMissions.filter(m => m.completed_at !== null).length;
+      missionsNeeded = 3 - completedCount;
+    }
 
     if (missionsNeeded <= 0) {
       console.log('All missions already completed for today');
@@ -163,8 +186,24 @@ serve(async (req) => {
 
     const recentSkills = missionHistory.slice(0, 3).map(m => m.skill);
 
+    // Get existing skills for today to avoid duplicates in single mission mode
+    const existingSkillsToday = existingMissions.map(m => m.skill_name);
+    
     // Construct AI prompt - Generate missions based on need
-    const systemPrompt = `คุณเป็น AI ครูคณิตศาสตร์สำหรับเด็กไทย มีหน้าที่สร้างภารกิจให้เลือกในแต่ละวัน ที่เหมาะสมกับระดับของนักเรียน
+    const systemPrompt = addSingleMission 
+      ? `คุณเป็น AI ครูคณิตศาสตร์สำหรับเด็กไทย มีหน้าที่สร้างภารกิจเพิ่มเติมให้นักเรียน
+
+หลักการสร้างภารกิจเดี่ยว:
+- เลือกทักษะที่แตกต่างจากภารกิจที่มีอยู่แล้ววันนี้
+- ปรับระดับความยากตามประวัติการทำของนักเรียน
+- ไม่ซ้ำทักษะที่ทำล่าสุด 3 วัน
+
+ทักษะที่มีอยู่แล้ววันนี้: ${existingSkillsToday.join(', ') || 'ไม่มี'}
+
+ทักษะที่มี: การบวกเลข, การลบเลข, การคูณเลข, การหารเลข, เศษส่วน, ทศนิยม, ร้อยละ, เงินและการเงิน, การบอกเวลา, การชั่งน้ำหนัก, การวัดความยาว, รูปทรงจับคู่, อนุกรมรูปทรง, อนุกรมตัวเลข, พันธะตัวเลข, โมเดลบาร์, โมเดลพื้นที่, คิดเลขเร็ว, สูตรคูณ, ปริศนาตารางผลบวก, โจทย์ปัญหา
+
+สร้าง 1 ภารกิจเพิ่มเติม ที่ไม่ซ้ำกับทักษะที่มีอยู่แล้ว`
+      : `คุณเป็น AI ครูคณิตศาสตร์สำหรับเด็กไทย มีหน้าที่สร้างภารกิจให้เลือกในแต่ละวัน ที่เหมาะสมกับระดับของนักเรียน
 
 หลักการสร้าง 3 ภารกิจ:
 1. **ภารกิจที่ 1 - พัฒนาจุดอ่อน**: ทักษะที่อ่อนที่สุด/ต้องปรับปรุง (ระดับง่าย-กลาง) เน้นทบทวนพื้นฐาน
@@ -180,7 +219,7 @@ serve(async (req) => {
 
 ทักษะที่มี: การบวกเลข, การลบเลข, การคูณเลข, การหารเลข, เศษส่วน, ทศนิยม, ร้อยละ, เงินและการเงิน, การบอกเวลา, การชั่งน้ำหนัก, การวัดความยาว, รูปทรงจับคู่, อนุกรมรูปทรง, อนุกรมตัวเลข, พันธะตัวเลข, โมเดลบาร์, โมเดลพื้นที่, คิดเลขเร็ว, สูตรคูณ, ปริศนาตารางผลบวก, โจทย์ปัญหา
 
-สร้าง ${missionsNeeded} ภารกิจ สำหรับวันนี้ (มี ${completedCount} ภารกิจทำสำเร็จแล้ว)
+สร้าง ${missionsNeeded} ภารกิจ สำหรับวันนี้ (มี ${completedCount} ภารกิจทำสำเร็จแล้ว)`;
 
 ตอบกลับในรูปแบบ JSON:
 {
@@ -207,7 +246,9 @@ serve(async (req) => {
   "daily_message": "ข้อความให้กำลังใจนักเรียนสำหรับวันนี้ (1-2 ประโยค)"
 }`;
 
-    const userPrompt = `วิเคราะห์ข้อมูลนักเรียนและสร้าง 3 ภารกิจให้เลือกสำหรับวันนี้:
+    const userPrompt = addSingleMission
+      ? `วิเคราะห์ข้อมูลนักเรียนและสร้าง 1 ภารกิจเพิ่มเติมสำหรับวันนี้:`
+      : `วิเคราะห์ข้อมูลนักเรียนและสร้าง 3 ภารกิจให้เลือกสำหรับวันนี้:`;
 
 **ประวัติการทำภารกิจ 7 วันที่ผ่านมา:**
 ${missionHistory.length > 0 ? JSON.stringify(missionHistory, null, 2) : 'ยังไม่มีประวัติ (นักเรียนใหม่)'}
@@ -218,13 +259,19 @@ ${weakSkills.length > 0 ? JSON.stringify(weakSkills, null, 2) : 'ไม่มี
 **ทักษะที่ทำล่าสุด 3 วัน:**
 ${recentSkills.length > 0 ? recentSkills.join(', ') : 'ไม่มี'}
 
-สร้าง 3 ภารกิจสำหรับวันนี้ (${today}) โดย:
+${addSingleMission 
+  ? `สร้าง 1 ภารกิจเพิ่มเติมสำหรับวันนี้ (${today}) โดย:
+- เลือกทักษะที่แตกต่างจากที่มีอยู่แล้ววันนี้: ${existingSkillsToday.join(', ') || 'ไม่มี'}
+- หลีกเลี่ยงทักษะที่ทำซ้ำ 3 วันติด
+- ปรับระดับตามประวัติการทำ`
+  : `สร้าง 3 ภารกิจสำหรับวันนี้ (${today}) โดย:
 - ภารกิจที่ 1: เน้นพัฒนาจุดอ่อน (ระดับง่าย-กลาง)
 - ภารกิจที่ 2: ฝึกฝนต่อเนื่อง (ระดับกลาง)
 - ภารกิจที่ 3: ท้าทายใหม่ (ระดับกลาง-ยาก)
 - แต่ละภารกิจใช้ทักษะที่แตกต่างกัน
 - หลีกเลี่ยงทักษะที่ทำซ้ำ 3 วันติด
-- ถ้าเป็นนักเรียนใหม่ เริ่มจาก easy-medium ทักษะพื้นฐาน 3 ทักษะ`;
+- ถ้าเป็นนักเรียนใหม่ เริ่มจาก easy-medium ทักษะพื้นฐาน 3 ทักษะ`
+}`;
 
     // Call Lovable AI
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
@@ -297,8 +344,12 @@ ${recentSkills.length > 0 ? recentSkills.join(', ') : 'ไม่มี'}
       };
     }
 
-    // Calculate starting option number (e.g., if 1 completed, start at option 2)
-    const startingOption = completedCount + 1;
+    // Calculate starting option number
+    // For single mission mode: use next available option (total existing + 1)
+    // For regular mode: use completed count + 1
+    const startingOption = addSingleMission 
+      ? existingMissions.length + 1 
+      : completedCount + 1;
 
     // Create missions in database (only the needed count)
     const missionsToInsert = (missionData.missions || []).slice(0, missionsNeeded).map((mission: any, index: number) => ({
