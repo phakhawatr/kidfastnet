@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { 
   ArrowLeft, Brain, Target, Zap, Trophy, Star, Flame, Sparkles, 
-  PartyPopper, CheckCircle2, Calendar, Loader2, Clock
+  PartyPopper, CheckCircle2, Calendar, Loader2, Clock, History
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -31,6 +31,7 @@ const TodayFocusMode = () => {
   const [selectedMission, setSelectedMission] = useState<DailyMission | null>(null);
   const hasAttemptedGeneration = useRef(false);
   const needsRefresh = searchParams.get('refresh') === 'true';
+  const dateParam = searchParams.get('date'); // e.g., "2025-11-25"
 
   // Helper function to check if mission is completed
   // Mission is completed if EITHER status is 'completed' OR completed_at has a value
@@ -49,14 +50,19 @@ const TodayFocusMode = () => {
   const today = new Date();
   const todayStr = getLocalDateString(today);
   
-  // Get all missions for today (now we have 3 options) - use string comparison for timezone-safe filtering
+  // Determine target date (from parameter or today)
+  const targetDate = dateParam ? new Date(dateParam) : today;
+  const targetDateStr = getLocalDateString(targetDate);
+  const isViewingPast = dateParam && dateParam !== todayStr;
+  
+  // Get all missions for the target date - use string comparison for timezone-safe filtering
   const todayMissions = missions.filter(m => {
     // mission_date is in format "2025-11-25" or "2025-11-25T00:00:00+07:00"
     const missionDateStr = m.mission_date.split('T')[0];
-    return missionDateStr === todayStr;
+    return missionDateStr === targetDateStr;
   }).sort((a, b) => ((a as any).mission_option || 1) - ((b as any).mission_option || 1));
 
-  const dayOfWeek = today.getDay();
+  const dayOfWeek = targetDate.getDay();
   const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
   useEffect(() => {
@@ -69,6 +75,12 @@ const TodayFocusMode = () => {
   // Auto-generate missions if not enough (less than 3) or none - only once per mount
   useEffect(() => {
     const autoGenerateMissions = async () => {
+      // Don't auto-generate if viewing past date
+      if (isViewingPast) {
+        console.log('📅 Viewing past date, skip auto-generation');
+        return;
+      }
+      
       // ถ้ามี refresh=true แสดงว่าเพิ่งกลับจากทำภารกิจ
       // รอให้ข้อมูล sync ก่อน และ fetch ใหม่
       if (needsRefresh) {
@@ -106,7 +118,7 @@ const TodayFocusMode = () => {
     };
     
     autoGenerateMissions();
-  }, [userId, isLoading, isGenerating, todayMissions.length, isWeekend, needsRefresh, searchParams, navigate]);
+  }, [userId, isLoading, isGenerating, todayMissions.length, isWeekend, needsRefresh, searchParams, navigate, isViewingPast]);
 
   // Retry pending mission results from localStorage
   useEffect(() => {
@@ -444,15 +456,19 @@ const TodayFocusMode = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <Calendar className="w-8 h-8 text-yellow-400" />
+            {isViewingPast ? (
+              <History className="w-8 h-8 text-blue-400" />
+            ) : (
+              <Calendar className="w-8 h-8 text-yellow-400" />
+            )}
             <h1 className="text-3xl font-bold text-white">
-              Today Focus Mode
+              {isViewingPast ? 'ประวัติภารกิจ' : 'Today Focus Mode'}
             </h1>
           </div>
           <p className="text-slate-300 text-lg">
-            {new Date().toLocaleDateString('th-TH', { 
+            {targetDate.toLocaleDateString('th-TH', { 
               weekday: 'long', 
-              year: 'numeric', 
+              year: 'numeric',
               month: 'long', 
               day: 'numeric' 
             })}
@@ -520,15 +536,20 @@ const TodayFocusMode = () => {
               <Card
                 key={mission.id}
                 className={cn(
-                  "cursor-pointer transition-all duration-300 hover:scale-105 border-2 relative overflow-hidden",
-                  selectedMission?.id === mission.id
+                  "transition-all duration-300 border-2 relative overflow-hidden",
+                  isViewingPast 
+                    ? "bg-slate-800 border-slate-600 cursor-default"
+                    : "cursor-pointer hover:scale-105",
+                  !isViewingPast && selectedMission?.id === mission.id
                     ? "bg-gradient-to-br from-blue-600 to-purple-600 border-yellow-400 shadow-2xl shadow-blue-500/50 ring-4 ring-yellow-400/30"
-                    : isMissionCompleted(mission)
+                    : !isViewingPast && isMissionCompleted(mission)
                     ? "bg-slate-800 border-green-500"
-                    : "bg-slate-800/90 border-slate-700 hover:bg-slate-800"
+                    : !isViewingPast
+                    ? "bg-slate-800/90 border-slate-700 hover:bg-slate-800"
+                    : ""
                 )}
                 onClick={() => {
-                  if (!isMissionCompleted(mission) || mission.can_retry) {
+                  if (!isViewingPast && (!isMissionCompleted(mission) || mission.can_retry)) {
                     setSelectedMission(mission);
                   }
                 }}
@@ -633,38 +654,65 @@ const TodayFocusMode = () => {
             ))}
           </div>
 
-          {/* Start Button */}
+          {/* Action Buttons - Different for View Mode vs Today Mode */}
           <div className="flex flex-col items-center gap-3">
-            <Button
-              onClick={() => handleStartMission(selectedMission)}
-              disabled={!selectedMission}
-              size="lg"
-              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold px-12 disabled:opacity-50"
-            >
-              <Zap className="w-5 h-5 mr-2" />
-              {selectedMission?.status === 'completed' ? 'ทำภารกิจอีกครั้ง' : 'เริ่มภารกิจที่เลือก'}
-            </Button>
+            {!isViewingPast ? (
+              <>
+                {/* Today Mode: Show start and regenerate buttons */}
+                <Button
+                  onClick={() => handleStartMission(selectedMission)}
+                  disabled={!selectedMission}
+                  size="lg"
+                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold px-12 disabled:opacity-50"
+                >
+                  <Zap className="w-5 h-5 mr-2" />
+                  {selectedMission?.status === 'completed' ? 'ทำภารกิจอีกครั้ง' : 'เริ่มภารกิจที่เลือก'}
+                </Button>
 
-            {/* Regenerate Button */}
-            <Button
-              onClick={handleRegenerateMissions}
-              disabled={isGenerating}
-              variant="outline"
-              size="sm"
-              className="text-white font-semibold border-slate-400 bg-slate-800 hover:bg-slate-700"
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  กำลังสร้างภารกิจใหม่...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  สร้างภารกิจใหม่
-                </>
-              )}
-            </Button>
+                {/* Regenerate Button */}
+                <Button
+                  onClick={handleRegenerateMissions}
+                  disabled={isGenerating}
+                  variant="outline"
+                  size="sm"
+                  className="text-white font-semibold border-slate-400 bg-slate-800 hover:bg-slate-700"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      กำลังสร้างภารกิจใหม่...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      สร้างภารกิจใหม่
+                    </>
+                  )}
+                </Button>
+              </>
+            ) : (
+              <>
+                {/* View Mode: Show navigation buttons */}
+                <Button
+                  size="lg"
+                  onClick={() => navigate('/today-mission')}
+                  className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold px-12 shadow-xl hover:shadow-2xl hover:scale-105"
+                >
+                  <Calendar className="w-5 h-5 mr-2" />
+                  ไปยังภารกิจวันนี้
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => navigate('/training-calendar')}
+                  className="text-white font-semibold border-slate-400 bg-slate-800 hover:bg-slate-700"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  กลับสู่ปฏิทิน
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>
