@@ -1,0 +1,18 @@
+{
+  "title": "Board Counting",
+  "subtitle": "Drag the Number",
+  "header": "Count the Objects!",
+  "age": "Age 4+",
+  "score": "Score",
+  "correct": "Great job! 🎉",
+  "tryAgain": "Try again!",
+  "dragHint": "Drag the correct number to the box",
+  "objects": {
+    "rockingHorse": "Rocking Horse",
+    "caterpillar": "Caterpillar",
+    "teddyBear": "Teddy Bear",
+    "ball": "Ball",
+    "rocket": "Rocket",
+    "dinosaur": "Dinosaur"
+  }
+}
