@@ -28,6 +28,7 @@ import stemprogressTh from '../locales/th/stemprogress.json';
 import trainingCalendarTh from '../locales/th/trainingCalendar.json';
 import flowermathTh from '../locales/th/flowermath.json';
 import balloonmathTh from '../locales/th/balloonmath.json';
+import countingchallengeTh from '../locales/th/countingchallenge.json';
 
 import commonEn from '../locales/en/common.json';
 import headerEn from '../locales/en/header.json';
@@ -54,6 +55,7 @@ import stemprogressEn from '../locales/en/stemprogress.json';
 import trainingCalendarEn from '../locales/en/trainingCalendar.json';
 import flowermathEn from '../locales/en/flowermath.json';
 import balloonmathEn from '../locales/en/balloonmath.json';
+import countingchallengeEn from '../locales/en/countingchallenge.json';
 
 const resources = {
   th: {
@@ -82,6 +84,7 @@ const resources = {
     trainingCalendar: trainingCalendarTh,
     flowermath: flowermathTh,
     balloonmath: balloonmathTh,
+    countingchallenge: countingchallengeTh,
   },
   en: {
     common: commonEn,
@@ -109,6 +112,7 @@ const resources = {
     trainingCalendar: trainingCalendarEn,
     flowermath: flowermathEn,
     balloonmath: balloonmathEn,
+    countingchallenge: countingchallengeEn,
   }
 };
 

@@ -158,6 +158,10 @@
     "balloonMath": {
       "title": "Balloon Pop Math",
       "desc": "Learn addition with balloons (Age 4+)"
+    },
+    "countingChallenge": {
+      "title": "Counting Challenge",
+      "desc": "Practice counting with split-screen games (Age 3+)"
     }
   }
 }

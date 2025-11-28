@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Plus, Minus, X, Divide, Sigma, Table, Clock, Ruler, Scale, Zap, Eye, Hash, Shapes, Percent, ArrowLeftRight, Calculator, Link2, BarChart3, Layers, Brain, Grid3x3, Coins, GripVertical, Pin } from 'lucide-react';
+import { Plus, Minus, X, Divide, Sigma, Table, Clock, Ruler, Scale, Zap, Eye, Hash, Shapes, Percent, ArrowLeftRight, Calculator, Link2, BarChart3, Layers, Brain, Grid3x3, Coins, GripVertical, Pin, Target } from 'lucide-react';
 import {
   DndContext,
   closestCenter,
@@ -77,6 +77,16 @@ const getDefaultSkills = (t: any): Skill[] => [
     hrefPreview: '/balloon-math',
     mascotImage: additionMascot,
     translationKey: 'balloonMath',
+    category: 'interactive-games'
+  }, {
+    icon: Target,
+    title: t('skills.countingChallenge.title'),
+    desc: t('skills.countingChallenge.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-purple-500 via-pink-500 to-rose-500',
+    textColor: 'text-white',
+    sticker: '🐠',
+    hrefPreview: '/counting-challenge',
+    translationKey: 'countingChallenge',
     category: 'interactive-games'
   }, {
     icon: Shapes,
