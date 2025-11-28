@@ -28,6 +28,7 @@ import FractionShapesApp from "./pages/FractionShapesApp";
 import FlowerMathApp from "./pages/FlowerMathApp";
 import BalloonMathApp from "./pages/BalloonMathApp";
 import CountingChallengeApp from "./pages/CountingChallengeApp";
+import CompareStarsApp from "./pages/CompareStarsApp";
 import BackgroundRemoverPage from "./pages/BackgroundRemover";
 import ParentDashboard from "./pages/ParentDashboard";
 import ChildProgressDashboard from "./pages/ChildProgressDashboard";
@@ -345,6 +346,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <CountingChallengeApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/compare-stars" 
+            element={
+              <ProtectedRoute>
+                <CompareStarsApp />
               </ProtectedRoute>
             } 
           />

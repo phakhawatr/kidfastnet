@@ -162,6 +162,10 @@
     "countingChallenge": {
       "title": "Counting Challenge",
       "desc": "Practice counting with split-screen games (Age 3+)"
+    },
+    "compareStars": {
+      "title": "Compare Stars",
+      "desc": "Greater than, Equal to, Less than (Age 4+)"
     }
   }
 }
