@@ -6,7 +6,7 @@ interface CountingObjectsProps {
 }
 
 const RockingHorse = () => (
-  <svg width="80" height="70" viewBox="0 0 80 70" className="animate-pulse">
+  <svg width="100" height="90" viewBox="0 0 80 70" className="animate-pulse">
     <path d="M10,60 Q40,70 70,60" stroke="#dc2626" strokeWidth="6" fill="none" strokeLinecap="round" />
     <ellipse cx="40" cy="35" rx="25" ry="18" fill="#c97a3b" />
     <ellipse cx="18" cy="20" rx="12" ry="15" fill="#c97a3b" />
@@ -21,7 +21,7 @@ const RockingHorse = () => (
 );
 
 const Caterpillar = () => (
-  <svg width="80" height="60" viewBox="0 0 80 60" className="animate-pulse">
+  <svg width="100" height="80" viewBox="0 0 80 60" className="animate-pulse">
     <circle cx="15" cy="30" r="12" fill="#86efac" />
     <circle cx="30" cy="30" r="12" fill="#4ade80" />
     <circle cx="45" cy="30" r="12" fill="#22c55e" />
@@ -39,7 +39,7 @@ const Caterpillar = () => (
 );
 
 const TeddyBear = () => (
-  <svg width="70" height="80" viewBox="0 0 70 80" className="animate-pulse">
+  <svg width="90" height="100" viewBox="0 0 70 80" className="animate-pulse">
     <circle cx="20" cy="15" r="10" fill="#a16b4a" />
     <circle cx="50" cy="15" r="10" fill="#a16b4a" />
     <ellipse cx="35" cy="30" rx="20" ry="22" fill="#c97a3b" />
@@ -57,7 +57,7 @@ const TeddyBear = () => (
 );
 
 const Ball = () => (
-  <svg width="60" height="60" viewBox="0 0 60 60" className="animate-bounce">
+  <svg width="80" height="80" viewBox="0 0 60 60" className="animate-bounce">
     <circle cx="30" cy="30" r="26" fill="#ef4444" />
     <path d="M30,4 Q40,30 30,56" fill="#fbbf24" />
     <path d="M30,4 Q20,30 30,56" fill="#3b82f6" />
@@ -68,7 +68,7 @@ const Ball = () => (
 );
 
 const Rocket = () => (
-  <svg width="60" height="80" viewBox="0 0 60 80" className="animate-pulse">
+  <svg width="80" height="100" viewBox="0 0 60 80" className="animate-pulse">
     <polygon points="30,5 40,25 20,25" fill="#dc2626" />
     <rect x="20" y="25" width="20" height="30" fill="#ef4444" rx="2" />
     <circle cx="30" cy="35" r="6" fill="#3b82f6" />
@@ -82,7 +82,7 @@ const Rocket = () => (
 );
 
 const Dinosaur = () => (
-  <svg width="80" height="70" viewBox="0 0 80 70" className="animate-pulse">
+  <svg width="100" height="90" viewBox="0 0 80 70" className="animate-pulse">
     <ellipse cx="50" cy="45" rx="22" ry="18" fill="#86efac" />
     <ellipse cx="25" cy="30" rx="15" ry="18" fill="#86efac" />
     <circle cx="20" cy="25" r="3" fill="black" />
