@@ -8,6 +8,7 @@ import BeachBackground from '@/components/BeachBackground';
 import MascotCharacters from '@/components/MascotCharacters';
 import { ChalkboardGame } from '@/components/ChalkboardGame';
 import { useMissionMode } from '@/hooks/useMissionMode';
+import { useRecentApps } from '@/hooks/useRecentApps';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
@@ -18,6 +19,11 @@ export default function BoardCountingApp() {
   const [searchParams] = useSearchParams();
   const missionId = searchParams.get('missionId');
   const autoStart = searchParams.get('autoStart') === 'true';
+  const { trackAppUsage } = useRecentApps();
+  
+  useEffect(() => {
+    trackAppUsage('board-counting');
+  }, []);
 
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
   const [gameStarted, setGameStarted] = useState(false);

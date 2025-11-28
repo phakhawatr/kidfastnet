@@ -9,6 +9,8 @@ import { useAuth } from '../hooks/useAuth';
 import { useAchievements } from '../hooks/useAchievements';
 import { useTeacherRole } from '../hooks/useTeacherRole';
 import { useTrainingCalendar } from '../hooks/useTrainingCalendar';
+import { useRecentApps } from '../hooks/useRecentApps';
+import { appRegistry } from '../config/appRegistry';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
@@ -110,6 +112,7 @@ const Profile = () => {
   const { isTeacher, isLoading: teacherLoading } = useTeacherRole(registrationId);
   
   const { userAchievements, getAchievementProgress } = useAchievements(registrationId || null);
+  const { recentApps, clearHistory } = useRecentApps();
   
   // Training calendar data
   const { 
@@ -1349,40 +1352,56 @@ const Profile = () => {
 
         {/* Recent Learning Apps */}
         <div className="card-glass p-6 mb-6">
-          <h2 className="text-xl font-bold text-[hsl(var(--text-primary))] mb-4">
-            {t('recentApps.title')}
-          </h2>
-          <div className="flex gap-4 overflow-x-auto pb-2">
-            {[
-              { nameKey: 'recentApps.addition', icon: '➕', color: 'bg-gradient-to-br from-pink-200 to-pink-300', link: '/addition' },
-              { nameKey: 'recentApps.subtraction', icon: '➖', color: 'bg-gradient-to-br from-blue-200 to-blue-300', link: '/subtraction' },
-              { nameKey: 'recentApps.multiplication', icon: '✖️', color: 'bg-gradient-to-br from-purple-200 to-purple-300', link: '/multiply' },
-              { nameKey: 'recentApps.division', icon: '➗', color: 'bg-gradient-to-br from-green-200 to-green-300', link: '/division' },
-              { nameKey: 'recentApps.shapeSeries', icon: '🔄', color: 'bg-gradient-to-br from-violet-200 to-violet-300', link: '/shape-series' },
-              { nameKey: 'recentApps.fractions', icon: '🍕', color: 'bg-gradient-to-br from-orange-200 to-orange-300', link: '/fraction-matching' },
-              { nameKey: 'recentApps.time', icon: '🕐', color: 'bg-gradient-to-br from-cyan-200 to-cyan-300', link: '/time' },
-              { nameKey: 'recentApps.weight', icon: '⚖️', color: 'bg-gradient-to-br from-yellow-200 to-yellow-300', link: '/weighing' },
-              { nameKey: 'recentApps.shapes', icon: '🔷', color: 'bg-gradient-to-br from-indigo-200 to-indigo-300', link: '/shape-matching' },
-              { nameKey: 'recentApps.length', icon: '📏', color: 'bg-gradient-to-br from-teal-200 to-teal-300', link: '/length-comparison' },
-              { nameKey: 'recentApps.quickMath', icon: '⚡', color: 'bg-gradient-to-br from-red-200 to-red-300', link: '/quick-math' }
-            ].map((app, index) => (
-              <Link 
-                key={index} 
-                to={app.link}
-                className="flex-shrink-0 text-center"
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-[hsl(var(--text-primary))]">
+              {t('recentApps.title')}
+            </h2>
+            {recentApps.length > 0 && (
+              <button
+                onClick={clearHistory}
+                className="text-xs text-[hsl(var(--text-muted))] hover:text-[hsl(var(--text-primary))] transition-colors"
               >
-                <div 
-                  className={`${app.color} rounded-full w-20 h-20 flex items-center justify-center text-3xl border-3 border-white shadow-lg hover:scale-110 transition-transform duration-300 cursor-pointer mb-2`}
-                  title={t(app.nameKey)}
-                >
-                  {app.icon}
-                </div>
-                <div className="text-xs font-medium text-[hsl(var(--text-primary))] max-w-[80px] truncate">
-                  {t(app.nameKey)}
-                </div>
-              </Link>
-            ))}
+                {t('recentApps.clearHistory')}
+              </button>
+            )}
           </div>
+          
+          {recentApps.length > 0 ? (
+            <div className="flex gap-4 overflow-x-auto pb-2">
+              {recentApps.map((app) => {
+                const appInfo = appRegistry[app.appId];
+                if (!appInfo) return null;
+                
+                return (
+                  <Link 
+                    key={app.appId} 
+                    to={appInfo.link}
+                    className="flex-shrink-0 text-center"
+                  >
+                    <div 
+                      className={`${appInfo.color} rounded-full w-20 h-20 flex items-center justify-center text-3xl border-3 border-white shadow-lg hover:scale-110 transition-transform duration-300 cursor-pointer mb-2`}
+                      title={t(appInfo.nameKey)}
+                    >
+                      {appInfo.icon}
+                    </div>
+                    <div className="text-xs font-medium text-[hsl(var(--text-primary))] max-w-[80px] truncate">
+                      {t(appInfo.nameKey)}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <div className="text-4xl mb-3">🎯</div>
+              <h3 className="text-lg font-semibold text-[hsl(var(--text-primary))] mb-2">
+                {t('recentApps.emptyTitle')}
+              </h3>
+              <p className="text-sm text-[hsl(var(--text-muted))] max-w-md mx-auto">
+                {t('recentApps.emptyDescription')}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Grade Progress */}

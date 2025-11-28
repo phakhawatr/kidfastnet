@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeft, RotateCcw, CheckCircle, Eye, Clock } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useMissionMode } from '@/hooks/useMissionMode';
+import { useRecentApps } from '@/hooks/useRecentApps';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 // Object types for measurement problems
@@ -303,6 +304,11 @@ const ProblemCard: React.FC<{
 export default function QuickMathApp() {
   const { t } = useTranslation('exercises');
   const [searchParams] = useSearchParams();
+  const { trackAppUsage } = useRecentApps();
+  
+  useEffect(() => {
+    trackAppUsage('quick-math');
+  }, []);
   
   // Mission mode
   const {

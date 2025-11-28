@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Settings, RotateCcw, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,7 @@ import { formatTime, calculateStars, getEncouragement, checkBondAnswer } from '@
 import Confetti from 'react-confetti';
 import { useTranslation } from 'react-i18next';
 import { useMissionMode } from '@/hooks/useMissionMode';
+import { useRecentApps } from '@/hooks/useRecentApps';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 const NumberBondsApp = () => {
@@ -14,6 +15,11 @@ const NumberBondsApp = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [showSettings, setShowSettings] = useState(false);
+  const { trackAppUsage } = useRecentApps();
+  
+  useEffect(() => {
+    trackAppUsage('number-bonds');
+  }, []);
   
   // Mission mode
   const {

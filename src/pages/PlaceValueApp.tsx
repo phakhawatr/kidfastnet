@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMissionMode } from '@/hooks/useMissionMode';
+import { useRecentApps } from '@/hooks/useRecentApps';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 import { Home, Settings, RefreshCw, Eye, EyeOff, Award, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,11 @@ const PlaceValueApp = () => {
   const navigate = useNavigate();
   const { t } = useTranslation('exercises');
   const [searchParams] = useSearchParams();
+  const { trackAppUsage } = useRecentApps();
+  
+  useEffect(() => {
+    trackAppUsage('place-value');
+  }, []);
   
   // Mission mode
   const {

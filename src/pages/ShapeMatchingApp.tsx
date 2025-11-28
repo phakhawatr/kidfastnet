@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useTranslation } from 'react-i18next';
 import { useMissionMode } from '@/hooks/useMissionMode';
+import { useRecentApps } from '@/hooks/useRecentApps';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 interface ShapeMatchingPair {
@@ -89,6 +90,11 @@ const ShapeCard: React.FC<{
 const ShapeMatchingApp: React.FC = () => {
   const { t } = useTranslation('exercises');
   const [searchParams] = useSearchParams();
+  const { trackAppUsage } = useRecentApps();
+  
+  useEffect(() => {
+    trackAppUsage('shape-matching');
+  }, []);
   
   const {
     isMissionMode,

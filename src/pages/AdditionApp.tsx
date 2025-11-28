@@ -9,6 +9,7 @@ import { BackgroundMusic } from "../components/BackgroundMusic";
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useTrainingCalendar } from "@/hooks/useTrainingCalendar";
+import { useRecentApps } from "@/hooks/useRecentApps";
 import { MissionCompleteModal } from "@/components/MissionCompleteModal";
 import { toast } from "sonner";
 
@@ -346,9 +347,15 @@ export default function AdditionApp() {
   const { t } = useTranslation('exercises');
   const [searchParams] = useSearchParams();
   const { completeMission } = useTrainingCalendar();
+  const { trackAppUsage } = useRecentApps();
   
   // Get missionId from URL params
   const missionId = searchParams.get('missionId');
+  
+  // Track app usage on mount
+  useEffect(() => {
+    trackAppUsage('addition');
+  }, []);
   
   // Background music with 3 track options - beautiful instrumental music
   const backgroundMusic = useBackgroundMusic([

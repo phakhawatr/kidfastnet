@@ -8,12 +8,18 @@ import BeachBackground from '@/components/BeachBackground';
 import CompareStarsGame from '@/components/CompareStarsGame';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 import { useMissionMode } from '@/hooks/useMissionMode';
+import { useRecentApps } from '@/hooks/useRecentApps';
 import Confetti from 'react-confetti';
 
 export default function CompareStarsApp() {
   const { t } = useTranslation(['comparestars', 'common']);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { trackAppUsage } = useRecentApps();
+  
+  useEffect(() => {
+    trackAppUsage('compare-stars');
+  }, []);
   
   const {
     isMissionMode,

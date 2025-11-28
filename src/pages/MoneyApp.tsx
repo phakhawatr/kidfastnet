@@ -9,6 +9,7 @@ import Confetti from 'react-confetti';
 import { getCoinEmoji, getMoneyColor } from '../utils/moneyUtils';
 import { useTranslation } from 'react-i18next';
 import { useMissionMode } from '@/hooks/useMissionMode';
+import { useRecentApps } from '@/hooks/useRecentApps';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 // Import mascots and images
@@ -54,6 +55,11 @@ const MoneyApp = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [showSettings, setShowSettings] = useState(false);
+  const { trackAppUsage } = useRecentApps();
+  
+  useEffect(() => {
+    trackAppUsage('money');
+  }, []);
   
   // Mission mode integration
   const {
