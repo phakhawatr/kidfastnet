@@ -24,7 +24,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { SubscriptionTab } from '../components/SubscriptionTab';
-import ToastManager from '@/components/Toast';
+import { toast } from '@/hooks/use-toast';
 
 // Define recommendation categories (translations in profile.json)
 const recommendationCategories = {
@@ -626,9 +626,8 @@ const Profile = () => {
     }
 
     try {
-      ToastManager.show({
-        message: `กำลังส่งข้อความทดสอบไปยังผู้ปกครอง ${accountNumber}...`,
-        type: 'info'
+      toast({
+        title: `กำลังส่งข้อความทดสอบไปยังผู้ปกครอง ${accountNumber}...`,
       });
 
       const authStored = localStorage.getItem('kidfast_auth');
@@ -655,21 +654,20 @@ const Profile = () => {
       });
 
       if (error) {
-        ToastManager.show({
-          message: 'ส่งข้อความไม่สำเร็จ',
-          type: 'error'
+        toast({
+          title: 'ส่งข้อความไม่สำเร็จ',
+          variant: 'destructive'
         });
       } else {
-        ToastManager.show({
-          message: `ส่งข้อความทดสอบสำเร็จ!`,
-          type: 'success'
+        toast({
+          title: `ส่งข้อความทดสอบสำเร็จ!`,
         });
       }
     } catch (err) {
       console.error('Test message error:', err);
-      ToastManager.show({
-        message: 'เกิดข้อผิดพลาด',
-        type: 'error'
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        variant: 'destructive'
       });
     }
   };
