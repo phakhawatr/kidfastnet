@@ -30,6 +30,7 @@ import BalloonMathApp from "./pages/BalloonMathApp";
 import CountingChallengeApp from "./pages/CountingChallengeApp";
 import CompareStarsApp from "./pages/CompareStarsApp";
 import BoardCountingApp from "./pages/BoardCountingApp";
+import FruitCountingApp from "./pages/FruitCountingApp";
 import BackgroundRemoverPage from "./pages/BackgroundRemover";
 import ParentDashboard from "./pages/ParentDashboard";
 import ChildProgressDashboard from "./pages/ChildProgressDashboard";
@@ -363,6 +364,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <BoardCountingApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/fruit-counting" 
+            element={
+              <ProtectedRoute>
+                <FruitCountingApp />
               </ProtectedRoute>
             } 
           />

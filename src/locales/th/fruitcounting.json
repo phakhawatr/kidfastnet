@@ -1,0 +1,16 @@
+{
+  "title": "จับคู่ผลไม้ตามจำนวน",
+  "description": "ลากผลไม้ไปวางบนเงาที่มีตัวเลขตรงกัน",
+  "difficulty": "ระดับความยาก",
+  "easy": "ง่าย",
+  "medium": "ปานกลาง",
+  "hard": "ยาก",
+  "numberOfProblems": "จำนวนโจทย์",
+  "dragFruit": "ลากผลไม้",
+  "matchNumber": "ตามจำนวน",
+  "correct": "ถูกต้อง!",
+  "tryAgain": "ลองใหม่อีกครั้ง",
+  "excellent": "เยี่ยมมาก!",
+  "goodJob": "ดีมาก!",
+  "keepTrying": "พยายามต่อไป!"
+}

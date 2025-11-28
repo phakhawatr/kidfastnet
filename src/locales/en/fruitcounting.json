@@ -1,0 +1,16 @@
+{
+  "title": "Fruit Counting Match",
+  "description": "Drag fruits to match shadows with the correct numbers",
+  "difficulty": "Difficulty Level",
+  "easy": "Easy",
+  "medium": "Medium",
+  "hard": "Hard",
+  "numberOfProblems": "Number of Problems",
+  "dragFruit": "Drag Fruits",
+  "matchNumber": "By Number",
+  "correct": "Correct!",
+  "tryAgain": "Try Again",
+  "excellent": "Excellent!",
+  "goodJob": "Good Job!",
+  "keepTrying": "Keep Trying!"
+}
