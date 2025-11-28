@@ -89,6 +89,16 @@ const getDefaultSkills = (t: any): Skill[] => [
     translationKey: 'countingChallenge',
     category: 'interactive-games'
   }, {
+    icon: ArrowLeftRight,
+    title: t('skills.compareStars.title'),
+    desc: t('skills.compareStars.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500',
+    textColor: 'text-white',
+    sticker: '⭐',
+    hrefPreview: '/compare-stars',
+    translationKey: 'compareStars',
+    category: 'interactive-games'
+  }, {
     icon: Shapes,
     title: t('skills.shapeSeries.title'),
     desc: t('skills.shapeSeries.desc'),

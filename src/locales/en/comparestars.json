@@ -1,0 +1,18 @@
+{
+  "title": "Compare Stars",
+  "subtitle": "Greater, Equal, Less",
+  "header": "Compare Numbers!",
+  "age": "Age 4+",
+  "score": "Score",
+  "greaterThan": "Greater than",
+  "equalTo": "Equal to",
+  "lessThan": "Less than",
+  "correct": "Great job! 🎉",
+  "tryAgain": "Try again!",
+  "hint": "Count the stars and choose the correct symbol",
+  "difficulty": {
+    "easy": "Easy (1-5)",
+    "medium": "Medium (1-10)",
+    "hard": "Hard (1-20)"
+  }
+}
