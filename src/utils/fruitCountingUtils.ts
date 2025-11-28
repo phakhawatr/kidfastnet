@@ -1,4 +1,4 @@
-export type FruitType = 'apple' | 'grape' | 'banana' | 'orange';
+export type FruitType = 'apple' | 'grape' | 'banana' | 'orange' | 'strawberry' | 'cherry' | 'watermelon' | 'pear' | 'peach' | 'mango';
 
 export interface FruitProblem {
   id: string;
@@ -12,7 +12,7 @@ export interface FruitCountingProblem {
   shadows: FruitProblem[];
 }
 
-const allFruits: FruitType[] = ['apple', 'grape', 'banana', 'orange'];
+const allFruits: FruitType[] = ['apple', 'grape', 'banana', 'orange', 'strawberry', 'cherry', 'watermelon', 'pear', 'peach', 'mango'];
 
 export const generateFruitCountingProblem = (difficulty: string): FruitCountingProblem => {
   let numberOfPairs = 3;
@@ -26,7 +26,9 @@ export const generateFruitCountingProblem = (difficulty: string): FruitCountingP
     maxNumber = 10;
   }
 
-  const selectedFruits = allFruits.slice(0, numberOfPairs);
+  // Shuffle fruits before selecting to ensure variety
+  const shuffledFruits = [...allFruits].sort(() => Math.random() - 0.5);
+  const selectedFruits = shuffledFruits.slice(0, numberOfPairs);
   const usedNumbers = new Set<number>();
   
   const fruits: FruitProblem[] = selectedFruits.map((fruitType, index) => {
