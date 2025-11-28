@@ -1,5 +1,6 @@
 const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
 const ACTIVITY_CHECK_INTERVAL = 60 * 1000; // Check every minute
+const SESSION_TIMEOUT_ENABLED = false; // Disabled: Login persists until explicit logout
 
 class SessionManager {
   private timeoutId: NodeJS.Timeout | null = null;
@@ -8,6 +9,11 @@ class SessionManager {
   private onTimeout: (() => void) | null = null;
 
   startSession(onTimeoutCallback: () => void): void {
+    // Session timeout disabled - login persists until explicit logout
+    if (!SESSION_TIMEOUT_ENABLED) {
+      return;
+    }
+    
     this.onTimeout = onTimeoutCallback;
     this.lastActivity = Date.now();
     this.resetTimeout();

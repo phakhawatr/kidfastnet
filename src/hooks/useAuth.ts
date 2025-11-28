@@ -47,15 +47,6 @@ export const useAuth = () => {
           setTimeout(() => {
             fetchUserProfile(session.user.id);
           }, 0);
-          
-          // Start session timeout monitoring
-          sessionManager.startSession(() => {
-            ToastManager.show({
-              message: 'เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่',
-              type: 'info'
-            });
-            logout();
-          });
         } else {
           // Fallback: Check localStorage auth
           const lastEmail = localStorage.getItem('kidfast_last_email');
@@ -105,15 +96,6 @@ export const useAuth = () => {
         setTimeout(() => {
           fetchUserProfile(session.user.id);
         }, 0);
-        
-        // Start session timeout monitoring for existing session
-        sessionManager.startSession(() => {
-          ToastManager.show({
-            message: 'เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่',
-            type: 'info'
-          });
-          logout();
-        });
       } else {
         // Fallback: Check localStorage auth and fetch AI features
         const lastEmail = localStorage.getItem('kidfast_last_email');
