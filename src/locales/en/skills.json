@@ -9,6 +9,11 @@
   "pinSuccess": "Pinned successfully",
   "unpinSuccess": "Unpinned successfully",
   "pinnedCount": "{{count}} pinned",
+  "category": {
+    "interactiveGames": "Interactive Math Games",
+    "basics": "Basic Math Skills",
+    "advanced": "Advanced Skills"
+  },
   "skills": {
     "counting": {
       "title": "Counting",
