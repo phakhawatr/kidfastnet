@@ -462,7 +462,10 @@ const Profile = () => {
       // Trim and validate nickname
       const trimmedNickname = nickname.trim();
       if (!trimmedNickname) {
-        alert(t('alerts.nicknameRequired'));
+        toast({
+          title: t('alerts.nicknameRequired'),
+          variant: 'destructive'
+        });
         setIsSavingProfile(false);
         return;
       }
@@ -493,15 +496,21 @@ const Profile = () => {
       setStudentClass(trimmedClass);
       setSchoolName(trimmedSchool);
       
-      // Show success message
-      alert(t('alerts.saveSuccess'));
+      // Show success message with beautiful toast
+      toast({
+        title: '✅ ' + t('alerts.saveSuccess'),
+        description: 'ข้อมูลของคุณได้รับการอัปเดตเรียบร้อยแล้ว',
+      });
       
       // Close edit mode
       setIsSavingProfile(false);
       setIsEditingProfile(false);
     } catch (e) {
       console.error('Error saving profile:', e);
-      alert(t('alerts.saveError', { message: e instanceof Error ? e.message : 'กรุณาลองใหม่อีกครั้ง' }));
+      toast({
+        title: t('alerts.saveError', { message: e instanceof Error ? e.message : 'กรุณาลองใหม่อีกครั้ง' }),
+        variant: 'destructive'
+      });
       setIsSavingProfile(false);
     }
   };
@@ -525,7 +534,10 @@ const Profile = () => {
       });
 
       if (error || !data.linkCode) {
-        alert(t('alerts.linkCodeError'));
+        toast({
+          title: t('alerts.linkCodeError'),
+          variant: 'destructive'
+        });
         return;
       }
 
@@ -569,7 +581,10 @@ const Profile = () => {
           
           setShowLinkCodeDialog(false);
           setIsLinking(false);
-          alert(t('alerts.linkSuccess'));
+          toast({
+            title: '✅ ' + t('alerts.linkSuccess'),
+            description: 'เชื่อมต่อบัญชี LINE สำเร็จแล้ว',
+          });
           window.location.reload();
         }
       }, 3000);
@@ -578,12 +593,15 @@ const Profile = () => {
       return () => clearInterval(checkInterval);
     } catch (err) {
       console.error('Connect LINE error:', err);
-      alert(t('alerts.linkError'));
+      toast({
+        title: t('alerts.linkError'),
+        variant: 'destructive'
+      });
     }
   };
 
   const handleDisconnectLine = async (accountNumber: 1 | 2 = 1) => {
-    const confirmed = confirm(t('alerts.disconnectConfirm'));
+    const confirmed = window.confirm(t('alerts.disconnectConfirm'));
     if (!confirmed) return;
 
     try {
@@ -609,11 +627,17 @@ const Profile = () => {
         setLineUserId('');
         setLineDisplayName('');
         setLinePictureUrl('');
-        alert(t('alerts.disconnectSuccess'));
+        toast({
+          title: '✅ ' + t('alerts.disconnectSuccess'),
+          description: 'ยกเลิกการเชื่อมต่อ LINE สำเร็จแล้ว',
+        });
       }
     } catch (err) {
       console.error('Disconnect LINE error:', err);
-      alert(t('alerts.disconnectError'));
+      toast({
+        title: t('alerts.disconnectError'),
+        variant: 'destructive'
+      });
     }
   };
 
@@ -621,7 +645,10 @@ const Profile = () => {
     const lineId = accountNumber === 1 ? lineUserId : lineUserId2;
     
     if (!lineId) {
-      alert(t('alerts.connectLineFirst'));
+      toast({
+        title: t('alerts.connectLineFirst'),
+        variant: 'destructive'
+      });
       return;
     }
 
