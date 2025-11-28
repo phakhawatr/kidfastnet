@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Home, RotateCcw } from 'lucide-react';
 import { WoodTableBackground } from '@/components/WoodTableBackground';
-import { FruitShadowGame } from '@/components/FruitShadowGame';
+import { FruitCountingGame } from '@/components/FruitCountingGame';
 import { useFruitCounting } from '@/hooks/useFruitCounting';
 import { useMissionMode } from '@/hooks/useMissionMode';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
@@ -234,7 +234,7 @@ export default function FruitCountingApp() {
         </Button>
       </div>
 
-      <FruitShadowGame
+      <FruitCountingGame
         problem={currentProblem}
         matches={matches}
         onMatch={handleMatch}

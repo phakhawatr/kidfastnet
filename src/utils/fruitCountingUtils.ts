@@ -1,53 +1,51 @@
 export type FruitType = 'apple' | 'grape' | 'banana' | 'orange' | 'strawberry' | 'cherry' | 'watermelon' | 'pear' | 'peach' | 'mango';
 
-export interface FruitProblem {
+export interface FruitGroup {
   id: string;
   fruitType: FruitType;
-  number: number;
-  shadowId: string;
+  count: number; // จำนวนผลไม้ที่แสดง
 }
 
 export interface FruitCountingProblem {
-  fruits: FruitProblem[];
-  shadows: FruitProblem[];
+  fruitGroups: FruitGroup[];
+  numberChoices: number[]; // ตัวเลขที่ต้องจับคู่
 }
 
 const allFruits: FruitType[] = ['apple', 'grape', 'banana', 'orange', 'strawberry', 'cherry', 'watermelon', 'pear', 'peach', 'mango'];
 
 export const generateFruitCountingProblem = (difficulty: string): FruitCountingProblem => {
-  let numberOfPairs = 3;
-  let maxNumber = 5;
+  let numberOfGroups = 3;
+  let maxCount = 5;
 
   if (difficulty === 'medium') {
-    numberOfPairs = 4;
-    maxNumber = 8;
+    numberOfGroups = 4;
+    maxCount = 8;
   } else if (difficulty === 'hard') {
-    numberOfPairs = 5;
-    maxNumber = 10;
+    numberOfGroups = 5;
+    maxCount = 10;
   }
 
   // Shuffle fruits before selecting to ensure variety
   const shuffledFruits = [...allFruits].sort(() => Math.random() - 0.5);
-  const selectedFruits = shuffledFruits.slice(0, numberOfPairs);
-  const usedNumbers = new Set<number>();
+  const selectedFruits = shuffledFruits.slice(0, numberOfGroups);
+  const usedCounts = new Set<number>();
   
-  const fruits: FruitProblem[] = selectedFruits.map((fruitType, index) => {
-    let number: number;
+  const fruitGroups: FruitGroup[] = selectedFruits.map((fruitType, index) => {
+    let count: number;
     do {
-      number = Math.floor(Math.random() * maxNumber) + 1;
-    } while (usedNumbers.has(number));
-    usedNumbers.add(number);
+      count = Math.floor(Math.random() * maxCount) + 1;
+    } while (usedCounts.has(count));
+    usedCounts.add(count);
 
     return {
-      id: `fruit-${index}`,
+      id: `group-${index}`,
       fruitType,
-      number,
-      shadowId: `shadow-${index}`,
+      count,
     };
   });
 
-  // Shuffle shadows for challenge
-  const shadows = [...fruits].sort(() => Math.random() - 0.5);
+  // สร้างตัวเลือกตัวเลข และ shuffle
+  const numberChoices = fruitGroups.map(g => g.count).sort(() => Math.random() - 0.5);
 
-  return { fruits, shadows };
+  return { fruitGroups, numberChoices };
 };
