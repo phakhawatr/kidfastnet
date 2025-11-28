@@ -2,31 +2,31 @@ import { useState, useEffect } from 'react';
 import { DndContext, DragEndEvent } from '@dnd-kit/core';
 import Confetti from 'react-confetti';
 import { PaperCard } from './PaperCard';
-import { DraggableFruit } from './DraggableFruit';
-import { FruitShadow } from './FruitShadow';
+import { FruitGroup } from './FruitGroup';
+import { NumberTarget } from './NumberTarget';
 import { FruitCountingProblem } from '@/utils/fruitCountingUtils';
 
-interface FruitShadowGameProps {
+interface FruitCountingGameProps {
   problem: FruitCountingProblem;
-  matches: Record<string, string>;
-  onMatch: (fruitId: string, shadowId: string) => boolean;
+  matches: Record<string, number>; // groupId -> number
+  onMatch: (groupId: string, number: number) => boolean;
   onComplete: () => void;
 }
 
-export const FruitShadowGame = ({ problem, matches, onMatch, onComplete }: FruitShadowGameProps) => {
+export const FruitCountingGame = ({ problem, matches, onMatch, onComplete }: FruitCountingGameProps) => {
   const [showConfetti, setShowConfetti] = useState(false);
   const [wrongMatch, setWrongMatch] = useState(false);
   const [showHandGuide, setShowHandGuide] = useState(true);
 
   useEffect(() => {
-    if (problem.fruits.length === Object.keys(matches).length) {
+    if (problem.fruitGroups.length === Object.keys(matches).length) {
       setShowConfetti(true);
       setTimeout(() => {
         setShowConfetti(false);
         onComplete();
       }, 2000);
     }
-  }, [matches, problem.fruits.length, onComplete]);
+  }, [matches, problem.fruitGroups.length, onComplete]);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowHandGuide(false), 3000);
@@ -37,7 +37,11 @@ export const FruitShadowGame = ({ problem, matches, onMatch, onComplete }: Fruit
     const { active, over } = event;
 
     if (over) {
-      const isCorrect = onMatch(active.id as string, over.id as string);
+      const groupId = active.id as string;
+      const numberId = over.id as string;
+      const number = parseInt(numberId.replace('number-', ''));
+      
+      const isCorrect = onMatch(groupId, number);
       
       if (isCorrect) {
         setShowConfetti(true);
@@ -56,47 +60,44 @@ export const FruitShadowGame = ({ problem, matches, onMatch, onComplete }: Fruit
       <DndContext onDragEnd={handleDragEnd}>
         <PaperCard rotation={Math.random() * 2 - 1}>
           <div className={`grid grid-cols-2 gap-12 ${wrongMatch ? 'animate-shake' : ''}`}>
-            {/* Left side - Draggable Fruits */}
+            {/* Left side - Fruit Groups */}
             <div className="flex flex-col gap-6 items-center justify-center">
               <h3 
                 className="text-2xl font-bold text-slate-700 mb-4"
                 style={{ fontFamily: "'Varela Round', sans-serif" }}
               >
-                ลากผลไม้ไปจับคู่
+                นับผลไม้แล้วลาก
               </h3>
-              <div className="flex flex-col gap-6">
-                {problem.fruits.map((fruit) => (
-                  <DraggableFruit
-                    key={fruit.id}
-                    id={fruit.id}
-                    fruitType={fruit.fruitType}
-                    isMatched={!!matches[fruit.id]}
+              <div className="flex flex-col gap-4">
+                {problem.fruitGroups.map((group) => (
+                  <FruitGroup
+                    key={group.id}
+                    id={group.id}
+                    fruitType={group.fruitType}
+                    count={group.count}
+                    isMatched={!!matches[group.id]}
                   />
                 ))}
               </div>
             </div>
 
-            {/* Right side - Shadow Targets */}
+            {/* Right side - Number Targets */}
             <div className="flex flex-col gap-6 items-center justify-center">
               <h3 
                 className="text-2xl font-bold text-slate-700 mb-4"
                 style={{ fontFamily: "'Varela Round', sans-serif" }}
               >
-                ตามจำนวน
+                วางที่ตัวเลข
               </h3>
-              <div className="flex flex-col gap-6">
-                {problem.shadows.map((shadow) => {
-                  const matchedFruitId = Object.entries(matches).find(
-                    ([_, shadowId]) => shadowId === shadow.shadowId
-                  )?.[0];
+              <div className="flex flex-col gap-4">
+                {problem.numberChoices.map((number) => {
+                  const isMatched = Object.values(matches).includes(number);
                   
                   return (
-                    <FruitShadow
-                      key={shadow.shadowId}
-                      shadowId={shadow.shadowId}
-                      fruitType={shadow.fruitType}
-                      number={shadow.number}
-                      isMatched={!!matchedFruitId}
+                    <NumberTarget
+                      key={number}
+                      number={number}
+                      isMatched={isMatched}
                     />
                   );
                 })}
