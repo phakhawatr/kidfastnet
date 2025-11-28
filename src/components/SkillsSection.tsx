@@ -44,6 +44,7 @@ type Skill = {
   hrefPreview?: string;
   mascotImage?: string;
   translationKey?: string;
+  category?: 'basics' | 'interactive-games' | 'advanced';
 };
 
 interface SkillsSectionProps {
@@ -53,248 +54,280 @@ interface SkillsSectionProps {
   disableLinks?: boolean;
 }
 
-const getDefaultSkills = (t: any): Skill[] => [{
-  icon: Layers,
-  title: t('skills.placeValue.title'),
-  desc: t('skills.placeValue.desc'),
-  backgroundGradient: 'bg-gradient-to-br from-indigo-400 via-purple-500 to-pink-600',
-  textColor: 'text-white',
-  sticker: '🔢',
-  hrefPreview: '/place-value',
-  mascotImage: additionMascot,
-  translationKey: 'placeValue'
-}, {
-  icon: Brain,
-  title: t('skills.mentalMath.title'),
-  desc: t('skills.mentalMath.desc'),
-  backgroundGradient: 'bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600',
-  textColor: 'text-white',
-  sticker: '⚡',
-  hrefPreview: '/mental-math',
-  mascotImage: additionMascot,
-  translationKey: 'mentalMath'
-}, {
-  icon: Grid3x3,
-  title: t('skills.areaModel.title'),
-  desc: t('skills.areaModel.desc'),
-  backgroundGradient: 'bg-gradient-to-br from-orange-400 via-red-500 to-pink-600',
-  textColor: 'text-white',
-  sticker: '📐',
-  hrefPreview: '/area-model',
-  mascotImage: multiplicationMascot,
-  translationKey: 'areaModel'
-}, {
-  icon: Link2,
-  title: t('skills.numberBonds.title'),
-  desc: t('skills.numberBonds.desc'),
-  backgroundGradient: 'bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600',
-  textColor: 'text-white',
-  sticker: '🔗',
-  hrefPreview: '/number-bonds',
-  mascotImage: additionMascot,
-  translationKey: 'numberBonds'
-}, {
-  icon: BarChart3,
-  title: t('skills.barModel.title'),
-  desc: t('skills.barModel.desc'),
-  backgroundGradient: 'bg-gradient-to-br from-purple-400 via-fuchsia-500 to-pink-600',
-  textColor: 'text-white',
-  sticker: '📊',
-  hrefPreview: '/bar-model',
-  mascotImage: additionMascot,
-  translationKey: 'barModel'
-}, {
-  icon: Plus,
-  title: t('skills.addition.title'),
-  desc: t('skills.addition.desc'),
-  backgroundGradient: 'bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600',
-  textColor: 'text-white',
-  sticker: '🧮',
-  hrefPreview: '/addition',
-  mascotImage: additionMascot,
-  translationKey: 'addition'
-}, {
-  icon: Minus,
-  title: t('skills.subtraction.title'),
-  desc: t('skills.subtraction.desc'),
-  backgroundGradient: 'bg-gradient-to-br from-purple-400 via-purple-500 to-indigo-600',
-  textColor: 'text-white',
-  sticker: '🧠',
-  hrefPreview: '/subtraction',
-  mascotImage: subtractionMascot,
-  translationKey: 'subtraction'
-}, {
-  icon: X,
-  title: t('skills.multiplication.title'),
-  desc: t('skills.multiplication.desc'),
-  backgroundGradient: 'bg-gradient-to-br from-orange-400 via-orange-500 to-red-500',
-  textColor: 'text-white',
-  sticker: '🐯',
-  hrefPreview: '/multiply',
-  mascotImage: multiplicationMascot,
-  translationKey: 'multiplication'
-}, {
-  icon: Divide,
-  title: t('skills.division.title'),
-  desc: t('skills.division.desc'),
-  backgroundGradient: 'bg-gradient-to-br from-green-400 via-green-500 to-emerald-600',
-  textColor: 'text-white',
-  sticker: '🦊',
-  hrefPreview: '/division',
-  mascotImage: divisionMascot,
-  translationKey: 'division'
-}, {
-  icon: Sigma,
-  title: t('skills.numberSeries.title'),
-  desc: t('skills.numberSeries.desc'),
-  backgroundGradient: 'bg-gradient-to-br from-violet-400 via-purple-500 to-indigo-600',
-  textColor: 'text-white',
-  sticker: '🧩',
-  hrefPreview: '/NumberSeries',
-  translationKey: 'numberSeries'
-}, {
-  icon: Shapes,
-  title: t('skills.shapeSeries.title'),
-  desc: t('skills.shapeSeries.desc'),
-  backgroundGradient: 'bg-gradient-to-br from-fuchsia-400 via-violet-500 to-purple-600',
-  textColor: 'text-white',
-  sticker: '🔄',
-  hrefPreview: '/shape-series',
-  translationKey: 'shapeSeries'
-}, {
-  icon: Shapes,
-  title: t('skills.fractionShapes.title'),
-  desc: t('skills.fractionShapes.desc'),
-  backgroundGradient: 'bg-gradient-to-br from-amber-400 via-orange-500 to-red-600',
-  textColor: 'text-white',
-  sticker: '🧩',
-  hrefPreview: '/fraction-shapes',
-  mascotImage: fractionsMascot,
-  translationKey: 'fractionShapes'
-}, {
-  icon: Shapes,
-  title: t('skills.flowerMath.title'),
-  desc: t('skills.flowerMath.desc'),
-  backgroundGradient: 'bg-gradient-to-br from-pink-400 via-rose-500 to-fuchsia-600',
-  textColor: 'text-white',
-  sticker: '🌸',
-  hrefPreview: '/flower-math',
-  mascotImage: multiplicationMascot,
-  translationKey: 'flowerMath'
-}, {
-  icon: Table,
-  title: t('skills.multiplicationTable.title'),
-  desc: t('skills.multiplicationTable.desc'),
-  backgroundGradient: 'bg-gradient-to-br from-sky-400 via-cyan-500 to-teal-600',
-  textColor: 'text-white',
-  sticker: '🐼',
-  hrefPreview: '/multiplication-table',
-  translationKey: 'multiplicationTable'
-}, {
-  icon: Clock,
-  title: t('skills.time.title'),
-  desc: t('skills.time.desc'),
-  backgroundGradient: 'bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500',
-  textColor: 'text-white',
-  sticker: '⏰',
-  hrefPreview: '/time',
-  mascotImage: timeMascot,
-  translationKey: 'time'
-}, {
-  icon: Ruler,
-  title: t('skills.lengthComparison.title'),
-  desc: t('skills.lengthComparison.desc'),
-  backgroundGradient: 'bg-gradient-to-br from-pink-400 via-pink-500 to-fuchsia-600',
-  textColor: 'text-white',
-  sticker: '📏',
-  hrefPreview: '/measurement',
-  mascotImage: measurementMascot,
-  translationKey: 'lengthComparison'
-}, {
-  icon: Scale,
-  title: t('skills.weighing.title'),
-  desc: t('skills.weighing.desc'),
-  backgroundGradient: 'bg-gradient-to-br from-rose-400 via-pink-500 to-purple-600',
-  textColor: 'text-white',
-  sticker: '⚖️',
-  hrefPreview: '/weighing',
-  mascotImage: weighingMascot,
-  translationKey: 'weighing'
-}, {
-  icon: Zap,
-  title: t('skills.quickMath.title'),
-  desc: t('skills.quickMath.desc'),
-  backgroundGradient: 'bg-gradient-to-br from-slate-400 via-gray-500 to-zinc-600',
-  textColor: 'text-white',
-  sticker: '📏',
-  hrefPreview: '/quick-math',
-  translationKey: 'quickMath'
-}, {
-  icon: Hash,
-  title: t('skills.sumGrid.title'),
-  desc: t('skills.sumGrid.desc'),
-  backgroundGradient: 'bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600',
-  textColor: 'text-white',
-  sticker: '🔢',
-  hrefPreview: '/SumGridPuzzles',
-  translationKey: 'sumGrid'
-}, {
-  icon: Shapes,
-  title: t('skills.shapes.title'),
-  desc: t('skills.shapes.desc'),
-  backgroundGradient: 'bg-gradient-to-br from-teal-400 via-green-500 to-emerald-600',
-  textColor: 'text-white',
-  sticker: '🔷',
-  hrefPreview: '/shape-matching',
-  mascotImage: shapesMascot,
-  translationKey: 'shapes'
-}, {
-  icon: Calculator,
-  title: t('skills.fractions.title'),
-  desc: t('skills.fractions.desc'),
-  backgroundGradient: 'bg-gradient-to-br from-purple-400 via-violet-500 to-purple-600',
-  textColor: 'text-white',
-  sticker: '🍰',
-  hrefPreview: '/fraction-matching',
-  mascotImage: fractionsMascot,
-  translationKey: 'fractions'
-}, {
-  icon: Percent,
-  title: t('skills.percentage.title'),
-  desc: t('skills.percentage.desc'),
-  backgroundGradient: 'bg-gradient-to-br from-red-400 via-rose-500 to-pink-600',
-  textColor: 'text-white',
-  sticker: '💯',
-  hrefPreview: '/percentage',
-  translationKey: 'percentage'
-}, {
-  icon: ArrowLeftRight,
-  title: t('skills.lengthComparisonAlt.title'),
-  desc: t('skills.lengthComparisonAlt.desc'),
-  backgroundGradient: 'bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-500',
-  textColor: 'text-white',
-  sticker: '↔️',
-  hrefPreview: '/length-comparison',
-  translationKey: 'lengthComparisonAlt'
-}, {
-  icon: Coins,
-  title: t('skills.money.title'),
-  desc: t('skills.money.desc'),
-  backgroundGradient: 'bg-gradient-to-br from-emerald-400 via-green-500 to-teal-500',
-  textColor: 'text-white',
-  sticker: '💰',
-  hrefPreview: '/money',
-  translationKey: 'money'
-}, {
-  icon: Calculator,
-  title: t('skills.wordProblems.title'),
-  desc: t('skills.wordProblems.desc'),
-  backgroundGradient: 'bg-gradient-to-br from-rose-400 via-red-500 to-orange-500',
-  textColor: 'text-white',
-  sticker: '📝',
-  hrefPreview: '/word-problems',
-  translationKey: 'wordProblems'
-}];
+const getDefaultSkills = (t: any): Skill[] => [
+  // 🎮 Interactive Games
+  {
+    icon: Shapes,
+    title: t('skills.flowerMath.title'),
+    desc: t('skills.flowerMath.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-pink-400 via-rose-500 to-fuchsia-600',
+    textColor: 'text-white',
+    sticker: '🌸',
+    hrefPreview: '/flower-math',
+    mascotImage: multiplicationMascot,
+    translationKey: 'flowerMath',
+    category: 'interactive-games'
+  }, {
+    icon: Shapes,
+    title: t('skills.shapeSeries.title'),
+    desc: t('skills.shapeSeries.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-fuchsia-400 via-violet-500 to-purple-600',
+    textColor: 'text-white',
+    sticker: '🔄',
+    hrefPreview: '/shape-series',
+    translationKey: 'shapeSeries',
+    category: 'interactive-games'
+  }, {
+    icon: Shapes,
+    title: t('skills.fractionShapes.title'),
+    desc: t('skills.fractionShapes.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-amber-400 via-orange-500 to-red-600',
+    textColor: 'text-white',
+    sticker: '🧩',
+    hrefPreview: '/fraction-shapes',
+    mascotImage: fractionsMascot,
+    translationKey: 'fractionShapes',
+    category: 'interactive-games'
+  }, {
+    icon: Shapes,
+    title: t('skills.shapes.title'),
+    desc: t('skills.shapes.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-teal-400 via-green-500 to-emerald-600',
+    textColor: 'text-white',
+    sticker: '🔷',
+    hrefPreview: '/shape-matching',
+    mascotImage: shapesMascot,
+    translationKey: 'shapes',
+    category: 'interactive-games'
+  },
+  // 📚 Basics
+  {
+    icon: Plus,
+    title: t('skills.addition.title'),
+    desc: t('skills.addition.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600',
+    textColor: 'text-white',
+    sticker: '🧮',
+    hrefPreview: '/addition',
+    mascotImage: additionMascot,
+    translationKey: 'addition',
+    category: 'basics'
+  }, {
+    icon: Minus,
+    title: t('skills.subtraction.title'),
+    desc: t('skills.subtraction.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-purple-400 via-purple-500 to-indigo-600',
+    textColor: 'text-white',
+    sticker: '🧠',
+    hrefPreview: '/subtraction',
+    mascotImage: subtractionMascot,
+    translationKey: 'subtraction',
+    category: 'basics'
+  }, {
+    icon: X,
+    title: t('skills.multiplication.title'),
+    desc: t('skills.multiplication.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-orange-400 via-orange-500 to-red-500',
+    textColor: 'text-white',
+    sticker: '🐯',
+    hrefPreview: '/multiply',
+    mascotImage: multiplicationMascot,
+    translationKey: 'multiplication',
+    category: 'basics'
+  }, {
+    icon: Divide,
+    title: t('skills.division.title'),
+    desc: t('skills.division.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-green-400 via-green-500 to-emerald-600',
+    textColor: 'text-white',
+    sticker: '🦊',
+    hrefPreview: '/division',
+    mascotImage: divisionMascot,
+    translationKey: 'division',
+    category: 'basics'
+  }, {
+    icon: Sigma,
+    title: t('skills.numberSeries.title'),
+    desc: t('skills.numberSeries.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-violet-400 via-purple-500 to-indigo-600',
+    textColor: 'text-white',
+    sticker: '🧩',
+    hrefPreview: '/NumberSeries',
+    translationKey: 'numberSeries',
+    category: 'basics'
+  }, {
+    icon: Table,
+    title: t('skills.multiplicationTable.title'),
+    desc: t('skills.multiplicationTable.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-sky-400 via-cyan-500 to-teal-600',
+    textColor: 'text-white',
+    sticker: '🐼',
+    hrefPreview: '/multiplication-table',
+    translationKey: 'multiplicationTable',
+    category: 'basics'
+  }, {
+    icon: Clock,
+    title: t('skills.time.title'),
+    desc: t('skills.time.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500',
+    textColor: 'text-white',
+    sticker: '⏰',
+    hrefPreview: '/time',
+    mascotImage: timeMascot,
+    translationKey: 'time',
+    category: 'basics'
+  }, {
+    icon: Ruler,
+    title: t('skills.lengthComparison.title'),
+    desc: t('skills.lengthComparison.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-pink-400 via-pink-500 to-fuchsia-600',
+    textColor: 'text-white',
+    sticker: '📏',
+    hrefPreview: '/measurement',
+    mascotImage: measurementMascot,
+    translationKey: 'lengthComparison',
+    category: 'basics'
+  }, {
+    icon: Scale,
+    title: t('skills.weighing.title'),
+    desc: t('skills.weighing.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-rose-400 via-pink-500 to-purple-600',
+    textColor: 'text-white',
+    sticker: '⚖️',
+    hrefPreview: '/weighing',
+    mascotImage: weighingMascot,
+    translationKey: 'weighing',
+    category: 'basics'
+  }, {
+    icon: ArrowLeftRight,
+    title: t('skills.lengthComparisonAlt.title'),
+    desc: t('skills.lengthComparisonAlt.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-500',
+    textColor: 'text-white',
+    sticker: '↔️',
+    hrefPreview: '/length-comparison',
+    translationKey: 'lengthComparisonAlt',
+    category: 'basics'
+  }, {
+    icon: Coins,
+    title: t('skills.money.title'),
+    desc: t('skills.money.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-emerald-400 via-green-500 to-teal-500',
+    textColor: 'text-white',
+    sticker: '💰',
+    hrefPreview: '/money',
+    translationKey: 'money',
+    category: 'basics'
+  }, {
+    icon: Calculator,
+    title: t('skills.fractions.title'),
+    desc: t('skills.fractions.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-purple-400 via-violet-500 to-purple-600',
+    textColor: 'text-white',
+    sticker: '🍰',
+    hrefPreview: '/fraction-matching',
+    mascotImage: fractionsMascot,
+    translationKey: 'fractions',
+    category: 'basics'
+  }, {
+    icon: Percent,
+    title: t('skills.percentage.title'),
+    desc: t('skills.percentage.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-red-400 via-rose-500 to-pink-600',
+    textColor: 'text-white',
+    sticker: '💯',
+    hrefPreview: '/percentage',
+    translationKey: 'percentage',
+    category: 'basics'
+  },
+  // 🧠 Advanced
+  {
+    icon: Layers,
+    title: t('skills.placeValue.title'),
+    desc: t('skills.placeValue.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-indigo-400 via-purple-500 to-pink-600',
+    textColor: 'text-white',
+    sticker: '🔢',
+    hrefPreview: '/place-value',
+    mascotImage: additionMascot,
+    translationKey: 'placeValue',
+    category: 'advanced'
+  }, {
+    icon: Brain,
+    title: t('skills.mentalMath.title'),
+    desc: t('skills.mentalMath.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600',
+    textColor: 'text-white',
+    sticker: '⚡',
+    hrefPreview: '/mental-math',
+    mascotImage: additionMascot,
+    translationKey: 'mentalMath',
+    category: 'advanced'
+  }, {
+    icon: Grid3x3,
+    title: t('skills.areaModel.title'),
+    desc: t('skills.areaModel.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-orange-400 via-red-500 to-pink-600',
+    textColor: 'text-white',
+    sticker: '📐',
+    hrefPreview: '/area-model',
+    mascotImage: multiplicationMascot,
+    translationKey: 'areaModel',
+    category: 'advanced'
+  }, {
+    icon: Link2,
+    title: t('skills.numberBonds.title'),
+    desc: t('skills.numberBonds.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600',
+    textColor: 'text-white',
+    sticker: '🔗',
+    hrefPreview: '/number-bonds',
+    mascotImage: additionMascot,
+    translationKey: 'numberBonds',
+    category: 'advanced'
+  }, {
+    icon: BarChart3,
+    title: t('skills.barModel.title'),
+    desc: t('skills.barModel.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-purple-400 via-fuchsia-500 to-pink-600',
+    textColor: 'text-white',
+    sticker: '📊',
+    hrefPreview: '/bar-model',
+    mascotImage: additionMascot,
+    translationKey: 'barModel',
+    category: 'advanced'
+  }, {
+    icon: Zap,
+    title: t('skills.quickMath.title'),
+    desc: t('skills.quickMath.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-slate-400 via-gray-500 to-zinc-600',
+    textColor: 'text-white',
+    sticker: '📏',
+    hrefPreview: '/quick-math',
+    translationKey: 'quickMath',
+    category: 'advanced'
+  }, {
+    icon: Hash,
+    title: t('skills.sumGrid.title'),
+    desc: t('skills.sumGrid.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600',
+    textColor: 'text-white',
+    sticker: '🔢',
+    hrefPreview: '/SumGridPuzzles',
+    translationKey: 'sumGrid',
+    category: 'advanced'
+  }, {
+    icon: Calculator,
+    title: t('skills.wordProblems.title'),
+    desc: t('skills.wordProblems.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-rose-400 via-red-500 to-orange-500',
+    textColor: 'text-white',
+    sticker: '📝',
+    hrefPreview: '/word-problems',
+    translationKey: 'wordProblems',
+    category: 'advanced'
+  }
+];
 
 const SkillCard: React.FC<{
   skill: Skill;
@@ -478,6 +511,22 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({
     return [...pinned, ...unpinned];
   }, [orderedSkills, pinnedSkills]);
 
+  // Group skills by category
+  const groupedSkills = React.useMemo(() => {
+    const groups: Record<string, Skill[]> = {
+      'interactive-games': [],
+      'basics': [],
+      'advanced': []
+    };
+    
+    sortedSkills.forEach(skill => {
+      const category = skill.category || 'basics';
+      groups[category].push(skill);
+    });
+    
+    return groups;
+  }, [sortedSkills]);
+
   // Setup sensors
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -580,25 +629,92 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({
             items={sortedSkills.map(s => s.hrefPreview || '')}
             strategy={rectSortingStrategy}
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 auto-rows-fr">
-              {sortedSkills.map((skill) => (
-                <DraggableSkillCard
-                  key={skill.hrefPreview}
-                  id={skill.hrefPreview || ''}
-                  isEditMode={isEditMode}
-                >
-                  <SkillCard 
-                    skill={skill} 
-                    onPreview={onPreview} 
-                    buttonText={displayButtonText} 
-                    disableLinks={disableLinks || isEditMode}
-                    isEditMode={isEditMode}
-                    isPinned={pinnedSkills.includes(skill.hrefPreview || '')}
-                    onTogglePin={handleTogglePin}
-                  />
-                </DraggableSkillCard>
-              ))}
-            </div>
+            {/* Interactive Games Category */}
+            {groupedSkills['interactive-games'].length > 0 && (
+              <div className="mb-10">
+                <h3 className="text-2xl text-white font-bold mb-4 flex items-center gap-3">
+                  <span>🎮 {t('category.interactiveGames')}</span>
+                  <span className="bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs px-3 py-1 rounded-full animate-pulse">
+                    New!
+                  </span>
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6 auto-rows-fr">
+                  {groupedSkills['interactive-games'].map((skill) => (
+                    <DraggableSkillCard
+                      key={skill.hrefPreview}
+                      id={skill.hrefPreview || ''}
+                      isEditMode={isEditMode}
+                    >
+                      <SkillCard 
+                        skill={skill} 
+                        onPreview={onPreview} 
+                        buttonText={displayButtonText} 
+                        disableLinks={disableLinks || isEditMode}
+                        isEditMode={isEditMode}
+                        isPinned={pinnedSkills.includes(skill.hrefPreview || '')}
+                        onTogglePin={handleTogglePin}
+                      />
+                    </DraggableSkillCard>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Basics Category */}
+            {groupedSkills['basics'].length > 0 && (
+              <div className="mb-10">
+                <h3 className="text-2xl text-white font-bold mb-4 flex items-center gap-3">
+                  📚 {t('category.basics')}
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 auto-rows-fr">
+                  {groupedSkills['basics'].map((skill) => (
+                    <DraggableSkillCard
+                      key={skill.hrefPreview}
+                      id={skill.hrefPreview || ''}
+                      isEditMode={isEditMode}
+                    >
+                      <SkillCard 
+                        skill={skill} 
+                        onPreview={onPreview} 
+                        buttonText={displayButtonText} 
+                        disableLinks={disableLinks || isEditMode}
+                        isEditMode={isEditMode}
+                        isPinned={pinnedSkills.includes(skill.hrefPreview || '')}
+                        onTogglePin={handleTogglePin}
+                      />
+                    </DraggableSkillCard>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Advanced Category */}
+            {groupedSkills['advanced'].length > 0 && (
+              <div className="mb-10">
+                <h3 className="text-2xl text-white font-bold mb-4 flex items-center gap-3">
+                  🧠 {t('category.advanced')}
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 auto-rows-fr">
+                  {groupedSkills['advanced'].map((skill) => (
+                    <DraggableSkillCard
+                      key={skill.hrefPreview}
+                      id={skill.hrefPreview || ''}
+                      isEditMode={isEditMode}
+                    >
+                      <SkillCard 
+                        skill={skill} 
+                        onPreview={onPreview} 
+                        buttonText={displayButtonText} 
+                        disableLinks={disableLinks || isEditMode}
+                        isEditMode={isEditMode}
+                        isPinned={pinnedSkills.includes(skill.hrefPreview || '')}
+                        onTogglePin={handleTogglePin}
+                      />
+                    </DraggableSkillCard>
+                  ))}
+                </div>
+              </div>
+            )}
           </SortableContext>
         </DndContext>
       </div>
