@@ -27,6 +27,7 @@ import astronomylabTh from '../locales/th/astronomylab.json';
 import stemprogressTh from '../locales/th/stemprogress.json';
 import trainingCalendarTh from '../locales/th/trainingCalendar.json';
 import flowermathTh from '../locales/th/flowermath.json';
+import balloonmathTh from '../locales/th/balloonmath.json';
 
 import commonEn from '../locales/en/common.json';
 import headerEn from '../locales/en/header.json';
@@ -52,6 +53,7 @@ import astronomylabEn from '../locales/en/astronomylab.json';
 import stemprogressEn from '../locales/en/stemprogress.json';
 import trainingCalendarEn from '../locales/en/trainingCalendar.json';
 import flowermathEn from '../locales/en/flowermath.json';
+import balloonmathEn from '../locales/en/balloonmath.json';
 
 const resources = {
   th: {
@@ -79,6 +81,7 @@ const resources = {
     stemprogress: stemprogressTh,
     trainingCalendar: trainingCalendarTh,
     flowermath: flowermathTh,
+    balloonmath: balloonmathTh,
   },
   en: {
     common: commonEn,
@@ -105,6 +108,7 @@ const resources = {
     stemprogress: stemprogressEn,
     trainingCalendar: trainingCalendarEn,
     flowermath: flowermathEn,
+    balloonmath: balloonmathEn,
   }
 };
 

@@ -1,0 +1,26 @@
+{
+  "title": "Balloon Pop Math",
+  "subtitle": "Learn addition with balloons",
+  "header": "Learn Math with Balloons!",
+  "age": "Age 4+",
+  "selectOperation": "Select Operation",
+  "operations": {
+    "addition": "Addition",
+    "subtraction": "Subtraction",
+    "multiplication": "Multiplication",
+    "division": "Division"
+  },
+  "selectDifficulty": "Select Difficulty",
+  "difficulty": {
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard"
+  },
+  "startGame": "Start Game",
+  "correct": "Great Job! 🎉",
+  "tryAgain": "Try Again!",
+  "score": "Score",
+  "dragHint": "Drag answer here or tap to select",
+  "backToHome": "Back to Home",
+  "reset": "Reset"
+}
