@@ -9,6 +9,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useAchievements } from '../hooks/useAchievements';
 import { useTeacherRole } from '../hooks/useTeacherRole';
 import { useTrainingCalendar } from '../hooks/useTrainingCalendar';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -111,6 +112,8 @@ const Profile = () => {
     isGenerating,
     userId: calendarUserId 
   } = useTrainingCalendar();
+  
+  const isMobile = useIsMobile();
   
   // Helper function to get local date string
   const getLocalDateString = (date: Date) => {
@@ -698,86 +701,176 @@ const Profile = () => {
       
       <main className="container mx-auto px-4 py-6">
         {/* Welcome Header */}
-        <div className="card-glass p-6 mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              {/* Profile Image */}
+        <div className="card-glass p-4 md:p-6 mb-6">
+          {!isMobile ? (
+            /* Desktop Layout */
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                {/* Profile Image */}
+                {profileImage && (
+                  <img 
+                    src={profileImage} 
+                    alt="Profile" 
+                    className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg"
+                  />
+                )}
+                <div>
+                  <h1 className="text-2xl font-bold text-[hsl(var(--text-primary))] mb-2">
+                    {isDemo ? t('welcomeDemo') : (
+                      <>
+                        {t('welcome').replace(` {{nickname}}`, '')} 🌟
+                        <span className="text-blue-600 ml-2">
+                          {isTeacher ? `คุณครู ${nickname || username}` : `น้อง${nickname || username}`}
+                        </span>
+                      </>
+                    )}
+                    {!isDemo && memberId && (
+                      <span className="text-lg font-normal text-[hsl(var(--text-secondary))] ml-3 bg-blue-50 px-3 py-1 rounded-full">
+                        {t('memberCode', { code: memberId })}
+                      </span>
+                    )}
+                  </h1>
+                  <p className="text-[hsl(var(--text-secondary))]">
+                    {studentClass && `${studentClass}`}
+                    {schoolName && (studentClass ? ` • ${schoolName}` : schoolName)}
+                    {(studentClass || schoolName) && ' • '}
+                    {t('welcomeBack')}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                {/* Edit Profile Button */}
+                <Button
+                  onClick={handleEditProfile}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2 hover:bg-blue-50 border-blue-300"
+                >
+                  <Edit className="w-4 h-4" />
+                  <span>{t('editProfile')}</span>
+                </Button>
+                
+                {/* Subscription Badge */}
+                {!isDemo && registrationData && (
+                  <div className={`px-5 py-3 rounded-xl font-semibold text-lg shadow-md ${
+                    registrationData.subscription_tier === 'premium'
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                      : 'bg-gray-100 text-gray-800 border-2 border-gray-300'
+                  }`}>
+                    {registrationData.subscription_tier === 'premium' ? (
+                      <span className="flex items-center gap-2">
+                        <span>👑</span>
+                        <span>{t('premium')}</span>
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <span>📦</span>
+                        <span>{t('basic')}</span>
+                      </span>
+                    )}
+                  </div>
+                )}
+                
+                {!isDemo && memberId && (
+                  <Link
+                    to="/parent"
+                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                  >
+                    <Users className="w-5 h-5" />
+                    <span>{t('referralProgram')}</span>
+                  </Link>
+                )}
+              </div>
+            </div>
+          ) : (
+            /* Mobile Layout - Stack แนวตั้ง กึ่งกลาง */
+            <div className="flex flex-col items-center text-center">
+              {/* รูปโปรไฟล์ - กลาง */}
               {profileImage && (
                 <img 
                   src={profileImage} 
                   alt="Profile" 
-                  className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg"
+                  className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg mb-4"
                 />
               )}
-              <div>
-                <h1 className="text-2xl font-bold text-[hsl(var(--text-primary))] mb-2">
-                  {isDemo ? t('welcomeDemo') : (
-                    <>
-                      {t('welcome').replace(` {{nickname}}`, '')}
-                      <span className="text-blue-600">
-                        {isTeacher ? `คุณครู ${nickname || username} !` : `น้อง${nickname || username}`}
-                      </span>
-                    </>
-                  )}
-                  {!isDemo && memberId && (
-                    <span className="text-lg font-normal text-[hsl(var(--text-secondary))] ml-2 bg-blue-50 px-3 py-1 rounded-full">
-                      {t('memberCode', { code: memberId })}
-                    </span>
-                  )}
-                  🌟
-                </h1>
-                <p className="text-[hsl(var(--text-secondary))]">
-                  {studentClass && `${studentClass}`}
-                  {schoolName && (studentClass ? ` • ${schoolName}` : schoolName)}
-                  {(studentClass || schoolName) && ' • '}
-                  {t('welcomeBack')}
+              
+              {/* ข้อความทักทาย */}
+              <h1 className="text-xl font-bold text-[hsl(var(--text-primary))] mb-1">
+                {isDemo ? t('welcomeDemo') : (
+                  <>
+                    {t('welcome').replace(` {{nickname}}`, '')} 🌟
+                  </>
+                )}
+              </h1>
+              {!isDemo && (
+                <p className="text-lg font-semibold text-blue-600 mb-1">
+                  {isTeacher ? `คุณครู ${nickname || username}` : `น้อง${nickname || username}`}
                 </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              {/* Edit Profile Button */}
+              )}
+              
+              {/* รหัสสมาชิก - แยกบรรทัด */}
+              {!isDemo && memberId && (
+                <span className="text-sm text-[hsl(var(--text-secondary))] bg-blue-50 px-3 py-1 rounded-full mb-2">
+                  {t('memberCode', { code: memberId })}
+                </span>
+              )}
+              
+              {/* ข้อความต้อนรับ */}
+              <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
+                {studentClass && `${studentClass}`}
+                {schoolName && (studentClass ? ` • ${schoolName}` : schoolName)}
+                {(studentClass || schoolName) && ' • '}
+                {t('welcomeBack')}
+              </p>
+              
+              {/* ปุ่มแก้ไขโปรไฟล์ - กว้างเต็ม */}
               <Button
                 onClick={handleEditProfile}
                 variant="outline"
-                size="sm"
-                className="flex items-center gap-2 hover:bg-blue-50 border-blue-300"
+                className="w-full mb-3 flex items-center justify-center gap-2 hover:bg-blue-50 border-blue-300"
               >
                 <Edit className="w-4 h-4" />
                 <span>{t('editProfile')}</span>
               </Button>
               
-              {/* Subscription Badge */}
-              {!isDemo && registrationData && (
-                <div className={`px-5 py-3 rounded-xl font-semibold text-lg shadow-md ${
-                  registrationData.subscription_tier === 'premium'
-                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
-                    : 'bg-gray-100 text-gray-800 border-2 border-gray-300'
-                }`}>
-                  {registrationData.subscription_tier === 'premium' ? (
-                    <span className="flex items-center gap-2">
-                      <span>👑</span>
-                      <span>{t('premium')}</span>
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-2">
-                      <span>📦</span>
-                      <span>{t('basic')}</span>
-                    </span>
-                  )}
-                </div>
-              )}
-              
-              {!isDemo && memberId && (
-                <Link
-                  to="/parent"
-                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
-                >
-                  <Users className="w-5 h-5" />
-                  <span>{t('referralProgram')}</span>
-                </Link>
-              )}
+              {/* ปุ่ม Premium และ แนะนำเพื่อน - แถวเดียวกัน */}
+              <div className="flex items-center gap-2 w-full">
+                {/* Premium Badge */}
+                {!isDemo && registrationData && (
+                  <div 
+                    className={`flex-1 px-4 py-2 rounded-xl font-semibold text-sm text-center ${
+                      registrationData.subscription_tier === 'premium'
+                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                        : 'bg-gray-100 text-gray-800 border-2 border-gray-300'
+                    }`}
+                  >
+                    {registrationData.subscription_tier === 'premium' ? (
+                      <span className="flex items-center justify-center gap-1">
+                        <span>👑</span>
+                        <span>{t('premium')}</span>
+                      </span>
+                    ) : (
+                      <span className="flex items-center justify-center gap-1">
+                        <span>📦</span>
+                        <span>{t('basic')}</span>
+                      </span>
+                    )}
+                  </div>
+                )}
+                
+                {/* Referral Program Button */}
+                {!isDemo && memberId && (
+                  <Link
+                    to="/parent"
+                    className="flex-1 flex items-center justify-center gap-1 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl font-medium text-sm transition-all duration-300 shadow-lg"
+                  >
+                    <Users className="w-4 h-4" />
+                    <span>{t('referralProgram')}</span>
+                  </Link>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* PWA Install Card - แสดงเมื่อ isInstallable */}
