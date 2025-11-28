@@ -170,6 +170,10 @@
     "boardCounting": {
       "title": "Board Counting",
       "desc": "Drag and drop numbers (Age 4+)"
+    },
+    "fruitCounting": {
+      "title": "Fruit Counting Match",
+      "desc": "Drag fruits to match numbered shadows, Montessori-style (Age 3+)"
     }
   }
 }

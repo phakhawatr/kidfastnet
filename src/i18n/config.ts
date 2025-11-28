@@ -29,6 +29,9 @@ import trainingCalendarTh from '../locales/th/trainingCalendar.json';
 import flowermathTh from '../locales/th/flowermath.json';
 import balloonmathTh from '../locales/th/balloonmath.json';
 import countingchallengeTh from '../locales/th/countingchallenge.json';
+import comparestarsth from '../locales/th/comparestars.json';
+import boardcountingTh from '../locales/th/boardcounting.json';
+import fruitcountingTh from '../locales/th/fruitcounting.json';
 
 import commonEn from '../locales/en/common.json';
 import headerEn from '../locales/en/header.json';
@@ -56,6 +59,9 @@ import trainingCalendarEn from '../locales/en/trainingCalendar.json';
 import flowermathEn from '../locales/en/flowermath.json';
 import balloonmathEn from '../locales/en/balloonmath.json';
 import countingchallengeEn from '../locales/en/countingchallenge.json';
+import comparestarsEn from '../locales/en/comparestars.json';
+import boardcountingEn from '../locales/en/boardcounting.json';
+import fruitcountingEn from '../locales/en/fruitcounting.json';
 
 const resources = {
   th: {
@@ -85,6 +91,9 @@ const resources = {
     flowermath: flowermathTh,
     balloonmath: balloonmathTh,
     countingchallenge: countingchallengeTh,
+    comparestars: comparestarsth,
+    boardcounting: boardcountingTh,
+    fruitcounting: fruitcountingTh,
   },
   en: {
     common: commonEn,
@@ -113,6 +122,9 @@ const resources = {
     flowermath: flowermathEn,
     balloonmath: balloonmathEn,
     countingchallenge: countingchallengeEn,
+    comparestars: comparestarsEn,
+    boardcounting: boardcountingEn,
+    fruitcounting: fruitcountingEn,
   }
 };
 

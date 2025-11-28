@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Plus, Minus, X, Divide, Sigma, Table, Clock, Ruler, Scale, Zap, Eye, Hash, Shapes, Percent, ArrowLeftRight, Calculator, Link2, BarChart3, Layers, Brain, Grid3x3, Coins, GripVertical, Pin, Target, Flower, Waves, Puzzle } from 'lucide-react';
+import { Plus, Minus, X, Divide, Sigma, Table, Clock, Ruler, Scale, Zap, Eye, Hash, Shapes, Percent, ArrowLeftRight, Calculator, Link2, BarChart3, Layers, Brain, Grid3x3, Coins, GripVertical, Pin, Target, Flower, Waves, Puzzle, Apple } from 'lucide-react';
 import {
   DndContext,
   closestCenter,
@@ -107,6 +107,16 @@ const getDefaultSkills = (t: any): Skill[] => [
     sticker: '🐴',
     hrefPreview: '/board-counting',
     translationKey: 'boardCounting',
+    category: 'interactive-games'
+  }, {
+    icon: Apple,
+    title: t('skills.fruitCounting.title'),
+    desc: t('skills.fruitCounting.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-yellow-400 via-orange-400 to-red-500',
+    textColor: 'text-white',
+    sticker: '🍎',
+    hrefPreview: '/fruit-counting',
+    translationKey: 'fruitCounting',
     category: 'interactive-games'
   }, {
     icon: Shapes,
