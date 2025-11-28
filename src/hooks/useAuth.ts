@@ -36,7 +36,33 @@ export const useAuth = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Set up auth state listener FIRST
+    // Check for 48h inactivity logout FIRST
+    const authState = getAuthState();
+    if (authState?.loggedIn) {
+      if (sessionManager.checkInactivityLogout()) {
+        // Not used for more than 48 hours → auto logout
+        console.log('[useAuth] Auto-logout due to 48h inactivity');
+        localStorage.removeItem('kidfast_auth');
+        localStorage.removeItem('kidfast_session_id');
+        localStorage.removeItem('kidfast_last_email');
+        sessionManager.clearLastVisit();
+        
+        ToastManager.show({
+          message: 'คุณไม่ได้เข้าใช้งานเกิน 48 ชั่วโมง กรุณาเข้าสู่ระบบใหม่',
+          type: 'info',
+          duration: 5000
+        });
+        
+        navigate('/login');
+        setIsLoading(false);
+        return;
+      }
+      
+      // Still within 48h → update last visit
+      sessionManager.updateLastVisit();
+    }
+    
+    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         setSession(session);
@@ -261,6 +287,9 @@ export const useAuth = () => {
               localStorage.setItem('kidfast_session_id', sessionId);
               localStorage.setItem('kidfast_last_email', email);
               
+              // Update last visit timestamp for 48h inactivity tracking
+              sessionManager.updateLastVisit();
+              
               // Trigger auth change event for ProtectedRoute
               window.dispatchEvent(new Event('auth-change'));
               
@@ -364,6 +393,9 @@ export const useAuth = () => {
     try {
       // Stop session monitoring
       sessionManager.endSession();
+      
+      // Clear last visit timestamp
+      sessionManager.clearLastVisit();
       
       // Get current auth state and session info
       const authState = getAuthState();
