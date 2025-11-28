@@ -172,6 +172,16 @@ const getDefaultSkills = (t: any): Skill[] => [{
   mascotImage: fractionsMascot,
   translationKey: 'fractionShapes'
 }, {
+  icon: Shapes,
+  title: t('skills.flowerMath.title'),
+  desc: t('skills.flowerMath.desc'),
+  backgroundGradient: 'bg-gradient-to-br from-pink-400 via-rose-500 to-fuchsia-600',
+  textColor: 'text-white',
+  sticker: '🌸',
+  hrefPreview: '/flower-math',
+  mascotImage: multiplicationMascot,
+  translationKey: 'flowerMath'
+}, {
   icon: Table,
   title: t('skills.multiplicationTable.title'),
   desc: t('skills.multiplicationTable.desc'),

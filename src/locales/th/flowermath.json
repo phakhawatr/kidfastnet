@@ -1,0 +1,25 @@
+{
+  "title": "ดอกไม้คณิตศาสตร์",
+  "subtitle": "ฝึกคูณผ่านดอกไม้",
+  "selectOperation": "เลือกการดำเนินการ",
+  "operations": {
+    "addition": "บวก",
+    "subtraction": "ลบ",
+    "multiplication": "คูณ",
+    "division": "หาร"
+  },
+  "selectTable": "เลือกตารางสูตร",
+  "selectDifficulty": "เลือกระดับความยาก",
+  "difficulty": {
+    "easy": "ง่าย",
+    "medium": "ปานกลาง",
+    "hard": "ยาก"
+  },
+  "startGame": "เริ่มเล่น",
+  "backToHome": "กลับหน้าหลัก",
+  "gameOver": "เกมจบแล้ว!",
+  "finalScore": "คะแนนรวม",
+  "bestStreak": "Streak สูงสุด",
+  "playAgain": "เล่นอีกครั้ง",
+  "changeSettings": "เปลี่ยนการตั้งค่า"
+}
