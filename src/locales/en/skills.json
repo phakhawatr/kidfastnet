@@ -166,6 +166,10 @@
     "compareStars": {
       "title": "Compare Stars",
       "desc": "Greater than, Equal to, Less than (Age 4+)"
+    },
+    "boardCounting": {
+      "title": "Board Counting",
+      "desc": "Drag and drop numbers (Age 4+)"
     }
   }
 }
