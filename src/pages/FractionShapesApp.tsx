@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft, Check, Eye, EyeOff, RotateCcw } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useMissionMode } from '@/hooks/useMissionMode';
+import { useRecentApps } from '@/hooks/useRecentApps';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 // Shape Types
