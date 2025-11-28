@@ -127,7 +127,7 @@ export default function CompareStarsApp() {
             </Button>
 
             <Button
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/profile')}
               variant="outline"
               className="w-full"
             >

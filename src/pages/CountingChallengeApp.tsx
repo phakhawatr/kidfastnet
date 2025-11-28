@@ -191,7 +191,7 @@ export default function CountingChallengeApp() {
       {/* Action Buttons */}
       <div className="flex justify-center gap-4">
         <Button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/profile')}
           variant="outline"
           size="lg"
           className="bg-white/90 hover:bg-white"

@@ -134,7 +134,7 @@ const FlowerMathApp = () => {
               ⚙️ {t('flowermath.changeSettings', 'เปลี่ยนการตั้งค่า')}
             </Button>
             <Button
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/profile')}
               variant="ghost"
               className="w-full"
               size="lg"
@@ -155,7 +155,7 @@ const FlowerMathApp = () => {
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <Button
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/profile')}
               variant="ghost"
               size="sm"
               className="text-foreground hover:text-foreground/80"
