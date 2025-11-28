@@ -24,6 +24,8 @@ export default function BoardCountingApp() {
   const [score, setScore] = useState(0);
   const [totalQuestions, setTotalQuestions] = useState(10);
   const [startTime, setStartTime] = useState<number>(0);
+  const [gameCompleted, setGameCompleted] = useState(false);
+  const [finalScore, setFinalScore] = useState(0);
 
   const { 
     showMissionComplete, 
@@ -45,16 +47,20 @@ export default function BoardCountingApp() {
     setStartTime(Date.now());
   };
 
-  const handleGameComplete = (finalScore: number) => {
+  const handleGameComplete = (completedScore: number) => {
     const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+    setFinalScore(completedScore);
+    setGameCompleted(true);
     
     if (missionId) {
-      handleCompleteMission(finalScore, totalQuestions, timeSpent);
+      handleCompleteMission(completedScore, totalQuestions, timeSpent);
     }
   };
 
   const handleRetry = () => {
     setScore(0);
+    setFinalScore(0);
+    setGameCompleted(false);
     setGameStarted(true);
     setStartTime(Date.now());
   };
@@ -148,12 +154,81 @@ export default function BoardCountingApp() {
       </Button>
 
       <div className="relative z-10 container mx-auto px-4 py-8">
-        <ChalkboardGame
-          difficulty={difficulty}
-          totalQuestions={totalQuestions}
-          onComplete={handleGameComplete}
-          onScoreChange={setScore}
-        />
+        {!gameCompleted ? (
+          <ChalkboardGame
+            difficulty={difficulty}
+            totalQuestions={totalQuestions}
+            onComplete={handleGameComplete}
+            onScoreChange={setScore}
+          />
+        ) : !missionId ? (
+          <Card className="w-full max-w-2xl mx-auto p-8 bg-white/95 backdrop-blur-sm shadow-2xl">
+            <div className="text-center space-y-6">
+              <h2 className="text-4xl font-bold text-slate-800">
+                🎉 {t('boardcounting.correct', 'เก่งมาก!')} 🎉
+              </h2>
+
+              {/* Stars Display */}
+              <div className="flex justify-center gap-2 text-6xl">
+                {finalScore / totalQuestions >= 0.9 && (
+                  <>
+                    <span className="animate-bounce">⭐</span>
+                    <span className="animate-bounce" style={{ animationDelay: '0.1s' }}>⭐</span>
+                    <span className="animate-bounce" style={{ animationDelay: '0.2s' }}>⭐</span>
+                  </>
+                )}
+                {finalScore / totalQuestions >= 0.7 && finalScore / totalQuestions < 0.9 && (
+                  <>
+                    <span className="animate-bounce">⭐</span>
+                    <span className="animate-bounce" style={{ animationDelay: '0.1s' }}>⭐</span>
+                  </>
+                )}
+                {finalScore / totalQuestions >= 0.5 && finalScore / totalQuestions < 0.7 && (
+                  <span className="animate-bounce">⭐</span>
+                )}
+                {finalScore / totalQuestions < 0.5 && (
+                  <span className="text-5xl text-slate-400">💪 {t('boardcounting.tryAgain', 'ลองอีกครั้ง!')}</span>
+                )}
+              </div>
+
+              {/* Score Display */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-200">
+                <p className="text-3xl font-bold text-blue-900">
+                  {t('boardcounting.score', 'คะแนน')}: {finalScore}/{totalQuestions}
+                </p>
+                <p className="text-xl text-blue-700 mt-2">
+                  {Math.round((finalScore / totalQuestions) * 100)}%
+                </p>
+              </div>
+
+              {/* Time Display */}
+              <div className="bg-amber-50 rounded-xl p-4 border-2 border-amber-200">
+                <p className="text-lg text-amber-900">
+                  ⏱️ เวลา: {Math.floor((Date.now() - startTime) / 60000)} นาที {Math.floor(((Date.now() - startTime) % 60000) / 1000)} วินาที
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="grid grid-cols-2 gap-4 mt-8">
+                <Button
+                  onClick={handleRetry}
+                  size="lg"
+                  className="text-xl py-6 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold shadow-lg"
+                >
+                  🔄 เล่นอีกครั้ง
+                </Button>
+                <Button
+                  onClick={() => navigate('/profile')}
+                  size="lg"
+                  variant="outline"
+                  className="text-xl py-6 border-2 border-slate-300 hover:bg-slate-100 font-bold"
+                >
+                  🏠 กลับหน้าหลัก
+                </Button>
+              </div>
+            </div>
+          </Card>
+        ) : null}
       </div>
 
       {missionId && missionResult && (
