@@ -32,7 +32,7 @@ export const DraggableFruit = ({ id, fruitType, isMatched }: DraggableFruitProps
       className={`
         cursor-grab active:cursor-grabbing
         transition-all duration-200
-        ${isDragging ? 'scale-110 opacity-50' : 'hover:scale-105 animate-pulse'}
+        ${isDragging ? 'scale-110 opacity-50' : 'hover:scale-105 animate-pulse-slow'}
       `}
     >
       <FruitSVG type={fruitType} size={80} />
