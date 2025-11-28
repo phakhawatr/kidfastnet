@@ -69,6 +69,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import TeacherProtectedRoute from "./components/TeacherProtectedRoute";
 import { ToastContainer } from "./components/Toast";
+import { Toaster } from "@/components/ui/toaster";
 import { PWAUpdatePrompt } from "./components/PWAUpdatePrompt";
 
 const queryClient = new QueryClient();
@@ -553,6 +554,10 @@ const App = () => {
         {/* PWA Update Prompt */}
         <PWAUpdatePrompt />
         
+        {/* Shadcn Toast - for modern toast notifications */}
+        <Toaster />
+        
+        {/* Custom Toast Container - legacy support */}
         <ToastContainer />
       </BrowserRouter>
     </QueryClientProvider>
