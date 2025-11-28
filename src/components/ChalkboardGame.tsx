@@ -152,9 +152,9 @@ export const ChalkboardGame = ({ difficulty, totalQuestions, onComplete, onScore
           {/* Green Chalkboard */}
           <div className="relative p-8 rounded-2xl bg-gradient-to-br from-green-700 via-green-800 to-green-900">
             {/* Counting Objects + Equation Area */}
-            <div className="flex items-center justify-center gap-8 mb-8">
+            <div className="flex items-center justify-center gap-12 mb-8 px-4">
               {/* Objects to count */}
-              <div className={`grid grid-cols-3 gap-4 ${bounce ? 'animate-bounce' : ''}`}>
+              <div className={`grid grid-cols-3 gap-6 ${bounce ? 'animate-bounce' : ''}`}>
                 <CountingObjects
                   type={currentProblem.objectType}
                   count={currentProblem.correctAnswer}
@@ -162,7 +162,7 @@ export const ChalkboardGame = ({ difficulty, totalQuestions, onComplete, onScore
               </div>
 
               {/* Equals sign */}
-              <span className="text-8xl font-bold text-white/90">=</span>
+              <span className="text-9xl font-bold text-white/90">=</span>
 
               {/* Drop Zone */}
               <DropZone isOver={activeId !== null} droppedNumber={droppedNumber} />
