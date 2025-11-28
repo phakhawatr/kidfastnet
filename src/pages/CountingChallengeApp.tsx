@@ -11,7 +11,7 @@ import { useMissionMode } from '@/hooks/useMissionMode';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 export default function CountingChallengeApp() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['countingchallenge', 'common']);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const missionId = searchParams.get('missionId');
@@ -119,10 +119,10 @@ export default function CountingChallengeApp() {
         <div className="max-w-2xl mx-auto">
           <div className="bg-white rounded-3xl shadow-2xl p-12 text-center">
             <h1 className="text-5xl font-bold text-purple-600 mb-4">
-              🐠 {t('countingchallenge.title')}
+              🐠 {t('title')}
             </h1>
             <p className="text-xl text-gray-600 mb-8">
-              {t('countingchallenge.age')}
+              {t('age')}
             </p>
             
             <div className="mb-8">
@@ -150,16 +150,16 @@ export default function CountingChallengeApp() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-200 via-blue-300 to-blue-400 p-4 md:p-8">
       {/* Confetti */}
-      {showConfetti && <Confetti width={windowSize.width} height={windowSize.height} recycle={false} numberOfPieces={500} />}
+      {showConfetti && <Confetti width={windowSize.width} height={windowSize.height} recycle={false} numberOfPieces={200} />}
 
       {/* Header */}
       <div className="bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 rounded-2xl shadow-xl p-4 mb-6">
         <div className="flex items-center justify-between text-white">
           <h1 className="text-2xl md:text-3xl font-bold">
-            🧠 {t('countingchallenge.header')}
+            🧠 {t('header')}
           </h1>
           <div className="flex items-center gap-4 text-lg md:text-xl">
-            <span className="font-bold">{t('countingchallenge.score')}: {score}</span>
+            <span className="font-bold">{t('score')}: {score}</span>
             <span className="font-bold">🔥 {streak}</span>
           </div>
         </div>
@@ -197,7 +197,7 @@ export default function CountingChallengeApp() {
           className="bg-white/90 hover:bg-white"
         >
           <Home className="mr-2" />
-          {t('common.backToHome')}
+          {t('backToHome', { ns: 'common' })}
         </Button>
         <Button
           onClick={handleReset}
@@ -206,7 +206,7 @@ export default function CountingChallengeApp() {
           className="bg-white/90 hover:bg-white"
         >
           <RotateCcw className="mr-2" />
-          {t('common.reset')}
+          {t('reset', { ns: 'common' })}
         </Button>
       </div>
 
