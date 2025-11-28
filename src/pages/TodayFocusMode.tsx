@@ -31,8 +31,10 @@ const TodayFocusMode = () => {
   } = useTrainingCalendar();
   const [selectedMission, setSelectedMission] = useState<DailyMission | null>(null);
   const hasAttemptedGeneration = useRef(false);
+  const lastGeneratedDate = useRef<string>('');
   const needsRefresh = searchParams.get('refresh') === 'true';
   const dateParam = searchParams.get('date'); // e.g., "2025-11-25"
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
 
   // Helper function to check if mission is completed
   // Mission is completed if EITHER status is 'completed' OR completed_at has a value
@@ -66,6 +68,29 @@ const TodayFocusMode = () => {
   const dayOfWeek = targetDate.getDay();
   const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
+  // Reset generation tracking when date changes
+  useEffect(() => {
+    if (lastGeneratedDate.current !== todayStr) {
+      hasAttemptedGeneration.current = false;
+      lastGeneratedDate.current = todayStr;
+      console.log('📅 Date changed, reset generation tracking');
+    }
+  }, [todayStr]);
+
+  // Loading timeout detection (35 seconds)
+  useEffect(() => {
+    if (isGenerating) {
+      setLoadingTimeout(false);
+      const timer = setTimeout(() => {
+        setLoadingTimeout(true);
+        console.log('⏰ Loading timeout reached');
+      }, 35000);
+      return () => clearTimeout(timer);
+    } else {
+      setLoadingTimeout(false);
+    }
+  }, [isGenerating]);
+
   useEffect(() => {
     if (!userId && !isLoading) {
       toast.error(t('loginRequired'));
@@ -73,7 +98,7 @@ const TodayFocusMode = () => {
     }
   }, [userId, isLoading, navigate, t]);
 
-  // Auto-generate missions if not enough (less than 3) or none - only once per mount
+  // Auto-generate missions if not enough (less than 3) or none
   useEffect(() => {
     const autoGenerateMissions = async () => {
       // Don't auto-generate if viewing past date
@@ -95,7 +120,7 @@ const TodayFocusMode = () => {
         return; // ไม่ auto-generate
       }
       
-      // Prevent infinite loops - only attempt once
+      // Prevent multiple simultaneous generations
       if (hasAttemptedGeneration.current) return;
       if (isLoading || isGenerating || !userId) return;
       
@@ -120,6 +145,21 @@ const TodayFocusMode = () => {
     
     autoGenerateMissions();
   }, [userId, isLoading, isGenerating, todayMissions.length, isWeekend, needsRefresh, searchParams, navigate, isViewingPast]);
+
+  // Retry if no missions after loading completes
+  useEffect(() => {
+    if (!isLoading && !isGenerating && userId && todayMissions.length === 0 && !isWeekend && !isViewingPast) {
+      // Wait 2 seconds and try again if still no missions
+      const timer = setTimeout(() => {
+        if (todayMissions.length === 0 && !hasAttemptedGeneration.current) {
+          console.log('🔄 Retry: No missions found after loading, attempting generation...');
+          hasAttemptedGeneration.current = false; // Reset to allow retry
+          generateTodayMission();
+        }
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, isGenerating, userId, todayMissions.length, isWeekend, isViewingPast, generateTodayMission]);
 
   // Retry pending mission results from localStorage
   useEffect(() => {
@@ -347,23 +387,6 @@ const TodayFocusMode = () => {
     }
   };
 
-  // Loading timeout state
-  const [loadingTimeout, setLoadingTimeout] = useState(false);
-  
-  // Auto-timeout after 35 seconds
-  useEffect(() => {
-    if (isLoading || isGenerating) {
-      setLoadingTimeout(false);
-      const timer = setTimeout(() => {
-        setLoadingTimeout(true);
-      }, 35000);
-      
-      return () => clearTimeout(timer);
-    } else {
-      setLoadingTimeout(false);
-    }
-  }, [isLoading, isGenerating]);
-
   // Loading or generating state
   if (isLoading || isGenerating) {
     return (
@@ -563,6 +586,29 @@ const TodayFocusMode = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* No missions prompt */}
+        {todayMissions.length === 0 && !isGenerating && !isViewingPast && (
+          <Card className="bg-slate-800/90 backdrop-blur-sm border-yellow-500/50 mb-8">
+            <CardContent className="p-8 text-center">
+              <Sparkles className="w-16 h-16 mx-auto mb-4 text-yellow-400" />
+              <h3 className="text-2xl font-bold text-white mb-3">
+                ยังไม่มีภารกิจวันนี้
+              </h3>
+              <p className="text-slate-300 mb-6">
+                ให้ AI สร้างภารกิจเหมาะสมให้คุณ 3 รายการเลยไหม?
+              </p>
+              <Button
+                onClick={handleGenerateMission}
+                size="lg"
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold px-8 py-6 text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all"
+              >
+                <Sparkles className="w-6 h-6 mr-2" />
+                AI สร้าง 3 ภารกิจให้ฉัน
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Mission Selection Grid */}
         <div className="space-y-6">
