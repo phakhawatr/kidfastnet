@@ -66,6 +66,54 @@
   
   "recommendations": {
     "title": "แนะนำสำหรับคุณ",
+    "viewAll": "ดูทั้งหมด",
+    "newBadge": "ใหม่!",
+    "categories": {
+      "interactiveGames": {
+        "title": "เกมคณิตศาสตร์สนุก",
+        "description": "เรียนรู้ผ่านเกมสนุกๆ เหมาะสำหรับอนุบาล - ป.2"
+      },
+      "basics": {
+        "title": "แบบฝึกหัดพื้นฐาน",
+        "description": "ฝึกทักษะคณิตศาสตร์พื้นฐาน บวก ลบ คูณ หาร"
+      },
+      "advanced": {
+        "title": "ทักษะขั้นสูง",
+        "description": "ความท้าทายสำหรับนักเรียนที่เก่งขึ้นแล้ว"
+      }
+    },
+    "apps": {
+      "flowerMath": { "title": "ดอกไม้คณิต" },
+      "balloonMath": { "title": "ลูกโป่งคณิต" },
+      "countingChallenge": { "title": "นับจำนวน" },
+      "compareStars": { "title": "เปรียบเทียบดาว" },
+      "boardCounting": { "title": "นับบนกระดาน" },
+      "fruitCounting": { "title": "นับผลไม้" },
+      "fractionShapes": { "title": "เศษส่วนรูปทรง" },
+      "shapeSeries": { "title": "อนุกรมรูปทรง" },
+      "shapeMatching": { "title": "จับคู่รูปทรง" },
+      "addition": { "title": "การบวก" },
+      "subtraction": { "title": "การลบ" },
+      "multiplication": { "title": "การคูณ" },
+      "division": { "title": "การหาร" },
+      "multiplicationTable": { "title": "ตารางคูณ" },
+      "money": { "title": "เงินตรา" },
+      "time": { "title": "บอกเวลา" },
+      "weighing": { "title": "ชั่งน้ำหนัก" },
+      "measurement": { "title": "การวัด" },
+      "fractionMatching": { "title": "เศษส่วน" },
+      "lengthComparison": { "title": "เทียบความยาว" },
+      "percentage": { "title": "เปอร์เซ็นต์" },
+      "placeValue": { "title": "ค่าประจำหลัก" },
+      "mentalMath": { "title": "คณิตในใจ" },
+      "quickMath": { "title": "คณิตเร็ว" },
+      "sumGridPuzzles": { "title": "ปริศนาตารางเลข" },
+      "numberBonds": { "title": "พันธะตัวเลข" },
+      "areaModel": { "title": "แบบจำลองพื้นที่" },
+      "barModel": { "title": "แบบจำลองแท่ง" },
+      "numberSeries": { "title": "ทายตัวเลขในลำดับ" },
+      "wordProblems": { "title": "โจทย์ปัญหา" }
+    },
     "startPractice": "เริ่มฝึกเลย!",
     "items": {
       "1": {

@@ -66,6 +66,54 @@
   
   "recommendations": {
     "title": "Recommended for You",
+    "viewAll": "View All",
+    "newBadge": "New!",
+    "categories": {
+      "interactiveGames": {
+        "title": "Interactive Math Games",
+        "description": "Learn through fun games - Perfect for kindergarten to Grade 2"
+      },
+      "basics": {
+        "title": "Basic Math Exercises",
+        "description": "Practice fundamental math skills: addition, subtraction, multiplication, division"
+      },
+      "advanced": {
+        "title": "Advanced Skills",
+        "description": "Challenges for students who are ready for more"
+      }
+    },
+    "apps": {
+      "flowerMath": { "title": "Flower Math" },
+      "balloonMath": { "title": "Balloon Math" },
+      "countingChallenge": { "title": "Counting Challenge" },
+      "compareStars": { "title": "Compare Stars" },
+      "boardCounting": { "title": "Board Counting" },
+      "fruitCounting": { "title": "Fruit Counting" },
+      "fractionShapes": { "title": "Fraction Shapes" },
+      "shapeSeries": { "title": "Shape Series" },
+      "shapeMatching": { "title": "Shape Matching" },
+      "addition": { "title": "Addition" },
+      "subtraction": { "title": "Subtraction" },
+      "multiplication": { "title": "Multiplication" },
+      "division": { "title": "Division" },
+      "multiplicationTable": { "title": "Multiplication Table" },
+      "money": { "title": "Money" },
+      "time": { "title": "Time" },
+      "weighing": { "title": "Weighing" },
+      "measurement": { "title": "Measurement" },
+      "fractionMatching": { "title": "Fractions" },
+      "lengthComparison": { "title": "Length Comparison" },
+      "percentage": { "title": "Percentage" },
+      "placeValue": { "title": "Place Value" },
+      "mentalMath": { "title": "Mental Math" },
+      "quickMath": { "title": "Quick Math" },
+      "sumGridPuzzles": { "title": "Sum Grid Puzzles" },
+      "numberBonds": { "title": "Number Bonds" },
+      "areaModel": { "title": "Area Model" },
+      "barModel": { "title": "Bar Model" },
+      "numberSeries": { "title": "Number Series" },
+      "wordProblems": { "title": "Word Problems" }
+    },
     "startPractice": "Start Practice!",
     "items": {
       "1": {

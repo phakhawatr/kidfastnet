@@ -22,54 +22,62 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { SubscriptionTab } from '../components/SubscriptionTab';
 
-// Import mascot images
-import mascotAddition from '../assets/mascot-addition.png';
-import mascotSubtraction from '../assets/mascot-subtraction.png';
-import mascotMultiplication from '../assets/mascot-multiplication.png';
-import mascotDivision from '../assets/mascot-division.png';
-import mascotTime from '../assets/mascot-time.png';
-import mascotWeighing from '../assets/mascot-weighing.png';
-
-// Define recommendation structure (translations in profile.json)
-const recommendationStructure = {
-  '1': [
-    { key: 'addition', icon: '➕', link: '/addition', color: 'bg-[hsl(var(--grade-1))]' },
-    { key: 'lengthComparison', icon: '📏', link: '/length-comparison', color: 'bg-[hsl(var(--grade-2))]' },
-    { key: 'numberSeries', icon: '🔢', link: '/NumberSeries', color: 'bg-[hsl(var(--grade-3))]' },
-    { key: 'shapeSeries', icon: '🔄', link: '/shape-series', color: 'bg-[hsl(var(--grade-2))]' },
-    { key: 'shapeMatching', icon: '🔷', link: '/shape-matching', color: 'bg-[hsl(var(--grade-3))]' }
-  ],
-  '2': [
-    { key: 'subtraction', icon: '➖', link: '/subtraction', color: 'bg-[hsl(var(--grade-2))]' },
-    { key: 'addition', icon: '➕', link: '/addition', color: 'bg-[hsl(var(--grade-1))]' },
-    { key: 'shapeSeries', icon: '🔄', link: '/shape-series', color: 'bg-[hsl(var(--grade-2))]' },
-    { key: 'shapeMatching', icon: '🔷', link: '/shape-matching', color: 'bg-[hsl(var(--grade-3))]' },
-    { key: 'lengthComparison', icon: '📏', link: '/length-comparison', color: 'bg-[hsl(var(--grade-2))]' }
-  ],
-  '3': [
-    { key: 'multiplication', icon: '✖️', link: '/multiply', color: 'bg-[hsl(var(--grade-3))]' },
-    { key: 'multiplicationTable', icon: '📊', link: '/multiplication-table', color: 'bg-[hsl(var(--grade-4))]' },
-    { key: 'measurement', icon: '📐', link: '/measurement', color: 'bg-[hsl(var(--grade-2))]' },
-    { key: 'addition', icon: '➕', link: '/addition', color: 'bg-[hsl(var(--grade-1))]' }
-  ],
-  '4': [
-    { key: 'division', icon: '➗', link: '/division', color: 'bg-[hsl(var(--grade-4))]' },
-    { key: 'fractions', icon: '🍕', link: '/fraction-matching', color: 'bg-[hsl(var(--grade-5))]' },
-    { key: 'money', icon: '💰', link: '/money', color: 'bg-[hsl(var(--grade-5))]' },
-    { key: 'multiplication', icon: '✖️', link: '/multiply', color: 'bg-[hsl(var(--grade-3))]' }
-  ],
-  '5': [
-    { key: 'time', icon: '🕐', link: '/time', color: 'bg-[hsl(var(--grade-5))]' },
-    { key: 'fractionsAdvanced', icon: '🍕', link: '/fraction-matching', color: 'bg-[hsl(var(--grade-4))]' },
-    { key: 'percentage', icon: '📊', link: '/percentage', color: 'bg-[hsl(var(--grade-6))]' },
-    { key: 'division', icon: '➗', link: '/division', color: 'bg-[hsl(var(--grade-4))]' }
-  ],
-  '6': [
-    { key: 'weighing', icon: '⚖️', link: '/weighing', color: 'bg-[hsl(var(--grade-6))]' },
-    { key: 'quickMath', icon: '⚡', link: '/quick-math', color: 'bg-[hsl(var(--grade-5))]' },
-    { key: 'sumGridPuzzles', icon: '🧩', link: '/SumGridPuzzles', color: 'bg-[hsl(var(--grade-4))]' },
-    { key: 'percentage', icon: '📊', link: '/percentage', color: 'bg-[hsl(var(--grade-6))]' }
-  ]
+// Define recommendation categories (translations in profile.json)
+const recommendationCategories = {
+  'interactive-games': {
+    titleKey: 'recommendations.categories.interactiveGames.title',
+    descriptionKey: 'recommendations.categories.interactiveGames.description',
+    icon: '🎮',
+    color: 'from-purple-500 via-pink-500 to-rose-500',
+    apps: [
+      { key: 'flowerMath', icon: '🌸', link: '/flower-math', isNew: true },
+      { key: 'balloonMath', icon: '🎈', link: '/balloon-math', isNew: true },
+      { key: 'countingChallenge', icon: '🐠', link: '/counting-challenge', isNew: true },
+      { key: 'compareStars', icon: '⭐', link: '/compare-stars', isNew: true },
+      { key: 'boardCounting', icon: '🐴', link: '/board-counting', isNew: true },
+      { key: 'fruitCounting', icon: '🍎', link: '/fruit-counting', isNew: true },
+      { key: 'fractionShapes', icon: '🧩', link: '/fraction-shapes' },
+      { key: 'shapeSeries', icon: '🔄', link: '/shape-series' },
+      { key: 'shapeMatching', icon: '🔷', link: '/shape-matching' }
+    ]
+  },
+  'basics': {
+    titleKey: 'recommendations.categories.basics.title',
+    descriptionKey: 'recommendations.categories.basics.description',
+    icon: '📚',
+    color: 'from-blue-500 via-cyan-500 to-teal-500',
+    apps: [
+      { key: 'addition', icon: '➕', link: '/addition' },
+      { key: 'subtraction', icon: '➖', link: '/subtraction' },
+      { key: 'multiplication', icon: '✖️', link: '/multiply' },
+      { key: 'division', icon: '➗', link: '/division' },
+      { key: 'multiplicationTable', icon: '📊', link: '/multiplication-table' },
+      { key: 'money', icon: '💰', link: '/money' },
+      { key: 'time', icon: '🕐', link: '/time' },
+      { key: 'weighing', icon: '⚖️', link: '/weighing' },
+      { key: 'measurement', icon: '📐', link: '/measurement' },
+      { key: 'fractionMatching', icon: '🍕', link: '/fraction-matching' },
+      { key: 'lengthComparison', icon: '📏', link: '/length-comparison' },
+      { key: 'percentage', icon: '📊', link: '/percentage' },
+      { key: 'placeValue', icon: '🔢', link: '/place-value' }
+    ]
+  },
+  'advanced': {
+    titleKey: 'recommendations.categories.advanced.title',
+    descriptionKey: 'recommendations.categories.advanced.description',
+    icon: '🧠',
+    color: 'from-orange-500 via-amber-500 to-yellow-500',
+    apps: [
+      { key: 'mentalMath', icon: '⚡', link: '/mental-math' },
+      { key: 'quickMath', icon: '⏱️', link: '/quick-math' },
+      { key: 'sumGridPuzzles', icon: '🧩', link: '/SumGridPuzzles' },
+      { key: 'numberBonds', icon: '🔗', link: '/number-bonds' },
+      { key: 'areaModel', icon: '📐', link: '/area-model' },
+      { key: 'barModel', icon: '📊', link: '/bar-model' },
+      { key: 'numberSeries', icon: '🔢', link: '/NumberSeries' },
+      { key: 'wordProblems', icon: '📝', link: '/word-problems' }
+    ]
+  }
 };
 
 const Profile = () => {
@@ -208,7 +216,6 @@ const Profile = () => {
     });
   }, [registrationId, isTeacher, teacherLoading, nickname, username]);
   
-  const [selectedGrade, setSelectedGrade] = useState('1');
   const [registrationData, setRegistrationData] = useState<{
     created_at: string | null;
     approved_at: string | null;
@@ -366,59 +373,6 @@ const Profile = () => {
   const formattedExpiration = membershipExpiration 
     ? formatThaiDate(membershipExpiration.toISOString()) 
     : '-';
-  const grades = [{
-    id: '1',
-    label: t('grades.addition'),
-    icon: '➕',
-    mascot: mascotAddition
-  }, {
-    id: '2',
-    label: t('grades.subtraction'),
-    icon: '➖',
-    mascot: mascotSubtraction
-  }, {
-    id: '3',
-    label: t('grades.multiplication'),
-    icon: '✖️',
-    mascot: mascotMultiplication
-  }, {
-    id: '4',
-    label: t('grades.division'),
-    icon: '➗',
-    mascot: mascotDivision
-  }, {
-    id: '5',
-    label: t('grades.time'),
-    icon: '🕐',
-    mascot: mascotTime
-  }, {
-    id: '6',
-    label: t('grades.weighing'),
-    icon: '⚖️',
-    mascot: mascotWeighing
-  }];
-
-  // Function to shuffle array and pick 3 random items with translations (memoized)
-  const getRandomRecommendations = useCallback((grade: string) => {
-    const structure = recommendationStructure[grade as keyof typeof recommendationStructure] || [];
-    const shuffled = [...structure].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 3).map(item => ({
-      ...item,
-      title: t(`recommendations.items.${grade}.${item.key}.title`),
-      description: t(`recommendations.items.${grade}.${item.key}.description`)
-    }));
-  }, [t]);
-
-  // Memoized random recommendations that update when grade or language changes
-  const randomRecommendations = useMemo(() => {
-    return getRandomRecommendations(selectedGrade);
-  }, [selectedGrade, getRandomRecommendations]);
-
-  // Get grade label for display
-  const getGradeLabel = (gradeId: string) => {
-    const grade = grades.find(g => g.id === gradeId);
-    return grade ? grade.label : '';
-  };
 
   // Load profile data from localStorage and LINE token
   useEffect(() => {
@@ -1327,64 +1281,68 @@ const Profile = () => {
           {/* Tabs hidden as requested */}
 
           <TabsContent value="overview">
-            {/* Grade Selection */}
-            <div className="flex gap-3 mb-6 overflow-x-auto pb-2">
-          {grades.map(grade => (
-            <button 
-              key={grade.id} 
-              onClick={() => setSelectedGrade(grade.id)} 
-              className={`relative flex flex-col items-center gap-2 px-4 py-3 rounded-2xl transition-all duration-300 whitespace-nowrap min-w-[120px] ${
-                selectedGrade === grade.id 
-                  ? 'bg-gradient-to-br from-purple-400 to-pink-400 text-white shadow-lg scale-105' 
-                  : 'bg-white/60 hover:bg-white/80 shadow-md hover:shadow-lg'
-              }`}
-            >
-              {/* Mascot Image */}
-              <div className={`w-12 h-12 rounded-full overflow-hidden bg-white/50 flex items-center justify-center transition-transform duration-300 ${
-                selectedGrade === grade.id ? 'animate-bounce' : 'hover:scale-110'
-              }`}>
-                <img 
-                  src={grade.mascot} 
-                  alt={grade.label}
-                  className="w-10 h-10 object-contain"
-                />
-              </div>
-              
-              {/* Label */}
-              <span className={`text-sm font-bold ${
-                selectedGrade === grade.id ? 'text-white' : 'text-[hsl(var(--text-primary))]'
-              }`}>
-                {grade.label}
-              </span>
-              
-              {/* Active Indicator */}
-              {selectedGrade === grade.id && (
-                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-white rounded-full" />
-              )}
-            </button>
-          ))}
-        </div>
-
-        {/* Recommendation Card */}
-        <div className="card-glass p-6 mb-6 border-l-4 border-orange-400">
-          <div className="flex items-center gap-3 mb-4">
+        {/* Recommendations by Category */}
+        <div className="space-y-6 mb-6">
+          <div className="flex items-center gap-3 px-4">
             <span className="text-2xl">🎯</span>
-            <h2 className="text-xl font-bold text-[hsl(var(--text-primary))]">
+            <h2 className="text-2xl font-bold text-[hsl(var(--text-primary))]">
               {t('recommendations.title')}
             </h2>
           </div>
-          
-          {randomRecommendations.map((recommendation, index) => (
-            <div key={index} className={`${recommendation.color} rounded-xl p-6 mb-4`}>
-              <h3 className="font-bold text-lg mb-2">
-                {recommendation.icon} {recommendation.title}
-              </h3>
-              <p className="text-sm text-[hsl(var(--text-secondary))] mb-4">
-                {recommendation.description}
-              </p>
-              <Link to={recommendation.link} className="btn-primary text-sm inline-block">
-                {t('recommendations.startPractice')}
-              </Link>
+
+          {Object.entries(recommendationCategories).map(([categoryKey, category]) => (
+            <div key={categoryKey} className="card-glass overflow-hidden">
+              {/* Category Header */}
+              <div className={`bg-gradient-to-r ${category.color} p-5`}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                      <span className="text-2xl">{category.icon}</span>
+                      {t(category.titleKey)}
+                    </h3>
+                    <p className="text-white/90 text-sm mt-1">
+                      {t(category.descriptionKey)}
+                    </p>
+                  </div>
+                  <Link 
+                    to="/profile#skills" 
+                    className="text-white/90 hover:text-white text-sm flex items-center gap-1 bg-white/20 px-3 py-1.5 rounded-full hover:bg-white/30 transition-colors"
+                  >
+                    {t('recommendations.viewAll')}
+                    <ChevronRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              </div>
+
+              {/* Apps Carousel */}
+              <div className="p-5">
+                <div className="flex gap-4 overflow-x-auto pb-2">
+                  {category.apps.map((app) => (
+                    <Link 
+                      key={app.key}
+                      to={app.link}
+                      className="flex-shrink-0 text-center group"
+                    >
+                      <div className="relative">
+                        <div 
+                          className={`bg-gradient-to-br ${category.color} rounded-full w-20 h-20 flex items-center justify-center text-3xl border-3 border-white shadow-lg group-hover:scale-110 transition-transform duration-300 cursor-pointer mb-2`}
+                          title={t(`recommendations.apps.${app.key}.title`)}
+                        >
+                          {app.icon}
+                        </div>
+                        {app.isNew && (
+                          <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] px-1.5 py-0.5 animate-pulse">
+                            {t('recommendations.newBadge')}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="text-xs font-medium text-[hsl(var(--text-primary))] max-w-[80px] truncate">
+                        {t(`recommendations.apps.${app.key}.title`)}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
             </div>
           ))}
         </div>
