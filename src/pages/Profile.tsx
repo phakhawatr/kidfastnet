@@ -103,7 +103,14 @@ const Profile = () => {
   const { userAchievements, getAchievementProgress } = useAchievements(registrationId || null);
   
   // Training calendar data
-  const { missions, streak, isLoading: missionsLoading } = useTrainingCalendar();
+  const { 
+    missions, 
+    streak, 
+    isLoading: missionsLoading,
+    generateTodayMission,
+    isGenerating,
+    userId: calendarUserId 
+  } = useTrainingCalendar();
   
   // Helper function to get local date string
   const getLocalDateString = (date: Date) => {
@@ -115,6 +122,27 @@ const Profile = () => {
   const todayMissions = missions.filter(m => m.mission_date.split('T')[0] === todayStr);
   const completedCount = todayMissions.filter(m => m.status === 'completed' || m.completed_at !== null).length;
   const totalStarsToday = todayMissions.reduce((sum, m) => sum + (m.stars_earned || 0), 0);
+
+  // Auto-generate missions on login if fewer than 3 exist for today
+  useEffect(() => {
+    const autoGenerateOnLogin = async () => {
+      // Skip if loading, generating, or no userId
+      if (missionsLoading || isGenerating || !calendarUserId) return;
+      
+      // Skip if weekend
+      const today = new Date();
+      const dayOfWeek = today.getDay();
+      if (dayOfWeek === 0 || dayOfWeek === 6) return;
+      
+      // Check if today has fewer than 3 missions
+      if (todayMissions.length < 3) {
+        console.log('🚀 Profile: Auto-generating missions (', todayMissions.length, '/3)');
+        await generateTodayMission();
+      }
+    };
+    
+    autoGenerateOnLogin();
+  }, [missions.length, missionsLoading, isGenerating, calendarUserId, todayMissions.length]);
   
   // Get active tab from URL
   const [searchParams, setSearchParams] = useSearchParams();
