@@ -199,7 +199,7 @@ serve(async (req) => {
                 action: {
                   type: 'uri',
                   label: '🚀 เริ่มทำภารกิจ',
-                  uri: 'https://kid-fast-ai.lovable.app/today-mission',
+                  uri: 'https://kidfast.netlify.app/today-mission',
                 },
                 style: 'primary',
                 color: '#00B900',
