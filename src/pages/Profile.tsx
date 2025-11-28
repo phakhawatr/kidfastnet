@@ -19,10 +19,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Users, Sparkles, Edit, Upload, X, Trophy, GraduationCap, ChevronRight, Star, Clock, CheckCircle, Zap, ChevronDown, ChevronUp, Target, Award, Calendar as CalendarIcon } from 'lucide-react';
+import { Users, Sparkles, Edit, Upload, X, Trophy, GraduationCap, ChevronRight, Star, Clock, CheckCircle, Zap, ChevronDown, ChevronUp, Target, Award, Calendar as CalendarIcon, Check, MessageSquare, AlertCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { SubscriptionTab } from '../components/SubscriptionTab';
+import ToastManager from '@/components/Toast';
 
 // Define recommendation categories (translations in profile.json)
 const recommendationCategories = {
@@ -182,8 +184,14 @@ const Profile = () => {
   const [lineUserId, setLineUserId] = useState('');
   const [lineDisplayName, setLineDisplayName] = useState('');
   const [linePictureUrl, setLinePictureUrl] = useState('');
+  const [lineUserId2, setLineUserId2] = useState('');
+  const [lineDisplayName2, setLineDisplayName2] = useState('');
+  const [linePictureUrl2, setLinePictureUrl2] = useState('');
   const [showLinkCodeDialog, setShowLinkCodeDialog] = useState(false);
   const [linkCode, setLinkCode] = useState('');
+  const [linkCodeExpiry, setLinkCodeExpiry] = useState<Date | null>(null);
+  const [isGeneratingCode, setIsGeneratingCode] = useState(false);
+  const [linkingAccountNumber, setLinkingAccountNumber] = useState<1 | 2>(1);
   const [isLinking, setIsLinking] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   
@@ -402,14 +410,17 @@ const Profile = () => {
             if (registrationId) {
               const { data, error } = await supabase
                 .from('user_registrations')
-                .select('line_user_id, line_display_name, line_picture_url')
+                .select('line_user_id, line_display_name, line_picture_url, line_user_id_2, line_display_name_2, line_picture_url_2')
                 .eq('id', registrationId)
                 .single();
 
               if (data && !error) {
-                setLineUserId(data.line_user_id || '');
-                setLineDisplayName(data.line_display_name || '');
-                setLinePictureUrl(data.line_picture_url || '');
+        setLineUserId(data.line_user_id || '');
+        setLineDisplayName(data.line_display_name || '');
+        setLinePictureUrl(data.line_picture_url || '');
+        setLineUserId2(data.line_user_id_2 || '');
+        setLineDisplayName2(data.line_display_name_2 || '');
+        setLinePictureUrl2(data.line_picture_url_2 || '');
               }
             }
           }
@@ -495,7 +506,7 @@ const Profile = () => {
     }
   };
 
-  const handleConnectLine = async () => {
+  const handleGenerateLinkCode = async (accountNumber: 1 | 2 = 1) => {
     try {
       const authStored = localStorage.getItem('kidfast_auth');
       if (!authStored) return;
@@ -507,7 +518,10 @@ const Profile = () => {
 
       // Generate link code
       const { data, error } = await supabase.functions.invoke('line-generate-link-code', {
-        body: { userId: registrationId }
+        body: { 
+          userId: registrationId,
+          accountNumber: accountNumber
+        }
       });
 
       if (error || !data.linkCode) {
@@ -534,15 +548,25 @@ const Profile = () => {
 
         const { data: userData } = await supabase
           .from('user_registrations')
-          .select('line_user_id, line_display_name, line_picture_url')
+          .select('line_user_id, line_display_name, line_picture_url, line_user_id_2, line_display_name_2, line_picture_url_2')
           .eq('id', registrationId)
           .single();
 
-        if (userData && userData.line_user_id) {
+        const lineUserId = accountNumber === 1 ? userData?.line_user_id : userData?.line_user_id_2;
+
+        if (userData && lineUserId) {
           clearInterval(checkInterval);
-          setLineUserId(userData.line_user_id);
-          setLineDisplayName(userData.line_display_name || '');
-          setLinePictureUrl(userData.line_picture_url || '');
+          
+          if (accountNumber === 1) {
+            setLineUserId(userData.line_user_id || '');
+            setLineDisplayName(userData.line_display_name || '');
+            setLinePictureUrl(userData.line_picture_url || '');
+          } else {
+            setLineUserId2(userData.line_user_id_2 || '');
+            setLineDisplayName2(userData.line_display_name_2 || '');
+            setLinePictureUrl2(userData.line_picture_url_2 || '');
+          }
+          
           setShowLinkCodeDialog(false);
           setIsLinking(false);
           alert(t('alerts.linkSuccess'));
@@ -558,7 +582,7 @@ const Profile = () => {
     }
   };
 
-  const handleDisconnectLine = async () => {
+  const handleDisconnectLine = async (accountNumber: 1 | 2 = 1) => {
     const confirmed = confirm(t('alerts.disconnectConfirm'));
     if (!confirmed) return;
 
@@ -593,13 +617,20 @@ const Profile = () => {
     }
   };
 
-  const handleTestLineMessage = async () => {
-    if (!lineUserId) {
+  const handleTestLineMessage = async (accountNumber: 1 | 2 = 1) => {
+    const lineId = accountNumber === 1 ? lineUserId : lineUserId2;
+    
+    if (!lineId) {
       alert(t('alerts.connectLineFirst'));
       return;
     }
 
     try {
+      ToastManager.show({
+        message: `กำลังส่งข้อความทดสอบไปยังผู้ปกครอง ${accountNumber}...`,
+        type: 'info'
+      });
+
       const authStored = localStorage.getItem('kidfast_auth');
       if (!authStored) return;
 
@@ -613,23 +644,33 @@ const Profile = () => {
           userId: registrationId,
           exerciseType: 'test',
           nickname: nickname || username || 'ทดสอบ',
-          score: 0,
-          total: 0,
-          percentage: 0,
-          timeSpent: '0:00',
+          score: 8,
+          total: 10,
+          percentage: 80,
+          timeSpent: '2 นาที 30 วินาที',
           level: 'ทดสอบ',
-          problems: []
+          problems: [],
+          accountNumber: accountNumber
         }
       });
 
       if (error) {
-        alert(t('alerts.testMessageError', { message: error.message }));
+        ToastManager.show({
+          message: 'ส่งข้อความไม่สำเร็จ',
+          type: 'error'
+        });
       } else {
-        alert(t('alerts.testMessageSuccess'));
+        ToastManager.show({
+          message: `ส่งข้อความทดสอบสำเร็จ!`,
+          type: 'success'
+        });
       }
     } catch (err) {
       console.error('Test message error:', err);
-      alert(t('alerts.testMessageFailed'));
+      ToastManager.show({
+        message: 'เกิดข้อผิดพลาด',
+        type: 'error'
+      });
     }
   };
 
@@ -1513,19 +1554,27 @@ const Profile = () => {
               )}
             </div>
 
-            {/* Class Input */}
+            {/* Class Dropdown */}
             <div className="space-y-2">
               <Label htmlFor="studentClass" className="text-base font-semibold">
                 {t('editDialog.class')}
               </Label>
-              <Input
-                id="studentClass"
-                type="text"
-                value={studentClass}
-                onChange={(e) => setStudentClass(e.target.value)}
-                placeholder={t('editDialog.classPlaceholder')}
-                className="text-base"
-              />
+              <Select value={studentClass} onValueChange={setStudentClass}>
+                <SelectTrigger className="text-base">
+                  <SelectValue placeholder="เลือกชั้นเรียน" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="อนุบาล 1">อนุบาล 1</SelectItem>
+                  <SelectItem value="อนุบาล 2">อนุบาล 2</SelectItem>
+                  <SelectItem value="อนุบาล 3">อนุบาล 3</SelectItem>
+                  <SelectItem value="ประถมศึกษาปีที่ 1">ประถมศึกษาปีที่ 1</SelectItem>
+                  <SelectItem value="ประถมศึกษาปีที่ 2">ประถมศึกษาปีที่ 2</SelectItem>
+                  <SelectItem value="ประถมศึกษาปีที่ 3">ประถมศึกษาปีที่ 3</SelectItem>
+                  <SelectItem value="ประถมศึกษาปีที่ 4">ประถมศึกษาปีที่ 4</SelectItem>
+                  <SelectItem value="ประถมศึกษาปีที่ 5">ประถมศึกษาปีที่ 5</SelectItem>
+                  <SelectItem value="ประถมศึกษาปีที่ 6">ประถมศึกษาปีที่ 6</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* School Name Input */}
@@ -1543,7 +1592,7 @@ const Profile = () => {
               />
             </div>
 
-            {/* LINE Connection Settings */}
+            {/* LINE Connection Settings - 2 Accounts */}
             {!isDemo && registrationData && (
               <div className="space-y-3 pt-4 border-t-2 border-purple-200">
                 <div className="flex items-center gap-2">
@@ -1553,68 +1602,140 @@ const Profile = () => {
                   </Label>
                 </div>
                 
-                <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-xl">
-                  {lineUserId ? (
-                    <>
-                      <div className="flex items-center gap-3 mb-3">
-                        {linePictureUrl && (
-                          <img 
-                            src={linePictureUrl} 
-                            alt="LINE Profile" 
-                            className="w-10 h-10 rounded-full border-2 border-green-400"
-                          />
-                        )}
-                        <div className="flex-1">
-                          <div className="text-green-600 font-semibold flex items-center gap-2">
-                            {t('editDialog.lineConnected')}
+                {/* Parent 1 */}
+                <div className="space-y-2">
+                  <Label className="text-sm text-gray-600">👤 ผู้ปกครอง 1</Label>
+                  <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-xl">
+                    {lineUserId ? (
+                      <>
+                        <div className="flex items-center gap-3 mb-3">
+                          {linePictureUrl && (
+                            <img 
+                              src={linePictureUrl} 
+                              alt="LINE Profile" 
+                              className="w-10 h-10 rounded-full border-2 border-green-400"
+                            />
+                          )}
+                          <div className="flex-1">
+                            <div className="text-green-600 font-semibold flex items-center gap-2">
+                              {t('editDialog.lineConnected')}
+                            </div>
+                            <div className="text-xs text-gray-600">{lineDisplayName}</div>
                           </div>
-                          <div className="text-xs text-gray-600">{lineDisplayName}</div>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleDisconnectLine(1)}
+                            className="text-xs"
+                          >
+                            {t('editDialog.lineDisconnect')}
+                          </Button>
                         </div>
                         <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={handleDisconnectLine}
-                          className="text-xs"
+                          onClick={() => handleTestLineMessage(1)} 
+                          className="w-full bg-[#00B900] hover:bg-[#00A000] text-white"
+                          size="sm"
                         >
-                          {t('editDialog.lineDisconnect')}
+                          {t('editDialog.lineTestMessage')}
                         </Button>
-                      </div>
-                      <Button 
-                        onClick={handleTestLineMessage} 
-                        className="w-full bg-[#00B900] hover:bg-[#00A000] text-white"
-                        size="sm"
-                      >
-                        {t('editDialog.lineTestMessage')}
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex items-center gap-2 mb-3">
-                        <span className="text-orange-500 font-semibold">{t('editDialog.lineNotConnected')}</span>
-                      </div>
-                      
-                      <div className="bg-white p-3 rounded-lg mb-3 text-sm">
-                        <p className="font-semibold mb-2">{t('editDialog.lineStepsTitle')}</p>
-                        <ol className="list-decimal ml-4 space-y-1 text-xs">
-                          <li>{t('editDialog.lineStep1')} <a href="https://line.me/R/ti/p/@kidfast" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-bold underline">@kidfast</a></li>
-                          <li>{t('editDialog.lineStep2')}</li>
-                          <li>{t('editDialog.lineStep3')}</li>
-                          <li>{t('editDialog.lineStep4')}</li>
-                        </ol>
-                      </div>
-                      
-                      <Button 
-                        onClick={handleConnectLine}
-                        className="w-full bg-[#00B900] hover:bg-[#00A000] text-white"
-                        size="sm"
-                      >
-                        <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="white">
-                          <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
-                        </svg>
-                        {t('editDialog.lineConnect')}
-                      </Button>
-                    </>
-                  )}
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="text-orange-500 font-semibold">{t('editDialog.lineNotConnected')}</span>
+                        </div>
+                        
+                        <div className="bg-white p-3 rounded-lg mb-3 text-sm">
+                          <p className="font-semibold mb-2">{t('editDialog.lineStepsTitle')}</p>
+                          <ol className="list-decimal ml-4 space-y-1 text-xs">
+                            <li>{t('editDialog.lineStep1')} <a href="https://line.me/R/ti/p/@kidfast" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-bold underline">@kidfast</a></li>
+                            <li>{t('editDialog.lineStep2')}</li>
+                            <li>{t('editDialog.lineStep3')}</li>
+                            <li>{t('editDialog.lineStep4')}</li>
+                          </ol>
+                        </div>
+                        
+                        <Button 
+                          onClick={() => handleGenerateLinkCode(1)}
+                          className="w-full bg-[#00B900] hover:bg-[#00A000] text-white"
+                          size="sm"
+                        >
+                          <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="white">
+                            <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
+                          </svg>
+                          {t('editDialog.lineConnect')}
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Parent 2 */}
+                <div className="space-y-2">
+                  <Label className="text-sm text-gray-600">👤 ผู้ปกครอง 2</Label>
+                  <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-xl">
+                    {lineUserId2 ? (
+                      <>
+                        <div className="flex items-center gap-3 mb-3">
+                          {linePictureUrl2 && (
+                            <img 
+                              src={linePictureUrl2} 
+                              alt="LINE Profile" 
+                              className="w-10 h-10 rounded-full border-2 border-green-400"
+                            />
+                          )}
+                          <div className="flex-1">
+                            <div className="text-green-600 font-semibold flex items-center gap-2">
+                              {t('editDialog.lineConnected')}
+                            </div>
+                            <div className="text-xs text-gray-600">{lineDisplayName2}</div>
+                          </div>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleDisconnectLine(2)}
+                            className="text-xs"
+                          >
+                            {t('editDialog.lineDisconnect')}
+                          </Button>
+                        </div>
+                        <Button 
+                          onClick={() => handleTestLineMessage(2)} 
+                          className="w-full bg-[#00B900] hover:bg-[#00A000] text-white"
+                          size="sm"
+                        >
+                          {t('editDialog.lineTestMessage')}
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="text-orange-500 font-semibold">{t('editDialog.lineNotConnected')}</span>
+                        </div>
+                        
+                        <div className="bg-white p-3 rounded-lg mb-3 text-sm">
+                          <p className="font-semibold mb-2">{t('editDialog.lineStepsTitle')}</p>
+                          <ol className="list-decimal ml-4 space-y-1 text-xs">
+                            <li>{t('editDialog.lineStep1')} <a href="https://line.me/R/ti/p/@kidfast" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-bold underline">@kidfast</a></li>
+                            <li>{t('editDialog.lineStep2')}</li>
+                            <li>{t('editDialog.lineStep3')}</li>
+                            <li>{t('editDialog.lineStep4')}</li>
+                          </ol>
+                        </div>
+                        
+                        <Button 
+                          onClick={() => handleGenerateLinkCode(2)}
+                          className="w-full bg-[#00B900] hover:bg-[#00A000] text-white"
+                          size="sm"
+                        >
+                          <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="white">
+                            <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
+                          </svg>
+                          {t('editDialog.lineConnect')}
+                        </Button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             )}

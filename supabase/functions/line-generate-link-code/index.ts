@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { userId } = await req.json();
+    const { userId, accountNumber = 1 } = await req.json();
 
     if (!userId) {
       return new Response(
@@ -45,7 +45,8 @@ serve(async (req) => {
       .insert({
         user_id: userId,
         link_code: linkCode,
-        expires_at: expiresAt
+        expires_at: expiresAt,
+        account_number: accountNumber
       })
       .select()
       .single();

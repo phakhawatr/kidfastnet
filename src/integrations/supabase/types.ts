@@ -726,6 +726,7 @@ export type Database = {
       }
       line_link_codes: {
         Row: {
+          account_number: number | null
           created_at: string | null
           expires_at: string
           id: string
@@ -735,6 +736,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          account_number?: number | null
           created_at?: string | null
           expires_at: string
           id?: string
@@ -744,6 +746,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          account_number?: number | null
           created_at?: string | null
           expires_at?: string
           id?: string
@@ -1539,9 +1542,13 @@ export type Database = {
           last_login_at: string | null
           learning_style: string | null
           line_connected_at: string | null
+          line_connected_at_2: string | null
           line_display_name: string | null
+          line_display_name_2: string | null
           line_picture_url: string | null
+          line_picture_url_2: string | null
           line_user_id: string | null
+          line_user_id_2: string | null
           login_count: number | null
           member_id: string | null
           nickname: string
@@ -1573,9 +1580,13 @@ export type Database = {
           last_login_at?: string | null
           learning_style?: string | null
           line_connected_at?: string | null
+          line_connected_at_2?: string | null
           line_display_name?: string | null
+          line_display_name_2?: string | null
           line_picture_url?: string | null
+          line_picture_url_2?: string | null
           line_user_id?: string | null
+          line_user_id_2?: string | null
           login_count?: number | null
           member_id?: string | null
           nickname: string
@@ -1607,9 +1618,13 @@ export type Database = {
           last_login_at?: string | null
           learning_style?: string | null
           line_connected_at?: string | null
+          line_connected_at_2?: string | null
           line_display_name?: string | null
+          line_display_name_2?: string | null
           line_picture_url?: string | null
+          line_picture_url_2?: string | null
           line_user_id?: string | null
+          line_user_id_2?: string | null
           login_count?: number | null
           member_id?: string | null
           nickname?: string
