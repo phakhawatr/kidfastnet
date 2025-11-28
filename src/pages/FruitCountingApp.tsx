@@ -6,6 +6,7 @@ import { Home, RotateCcw } from 'lucide-react';
 import { FruitCountingGame } from '@/components/FruitCountingGame';
 import { useFruitCounting } from '@/hooks/useFruitCounting';
 import { useMissionMode } from '@/hooks/useMissionMode';
+import { useRecentApps } from '@/hooks/useRecentApps';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 import Confetti from 'react-confetti';
 
@@ -14,6 +15,11 @@ export default function FruitCountingApp() {
   const { t } = useTranslation(['fruitcounting', 'common']);
   const [searchParams] = useSearchParams();
   const missionId = searchParams.get('missionId');
+  const { trackAppUsage } = useRecentApps();
+
+  useEffect(() => {
+    trackAppUsage('fruit-counting');
+  }, []);
 
   const [difficulty, setDifficulty] = useState('easy');
   const [totalQuestions, setTotalQuestions] = useState(5);

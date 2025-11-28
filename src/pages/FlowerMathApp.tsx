@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft } from 'lucide-react';
@@ -7,6 +7,7 @@ import FlowerMathGame from '@/components/FlowerMathGame';
 import { useFlowerMath } from '@/hooks/useFlowerMath';
 import { type Operation, type Difficulty } from '@/utils/flowerMathUtils';
 import { useMissionMode } from '@/hooks/useMissionMode';
+import { useRecentApps } from '@/hooks/useRecentApps';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 const FlowerMathApp = () => {
@@ -43,6 +44,12 @@ const FlowerMathApp = () => {
     missionResult,
     handleCompleteMission 
   } = useMissionMode();
+  
+  const { trackAppUsage } = useRecentApps();
+  
+  useEffect(() => {
+    trackAppUsage('flower-math');
+  }, []);
 
   const operations: { value: Operation; label: string; icon: string }[] = [
     { value: 'addition', label: t('flowermath.operations.addition', 'บวก'), icon: '➕' },

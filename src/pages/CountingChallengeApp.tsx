@@ -8,6 +8,7 @@ import { useCountingChallenge } from '@/hooks/useCountingChallenge';
 import { Home, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useMissionMode } from '@/hooks/useMissionMode';
+import { useRecentApps } from '@/hooks/useRecentApps';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 export default function CountingChallengeApp() {
@@ -16,6 +17,11 @@ export default function CountingChallengeApp() {
   const [searchParams] = useSearchParams();
   const missionId = searchParams.get('missionId');
   const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
+  const { trackAppUsage } = useRecentApps();
+  
+  useEffect(() => {
+    trackAppUsage('counting-challenge');
+  }, []);
 
   const {
     score,

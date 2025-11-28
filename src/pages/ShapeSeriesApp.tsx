@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import ShapeDisplay from '@/components/ShapeDisplay';
 import { useMissionMode } from '@/hooks/useMissionMode';
+import { useRecentApps } from '@/hooks/useRecentApps';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 
 type ShapeType = 'circle' | 'square' | 'triangle' | 'ellipse';
@@ -29,6 +30,11 @@ const COLORS: ColorType[] = ['red', 'blue', 'green', 'orange', 'yellow', 'sky', 
 const ShapeSeriesApp = () => {
   const { t } = useTranslation('exercises');
   const [searchParams] = useSearchParams();
+  const { trackAppUsage } = useRecentApps();
+  
+  useEffect(() => {
+    trackAppUsage('shape-series');
+  }, []);
   
   const {
     isMissionMode,

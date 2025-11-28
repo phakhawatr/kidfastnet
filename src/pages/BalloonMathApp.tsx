@@ -8,6 +8,7 @@ import { BalloonMathGame } from '@/components/BalloonMathGame';
 import { useBalloonMath } from '@/hooks/useBalloonMath';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 import { useMissionMode } from '@/hooks/useMissionMode';
+import { useRecentApps } from '@/hooks/useRecentApps';
 import type { Operation, Difficulty } from '@/utils/balloonMathUtils';
 import { Home, RotateCcw } from 'lucide-react';
 import elephantMascot from '@/assets/elephant-mascot.png';
@@ -43,8 +44,14 @@ export default function BalloonMathApp() {
     missionResult,
     handleCompleteMission
   } = useMissionMode();
+  
+  const { trackAppUsage } = useRecentApps();
 
   const showVisuals = difficulty !== 'hard';
+
+  useEffect(() => {
+    trackAppUsage('balloon-math');
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {

@@ -6,6 +6,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { useTranslation } from 'react-i18next';
 import { useMissionMode } from "@/hooks/useMissionMode";
+import { useRecentApps } from "@/hooks/useRecentApps";
 import { MissionCompleteModal } from "@/components/MissionCompleteModal";
 
 // ---------- Utilities ----------
@@ -203,6 +204,11 @@ function Card({ idx, time, answer, setAnswer, result, showAnswer, onReset }) {
 // ---------- Main App ----------
 export default function TimeApp() {
   const { t } = useTranslation('exercises');
+  const { trackAppUsage } = useRecentApps();
+  
+  useEffect(() => {
+    trackAppUsage('time');
+  }, []);
   
   // Mission mode integration
   const {

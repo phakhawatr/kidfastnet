@@ -474,6 +474,11 @@ const FractionInput: React.FC<{
 const FractionShapesApp: React.FC = () => {
   const { t } = useTranslation('exercises');
   const [searchParams] = useSearchParams();
+  const { trackAppUsage } = useRecentApps();
+
+  useEffect(() => {
+    trackAppUsage('fraction-shapes');
+  }, []);
 
   // Mission mode integration
   const {

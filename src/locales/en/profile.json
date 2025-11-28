@@ -237,6 +237,9 @@
   
   "recentApps": {
     "title": "📚 Recently Used Apps",
+    "emptyTitle": "No Recently Used Apps",
+    "emptyDescription": "Start learning! Choose an exercise from the categories below",
+    "clearHistory": "Clear History",
     "addition": "Addition",
     "subtraction": "Subtraction",
     "multiplication": "Multiplication",
