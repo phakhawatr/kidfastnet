@@ -48,7 +48,7 @@ serve(async (req) => {
             // Find the link code in database
             const { data: linkCode, error: linkError } = await supabase
               .from('line_link_codes')
-              .select('*, user_registrations(id, nickname, parent_email)')
+              .select('*, user_registrations(id, nickname, parent_email), account_number')
               .eq('link_code', messageText)
               .is('used_at', null)
               .gt('expires_at', new Date().toISOString())
@@ -75,15 +75,25 @@ serve(async (req) => {
               })
               .eq('link_code', messageText);
 
-            // Update user registration with LINE info
+            // Update user registration with LINE info based on account_number
+            const accountNumber = linkCode.account_number || 1;
+            const updateFields = accountNumber === 1 
+              ? {
+                  line_user_id: lineUserId,
+                  line_display_name: lineProfile.displayName,
+                  line_picture_url: lineProfile.pictureUrl,
+                  line_connected_at: new Date().toISOString()
+                }
+              : {
+                  line_user_id_2: lineUserId,
+                  line_display_name_2: lineProfile.displayName,
+                  line_picture_url_2: lineProfile.pictureUrl,
+                  line_connected_at_2: new Date().toISOString()
+                };
+
             const { error: updateError } = await supabase
               .from('user_registrations')
-              .update({
-                line_user_id: lineUserId,
-                line_display_name: lineProfile.displayName,
-                line_picture_url: lineProfile.pictureUrl,
-                line_connected_at: new Date().toISOString()
-              })
+              .update(updateFields)
               .eq('id', linkCode.user_id);
 
             if (updateError) {
@@ -100,7 +110,7 @@ serve(async (req) => {
             // Send success message
             await sendLineMessage(lineUserId, {
               type: 'text',
-              text: `✅ เชื่อมต่อสำเร็จ!\n\nบัญชี: ${(linkCode.user_registrations as any).nickname}\nอีเมล: ${(linkCode.user_registrations as any).parent_email}\n\nตอนนี้เราจะส่งผลการเรียนมาให้อัตโนมัติแล้ว! 🎉`
+              text: `✅ เชื่อมต่อสำเร็จ! (ผู้ปกครอง ${accountNumber})\n\nบัญชี: ${(linkCode.user_registrations as any).nickname}\nอีเมล: ${(linkCode.user_registrations as any).parent_email}\n\nตอนนี้เราจะส่งผลการเรียนมาให้อัตโนมัติแล้ว! 🎉`
             });
           }
         }

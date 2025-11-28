@@ -52,9 +52,11 @@ serve(async (req) => {
         id,
         nickname,
         line_user_id,
+        line_user_id_2,
         parent_email
       `)
-      .not('line_user_id', 'is', null);
+      .where('line_user_id', 'not.is', null)
+      .or('line_user_id_2.not.is.null');
 
     if (usersError) {
       console.error('❌ Error fetching users:', usersError);
@@ -208,52 +210,56 @@ serve(async (req) => {
           },
         };
 
-        // Send LINE message
-        const lineResponse = await fetch('https://api.line.me/v2/bot/message/push', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${lineAccessToken}`,
-          },
-          body: JSON.stringify({
-            to: user.line_user_id,
-            messages: [
-              {
-                type: 'flex',
-                altText: `🌅 ภารกิจใหม่ประจำวัน - ${user.nickname}`,
-                contents: flexMessage,
-              },
-            ],
-          }),
-        });
-
-        if (lineResponse.ok) {
-          console.log(`✅ Sent morning alert to ${user.nickname}`);
-          successCount++;
-          
-          // Log to line_message_logs
-          await supabase.from('line_message_logs').insert({
-            user_id: user.id,
-            exercise_type: 'morning_mission_alert',
-            message_data: { missionsCount: incompleteMissions.length, streak: currentStreak },
-            success: true,
+        // Send LINE message to both accounts if connected
+        const lineUserIds = [user.line_user_id, user.line_user_id_2].filter(Boolean);
+        
+        for (const lineUserId of lineUserIds) {
+          const lineResponse = await fetch('https://api.line.me/v2/bot/message/push', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${lineAccessToken}`,
+            },
+            body: JSON.stringify({
+              to: lineUserId,
+              messages: [
+                {
+                  type: 'flex',
+                  altText: `🌅 ภารกิจใหม่ประจำวัน - ${user.nickname}`,
+                  contents: flexMessage,
+                },
+              ],
+            }),
           });
 
-          results.push({ user: user.nickname, status: 'success' });
-        } else {
-          const errorText = await lineResponse.text();
-          console.error(`❌ Failed to send to ${user.nickname}:`, errorText);
-          failCount++;
-          
-          await supabase.from('line_message_logs').insert({
-            user_id: user.id,
-            exercise_type: 'morning_mission_alert',
-            message_data: { missionsCount: incompleteMissions.length, streak: currentStreak },
-            success: false,
-            error_message: errorText,
-          });
+          if (lineResponse.ok) {
+            console.log(`✅ Sent morning alert to ${user.nickname} (${lineUserId})`);
+            successCount++;
+            
+            // Log to line_message_logs
+            await supabase.from('line_message_logs').insert({
+              user_id: user.id,
+              exercise_type: 'morning_mission_alert',
+              message_data: { missionsCount: incompleteMissions.length, streak: currentStreak, lineUserId },
+              success: true,
+            });
 
-          results.push({ user: user.nickname, status: 'failed', error: errorText });
+            results.push({ user: user.nickname, status: 'success', lineUserId });
+          } else {
+            const errorText = await lineResponse.text();
+            console.error(`❌ Failed to send to ${user.nickname} (${lineUserId}):`, errorText);
+            failCount++;
+            
+            await supabase.from('line_message_logs').insert({
+              user_id: user.id,
+              exercise_type: 'morning_mission_alert',
+              message_data: { missionsCount: incompleteMissions.length, streak: currentStreak, lineUserId },
+              success: false,
+              error_message: errorText,
+            });
+
+            results.push({ user: user.nickname, status: 'failed', error: errorText, lineUserId });
+          }
         }
 
       } catch (userError) {

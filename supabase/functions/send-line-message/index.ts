@@ -28,7 +28,8 @@ serve(async (req) => {
       timeTaken,
       timeSpent,
       level,
-      problems 
+      problems,
+      accountNumber 
     } = requestData;
     
     // Calculate values based on available data
@@ -43,15 +44,35 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Get user's LINE user ID
+    // Get user's LINE user IDs
     const { data: user, error: userError } = await supabase
       .from('user_registrations')
-      .select('line_user_id, line_display_name')
+      .select('line_user_id, line_display_name, line_user_id_2, line_display_name_2')
       .eq('id', userId)
       .single();
 
-    if (userError || !user || !user.line_user_id) {
-      console.log('User not found or LINE not connected:', userId);
+    if (userError || !user) {
+      console.log('User not found:', userId);
+      return new Response(
+        JSON.stringify({ error: 'User not found' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Determine which LINE account(s) to send to
+    const lineUserIds = [];
+    if (accountNumber === 1 && user.line_user_id) {
+      lineUserIds.push(user.line_user_id);
+    } else if (accountNumber === 2 && user.line_user_id_2) {
+      lineUserIds.push(user.line_user_id_2);
+    } else if (!accountNumber) {
+      // If no accountNumber specified, send to both if connected
+      if (user.line_user_id) lineUserIds.push(user.line_user_id);
+      if (user.line_user_id_2) lineUserIds.push(user.line_user_id_2);
+    }
+
+    if (lineUserIds.length === 0) {
+      console.log('No LINE accounts connected:', userId);
       return new Response(
         JSON.stringify({ error: 'LINE not connected' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -100,17 +121,19 @@ serve(async (req) => {
       );
     }
 
-    // Send Flex Message
-    await sendLineFlexMessage(user.line_user_id, {
-      exerciseType,
-      nickname: actualNickname,
-      score: actualScore,
-      total: actualTotal,
-      percentage: actualPercentage,
-      timeSpent: actualTimeSpent,
-      level: level || 'ไม่ระบุ',
-      problems: problems || []
-    });
+    // Send Flex Message to all connected LINE accounts
+    for (const lineUserId of lineUserIds) {
+      await sendLineFlexMessage(lineUserId, {
+        exerciseType,
+        nickname: actualNickname,
+        score: actualScore,
+        total: actualTotal,
+        percentage: actualPercentage,
+        timeSpent: actualTimeSpent,
+        level: level || 'ไม่ระบุ',
+        problems: problems || []
+      });
+    }
 
     // Log successful send
     await supabase.from('line_message_logs').insert({
