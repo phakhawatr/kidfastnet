@@ -1,0 +1,25 @@
+{
+  "title": "Flower Math",
+  "subtitle": "Practice multiplication with flowers",
+  "selectOperation": "Select Operation",
+  "operations": {
+    "addition": "Addition",
+    "subtraction": "Subtraction",
+    "multiplication": "Multiplication",
+    "division": "Division"
+  },
+  "selectTable": "Select Times Table",
+  "selectDifficulty": "Select Difficulty",
+  "difficulty": {
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard"
+  },
+  "startGame": "Start Game",
+  "backToHome": "Back to Home",
+  "gameOver": "Game Over!",
+  "finalScore": "Final Score",
+  "bestStreak": "Best Streak",
+  "playAgain": "Play Again",
+  "changeSettings": "Change Settings"
+}
