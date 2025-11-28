@@ -27,6 +27,7 @@ import ShapeSeriesApp from "./pages/ShapeSeriesApp";
 import FractionShapesApp from "./pages/FractionShapesApp";
 import FlowerMathApp from "./pages/FlowerMathApp";
 import BalloonMathApp from "./pages/BalloonMathApp";
+import CountingChallengeApp from "./pages/CountingChallengeApp";
 import BackgroundRemoverPage from "./pages/BackgroundRemover";
 import ParentDashboard from "./pages/ParentDashboard";
 import ChildProgressDashboard from "./pages/ChildProgressDashboard";
@@ -336,6 +337,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <BalloonMathApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/counting-challenge" 
+            element={
+              <ProtectedRoute>
+                <CountingChallengeApp />
               </ProtectedRoute>
             } 
           />

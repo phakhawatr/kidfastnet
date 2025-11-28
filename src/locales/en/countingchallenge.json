@@ -1,0 +1,20 @@
+{
+  "title": "Counting Challenge",
+  "header": "Develop Math Skills!",
+  "age": "Age 3+",
+  "score": "Score",
+  "themes": {
+    "fish": "Fish",
+    "beachBall": "Beach Ball",
+    "apple": "Apple",
+    "star": "Star",
+    "butterfly": "Butterfly",
+    "car": "Car",
+    "flower": "Flower",
+    "bird": "Bird"
+  },
+  "correct": "Great job!",
+  "tryAgain": "Try again",
+  "tapHint": "Tap the correct number",
+  "dragHint": "Drag the number here"
+}
