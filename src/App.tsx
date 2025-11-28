@@ -26,6 +26,7 @@ import SumGridPuzzles from "./pages/SumGridPuzzles";
 import ShapeSeriesApp from "./pages/ShapeSeriesApp";
 import FractionShapesApp from "./pages/FractionShapesApp";
 import FlowerMathApp from "./pages/FlowerMathApp";
+import BalloonMathApp from "./pages/BalloonMathApp";
 import BackgroundRemoverPage from "./pages/BackgroundRemover";
 import ParentDashboard from "./pages/ParentDashboard";
 import ChildProgressDashboard from "./pages/ChildProgressDashboard";
@@ -327,6 +328,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <FlowerMathApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/balloon-math" 
+            element={
+              <ProtectedRoute>
+                <BalloonMathApp />
               </ProtectedRoute>
             } 
           />

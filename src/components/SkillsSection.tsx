@@ -69,6 +69,17 @@ const getDefaultSkills = (t: any): Skill[] => [
     category: 'interactive-games'
   }, {
     icon: Shapes,
+    title: t('skills.balloonMath.title'),
+    desc: t('skills.balloonMath.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-sky-400 via-cyan-500 to-blue-600',
+    textColor: 'text-white',
+    sticker: '🎈',
+    hrefPreview: '/balloon-math',
+    mascotImage: additionMascot,
+    translationKey: 'balloonMath',
+    category: 'interactive-games'
+  }, {
+    icon: Shapes,
     title: t('skills.shapeSeries.title'),
     desc: t('skills.shapeSeries.desc'),
     backgroundGradient: 'bg-gradient-to-br from-fuchsia-400 via-violet-500 to-purple-600',
