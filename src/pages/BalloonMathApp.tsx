@@ -219,7 +219,7 @@ export default function BalloonMathApp() {
       {/* Action Buttons */}
       <div className="fixed bottom-8 right-8 flex gap-4">
         <Button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/profile')}
           variant="secondary"
           size="lg"
           className="shadow-xl"

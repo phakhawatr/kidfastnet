@@ -165,7 +165,7 @@ export default function FruitCountingApp() {
               <RotateCcw className="mr-2" />
               เล่นอีกครั้ง
             </Button>
-            <Button onClick={() => navigate('/')} variant="outline" size="lg" className="bg-white/90 hover:bg-white">
+            <Button onClick={() => navigate('/profile')} variant="outline" size="lg" className="bg-white/90 hover:bg-white">
               <Home className="mr-2" />
               กลับหน้าหลัก
             </Button>
@@ -290,7 +290,7 @@ export default function FruitCountingApp() {
       {/* Action Buttons */}
       <div className="flex justify-center gap-4 mt-6">
         <Button
-          onClick={() => navigate('/')}
+              onClick={() => navigate('/profile')}
           variant="outline"
           size="lg"
           className="bg-white/90 hover:bg-white"
