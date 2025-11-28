@@ -1,42 +1,40 @@
-import { useDroppable } from '@dnd-kit/core';
-
 interface NumberTargetProps {
   number: number;
+  groupId: string;
+  buttonColor: string;
   isMatched: boolean;
+  isUsed: boolean;
+  onDrop: (number: number) => void;
 }
 
-export const NumberTarget = ({ number, isMatched }: NumberTargetProps) => {
-  const { setNodeRef, isOver } = useDroppable({
-    id: `number-${number}`,
-  });
+export const NumberTarget = ({ 
+  number, 
+  buttonColor, 
+  isMatched, 
+  isUsed,
+  onDrop 
+}: NumberTargetProps) => {
+  const handleClick = () => {
+    if (!isMatched && !isUsed) {
+      onDrop(number);
+    }
+  };
 
   return (
-    <div
-      ref={setNodeRef}
+    <button
+      onClick={handleClick}
+      disabled={isMatched || isUsed}
       className={`
-        relative w-32 h-32 flex items-center justify-center
-        rounded-2xl border-4 transition-all duration-300
-        ${isMatched 
-          ? 'bg-green-100 border-green-400 shadow-lg' 
-          : 'bg-white border-blue-300 hover:border-blue-500'
-        }
-        ${isOver ? 'scale-110 border-yellow-400 bg-yellow-50' : ''}
+        relative w-16 h-16 text-2xl font-bold text-white rounded-xl
+        bg-gradient-to-b ${buttonColor}
+        border-b-4 shadow-lg
+        transition-all duration-150
+        active:border-b-0 active:mt-1 active:shadow-md
+        hover:scale-110 hover:shadow-xl
+        disabled:opacity-30 disabled:cursor-not-allowed
       `}
     >
-      <span 
-        className={`text-7xl font-bold transition-colors ${
-          isMatched ? 'text-green-600' : 'text-blue-600'
-        }`}
-        style={{ fontFamily: "'Varela Round', sans-serif" }}
-      >
-        {number}
-      </span>
-      
-      {isMatched && (
-        <div className="absolute inset-0 flex items-center justify-center bg-green-500/20 rounded-2xl">
-          <span className="text-5xl animate-bounce">✓</span>
-        </div>
-      )}
-    </div>
+      {number}
+    </button>
   );
 };
