@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { CountingChallenge, generateChallenge, getTwoRandomThemes } from '@/utils/countingChallengeUtils';
 
 export const useCountingChallenge = () => {
@@ -10,6 +10,19 @@ export const useCountingChallenge = () => {
   const [card2Correct, setCard2Correct] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
 
+  // Use refs to avoid dependencies in callbacks
+  const card1CorrectRef = useRef(card1Correct);
+  const card2CorrectRef = useRef(card2Correct);
+  const challenge1Ref = useRef(challenge1);
+  const challenge2Ref = useRef(challenge2);
+
+  useEffect(() => {
+    card1CorrectRef.current = card1Correct;
+    card2CorrectRef.current = card2Correct;
+    challenge1Ref.current = challenge1;
+    challenge2Ref.current = challenge2;
+  }, [card1Correct, card2Correct, challenge1, challenge2]);
+
   const initializeChallenges = useCallback(() => {
     const [theme1, theme2] = getTwoRandomThemes();
     setChallenge1(generateChallenge(theme1));
@@ -19,7 +32,7 @@ export const useCountingChallenge = () => {
   }, []);
 
   const handleAnswer = useCallback((cardNumber: 1 | 2, answer: number) => {
-    const challenge = cardNumber === 1 ? challenge1 : challenge2;
+    const challenge = cardNumber === 1 ? challenge1Ref.current : challenge2Ref.current;
     if (!challenge) return { isCorrect: false };
 
     const isCorrect = answer === challenge.correctAnswer;
@@ -35,7 +48,7 @@ export const useCountingChallenge = () => {
       }
 
       // Check if both cards are now correct
-      const bothCorrect = cardNumber === 1 ? card2Correct : card1Correct;
+      const bothCorrect = cardNumber === 1 ? card2CorrectRef.current : card1CorrectRef.current;
       if (bothCorrect) {
         setShowConfetti(true);
         setTimeout(() => {
@@ -48,7 +61,7 @@ export const useCountingChallenge = () => {
     }
 
     return { isCorrect };
-  }, [challenge1, challenge2, card1Correct, card2Correct, initializeChallenges]);
+  }, [initializeChallenges]);
 
   return {
     score,
