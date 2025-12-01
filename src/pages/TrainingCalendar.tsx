@@ -186,6 +186,15 @@ const TrainingCalendar = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
+        {/* Title */}
+        <div className="mb-6">
+          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent flex items-center gap-3">
+            <Calendar className="w-8 h-8 text-purple-400" />
+            ปฏิทินการฝึกของฉัน
+          </h1>
+          <p className="text-slate-300 mt-2">ติดตามความก้าวหน้าในแต่ละวัน</p>
+        </div>
+
         {/* Header */}
         <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
           <Link to="/profile">
@@ -240,16 +249,8 @@ const TrainingCalendar = () => {
         {/* Main Card */}
         <Card className="bg-slate-800/90 backdrop-blur-sm border-2 border-slate-700 shadow-2xl">
           <div className="p-6 space-y-6">
-            {/* Title & Month Navigation */}
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent flex items-center gap-3">
-                  <Calendar className="w-8 h-8 text-purple-400" />
-                  ปฏิทินการฝึกของฉัน
-                </h1>
-                <p className="text-slate-300 mt-2">ติดตามความก้าวหน้าในแต่ละวัน</p>
-              </div>
-
+            {/* Month Navigation */}
+            <div className="flex items-center justify-center">
               <div className="flex items-center gap-2 bg-slate-700/50 rounded-xl p-1">
                 <Button
                   variant="ghost"
