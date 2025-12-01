@@ -489,9 +489,18 @@
   "numberBonds": {
     "title": "การแยกจำนวน",
     "subtitle": "ฝึกแยกตัวเลข",
+    "back": "กลับ",
     "whole": "ทั้งหมด",
     "part": "ส่วน",
-    "fillMissing": "เติมตัวเลขที่หายไป"
+    "part1": "ส่วนที่ 1",
+    "part2": "ส่วนที่ 2",
+    "fillMissing": "เติมตัวเลขที่หายไป",
+    "numberOfProblems": "จำนวนโจทย์",
+    "maxNumber": "ตัวเลขสูงสุด",
+    "clear": "ล้าง",
+    "summary": "สรุปผลการทำแบบฝึกหัด",
+    "timeUsed": "เวลาที่ใช้",
+    "submitAnswer": "ส่งคำตอบ"
   },
   "mentalMath": {
     "title": "คิดเลขเร็ว",
