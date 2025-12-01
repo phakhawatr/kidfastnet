@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+const GROQ_API_KEY = Deno.env.get('GROQ_API_KEY');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -71,23 +71,17 @@ ${categoryExamples[category].join('\n')}
   }
 ]`;
 
-    // Call Lovable AI Gateway
-    const response = await fetch('https://api.lovable.app/v1/ai/chat', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
         messages: [
-          {
-            role: 'system',
-            content: systemPrompt
-          },
-          {
-            role: 'user',
-            content: `สร้างโจทย์ ${count} ข้อ`
-          }
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: `สร้างโจทย์ ${count} ข้อ` }
         ],
         temperature: 0.8,
         max_tokens: 2000
@@ -101,12 +95,10 @@ ${categoryExamples[category].join('\n')}
     const data = await response.json();
     const aiResponse = data.choices[0].message.content;
     
-    // Parse AI response
     let problems = [];
     try {
       problems = JSON.parse(aiResponse);
     } catch (e) {
-      // Fallback to pattern matching if JSON parsing fails
       console.error('Failed to parse AI response as JSON:', e);
       problems = [];
     }
