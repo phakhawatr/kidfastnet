@@ -44,6 +44,9 @@ export default function CountingChallengeApp() {
   const [showSettings, setShowSettings] = useState(true);
   const [startTime, setStartTime] = useState<number>(0);
   const [problemsSolved, setProblemsSolved] = useState(0);
+  const [problemCount, setProblemCount] = useState<5 | 10 | 20 | 30>(10);
+  const [showSummary, setShowSummary] = useState(false);
+  const [correctCount, setCorrectCount] = useState(0);
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -75,23 +78,33 @@ export default function CountingChallengeApp() {
     setShowSettings(false);
     setStartTime(Date.now());
     setProblemsSolved(0);
+    setCorrectCount(0);
   };
 
   const handleReset = () => {
     setShowSettings(true);
     setProblemsSolved(0);
+    setCorrectCount(0);
+    setShowSummary(false);
   };
 
   const handleCardAnswer = (answer: number) => {
     const result = handleAnswer(answer);
     
     if (result.isCorrect) {
+      const newCorrect = correctCount + 1;
+      setCorrectCount(newCorrect);
       const newProblemsSolved = problemsSolved + 1;
       setProblemsSolved(newProblemsSolved);
 
-      if (isMissionMode && newProblemsSolved >= 15) {
-        const timeSpent = Math.floor((Date.now() - startTime) / 1000);
-        handleCompleteMission(newProblemsSolved, 15, timeSpent);
+      // Check if completed all problems
+      if (newProblemsSolved >= problemCount) {
+        if (isMissionMode) {
+          const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+          handleCompleteMission(newCorrect, problemCount, timeSpent);
+        } else {
+          setShowSummary(true);
+        }
       }
     }
     
@@ -102,6 +115,7 @@ export default function CountingChallengeApp() {
     setShowMissionComplete(false);
     setShowSettings(true);
     setProblemsSolved(0);
+    setCorrectCount(0);
   };
 
   const handleCloseMissionModal = () => {
@@ -147,6 +161,26 @@ export default function CountingChallengeApp() {
               </p>
             </div>
 
+            {/* Problem Count Selection */}
+            <div className="mb-8">
+              <p className="text-lg text-gray-700 mb-4">เลือกจำนวนข้อ:</p>
+              <div className="flex justify-center gap-3">
+                {[5, 10, 20, 30].map((count) => (
+                  <Button
+                    key={count}
+                    onClick={() => setProblemCount(count as 5 | 10 | 20 | 30)}
+                    variant={problemCount === count ? 'default' : 'outline'}
+                    className={problemCount === count
+                      ? 'bg-green-500 hover:bg-green-600 text-white text-xl px-6 py-4'
+                      : 'bg-white text-gray-700 border-2 text-xl px-6 py-4'
+                    }
+                  >
+                    {count}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
             <Button
               onClick={handleStartGame}
               size="lg"
@@ -172,6 +206,7 @@ export default function CountingChallengeApp() {
             🧠 {t('header')}
           </h1>
           <div className="flex items-center gap-4 text-lg md:text-xl">
+            <span className="font-bold">ข้อ: {problemsSolved}/{problemCount}</span>
             <span className="font-bold">{t('score')}: {score}</span>
             <span className="font-bold">🔥 {streak}</span>
           </div>
@@ -214,6 +249,58 @@ export default function CountingChallengeApp() {
           {t('reset', { ns: 'common' })}
         </Button>
       </div>
+
+      {/* Summary Modal */}
+      {showSummary && !isMissionMode && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl">
+            <h2 className="text-4xl font-bold text-purple-600 mb-4">🎉 เก่งมาก!</h2>
+            
+            {/* Stars based on accuracy */}
+            <div className="flex justify-center gap-2 mb-4">
+              {[...Array(3)].map((_, i) => (
+                <span
+                  key={i}
+                  className={`text-5xl ${
+                    i < Math.ceil((correctCount / problemCount) * 3) ? 'animate-bounce' : 'opacity-30'
+                  }`}
+                  style={{ animationDelay: `${i * 0.1}s` }}
+                >
+                  ⭐
+                </span>
+              ))}
+            </div>
+            
+            <p className="text-2xl text-gray-700 mb-2">
+              คะแนน: {correctCount}/{problemCount}
+            </p>
+            <p className="text-xl text-gray-500 mb-6">
+              ({Math.round((correctCount / problemCount) * 100)}%)
+            </p>
+            
+            <div className="flex gap-4 justify-center">
+              <Button
+                onClick={() => {
+                  setShowSummary(false);
+                  setShowSettings(true);
+                  setProblemsSolved(0);
+                  setCorrectCount(0);
+                }}
+                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3"
+              >
+                🔄 เล่นอีกครั้ง
+              </Button>
+              <Button
+                onClick={() => navigate('/profile')}
+                variant="outline"
+                className="px-6 py-3"
+              >
+                🏠 กลับหน้าหลัก
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Mission Complete Modal */}
       {isMissionMode && (
