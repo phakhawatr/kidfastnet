@@ -1,5 +1,6 @@
 import React from 'react';
 import ShapeDisplay from './ShapeDisplay';
+import { ClockDisplay } from './ClockDisplay';
 
 interface QuestionTextRendererProps {
   text: string;
@@ -18,12 +19,49 @@ const QuestionTextRenderer: React.FC<QuestionTextRendererProps> = ({ text, class
   // Pattern 2: [circle-red] - single shape inline (more flexible: handles uppercase and numbers)
   const singleShapePattern = /\[([a-z0-9]+-[a-z0-9]+)\]/gi;
   
+  // Pattern 3: [clock:10:45] - display clock at specified time
+  const clockPattern = /\[clock:(\d{1,2}):(\d{1,2})\]/gi;
+  
   console.log('📝 QuestionTextRenderer processing:', { textStr });
   const elements: React.ReactNode[] = [];
   let lastIndex = 0;
 
-  // Process multiple shapes pattern first
+  // Process clock pattern first
   let match;
+  while ((match = clockPattern.exec(textStr)) !== null) {
+    // Add text before the match
+    if (match.index > lastIndex) {
+      const beforeText = textStr.substring(lastIndex, match.index);
+      elements.push(<span key={`text-${lastIndex}`}>{beforeText}</span>);
+    }
+
+    // Parse hour and minute
+    const hour = parseInt(match[1], 10);
+    const minute = parseInt(match[2], 10);
+    
+    elements.push(
+      <div key={`clock-${match.index}`} className="inline-flex justify-center items-center bg-purple-50 dark:bg-purple-900/20 px-3 py-2 rounded-lg my-2">
+        <ClockDisplay hour={hour} minute={minute} size={120} />
+      </div>
+    );
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  // If we found clocks, process the remaining text
+  if (elements.length > 0) {
+    const remainingText = textStr.substring(lastIndex);
+    if (remainingText) {
+      elements.push(<span key={`text-end`}>{remainingText}</span>);
+    }
+    return <div className={className}>{elements}</div>;
+  }
+
+  // Reset for multiple shapes pattern
+  lastIndex = 0;
+  multiShapePattern.lastIndex = 0;
+  
+  // Process multiple shapes pattern
   while ((match = multiShapePattern.exec(textStr)) !== null) {
     // Add text before the match
     if (match.index > lastIndex) {
