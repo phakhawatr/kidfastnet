@@ -37,7 +37,7 @@ const Apple = () => (
 );
 
 const Star = () => (
-  <svg width="50" height="50" viewBox="0 0 50 50" className="animate-spin-slow">
+  <svg width="50" height="50" viewBox="0 0 50 50" className="animate-pulse">
     <polygon points="25,5 30,18 45,18 33,28 38,42 25,33 12,42 17,28 5,18 20,18" fill="#FFD700" />
     <polygon points="25,10 28,20 38,20 30,26 33,37 25,30 17,37 20,26 12,20 22,20" fill="#FFF" opacity="0.5" />
   </svg>
