@@ -311,9 +311,9 @@ const SumGridPuzzles: React.FC = () => {
           // Start Screen
           <div className="bg-slate-800/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 md:p-12 border border-slate-700">
             <div className="text-center mb-8">
-              <div className="text-6xl mb-4">🧩</div>
-              <h2 className="text-3xl font-bold text-white mb-2">ตารางบวก 3x3</h2>
-              <p className="text-slate-300">เลือกจำนวนข้อที่ต้องการฝึกฝน</p>
+              <div className="text-7xl md:text-8xl mb-4">🧩</div>
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">ตารางบวก 3x3</h2>
+              <p className="text-xl md:text-2xl text-slate-300">เลือกจำนวนข้อที่ต้องการฝึกฝน</p>
             </div>
             
             {/* Question count selection */}
@@ -322,7 +322,7 @@ const SumGridPuzzles: React.FC = () => {
                 <button
                   key={count}
                   onClick={() => setTotalQuestions(count)}
-                  className={`px-8 py-4 rounded-2xl font-bold text-lg transition-all transform hover:scale-105 ${
+                  className={`px-8 py-4 rounded-2xl font-bold text-xl md:text-2xl transition-all transform hover:scale-105 ${
                     totalQuestions === count
                       ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/50'
                       : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
@@ -337,24 +337,24 @@ const SumGridPuzzles: React.FC = () => {
             <div className="flex justify-center mb-8">
               <button
                 onClick={() => setSound(!sound)}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all ${
+                className={`flex items-center gap-3 px-6 py-3 rounded-xl text-lg transition-all ${
                   sound ? 'bg-green-500/20 text-green-400' : 'bg-slate-700 text-slate-400'
                 }`}
               >
-                {sound ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-                <span>เสียง: {sound ? 'เปิด' : 'ปิด'}</span>
+                {sound ? <Volume2 className="w-6 h-6" /> : <VolumeX className="w-6 h-6" />}
+                <span className="font-semibold">เสียง: {sound ? 'เปิด' : 'ปิด'}</span>
               </button>
             </div>
             
             {/* Start button */}
             <button
               onClick={startGame}
-              className="w-full py-4 rounded-2xl text-xl font-bold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+              className="w-full py-5 rounded-2xl text-2xl font-bold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
               style={{
                 background: 'linear-gradient(135deg, #06b6d4 0%, #10b981 50%, #a855f7 100%)',
               }}
             >
-              <span className="text-2xl mr-2">🚀</span>
+              <span className="text-3xl mr-2">🚀</span>
               เริ่มเกม
             </button>
           </div>
@@ -362,25 +362,25 @@ const SumGridPuzzles: React.FC = () => {
           // Summary Screen
           <div className="bg-slate-800/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 md:p-12 border border-slate-700">
             <div className="text-center">
-              <div className="text-6xl mb-4">🎉</div>
-              <h2 className="text-3xl font-bold text-white mb-2">ยอดเยี่ยม!</h2>
-              <p className="text-2xl text-slate-300 mb-6">
+              <div className="text-7xl md:text-8xl mb-6">🎉</div>
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">ยอดเยี่ยม!</h2>
+              <p className="text-3xl md:text-4xl text-slate-300 mb-6">
                 ทำถูก <span className="text-cyan-400 font-bold">{correctCount}</span> / {totalQuestions} ข้อ
               </p>
-              <p className="text-xl text-slate-300 mb-8">
+              <p className="text-2xl md:text-3xl text-slate-300 mb-8">
                 คะแนน: <span className="text-green-400 font-bold">{Math.round((correctCount / totalQuestions) * 100)}%</span>
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button
                   onClick={resetGame}
-                  className="px-8 py-4 rounded-2xl font-bold text-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
+                  className="px-8 py-4 rounded-2xl font-bold text-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
                 >
                   🔄 เล่นใหม่
                 </button>
                 <Link
                   to="/profile"
-                  className="px-8 py-4 rounded-2xl font-bold text-lg bg-slate-700 text-white hover:bg-slate-600 shadow-lg transform hover:scale-105 transition-all text-center"
+                  className="px-8 py-4 rounded-2xl font-bold text-xl bg-slate-700 text-white hover:bg-slate-600 shadow-lg transform hover:scale-105 transition-all text-center"
                 >
                   🏠 กลับหน้าหลัก
                 </Link>
@@ -392,11 +392,11 @@ const SumGridPuzzles: React.FC = () => {
           <div className="bg-slate-800/90 backdrop-blur-sm rounded-3xl shadow-2xl p-6 md:p-8 border border-slate-700">
             {/* Question Header */}
             <div className="text-center mb-6">
-              <span className="text-lg text-slate-400">ข้อที่</span>
-              <span className="text-4xl font-bold text-cyan-400 mx-2">
+              <span className="text-2xl md:text-3xl text-slate-400 font-semibold">ข้อที่</span>
+              <span className="text-5xl md:text-6xl font-bold text-cyan-400 mx-3">
                 {currentQuestion + 1}
               </span>
-              <span className="text-lg text-slate-400">/ {totalQuestions}</span>
+              <span className="text-2xl md:text-3xl text-slate-400 font-semibold">/ {totalQuestions}</span>
             </div>
             
             {/* Progress Bar */}
@@ -410,7 +410,7 @@ const SumGridPuzzles: React.FC = () => {
             {/* Grid Display */}
             {currentGrid && (
               <div className="mb-8">
-                <div className="grid grid-cols-4 gap-3 md:gap-4 max-w-[400px] md:max-w-[500px] mx-auto">
+                <div className="grid grid-cols-4 gap-3 md:gap-4 max-w-[420px] md:max-w-[560px] mx-auto">
                   {currentGrid.map((row, rowIndex) =>
                     row.map((cell, colIndex) => {
                       const isGridCompleted = isCurrentGridComplete();
@@ -419,7 +419,7 @@ const SumGridPuzzles: React.FC = () => {
                         <div
                           key={`${rowIndex}-${colIndex}`}
                           className={`
-                            aspect-square border-2 rounded-xl flex items-center justify-center font-bold text-xl md:text-2xl
+                            aspect-square border-3 rounded-xl flex items-center justify-center font-bold text-3xl md:text-4xl
                             transition-all duration-200
                             ${cell.isInput 
                               ? cell.isCorrect 
@@ -436,7 +436,7 @@ const SumGridPuzzles: React.FC = () => {
                           {cell.isInput ? (
                             <input
                               type="number"
-                              className="w-full h-full text-center bg-transparent border-none outline-none text-xl md:text-2xl font-bold text-white"
+                              className="w-full h-full text-center bg-transparent border-none outline-none text-3xl md:text-4xl font-bold text-white"
                               placeholder=""
                               value={cell.value || ''}
                               onChange={(e) => checkAnswer(rowIndex, colIndex, e.target.value)}
@@ -455,7 +455,7 @@ const SumGridPuzzles: React.FC = () => {
                   )}
                 </div>
                 
-                <p className="text-sm text-slate-400 text-center mt-6">
+                <p className="text-base md:text-lg text-slate-300 text-center mt-6 font-medium">
                   กรอกตัวเลขในช่องว่างให้ผลรวมในแถวและคอลัมน์ถูกต้อง
                 </p>
               </div>
@@ -466,33 +466,33 @@ const SumGridPuzzles: React.FC = () => {
               <button
                 onClick={previousQuestion}
                 disabled={currentQuestion === 0}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${
+                className={`flex items-center gap-2 px-6 py-4 rounded-xl font-bold text-lg transition-all ${
                   currentQuestion === 0
                     ? 'bg-slate-700/50 text-slate-500 cursor-not-allowed'
                     : 'bg-slate-700 text-white hover:bg-slate-600'
                 }`}
               >
-                <ArrowLeft className="w-5 h-5" />
+                <ArrowLeft className="w-6 h-6" />
                 <span className="hidden sm:inline">ข้อก่อนหน้า</span>
               </button>
               
               <div className="text-center">
                 {isCurrentGridComplete() && (
-                  <div className="text-2xl text-green-400">⭐</div>
+                  <div className="text-4xl text-green-400">⭐</div>
                 )}
               </div>
               
               <button
                 onClick={nextQuestion}
-                className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:shadow-lg transition-all"
+                className="flex items-center gap-2 px-6 py-4 rounded-xl font-bold text-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:shadow-lg transition-all"
               >
                 <span className="hidden sm:inline">
                   {currentQuestion === totalQuestions - 1 ? 'เสร็จสิ้น' : 'ข้อถัดไป'}
                 </span>
-                <span className="sm:hidden">
+                <span className="sm:hidden text-xl">
                   {currentQuestion === totalQuestions - 1 ? '✓' : '→'}
                 </span>
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="w-6 h-6" />
               </button>
             </div>
           </div>
