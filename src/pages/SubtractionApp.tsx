@@ -143,6 +143,9 @@ const SubtractionApp: React.FC = () => {
   const [schoolLogo, setSchoolLogo] = useState<string>('');
   const logoInputRef = useRef<HTMLInputElement>(null);
   
+  // Problem input refs for auto-focus between problems
+  const problemInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  
   // Load school logo from localStorage on mount
   useEffect(() => {
     const savedLogo = localStorage.getItem('subtraction-school-logo');
@@ -751,6 +754,14 @@ const SubtractionApp: React.FC = () => {
               onReset={onReset}
               onFirstType={wrappedStartTimer}
               digits={digits}
+              firstInputRef={(el) => { problemInputRefs.current[i] = el; }}
+              onFocusNextProblem={() => {
+                const nextIdx = i + 1;
+                if (nextIdx < problems.length) {
+                  const nextInput = problemInputRefs.current[nextIdx];
+                  if (nextInput) nextInput.focus();
+                }
+              }}
             />
           ))}
         </div>

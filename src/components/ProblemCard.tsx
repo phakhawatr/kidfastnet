@@ -10,11 +10,13 @@ interface ProblemCardProps {
   showAnswer: boolean;
   onReset: (idx: number) => void;
   onFirstType?: () => void;
+  onFocusNextProblem?: () => void;
+  firstInputRef?: (el: HTMLInputElement | null) => void;
   digits: number;
 }
 
 export function ProblemCard({ 
-  idx, prob, answer, setAnswer, result, showAnswer, onReset, onFirstType, digits 
+  idx, prob, answer, setAnswer, result, showAnswer, onReset, onFirstType, onFocusNextProblem, firstInputRef, digits 
 }: ProblemCardProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -67,7 +69,13 @@ export function ProblemCard({
               : Array.from({ length: digits }).map((_, j) => (
                   <input
                     key={`in${j}`}
-                    ref={(el) => { if (j === 0) inputRef.current = el; inputRefs.current[j] = el; }}
+                    ref={(el) => { 
+                      if (j === 0) {
+                        inputRef.current = el;
+                        if (firstInputRef) firstInputRef(el);
+                      }
+                      inputRefs.current[j] = el;
+                    }}
                     inputMode="numeric"
                     maxLength={1}
                     className="w-12 h-12 text-center border-2 border-sky-300 rounded-md text-3xl font-extrabold text-sky-700 bg-white shadow focus:outline-none focus:ring-2 focus:ring-sky-300"
@@ -83,9 +91,13 @@ export function ProblemCard({
                     onChange={(e) => {
                       const v = e.target.value.replace(/\D/g, "").slice(0, 1);
                       setAnswer(idx, j, v);
-                      if (v && j < digits - 1) {
-                        const nxt = inputRefs.current[j + 1];
-                        if (nxt) nxt.focus();
+                      if (v) {
+                        if (j < digits - 1) {
+                          const nxt = inputRefs.current[j + 1];
+                          if (nxt) nxt.focus();
+                        } else if (onFocusNextProblem) {
+                          onFocusNextProblem();
+                        }
                       }
                     }}
                     onKeyDown={(e) => {
