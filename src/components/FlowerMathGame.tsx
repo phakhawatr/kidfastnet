@@ -54,24 +54,24 @@ const FlowerMathGame: React.FC<FlowerMathGameProps> = ({
   return (
     <div className="flex flex-col items-center lg:flex-row lg:items-start gap-6 justify-center w-full max-w-6xl mx-auto px-4">
       {/* Stats Bar - Mobile Top */}
-      <div className="w-full lg:hidden bg-slate-800/90 backdrop-blur-md rounded-xl p-4 shadow-xl border border-slate-700/50 mb-4">
+      <div className="w-full lg:hidden bg-white/95 backdrop-blur-sm rounded-xl p-4 shadow-lg border-2 border-pink-200 mb-4">
         <div className="flex justify-between items-center gap-3">
-          <div className="text-white">
-            <span className="text-sm text-slate-300">คะแนน:</span>
-            <span className="ml-2 font-bold text-2xl text-yellow-400">{score}/{totalProblems}</span>
+          <div>
+            <span className="text-sm text-slate-500 font-medium">คะแนน:</span>
+            <span className="ml-2 font-bold text-2xl text-pink-600">{score}/{totalProblems}</span>
           </div>
-          <div className="text-white">
-            <span className="text-sm text-slate-300">ข้อที่:</span>
-            <span className="ml-2 font-bold text-2xl text-cyan-400">{problemNumber}/{totalProblems}</span>
+          <div>
+            <span className="text-sm text-slate-500 font-medium">ข้อที่:</span>
+            <span className="ml-2 font-bold text-2xl text-cyan-600">{problemNumber}/{totalProblems}</span>
           </div>
           {streak > 1 && (
-            <div className="flex items-center gap-1 text-orange-500">
+            <div className="flex items-center gap-1">
               <span className="text-2xl">🔥</span>
-              <span className="font-bold text-2xl">{streak}</span>
+              <span className="font-bold text-2xl text-orange-600">{streak}</span>
             </div>
           )}
           {timeRemaining !== null && (
-            <div className={`font-bold text-xl ${timeRemaining < 30 ? 'text-red-400 animate-pulse' : 'text-white'}`}>
+            <div className={`font-bold text-xl ${timeRemaining < 30 ? 'text-red-500 animate-pulse' : 'text-slate-700'}`}>
               ⏱️ {Math.floor(timeRemaining / 60)}:{(timeRemaining % 60).toString().padStart(2, '0')}
             </div>
           )}
@@ -184,28 +184,28 @@ const FlowerMathGame: React.FC<FlowerMathGameProps> = ({
       {/* Choices and Stats Panel */}
       <div className="flex-shrink-0 w-full lg:w-80 space-y-4">
         {/* Stats - Desktop */}
-        <div className="hidden lg:flex flex-col gap-3 bg-secondary/50 backdrop-blur-sm rounded-lg p-4">
+        <div className="hidden lg:flex flex-col gap-3 bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg border-2 border-pink-200">
           <div className="flex justify-between items-center">
-            <span className="text-foreground/80">คะแนน:</span>
-            <span className="font-bold text-xl text-foreground">{score}/{totalProblems}</span>
+            <span className="text-slate-600 font-medium">คะแนน:</span>
+            <span className="font-bold text-2xl text-pink-600">{score}/{totalProblems}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-foreground/80">ข้อที่:</span>
-            <span className="font-bold text-xl text-foreground">{problemNumber}/{totalProblems}</span>
+            <span className="text-slate-600 font-medium">ข้อที่:</span>
+            <span className="font-bold text-2xl text-cyan-600">{problemNumber}/{totalProblems}</span>
           </div>
           {streak > 1 && (
             <div className="flex justify-between items-center">
-              <span className="text-foreground/80">Streak:</span>
+              <span className="text-slate-600 font-medium">Streak:</span>
               <div className="flex items-center gap-2">
                 <span className="text-2xl">🔥</span>
-                <span className="font-bold text-xl text-orange-500">{streak}</span>
+                <span className="font-bold text-2xl text-orange-600">{streak}</span>
               </div>
             </div>
           )}
           {timeRemaining !== null && (
-            <div className="flex justify-between items-center">
-              <span className="text-foreground/80">เวลา:</span>
-              <span className={`font-bold text-xl ${timeRemaining < 30 ? 'text-red-500 animate-pulse' : 'text-foreground'}`}>
+            <div className="flex justify-between items-center pt-2 border-t border-pink-200">
+              <span className="text-slate-600 font-medium">เวลา:</span>
+              <span className={`font-bold text-xl ${timeRemaining < 30 ? 'text-red-500 animate-pulse' : 'text-slate-700'}`}>
                 {Math.floor(timeRemaining / 60)}:{(timeRemaining % 60).toString().padStart(2, '0')}
               </span>
             </div>
@@ -214,7 +214,7 @@ const FlowerMathGame: React.FC<FlowerMathGameProps> = ({
 
         {/* Answer Choices */}
         <div className="space-y-4">
-          <h3 className="text-xl font-bold text-foreground text-center lg:text-left mb-4">
+          <h3 className="text-xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] text-center lg:text-left mb-4">
             🌸 เลือกคำตอบ
           </h3>
           <div className="grid grid-cols-2 lg:grid-cols-1 gap-3">
@@ -233,12 +233,12 @@ const FlowerMathGame: React.FC<FlowerMathGameProps> = ({
                     transition-all duration-200 transform
                     shadow-lg border-b-4
                     ${selectedAnswer === null
-                      ? 'bg-gradient-to-b from-violet-400 via-purple-500 to-purple-600 text-white border-purple-800 hover:from-violet-300 hover:to-purple-500 hover:scale-105 active:scale-95'
+                      ? 'bg-gradient-to-b from-pink-400 via-pink-500 to-rose-500 text-white border-rose-600 hover:from-pink-300 hover:to-rose-400 hover:scale-105 active:scale-95'
                       : isCorrectAnswer
-                      ? 'bg-gradient-to-b from-green-400 to-green-600 text-white scale-105 border-green-800'
+                      ? 'bg-gradient-to-b from-green-400 to-green-500 text-white scale-105 border-green-600'
                       : isWrongAnswer
-                      ? 'bg-gradient-to-b from-red-400 to-red-600 text-white animate-shake border-red-800'
-                      : 'bg-slate-400 text-slate-200 border-slate-600'
+                      ? 'bg-gradient-to-b from-red-400 to-red-500 text-white animate-shake border-red-600'
+                      : 'bg-slate-300 text-slate-400 border-slate-400'
                     }
                     disabled:cursor-not-allowed
                   `}
