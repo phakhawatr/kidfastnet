@@ -12,7 +12,7 @@ import { th } from 'date-fns/locale';
 const TrainingCalendar = () => {
   const { t } = useTranslation('trainingCalendar');
   const navigate = useNavigate();
-  const { missions, streak, isLoading, userId } = useTrainingCalendar();
+  const { missions, streak, isLoading, userId, fetchMissions } = useTrainingCalendar();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
@@ -21,6 +21,15 @@ const TrainingCalendar = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Fetch missions when month changes
+  useEffect(() => {
+    if (userId) {
+      const month = currentDate.getMonth() + 1;
+      const year = currentDate.getFullYear();
+      fetchMissions(month, year);
+    }
+  }, [currentDate, userId, fetchMissions]);
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
