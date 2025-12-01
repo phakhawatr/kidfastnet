@@ -482,7 +482,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({
   buttonText,
   disableLinks = false
 }) => {
-  const { t } = useTranslation('skills');
+  const { t, i18n } = useTranslation('skills');
   const { toast } = useToast();
   const { user } = useAuth();
   
@@ -523,6 +523,32 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({
       }
     }
   }, [user?.id]); // Remove initialSkills from dependency to prevent infinite loop
+
+  // Update skills when language changes
+  useEffect(() => {
+    const newDefaultSkills = getDefaultSkills(t);
+    const userId = user?.id || 'guest';
+    const savedOrder = localStorage.getItem(`skillsOrder_${userId}`);
+    
+    if (savedOrder) {
+      try {
+        const orderIds = JSON.parse(savedOrder);
+        const reordered = orderIds
+          .map((id: string) => newDefaultSkills.find(s => s.hrefPreview === id))
+          .filter(Boolean);
+        
+        if (reordered.length === newDefaultSkills.length) {
+          setOrderedSkills(reordered);
+          return;
+        }
+      } catch (e) {
+        console.error('Error loading skill order:', e);
+      }
+    }
+    
+    // If no saved order or invalid, use default
+    setOrderedSkills(newDefaultSkills);
+  }, [i18n.language, t, user?.id]);
 
   // Save order to localStorage
   const saveOrder = (skills: Skill[]) => {
