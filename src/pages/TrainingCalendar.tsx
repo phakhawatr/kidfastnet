@@ -26,12 +26,7 @@ const TrainingCalendar = () => {
   const monthEnd = endOfMonth(currentDate);
   const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
-  // Get week view for mobile (current week)
   const today = new Date();
-  const weekDays = isMobile ? daysInMonth.filter(day => {
-    const diff = Math.abs(day.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
-    return diff <= 3;
-  }).slice(0, 7) : daysInMonth;
 
   const getMissionForDay = (day: Date) => {
     return missions.find(m => isSameDay(new Date(m.mission_date), day));
@@ -279,40 +274,40 @@ const TrainingCalendar = () => {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-2 md:gap-4">
               {/* Streak */}
               <Card className="bg-gradient-to-br from-orange-500 to-red-500 text-white border-0 shadow-lg">
-                <div className="p-4 text-center">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Flame className="w-6 h-6 animate-pulse" />
-                    <span className="text-sm font-medium">วันติดต่อกัน</span>
+                <div className="p-2 md:p-4 text-center">
+                  <div className="flex items-center justify-center gap-1 md:gap-2 mb-1 md:mb-2">
+                    <Flame className="w-4 h-4 md:w-6 md:h-6 animate-pulse" />
+                    <span className="text-[10px] md:text-sm font-medium">วันติดต่อกัน</span>
                   </div>
-                  <p className="text-4xl font-bold">{streak?.current_streak || 0}</p>
-                  <p className="text-xs opacity-90 mt-1">สูงสุด: {streak?.longest_streak || 0} วัน</p>
+                  <p className="text-xl md:text-4xl font-bold">{streak?.current_streak || 0}</p>
+                  <p className="text-[8px] md:text-xs opacity-90 mt-1 hidden md:block">สูงสุด: {streak?.longest_streak || 0} วัน</p>
                 </div>
               </Card>
 
               {/* Stars */}
               <Card className="bg-gradient-to-br from-amber-400 to-yellow-500 text-white border-0 shadow-lg">
-                <div className="p-4 text-center">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Star className="w-6 h-6 fill-white" />
-                    <span className="text-sm font-medium">ดาวสะสม</span>
+                <div className="p-2 md:p-4 text-center">
+                  <div className="flex items-center justify-center gap-1 md:gap-2 mb-1 md:mb-2">
+                    <Star className="w-4 h-4 md:w-6 md:h-6 fill-white" />
+                    <span className="text-[10px] md:text-sm font-medium">ดาวสะสม</span>
                   </div>
-                  <p className="text-4xl font-bold">{totalStarsThisMonth}</p>
-                  <p className="text-xs opacity-90 mt-1">เดือนนี้</p>
+                  <p className="text-xl md:text-4xl font-bold">{totalStarsThisMonth}</p>
+                  <p className="text-[8px] md:text-xs opacity-90 mt-1 hidden md:block">เดือนนี้</p>
                 </div>
               </Card>
 
               {/* Perfect Days */}
               <Card className="bg-gradient-to-br from-green-500 to-emerald-600 text-white border-0 shadow-lg">
-                <div className="p-4 text-center">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Trophy className="w-6 h-6" />
-                    <span className="text-sm font-medium">วันสมบูรณ์แบบ</span>
+                <div className="p-2 md:p-4 text-center">
+                  <div className="flex items-center justify-center gap-1 md:gap-2 mb-1 md:mb-2">
+                    <Trophy className="w-4 h-4 md:w-6 md:h-6" />
+                    <span className="text-[10px] md:text-sm font-medium">วันสมบูรณ์</span>
                   </div>
-                  <p className="text-4xl font-bold">{streak?.perfect_days || 0}</p>
-                  <p className="text-xs opacity-90 mt-1">3 ดาวเต็ม!</p>
+                  <p className="text-xl md:text-4xl font-bold">{streak?.perfect_days || 0}</p>
+                  <p className="text-[8px] md:text-xs opacity-90 mt-1 hidden md:block">3 ดาวเต็ม!</p>
                 </div>
               </Card>
             </div>
@@ -329,25 +324,23 @@ const TrainingCalendar = () => {
             {/* Calendar Grid */}
             <div className="bg-slate-700/50 rounded-xl p-4">
               {/* Day Headers */}
-              {!isMobile && (
-                <div className="grid grid-cols-7 gap-2 mb-2">
-                  {['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'].map((day, index) => (
-                    <div key={index} className="text-center text-sm font-semibold text-slate-300 py-2">
-                      {day}
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="grid grid-cols-7 gap-1 md:gap-2 mb-2">
+                {['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'].map((day, index) => (
+                  <div key={index} className="text-center text-[10px] md:text-sm font-semibold text-slate-300 py-1 md:py-2">
+                    {day}
+                  </div>
+                ))}
+              </div>
 
               {/* Days Grid */}
-              <div className={`grid ${isMobile ? 'grid-cols-7 gap-1' : 'grid-cols-7 gap-2'}`}>
-                {/* Empty cells for alignment (desktop only) */}
-                {!isMobile && Array.from({ length: getDay(monthStart) }).map((_, index) => (
+              <div className="grid grid-cols-7 gap-1 md:gap-2">
+                {/* Empty cells for alignment */}
+                {Array.from({ length: getDay(monthStart) }).map((_, index) => (
                   <div key={`empty-${index}`} />
                 ))}
 
                 {/* Day cells */}
-                {(isMobile ? weekDays : daysInMonth).map((day, index) => {
+                {daysInMonth.map((day, index) => {
                   const status = getDayStatus(day);
                   const mission = getMissionForDay(day);
                   const dayNum = format(day, 'd');
@@ -358,21 +351,19 @@ const TrainingCalendar = () => {
                       onClick={() => handleDayClick(day, status)}
                       className={getDayStyles(status)}
                     >
-                      <span className={`text-sm font-bold ${isMobile ? 'text-xs' : ''}`}>
+                      <span className="text-[10px] md:text-sm font-bold">
                         {dayNum}
                       </span>
-                      {!isMobile && (
-                        <>
-                          {renderDayIcon(status, mission)}
-                          {mission && (
-                            <span className="text-xs opacity-90 mt-1 line-clamp-1">
-                              {mission.skill_name}
-                            </span>
-                          )}
-                        </>
-                      )}
+                      <div className="hidden md:block">
+                        {renderDayIcon(status, mission)}
+                        {mission && (
+                          <span className="text-xs opacity-90 mt-1 line-clamp-1">
+                            {mission.skill_name}
+                          </span>
+                        )}
+                      </div>
                       {isMobile && status === 'today' && (
-                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping" />
+                        <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-ping" />
                       )}
                     </div>
                   );
