@@ -103,7 +103,7 @@ export const CountingVisuals = ({ theme, count }: CountingVisualsProps) => {
   const VisualComponent = visualComponents[theme];
   
   return (
-    <div className="grid grid-cols-4 gap-3 p-4">
+    <div className="grid grid-cols-5 gap-3 p-4">
       {Array.from({ length: count }).map((_, index) => (
         <div key={index} className="flex items-center justify-center">
           <VisualComponent />
