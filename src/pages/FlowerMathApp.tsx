@@ -116,10 +116,10 @@ const FlowerMathApp = () => {
       <div className="min-h-screen bg-gradient-to-b from-sky-300 via-sky-400 to-cyan-400 flex items-center justify-center p-4 relative overflow-hidden">
         {/* Decorative clouds */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-          <div className="absolute top-10 left-10 w-24 h-12 bg-white rounded-full opacity-80 animate-float"></div>
+          <div className="absolute top-32 left-10 w-24 h-12 bg-white rounded-full opacity-80 animate-float"></div>
           <div className="absolute top-20 right-20 w-32 h-16 bg-white rounded-full opacity-70 animate-float" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute bottom-32 left-1/4 w-20 h-10 bg-white rounded-full opacity-60 animate-float" style={{ animationDelay: '2s' }}></div>
-          <div className="absolute top-1/3 right-1/4 w-28 h-14 bg-white rounded-full opacity-50 animate-float" style={{ animationDelay: '3s' }}></div>
+          <div className="absolute bottom-20 left-20 w-20 h-10 bg-white rounded-full opacity-60 animate-float" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute top-1/2 right-1/4 w-28 h-14 bg-white rounded-full opacity-50 animate-float" style={{ animationDelay: '3s' }}></div>
         </div>
         
         <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 max-w-md w-full shadow-2xl border-2 border-pink-200 relative z-10">
@@ -175,10 +175,10 @@ const FlowerMathApp = () => {
       <div className="min-h-screen bg-gradient-to-b from-sky-300 via-sky-400 to-cyan-400 p-4 relative overflow-hidden">
         {/* Decorative clouds */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-          <div className="absolute top-10 left-10 w-24 h-12 bg-white rounded-full opacity-80 animate-float"></div>
+          <div className="absolute top-32 left-10 w-24 h-12 bg-white rounded-full opacity-80 animate-float"></div>
           <div className="absolute top-20 right-20 w-32 h-16 bg-white rounded-full opacity-70 animate-float" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute bottom-32 left-1/4 w-20 h-10 bg-white rounded-full opacity-60 animate-float" style={{ animationDelay: '2s' }}></div>
-          <div className="absolute top-1/3 right-1/4 w-28 h-14 bg-white rounded-full opacity-50 animate-float" style={{ animationDelay: '3s' }}></div>
+          <div className="absolute bottom-20 left-20 w-20 h-10 bg-white rounded-full opacity-60 animate-float" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute top-1/2 right-1/4 w-28 h-14 bg-white rounded-full opacity-50 animate-float" style={{ animationDelay: '3s' }}></div>
         </div>
         
         <div className="max-w-3xl mx-auto relative z-10">
@@ -293,10 +293,10 @@ const FlowerMathApp = () => {
     <div className="min-h-screen bg-gradient-to-b from-sky-300 via-sky-400 to-cyan-400 flex flex-col relative overflow-hidden">
       {/* Decorative clouds */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-10 left-10 w-24 h-12 bg-white rounded-full opacity-80 animate-float"></div>
+        <div className="absolute top-32 left-10 w-24 h-12 bg-white rounded-full opacity-80 animate-float"></div>
         <div className="absolute top-20 right-20 w-32 h-16 bg-white rounded-full opacity-70 animate-float" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute bottom-32 left-1/4 w-20 h-10 bg-white rounded-full opacity-60 animate-float" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-1/3 right-1/4 w-28 h-14 bg-white rounded-full opacity-50 animate-float" style={{ animationDelay: '3s' }}></div>
+        <div className="absolute bottom-20 left-20 w-20 h-10 bg-white rounded-full opacity-60 animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 right-1/4 w-28 h-14 bg-white rounded-full opacity-50 animate-float" style={{ animationDelay: '3s' }}></div>
       </div>
       
       <div className="p-4 relative z-10">
