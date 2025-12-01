@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { DndContext, DragEndEvent } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import Confetti from 'react-confetti';
 import { FruitGroup } from './FruitGroup';
 import { NumberTarget } from './NumberTarget';
@@ -18,6 +18,18 @@ export const FruitCountingGame = ({ problem, matches, onMatch, onComplete }: Fru
   const [showConfetti, setShowConfetti] = useState(false);
   const [wrongMatch, setWrongMatch] = useState(false);
   const [showHandGuide, setShowHandGuide] = useState(true);
+
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 5,
+      },
+    })
+  );
 
   useEffect(() => {
     if (problem.fruitGroups.length === Object.keys(matches).length) {
@@ -58,7 +70,7 @@ export const FruitCountingGame = ({ problem, matches, onMatch, onComplete }: Fru
     <>
       {showConfetti && <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} numberOfPieces={200} />}
       
-      <DndContext onDragEnd={handleDragEnd}>
+      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         <div className="grid md:grid-cols-3 gap-6 mb-6">
           {problem.fruitGroups.map((group) => {
             const isMatched = !!matches[group.id];

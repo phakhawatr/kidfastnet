@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { DndContext, DragEndEvent } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import Confetti from 'react-confetti';
 import { Button } from '@/components/ui/button';
 import { BalloonMathGame } from '@/components/BalloonMathGame';
@@ -46,6 +46,18 @@ export default function BalloonMathApp() {
   } = useMissionMode();
   
   const { trackAppUsage } = useRecentApps();
+
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 5,
+      },
+    })
+  );
 
   const showVisuals = difficulty !== 'hard';
 
@@ -203,7 +215,7 @@ export default function BalloonMathApp() {
       </div>
 
       {/* Game Area */}
-      <DndContext onDragEnd={handleDragEnd}>
+      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         <BalloonMathGame
           problem={problem}
           choices={choices}
