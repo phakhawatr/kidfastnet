@@ -83,6 +83,9 @@ const MultiplicationApp = () => {
   const [showPdfPreview, setShowPdfPreview] = useState(false);
   const [pdfPreviewContent, setPdfPreviewContent] = useState<string>('');
   const logoInputRef = useRef<HTMLInputElement>(null);
+  
+  // Problem input refs for auto-focus between problems
+  const problemInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Timer effect
   useEffect(() => {
@@ -911,9 +914,12 @@ const MultiplicationApp = () => {
                             <div className="flex gap-1">
                               {problem.finalAnswer.split('').map((digit, digitIdx) => (
                                 <input
-                                  key={digitIdx}
+                                   key={digitIdx}
                                   type="text"
                                   maxLength={1}
+                                  ref={(el) => {
+                                    if (digitIdx === 0) problemInputRefs.current[problemIdx] = el;
+                                  }}
                                   value={answers[problemIdx]?.finalAnswer[digitIdx] || ''}
                                   onChange={(e) => {
                                     const value = e.target.value;
@@ -927,6 +933,17 @@ const MultiplicationApp = () => {
                                        }
                                       newAnswer[problemIdx].finalAnswer[digitIdx] = value;
                                       setAnswers(newAnswer);
+                                      
+                                      // Auto-focus to next problem if last digit
+                                      if (value && digitIdx === problem.finalAnswer.length - 1) {
+                                        const nextIdx = problemIdx + 1;
+                                        if (nextIdx < problems.length) {
+                                          setTimeout(() => {
+                                            const nextInput = problemInputRefs.current[nextIdx];
+                                            if (nextInput) nextInput.focus();
+                                          }, 50);
+                                        }
+                                      }
                                     }
                                   }}
                                   className={`w-12 h-12 text-center border-2 rounded font-mono text-xl font-bold ${
@@ -954,6 +971,9 @@ const MultiplicationApp = () => {
                                 key={digitIdx}
                                 type="text"
                                 maxLength={1}
+                                ref={(el) => {
+                                  if (digitIdx === 0) problemInputRefs.current[problemIdx] = el;
+                                }}
                                 value={answers[problemIdx]?.finalAnswer[digitIdx] || ''}
                                 onChange={(e) => {
                                   const value = e.target.value;
@@ -967,6 +987,17 @@ const MultiplicationApp = () => {
                                      }
                                     newAnswer[problemIdx].finalAnswer[digitIdx] = value;
                                     setAnswers(newAnswer);
+                                    
+                                    // Auto-focus to next problem if last digit
+                                    if (value && digitIdx === problem.finalAnswer.length - 1) {
+                                      const nextIdx = problemIdx + 1;
+                                      if (nextIdx < problems.length) {
+                                        setTimeout(() => {
+                                          const nextInput = problemInputRefs.current[nextIdx];
+                                          if (nextInput) nextInput.focus();
+                                        }, 50);
+                                      }
+                                    }
                                   }
                                 }}
                                 className={`w-12 h-12 text-center border-2 rounded font-mono text-xl font-bold ${

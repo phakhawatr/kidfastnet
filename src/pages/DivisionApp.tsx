@@ -289,6 +289,23 @@ const DivisionApp: React.FC = () => {
     const newAnswers = [...answers];
     newAnswers[problemIndex] = [value];
     setAnswers(newAnswers);
+    
+    // Auto-focus to next problem when answer length matches expected
+    if (divisionType === 'integer' || divisionType === 'decimal') {
+      const expectedLength = divisionType === 'decimal' 
+        ? problems[problemIndex].quotient.toFixed(2).replace('.', '').length + 1 // include decimal point
+        : problems[problemIndex].quotient.toString().length;
+      
+      if (value.length >= expectedLength) {
+        const nextIdx = problemIndex + 1;
+        if (nextIdx < problems.length) {
+          setTimeout(() => {
+            const nextInput = document.getElementById(`answer-${nextIdx}`);
+            if (nextInput) nextInput.focus();
+          }, 50);
+        }
+      }
+    }
   };
 
   // Handle option selection for remainder type
