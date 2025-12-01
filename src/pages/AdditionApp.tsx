@@ -201,7 +201,7 @@ function createAnswersArray(problems, operands) {
 }
 
 // ================= One Problem Card =================
-function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset, onFirstType, digits, operands }) {
+function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset, onFirstType, digits, operands, onFocusNextProblem, firstInputRef }) {
   const { t } = useTranslation('exercises');
   const inputRef = useRef(null);
   const inputRefs = useRef([]);
@@ -283,7 +283,13 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
               : Array.from({ length: actualDigits }).map((_, j) => (
                   <input
                     key={`in${j}`}
-                    ref={(el) => { if (j === 0) inputRef.current = el; inputRefs.current[j] = el; }}
+                    ref={(el) => { 
+                      if (j === 0) {
+                        inputRef.current = el;
+                        if (firstInputRef) firstInputRef(el);
+                      }
+                      inputRefs.current[j] = el;
+                    }}
                     inputMode="numeric"
                     maxLength={1}
                     className="w-12 h-12 text-center border-2 border-sky-300 dark:border-sky-600 rounded-md text-3xl font-extrabold text-sky-700 dark:text-sky-400 bg-white dark:bg-slate-700 shadow focus:outline-none focus:ring-2 focus:ring-sky-300 dark:focus:ring-sky-600"
@@ -299,9 +305,13 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
                     onChange={(e) => {
                       const v = e.target.value.replace(/\D/g, "").slice(0, 1);
                       setAnswer(idx, j, v);
-                      if (v && j < actualDigits - 1) {
-                        const nxt = inputRefs.current[j + 1];
-                        if (nxt) nxt.focus();
+                      if (v) {
+                        if (j < actualDigits - 1) {
+                          const nxt = inputRefs.current[j + 1];
+                          if (nxt) nxt.focus();
+                        } else if (onFocusNextProblem) {
+                          onFocusNextProblem();
+                        }
                       }
                     }}
                     onKeyDown={(e) => {
@@ -428,6 +438,9 @@ export default function AdditionApp() {
   // School Logo state
   const [schoolLogo, setSchoolLogo] = useState('');
   const logoInputRef = useRef(null);
+  
+  // Problem input refs for auto-focus between problems
+  const problemInputRefs = useRef([]);
 
   useEffect(() => {
     try {
@@ -1614,6 +1627,14 @@ export default function AdditionApp() {
               onFirstType={startTimerIfNeeded}
               digits={digits}
               operands={operands}
+              firstInputRef={(el) => { problemInputRefs.current[i] = el; }}
+              onFocusNextProblem={() => {
+                const nextIdx = i + 1;
+                if (nextIdx < problems.length) {
+                  const nextInput = problemInputRefs.current[nextIdx];
+                  if (nextInput) nextInput.focus();
+                }
+              }}
             />
           ))}
         </div>
