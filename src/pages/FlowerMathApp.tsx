@@ -115,7 +115,7 @@ const FlowerMathApp = () => {
     return (
       <div className="min-h-screen bg-gradient-to-b from-sky-300 via-sky-400 to-cyan-400 flex items-center justify-center p-4 relative overflow-hidden">
         {/* Decorative clouds */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
           <div className="absolute top-10 left-10 w-24 h-12 bg-white rounded-full opacity-80 animate-float"></div>
           <div className="absolute top-20 right-20 w-32 h-16 bg-white rounded-full opacity-70 animate-float" style={{ animationDelay: '1s' }}></div>
           <div className="absolute bottom-32 left-1/4 w-20 h-10 bg-white rounded-full opacity-60 animate-float" style={{ animationDelay: '2s' }}></div>
@@ -174,7 +174,7 @@ const FlowerMathApp = () => {
     return (
       <div className="min-h-screen bg-gradient-to-b from-sky-300 via-sky-400 to-cyan-400 p-4 relative overflow-hidden">
         {/* Decorative clouds */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
           <div className="absolute top-10 left-10 w-24 h-12 bg-white rounded-full opacity-80 animate-float"></div>
           <div className="absolute top-20 right-20 w-32 h-16 bg-white rounded-full opacity-70 animate-float" style={{ animationDelay: '1s' }}></div>
           <div className="absolute bottom-32 left-1/4 w-20 h-10 bg-white rounded-full opacity-60 animate-float" style={{ animationDelay: '2s' }}></div>
@@ -292,7 +292,7 @@ const FlowerMathApp = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-300 via-sky-400 to-cyan-400 flex flex-col relative overflow-hidden">
       {/* Decorative clouds */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-10 left-10 w-24 h-12 bg-white rounded-full opacity-80 animate-float"></div>
         <div className="absolute top-20 right-20 w-32 h-16 bg-white rounded-full opacity-70 animate-float" style={{ animationDelay: '1s' }}></div>
         <div className="absolute bottom-32 left-1/4 w-20 h-10 bg-white rounded-full opacity-60 animate-float" style={{ animationDelay: '2s' }}></div>
