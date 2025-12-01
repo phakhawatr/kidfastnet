@@ -225,6 +225,7 @@ export default function CountingChallengeApp() {
         <div className="max-w-md mx-auto mb-6">
           {challenge && (
             <CountingCard
+              key={challenge.id}
               challenge={challenge}
               cardNumber={1}
               onAnswer={handleCardAnswer}
