@@ -12,6 +12,8 @@ import QuestionBankSelector from '@/components/QuestionBankSelector';
 import ImageUploader from '@/components/ImageUploader';
 import QuestionTextRenderer from '@/components/QuestionTextRenderer';
 import ChoiceRenderer from '@/components/ChoiceRenderer';
+import { ClockDisplay } from '@/components/ClockDisplay';
+import { isTimeQuestion, extractTimeFromThaiFormat } from '@/utils/timeQuestionUtils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -1752,6 +1754,24 @@ const TeacherDashboard = () => {
                     text={editingExamQuestion.question.question_text} 
                     className="text-lg font-medium"
                   />
+                  
+                  {/* Auto Clock Display for Time Questions */}
+                  {isTimeQuestion(editingExamQuestion.question.question_text) && (() => {
+                    const time = extractTimeFromThaiFormat(editingExamQuestion.question.correct_answer);
+                    if (time) {
+                      return (
+                        <div className="flex justify-center my-4">
+                          <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border-2 shadow-md">
+                            <ClockDisplay hour={time.hour} minute={time.minute} size={140} />
+                            <p className="text-center text-sm text-muted-foreground mt-2">
+                              {editingExamQuestion.question.correct_answer}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
                 </div>
               </div>
               

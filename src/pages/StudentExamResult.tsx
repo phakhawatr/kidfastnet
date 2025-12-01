@@ -8,6 +8,8 @@ import { Progress } from '@/components/ui/progress';
 import { compareAnswers } from '@/utils/examReportUtils';
 import QuestionTextRenderer from '@/components/QuestionTextRenderer';
 import ChoiceRenderer from '@/components/ChoiceRenderer';
+import { ClockDisplay } from '@/components/ClockDisplay';
+import { isTimeQuestion, extractTimeFromThaiFormat } from '@/utils/timeQuestionUtils';
 
 interface QuestionResult {
   question: string;
@@ -261,6 +263,21 @@ function StudentExamResult() {
                       </div>
                       
                       <QuestionTextRenderer text={q.question} className="text-foreground mb-3" />
+                      
+                      {/* Auto Clock Display for Time Questions */}
+                      {isTimeQuestion(q.question) && (() => {
+                        const time = extractTimeFromThaiFormat(q.correctAnswer);
+                        if (time) {
+                          return (
+                            <div className="flex justify-center my-3">
+                              <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border-2 shadow-sm">
+                                <ClockDisplay hour={time.hour} minute={time.minute} size={120} />
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
                       
                       <div className="space-y-2">
                         <div className="flex items-start gap-2">
