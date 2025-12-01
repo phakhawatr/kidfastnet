@@ -489,9 +489,18 @@
   "numberBonds": {
     "title": "Number Bonds",
     "subtitle": "Practice Number Bonds",
+    "back": "Back",
     "whole": "Whole",
     "part": "Part",
-    "fillMissing": "Fill in the missing number"
+    "part1": "Part 1",
+    "part2": "Part 2",
+    "fillMissing": "Fill in the missing number",
+    "numberOfProblems": "Number of Problems",
+    "maxNumber": "Maximum Number",
+    "clear": "Clear",
+    "summary": "Summary",
+    "timeUsed": "Time Used",
+    "submitAnswer": "Submit Answer"
   },
   "mentalMath": {
     "title": "Mental Math",
