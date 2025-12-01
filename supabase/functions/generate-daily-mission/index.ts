@@ -30,6 +30,16 @@ serve(async (req) => {
     // No need to check individual user quotas anymore
     console.log('Using Groq API for mission generation');
 
+    // Fetch student's grade from user_registrations
+    const { data: userData, error: userError } = await supabase
+      .from('user_registrations')
+      .select('grade')
+      .eq('id', userId)
+      .single();
+
+    const studentGrade = userData?.grade || '';
+    console.log('Student grade:', studentGrade);
+
     // Get last 7 days of missions
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -173,9 +183,90 @@ serve(async (req) => {
     // Get existing skills for today to avoid duplicates in single mission mode
     const existingSkillsToday = existingMissions.map(m => m.skill_name);
     
+    // Function to get skills based on grade level
+    function getSkillsByGrade(grade: string): { skills: string[], gradeCategory: string } {
+      // กลุ่มเกมโต้ตอบ (อนุบาล)
+      const interactiveGames = [
+        'ดอกไม้คณิตศาสตร์', 'บอลลูนคณิตศาสตร์', 'นับเลขท้าทาย', 
+        'เปรียบเทียบดาว', 'นับกระดาน', 'นับผลไม้', 
+        'อนุกรมรูปทรง', 'เศษส่วนรูปทรง', 'รูปทรงจับคู่'
+      ];
+      
+      // กลุ่มทักษะพื้นฐาน (ป.1-3)
+      const basicSkills = [
+        'การบวกเลข', 'การลบเลข', 'การคูณเลข', 'การหารเลข',
+        'อนุกรมตัวเลข', 'สูตรคูณ', 'การบอกเวลา', 
+        'การวัดความยาว', 'การชั่งน้ำหนัก', 'เงินและการเงิน',
+        'เปรียบเทียบความยาว', 'เศษส่วนจับคู่', 'ร้อยละ'
+      ];
+      
+      // กลุ่มทักษะขั้นสูง (ป.4-6)
+      const advancedSkills = [
+        'ค่าประจำหลัก', 'คิดเลขเร็ว', 'โมเดลพื้นที่', 
+        'พันธะตัวเลข', 'โมเดลบาร์', 'คิดเลขด่วน', 
+        'ปริศนาตารางผลบวก', 'โจทย์ปัญหา'
+      ];
+      
+      // ตรวจสอบระดับชั้น - อนุบาล
+      if (grade.includes('อนุบาล') || grade.includes('อ.1') || grade.includes('อ.2') || grade.includes('อ.3')) {
+        return { skills: interactiveGames, gradeCategory: 'kindergarten' };
+      }
+      
+      // ป.1-3
+      if (grade.includes('ประถมศึกษาปีที่ 1') || grade.includes('ประถมศึกษาปีที่ 2') || grade.includes('ประถมศึกษาปีที่ 3') ||
+          grade.includes('ป.1') || grade.includes('ป.2') || grade.includes('ป.3')) {
+        // 70% พื้นฐาน + 30% ขั้นสูง (เลือก 3 จาก advanced)
+        return { 
+          skills: [...basicSkills, ...advancedSkills.slice(0, 3)], 
+          gradeCategory: 'primary_1_3' 
+        };
+      }
+      
+      // ป.4-6
+      if (grade.includes('ประถมศึกษาปีที่ 4') || grade.includes('ประถมศึกษาปีที่ 5') || grade.includes('ประถมศึกษาปีที่ 6') ||
+          grade.includes('ป.4') || grade.includes('ป.5') || grade.includes('ป.6')) {
+        // 30% พื้นฐาน + 70% ขั้นสูง (เลือก 4 จาก basics)
+        return { 
+          skills: [...basicSkills.slice(0, 4), ...advancedSkills], 
+          gradeCategory: 'primary_4_6' 
+        };
+      }
+      
+      // Default: ทุกทักษะ
+      return { 
+        skills: [...interactiveGames, ...basicSkills, ...advancedSkills], 
+        gradeCategory: 'all' 
+      };
+    }
+
+    // Get skills based on student's grade
+    const { skills: availableSkills, gradeCategory } = getSkillsByGrade(studentGrade);
+    const skillsList = availableSkills.join(', ');
+
+    // Grade-specific guidance for AI
+    let gradeGuidance = '';
+    if (gradeCategory === 'kindergarten') {
+      gradeGuidance = `
+**ระดับชั้น: อนุบาล (อ.1-อ.3)**
+- เน้นเกมโต้ตอบที่สนุกและเรียนรู้ผ่านภาพ
+- ระดับความยาก: ง่าย ถึง กลาง เท่านั้น
+- จำนวนโจทย์: 5-10 ข้อ`;
+    } else if (gradeCategory === 'primary_1_3') {
+      gradeGuidance = `
+**ระดับชั้น: ป.1-ป.3**
+- เน้นทักษะพื้นฐาน 70% + ทักษะขั้นสูง 30%
+- สามารถใช้ทุกระดับความยาก`;
+    } else if (gradeCategory === 'primary_4_6') {
+      gradeGuidance = `
+**ระดับชั้น: ป.4-ป.6**
+- เน้นทักษะขั้นสูง 70% + ทักษะพื้นฐาน 30%
+- สามารถใช้ทุกระดับความยาก รวมถึงยากมาก`;
+    }
+    
     // Construct AI prompt - Generate missions based on need
     const systemPrompt = addSingleMission 
       ? `คุณเป็น AI ครูคณิตศาสตร์สำหรับเด็กไทย มีหน้าที่สร้างภารกิจเพิ่มเติมให้นักเรียน
+${gradeGuidance}
 
 หลักการสร้างภารกิจเดี่ยว:
 - เลือกทักษะที่แตกต่างจากภารกิจที่มีอยู่แล้ววันนี้
@@ -184,7 +275,8 @@ serve(async (req) => {
 
 ทักษะที่มีอยู่แล้ววันนี้: ${existingSkillsToday.join(', ') || 'ไม่มี'}
 
-ทักษะที่มี: การบวกเลข, การลบเลข, การคูณเลข, การหารเลข, เศษส่วน, เศษส่วนรูปทรง, เศษส่วนจับคู่, ทศนิยม, ร้อยละ, เงินและการเงิน, การบอกเวลา, การชั่งน้ำหนัก, การวัดความยาว, รูปทรงจับคู่, อนุกรมรูปทรง, อนุกรมตัวเลข, พันธะตัวเลข, โมเดลบาร์, โมเดลพื้นที่, คิดเลขเร็ว, คิดเลขด่วน, สูตรคูณ, ปริศนาตารางผลบวก, โจทย์ปัญหา, ดอกไม้คณิตศาสตร์, บอลลูนคณิตศาสตร์, นับเลขท้าทาย, เปรียบเทียบดาว, นับกระดาน, นับผลไม้
+ทักษะที่สามารถเลือกได้สำหรับนักเรียนระดับนี้:
+${skillsList}
 
 สร้าง 1 ภารกิจเพิ่มเติม ที่ไม่ซ้ำกับทักษะที่มีอยู่แล้ว
 
@@ -201,6 +293,7 @@ serve(async (req) => {
   "daily_message": "ข้อความให้กำลังใจนักเรียนสำหรับวันนี้ (1-2 ประโยค)"
 }`
       : `คุณเป็น AI ครูคณิตศาสตร์สำหรับเด็กไทย มีหน้าที่สร้างภารกิจให้เลือกในแต่ละวัน ที่เหมาะสมกับระดับของนักเรียน
+${gradeGuidance}
 
 หลักการสร้าง 3 ภารกิจ:
 1. **ภารกิจที่ 1 - พัฒนาจุดอ่อน**: ทักษะที่อ่อนที่สุด/ต้องปรับปรุง (ระดับง่าย-กลาง) เน้นทบทวนพื้นฐาน
@@ -214,7 +307,8 @@ serve(async (req) => {
 - หลีกเลี่ยงทักษะที่ทำซ้ำกัน 3 วันติดต่อกัน
 - แต่ละภารกิจควรใช้ App ฝึกที่แตกต่างกัน!
 
-ทักษะที่มี: การบวกเลข, การลบเลข, การคูณเลข, การหารเลข, เศษส่วน, เศษส่วนรูปทรง, เศษส่วนจับคู่, ทศนิยม, ร้อยละ, เงินและการเงิน, การบอกเวลา, การชั่งน้ำหนัก, การวัดความยาว, รูปทรงจับคู่, อนุกรมรูปทรง, อนุกรมตัวเลข, พันธะตัวเลข, โมเดลบาร์, โมเดลพื้นที่, คิดเลขเร็ว, คิดเลขด่วน, สูตรคูณ, ปริศนาตารางผลบวก, โจทย์ปัญหา, ดอกไม้คณิตศาสตร์, บอลลูนคณิตศาสตร์, นับเลขท้าทาย, เปรียบเทียบดาว, นับกระดาน, นับผลไม้
+ทักษะที่สามารถเลือกได้สำหรับนักเรียนระดับนี้:
+${skillsList}
 
 สร้าง ${missionsNeeded} ภารกิจ สำหรับวันนี้ (มี ${completedCount} ภารกิจทำสำเร็จแล้ว)
 
