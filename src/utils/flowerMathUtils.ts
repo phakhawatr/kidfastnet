@@ -4,11 +4,13 @@ export type Difficulty = 'easy' | 'medium' | 'hard';
 export interface FlowerProblem {
   multiplier: number; // The center number (e.g., 4 in "4x")
   innerNumbers: number[]; // 1-10
-  results: number[]; // The calculated results
+  results: number[]; // The calculated results (petal values)
   questionIndex: number; // Which petal is the question
-  correctAnswer: number;
+  correctAnswer: number; // For division: inner number, for others: petal value
   wrongAnswers: number[];
   operation: Operation;
+  questionValue: number; // The value shown on the "?" petal
+  answerType: 'petal' | 'inner'; // Whether answer is petal or inner number
 }
 
 /**
@@ -32,7 +34,10 @@ export const generateFlowerProblem = (
       case 'multiplication':
         return multiplier * num;
       case 'division':
-        return Math.floor(multiplier * num); // For division, we'll do multiplier * num / num
+        // For division: petal shows the product (multiplier * num)
+        // Question: petal ÷ center = ?
+        // Answer: inner number
+        return multiplier * num;
       default:
         return 0;
     }
@@ -40,10 +45,24 @@ export const generateFlowerProblem = (
 
   // Select question index randomly
   const questionIndex = Math.floor(Math.random() * 10);
-  const correctAnswer = results[questionIndex];
+  
+  // For division, answer is the inner number, not the petal value
+  let correctAnswer: number;
+  let wrongAnswers: number[];
+  let questionValue: number;
+  let answerType: 'petal' | 'inner';
 
-  // Generate wrong answers
-  const wrongAnswers = generateWrongAnswers(correctAnswer, operation, multiplier);
+  if (operation === 'division') {
+    correctAnswer = innerNumbers[questionIndex]; // Answer is inner number (1-10)
+    wrongAnswers = generateWrongAnswersForDivision(correctAnswer);
+    questionValue = results[questionIndex]; // Petal shows the product
+    answerType = 'inner';
+  } else {
+    correctAnswer = results[questionIndex]; // Answer is petal value
+    wrongAnswers = generateWrongAnswers(correctAnswer, operation, multiplier);
+    questionValue = correctAnswer;
+    answerType = 'petal';
+  }
 
   return {
     multiplier,
@@ -53,7 +72,29 @@ export const generateFlowerProblem = (
     correctAnswer,
     wrongAnswers,
     operation,
+    questionValue,
+    answerType,
   };
+};
+
+/**
+ * Generate 3 plausible wrong answers for division (inner numbers 1-10)
+ */
+const generateWrongAnswersForDivision = (correctAnswer: number): number[] => {
+  const wrongAnswers = new Set<number>();
+  const offsets = [-2, -1, 1, 2, 3, -3];
+  
+  while (wrongAnswers.size < 3) {
+    const offset = offsets[Math.floor(Math.random() * offsets.length)];
+    const wrongAnswer = correctAnswer + offset;
+    
+    // Must be in range 1-10 and different from correct answer
+    if (wrongAnswer >= 1 && wrongAnswer <= 10 && wrongAnswer !== correctAnswer) {
+      wrongAnswers.add(wrongAnswer);
+    }
+  }
+  
+  return Array.from(wrongAnswers);
 };
 
 /**
@@ -73,7 +114,7 @@ const generateWrongAnswers = (
     const offset = offsets[Math.floor(Math.random() * offsets.length)];
     let wrongAnswer: number;
     
-    if (operation === 'multiplication' || operation === 'division') {
+    if (operation === 'multiplication') {
       // For multiplication, use adjacent table results
       wrongAnswer = correctAnswer + (multiplier * offset);
     } else {
