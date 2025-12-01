@@ -21,11 +21,7 @@ export const generateFlowerProblem = (
   table: number = 4,
   difficulty: Difficulty
 ): FlowerProblem => {
-  // For subtraction, use 1-9 to prevent petal = 0 (when 10 - 10 = 0)
-  // For other operations, use 1-10
-  const innerNumbers = operation === 'subtraction' 
-    ? Array.from({ length: 9 }, (_, i) => i + 1)  // 1-9
-    : Array.from({ length: 10 }, (_, i) => i + 1); // 1-10
+  const innerNumbers = Array.from({ length: 10 }, (_, i) => i + 1);
   
   // For subtraction, ensure multiplier >= 10 to prevent negative results
   let multiplier = table;
