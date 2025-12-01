@@ -26,12 +26,10 @@ export default function CountingChallengeApp() {
   const {
     score,
     streak,
-    challenge1,
-    challenge2,
-    card1Correct,
-    card2Correct,
+    challenge,
+    isCorrect,
     showConfetti,
-    initializeChallenges,
+    initializeChallenge,
     handleAnswer,
   } = useCountingChallenge();
 
@@ -68,10 +66,10 @@ export default function CountingChallengeApp() {
   }, []);
 
   useEffect(() => {
-    if (!showSettings && (!challenge1 || !challenge2)) {
-      initializeChallenges();
+    if (!showSettings) {
+      initializeChallenge();
     }
-  }, [showSettings, challenge1, challenge2, initializeChallenges]);
+  }, [showSettings, initializeChallenge]);
 
   const handleStartGame = () => {
     setShowSettings(false);
@@ -84,18 +82,16 @@ export default function CountingChallengeApp() {
     setProblemsSolved(0);
   };
 
-  const handleCardAnswer = (cardNumber: 1 | 2, answer: number) => {
-    const result = handleAnswer(cardNumber, answer);
+  const handleCardAnswer = (answer: number) => {
+    const result = handleAnswer(answer);
     
     if (result.isCorrect) {
       const newProblemsSolved = problemsSolved + 1;
       setProblemsSolved(newProblemsSolved);
 
-      // Check if both cards are correct (round complete)
-      const bothCorrect = cardNumber === 1 ? card2Correct : card1Correct;
-      if (bothCorrect && isMissionMode) {
+      if (isMissionMode && newProblemsSolved >= 15) {
         const timeSpent = Math.floor((Date.now() - startTime) / 1000);
-        handleCompleteMission(newProblemsSolved, newProblemsSolved, timeSpent);
+        handleCompleteMission(newProblemsSolved, 15, timeSpent);
       }
     }
     
@@ -120,14 +116,13 @@ export default function CountingChallengeApp() {
     const tileId = active.id.toString();
     const dropZone = over.id.toString();
     
-    // Extract card number and answer from tile ID (format: "tile-1-3")
-    const [, cardNum, answerStr] = tileId.split('-');
-    const cardNumber = parseInt(cardNum) as 1 | 2;
-    const answer = parseInt(answerStr);
+    // Extract answer from tile ID (format: "tile-1-3")
+    const parts = tileId.split('-');
+    const answer = parseInt(parts[parts.length - 1]);
     
     // Check if dropped on correct zone
-    if (dropZone === `drop-${cardNumber}`) {
-      handleCardAnswer(cardNumber, answer);
+    if (dropZone === 'drop-1') {
+      handleCardAnswer(answer);
     }
   };
 
@@ -145,10 +140,10 @@ export default function CountingChallengeApp() {
             
             <div className="mb-8">
               <p className="text-lg text-gray-700 mb-4">
-                นับจำนวนวัตถุในการ์ดทั้ง 2 ใบ แล้วเลือกคำตอบที่ถูกต้อง!
+                นับจำนวนวัตถุในการ์ด แล้วเลือกคำตอบที่ถูกต้อง!
               </p>
               <p className="text-md text-gray-600">
-                ✅ ตอบถูกทั้ง 2 การ์ด = โจทย์ใหม่ + Confetti 🎉
+                ✅ ตอบถูก = โจทย์ใหม่ + Confetti 🎉
               </p>
             </div>
 
@@ -183,24 +178,16 @@ export default function CountingChallengeApp() {
         </div>
       </div>
 
-      {/* Game Board - Split Screen */}
+      {/* Game Board */}
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-        <div className="grid md:grid-cols-2 gap-6 mb-6">
-          {challenge1 && (
+        <div className="max-w-md mx-auto mb-6">
+          {challenge && (
             <CountingCard
-              challenge={challenge1}
+              challenge={challenge}
               cardNumber={1}
-              onAnswer={(answer) => handleCardAnswer(1, answer)}
-              isCorrect={card1Correct}
-              showHandHint={!card1Correct && !card2Correct}
-            />
-          )}
-          {challenge2 && (
-            <CountingCard
-              challenge={challenge2}
-              cardNumber={2}
-              onAnswer={(answer) => handleCardAnswer(2, answer)}
-              isCorrect={card2Correct}
+              onAnswer={handleCardAnswer}
+              isCorrect={isCorrect}
+              showHandHint={!isCorrect}
             />
           )}
         </div>

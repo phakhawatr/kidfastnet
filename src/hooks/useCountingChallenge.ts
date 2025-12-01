@@ -1,77 +1,49 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
-import { CountingChallenge, generateChallenge, getTwoRandomThemes } from '@/utils/countingChallengeUtils';
+import { useState, useCallback, useEffect } from 'react';
+import { CountingChallenge, generateChallenge, getRandomTheme } from '@/utils/countingChallengeUtils';
 
 export const useCountingChallenge = () => {
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
-  const [challenge1, setChallenge1] = useState<CountingChallenge | null>(null);
-  const [challenge2, setChallenge2] = useState<CountingChallenge | null>(null);
-  const [card1Correct, setCard1Correct] = useState(false);
-  const [card2Correct, setCard2Correct] = useState(false);
+  const [challenge, setChallenge] = useState<CountingChallenge | null>(null);
+  const [isCorrect, setIsCorrect] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
 
-  // Use refs to avoid dependencies in callbacks
-  const card1CorrectRef = useRef(card1Correct);
-  const card2CorrectRef = useRef(card2Correct);
-  const challenge1Ref = useRef(challenge1);
-  const challenge2Ref = useRef(challenge2);
-
-  useEffect(() => {
-    card1CorrectRef.current = card1Correct;
-    card2CorrectRef.current = card2Correct;
-    challenge1Ref.current = challenge1;
-    challenge2Ref.current = challenge2;
-  }, [card1Correct, card2Correct, challenge1, challenge2]);
-
-  const initializeChallenges = useCallback(() => {
-    const [theme1, theme2] = getTwoRandomThemes();
-    setChallenge1(generateChallenge(theme1));
-    setChallenge2(generateChallenge(theme2));
-    setCard1Correct(false);
-    setCard2Correct(false);
+  const initializeChallenge = useCallback(() => {
+    const theme = getRandomTheme();
+    setChallenge(generateChallenge(theme));
+    setIsCorrect(false);
   }, []);
 
-  const handleAnswer = useCallback((cardNumber: 1 | 2, answer: number) => {
-    const challenge = cardNumber === 1 ? challenge1Ref.current : challenge2Ref.current;
+  const handleAnswer = useCallback((answer: number) => {
     if (!challenge) return { isCorrect: false };
-
-    const isCorrect = answer === challenge.correctAnswer;
-
-    if (isCorrect) {
+    
+    const correct = answer === challenge.correctAnswer;
+    
+    if (correct) {
       setScore(prev => prev + 1);
       setStreak(prev => prev + 1);
+      setIsCorrect(true);
+      setShowConfetti(true);
       
-      if (cardNumber === 1) {
-        setCard1Correct(true);
-      } else {
-        setCard2Correct(true);
-      }
-
-      // Check if both cards are now correct
-      const bothCorrect = cardNumber === 1 ? card2CorrectRef.current : card1CorrectRef.current;
-      if (bothCorrect) {
-        setShowConfetti(true);
-        setTimeout(() => {
-          setShowConfetti(false);
-          initializeChallenges();
-        }, 2000);
-      }
+      // Generate new challenge after 1.5 seconds
+      setTimeout(() => {
+        setShowConfetti(false);
+        initializeChallenge();
+      }, 1500);
     } else {
       setStreak(0);
     }
-
-    return { isCorrect };
-  }, [initializeChallenges]);
+    
+    return { isCorrect: correct };
+  }, [challenge, initializeChallenge]);
 
   return {
     score,
     streak,
-    challenge1,
-    challenge2,
-    card1Correct,
-    card2Correct,
+    challenge,
+    isCorrect,
     showConfetti,
-    initializeChallenges,
+    initializeChallenge,
     handleAnswer,
   };
 };
