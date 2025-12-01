@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -123,8 +123,11 @@ const Profile = () => {
     isLoading: missionsLoading,
     generateTodayMission,
     isGenerating,
-    userId: calendarUserId 
+    userId: calendarUserId,
+    startMission
   } = useTrainingCalendar();
+  
+  const navigate = useNavigate();
   
   const isMobile = useIsMobile();
   
@@ -171,6 +174,120 @@ const Profile = () => {
     if (status === 'skipped') return { icon: '⏭️', text: 'ข้าม', color: 'bg-red-500/30 text-red-200 border-red-400' };
     if (status === 'catchup') return { icon: '🔄', text: 'ตามทัน', color: 'bg-blue-500/30 text-blue-200 border-blue-400' };
     return { icon: '⏳', text: 'รอทำ', color: 'bg-yellow-500/30 text-yellow-200 border-yellow-400' };
+  };
+
+  // Get skill route for mission navigation
+  const getSkillRoute = (skillName: string): string => {
+    const skillRoutes: Record<string, string> = {
+      // Interactive Games
+      'ดอกไม้คณิตศาสตร์': '/flower-math',
+      'บอลลูนคณิตศาสตร์': '/balloon-math',
+      'นับเลขท้าทาย': '/counting-challenge',
+      'เปรียบเทียบดาว': '/compare-stars',
+      'นับกระดาน': '/board-counting',
+      'นับผลไม้': '/fruit-counting',
+      'คิดเลขด่วน': '/quick-math',
+      
+      // Addition variants
+      'บวกเลข': '/addition',
+      'การบวกเลข': '/addition',
+      'การบวกเลขไม่เกิน 10': '/addition',
+      'การบวกเลขไม่เกิน 100': '/addition',
+      'การบวกเลขไม่เกิน 1000': '/addition',
+      
+      // Subtraction variants  
+      'ลบเลข': '/subtraction',
+      'การลบเลข': '/subtraction',
+      
+      // Multiplication variants
+      'คูณเลข': '/multiplication',
+      'การคูณเลข': '/multiplication',
+      
+      // Division variants
+      'หารเลข': '/division',
+      'การหารเลข': '/division',
+      
+      // Fractions
+      'เศษส่วน': '/fraction-shapes',
+      'เศษส่วนรูปทรง': '/fraction-shapes',
+      'เศษส่วนจับคู่': '/fraction-matching',
+      
+      // Decimals & Percentage
+      'ทศนิยม': '/place-value',
+      'ร้อยละ': '/percentage',
+      
+      // Money & Time
+      'เงิน': '/money',
+      'เงินและการเงิน': '/money',
+      'การบอกเวลา': '/time',
+      'เวลา': '/time',
+      
+      // Measurement
+      'การวัด': '/measurement',
+      'การวัดความยาว': '/length-comparison',
+      'การชั่งน้ำหนัก': '/weighing',
+      'น้ำหนัก': '/weighing',
+      
+      // Shapes & Patterns
+      'รูปทรง': '/shape-matching',
+      'รูปทรงจับคู่': '/shape-matching',
+      'อนุกรมรูปทรง': '/shape-series',
+      'อนุกรมตัวเลข': '/number-series',
+      
+      // Advanced
+      'พันธะตัวเลข': '/number-bonds',
+      'โมเดลบาร์': '/bar-model',
+      'โมเดลพื้นที่': '/area-model',
+      'คิดเลขเร็ว': '/mental-math',
+      'สูตรคูณ': '/multiplication-table',
+      'ปริศนาตารางผลบวก': '/sum-grid',
+      'โจทย์ปัญหา': '/word-problems',
+    };
+    
+    if (skillRoutes[skillName]) return skillRoutes[skillName];
+    
+    const skillLower = skillName.toLowerCase();
+    
+    if (skillLower.includes('ดอกไม้')) return '/flower-math';
+    if (skillLower.includes('บอลลูน')) return '/balloon-math';
+    if (skillLower.includes('นับเลข')) return '/counting-challenge';
+    if (skillLower.includes('เปรียบเทียบดาว') || skillLower.includes('ดาว')) return '/compare-stars';
+    if (skillLower.includes('นับกระดาน') || skillLower.includes('กระดาน')) return '/board-counting';
+    if (skillLower.includes('นับผลไม้') || skillLower.includes('ผลไม้')) return '/fruit-counting';
+    if (skillLower.includes('คิดเลขด่วน')) return '/quick-math';
+    if (skillLower.includes('บวก')) return '/addition';
+    if (skillLower.includes('ลบ')) return '/subtraction';
+    if (skillLower.includes('คูณ')) return '/multiplication';
+    if (skillLower.includes('หาร')) return '/division';
+    if (skillLower.includes('เศษส่วน')) return '/fraction-shapes';
+    if (skillLower.includes('ทศนิยม')) return '/place-value';
+    if (skillLower.includes('ร้อยละ')) return '/percentage';
+    if (skillLower.includes('เงิน')) return '/money';
+    if (skillLower.includes('วัด')) return '/measurement';
+    if (skillLower.includes('เวลา')) return '/time';
+    if (skillLower.includes('น้ำหนัก') || skillLower.includes('ชั่ง')) return '/weighing';
+    if (skillLower.includes('รูปทรง')) return '/shape-matching';
+    
+    return '/quiz';
+  };
+
+  // Handle mission action (start new or retry completed)
+  const handleMissionAction = async (mission: any) => {
+    const isCompleted = mission.status === 'completed' || mission.completed_at !== null;
+    
+    if (!isCompleted) {
+      await startMission(mission.id);
+    }
+    
+    const route = getSkillRoute(mission.skill_name);
+    const levelMap: Record<string, string> = {
+      'easy': 'easy',
+      'medium': 'medium',
+      'hard': 'hard'
+    };
+    const appLevel = levelMap[mission.difficulty] || 'easy';
+    
+    navigate(`${route}?level=${appLevel}&count=15&missionId=${mission.id}&autoStart=true`);
   };
 
   // Profile editing states
@@ -1251,6 +1368,19 @@ const Profile = () => {
                                     </Badge>
                                   </div>
                                 </div>
+                                
+                                {/* Action Button */}
+                                <button
+                                  onClick={() => handleMissionAction(mission)}
+                                  className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap ${
+                                    isCompleted 
+                                      ? 'bg-white/20 hover:bg-white/30 text-white' 
+                                      : 'bg-yellow-400 hover:bg-yellow-500 text-yellow-900 shadow-md'
+                                  }`}
+                                >
+                                  {isCompleted ? 'ทำใหม่อีกครั้ง' : 'ทำภารกิจ'}
+                                </button>
+                                
                                 {isCompleted && mission.stars_earned !== null && mission.stars_earned > 0 && (
                                   <div className="flex items-center gap-0.5">
                                     {[...Array(mission.stars_earned)].map((_, i) => (
