@@ -152,9 +152,9 @@
   "subtraction": {
     "title": "โจทย์ลบ",
     "subtitle": "ฝึกลบเลข",
-    "borrowOption": "การกระจาย",
-    "hasBorrow": "มีกระจาย",
-    "noBorrow": "ไม่มีกระจาย",
+    "borrowOption": "การทด",
+    "hasBorrow": "มีทด",
+    "noBorrow": "ไม่มีทด",
     "anyBorrow": "ทั้งหมด",
     "operands": "จำนวนตัวเลข",
     "twoNumbers": "2 ตัว",
