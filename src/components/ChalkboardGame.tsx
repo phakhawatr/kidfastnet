@@ -28,23 +28,43 @@ const Butterfly = () => (
   </div>
 );
 
-const DropZone = ({ isOver, droppedNumber }: { isOver: boolean; droppedNumber: number | null }) => {
+const DropZone = ({ isOver, droppedNumber, showSuccess }: { 
+  isOver: boolean; 
+  droppedNumber: number | null;
+  showSuccess: boolean;
+}) => {
   const { setNodeRef } = useDroppable({ id: 'answer-box' });
 
   return (
     <div
       ref={setNodeRef}
       className={`
-        w-24 h-24 rounded-xl flex items-center justify-center
-        bg-green-900/80 border-4 border-white/30
+        w-24 h-24 rounded-xl flex items-center justify-center relative
         transition-all duration-300
-        ${isOver ? 'ring-4 ring-yellow-400 scale-110' : ''}
+        ${showSuccess 
+          ? 'bg-green-500 border-4 border-green-300 ring-4 ring-green-300/50 scale-110' 
+          : 'bg-green-900/80 border-4 border-white/30'}
+        ${isOver && !showSuccess ? 'ring-4 ring-yellow-400 scale-110' : ''}
       `}
     >
-      {droppedNumber !== null ? (
+      {showSuccess ? (
+        <div className="animate-[scaleIn_0.3s_ease-out]">
+          <span className="text-6xl">✓</span>
+        </div>
+      ) : droppedNumber !== null ? (
         <span className="text-6xl font-bold text-white">{droppedNumber}</span>
       ) : (
         <span className="text-6xl font-bold text-white/70">?</span>
+      )}
+      
+      {/* Sparkle effects when success */}
+      {showSuccess && (
+        <>
+          <span className="absolute -top-2 -right-2 text-2xl animate-ping">✨</span>
+          <span className="absolute -bottom-2 -left-2 text-2xl animate-ping" style={{animationDelay: '0.15s'}}>✨</span>
+          <span className="absolute -top-2 -left-2 text-2xl animate-ping" style={{animationDelay: '0.3s'}}>⭐</span>
+          <span className="absolute -bottom-2 -right-2 text-2xl animate-ping" style={{animationDelay: '0.45s'}}>⭐</span>
+        </>
       )}
     </div>
   );
@@ -60,12 +80,23 @@ export const ChalkboardGame = ({ difficulty, totalQuestions, onComplete, onScore
     generateNextProblem,
   } = useBoardCounting(difficulty, totalQuestions);
 
+  const praiseMessages = [
+    'เก่งมาก!',
+    'ยอดเยี่ยม!',
+    'สุดยอด!',
+    'เยี่ยมไปเลย!',
+    'ฉลาดมาก!',
+  ];
+
   const [droppedNumber, setDroppedNumber] = useState<number | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [shake, setShake] = useState(false);
   const [bounce, setBounce] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [showHandGuide, setShowHandGuide] = useState(true);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showPraise, setShowPraise] = useState(false);
+  const [randomPraise, setRandomPraise] = useState('');
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -106,11 +137,16 @@ export const ChalkboardGame = ({ difficulty, totalQuestions, onComplete, onScore
     setDroppedNumber(draggedNumber);
 
     if (draggedNumber === currentProblem.correctAnswer) {
-      // Correct answer
+      // Correct answer - show all celebration effects
+      setShowSuccess(true);
+      setShowPraise(true);
+      setRandomPraise(praiseMessages[Math.floor(Math.random() * praiseMessages.length)]);
       setShowConfetti(true);
       setBounce(true);
       setTimeout(() => {
         setShowConfetti(false);
+        setShowSuccess(false);
+        setShowPraise(false);
         setBounce(false);
         setDroppedNumber(null);
         generateNextProblem(true);
@@ -177,7 +213,7 @@ export const ChalkboardGame = ({ difficulty, totalQuestions, onComplete, onScore
               <span className="text-9xl font-bold text-white/90">=</span>
 
               {/* Drop Zone */}
-              <DropZone isOver={activeId !== null} droppedNumber={droppedNumber} />
+              <DropZone isOver={activeId !== null} droppedNumber={droppedNumber} showSuccess={showSuccess} />
             </div>
 
             {/* Draggable Number Blocks */}
@@ -204,6 +240,19 @@ export const ChalkboardGame = ({ difficulty, totalQuestions, onComplete, onScore
             {showHandGuide && currentQuestion === 1 && (
               <DragHandGuide correctNumber={currentProblem.correctAnswer} />
             )}
+
+            {/* Praise Message */}
+            {showPraise && (
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50">
+                <div className="animate-[bounceIn_0.5s_ease-out] text-center">
+                  <div className="bg-yellow-400 text-yellow-900 px-8 py-4 rounded-full shadow-2xl border-4 border-yellow-300">
+                    <p className="text-3xl font-bold">
+                      {randomPraise} 🎉
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Question Counter */}
@@ -226,6 +275,16 @@ export const ChalkboardGame = ({ difficulty, totalQuestions, onComplete, onScore
         @keyframes flutter {
           0%, 100% { transform: translateY(0) rotate(0deg); }
           50% { transform: translateY(-10px) rotate(5deg); }
+        }
+        @keyframes scaleIn {
+          0% { transform: scale(0); opacity: 0; }
+          50% { transform: scale(1.3); }
+          100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes bounceIn {
+          0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+          60% { transform: translate(-50%, -50%) scale(1.2); }
+          100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
         }
       `}</style>
     </DndContext>
