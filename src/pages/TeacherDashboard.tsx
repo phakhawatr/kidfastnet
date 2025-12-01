@@ -1548,6 +1548,14 @@ const TeacherDashboard = () => {
                   rows={4}
                   className="mt-2"
                 />
+                {/* Shape Preview */}
+                <div className="mt-2 p-3 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <p className="text-xs text-muted-foreground mb-2">ตัวอย่างการแสดงผล:</p>
+                  <QuestionTextRenderer 
+                    text={editingQuestion.question.question} 
+                    className="text-lg font-medium"
+                  />
+                </div>
               </div>
               
               {/* Choices */}
@@ -1569,6 +1577,10 @@ const TeacherDashboard = () => {
                             : ''
                         }`}
                       />
+                      {/* Shape Preview */}
+                      <div className="min-w-[60px] flex items-center justify-center p-2 bg-slate-100 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">
+                        <ChoiceRenderer choice={String(choice)} size={40} />
+                      </div>
                       <Button
                         variant={String(choice) === String(editingQuestion.question.correctAnswer) ? "default" : "outline"}
                         size="sm"
@@ -1733,6 +1745,14 @@ const TeacherDashboard = () => {
                   rows={4}
                   className="mt-2"
                 />
+                {/* Shape Preview */}
+                <div className="mt-2 p-3 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <p className="text-xs text-muted-foreground mb-2">ตัวอย่างการแสดงผล:</p>
+                  <QuestionTextRenderer 
+                    text={editingExamQuestion.question.question_text} 
+                    className="text-lg font-medium"
+                  />
+                </div>
               </div>
               
               {/* Choices */}
@@ -1754,6 +1774,10 @@ const TeacherDashboard = () => {
                             : ''
                         }`}
                       />
+                      {/* Shape Preview */}
+                      <div className="min-w-[60px] flex items-center justify-center p-2 bg-slate-100 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">
+                        <ChoiceRenderer choice={String(choice)} size={40} />
+                      </div>
                       <Button
                         variant={String(choice) === String(editingExamQuestion.question.correct_answer) ? "default" : "outline"}
                         size="sm"
