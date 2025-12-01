@@ -14,6 +14,8 @@ import { AlertCircle, Clock, Users, BookOpen } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import QuestionTextRenderer from '@/components/QuestionTextRenderer';
 import ChoiceRenderer from '@/components/ChoiceRenderer';
+import { ClockDisplay } from '@/components/ClockDisplay';
+import { isTimeQuestion, extractTimeFromThaiFormat } from '@/utils/timeQuestionUtils';
 
 interface ExamLinkData {
   id: string;
@@ -502,6 +504,21 @@ const PublicExam = () => {
               <CardTitle>
                 <QuestionTextRenderer text={currentQuestion?.question || ''} />
               </CardTitle>
+              
+              {/* Auto Clock Display for Time Questions */}
+              {currentQuestion && isTimeQuestion(currentQuestion.question) && (() => {
+                const time = extractTimeFromThaiFormat(currentQuestion.correctAnswer);
+                if (time) {
+                  return (
+                    <div className="flex justify-center my-4">
+                      <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border-2 shadow-lg">
+                        <ClockDisplay hour={time.hour} minute={time.minute} size={160} />
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
             </CardHeader>
             <CardContent>
               <RadioGroup 
