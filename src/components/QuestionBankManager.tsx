@@ -1157,7 +1157,6 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
               <div className="space-y-2 mt-2">
                 {editForm.choices.map((choice, idx) => (
                   <div key={idx} className="flex items-center gap-2">
-                    <span className="text-sm font-medium w-8">{idx + 1})</span>
                     <Input
                       value={choice}
                       onChange={(e) => {
@@ -1166,23 +1165,29 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
                         setEditForm({ ...editForm, choices: newChoices });
                       }}
                       placeholder={`ตัวเลือกที่ ${idx + 1}`}
+                      className={`flex-1 ${
+                        choice === editForm.correct_answer
+                          ? 'border-green-500 bg-green-50 dark:bg-green-950/20'
+                          : ''
+                      }`}
                     />
-                    <RadioGroup
-                      value={editForm.correct_answer}
-                      onValueChange={(value) => setEditForm({ ...editForm, correct_answer: value })}
+                    
+                    {/* Choice Preview (shapes, clocks, etc.) */}
+                    <div className="min-w-[60px] flex items-center justify-center p-2 bg-slate-100 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">
+                      <ChoiceRenderer choice={choice} size={40} />
+                    </div>
+                    
+                    {/* "Set as Correct" Button */}
+                    <Button
+                      variant={choice === editForm.correct_answer ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setEditForm({ ...editForm, correct_answer: choice })}
                     >
-                      <RadioGroupItem
-                        value={choice}
-                        id={`edit-correct-${idx}`}
-                        className="flex-shrink-0"
-                      />
-                    </RadioGroup>
+                      {choice === editForm.correct_answer ? '✓ ถูก' : 'ตั้งเป็นคำตอบ'}
+                    </Button>
                   </div>
                 ))}
               </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                เลือกปุ่มวงกลมข้างหน้าตัวเลือกที่ถูกต้อง
-              </p>
             </div>
 
             {/* Explanation */}
