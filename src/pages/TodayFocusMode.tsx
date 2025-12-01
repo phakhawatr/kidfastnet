@@ -236,6 +236,15 @@ const TodayFocusMode = () => {
   const getSkillRoute = (skillName: string): string => {
     // Expanded skill routes mapping with variants
     const skillRoutes: Record<string, string> = {
+      // Interactive Games
+      'ดอกไม้คณิตศาสตร์': '/flower-math',
+      'บอลลูนคณิตศาสตร์': '/balloon-math',
+      'นับเลขท้าทาย': '/counting-challenge',
+      'เปรียบเทียบดาว': '/compare-stars',
+      'นับกระดาน': '/board-counting',
+      'นับผลไม้': '/fruit-counting',
+      'คิดเลขด่วน': '/quick-math',
+      
       // Addition variants
       'บวกเลข': '/addition',
       'การบวกเลข': '/addition',
@@ -257,6 +266,7 @@ const TodayFocusMode = () => {
       
       // Fractions
       'เศษส่วน': '/fraction-shapes',
+      'เศษส่วนรูปทรง': '/fraction-shapes',
       'เศษส่วนจับคู่': '/fraction-matching',
       
       // Decimals & Percentage
@@ -296,6 +306,17 @@ const TodayFocusMode = () => {
     
     // Flexible matching - check if skill contains keywords
     const skillLower = skillName.toLowerCase();
+    
+    // Interactive Games first
+    if (skillLower.includes('ดอกไม้')) return '/flower-math';
+    if (skillLower.includes('บอลลูน')) return '/balloon-math';
+    if (skillLower.includes('นับเลข') || skillLower.includes('counting')) return '/counting-challenge';
+    if (skillLower.includes('เปรียบเทียบดาว') || skillLower.includes('ดาว')) return '/compare-stars';
+    if (skillLower.includes('นับกระดาน') || skillLower.includes('กระดาน')) return '/board-counting';
+    if (skillLower.includes('นับผลไม้') || skillLower.includes('ผลไม้')) return '/fruit-counting';
+    if (skillLower.includes('คิดเลขด่วน') || skillLower.includes('quick')) return '/quick-math';
+    
+    // Basic skills
     if (skillLower.includes('บวก')) return '/addition';
     if (skillLower.includes('ลบ')) return '/subtraction';
     if (skillLower.includes('คูณ')) return '/multiplication';
