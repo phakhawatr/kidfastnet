@@ -64,11 +64,11 @@
       "desc": "ใช้แนวคิดพื้นที่เพื่อเรียนรู้การคูณ Area Model แบบ Singapore Math"
     },
     "numberBonds": {
-      "title": "Number Bonds",
+      "title": "การแยกจำนวน",
       "desc": "เรียนรู้ความสัมพันธ์ของตัวเลข เข้าใจโครงสร้างการบวกลบอย่างลึกซึ้ง (Singapore Math)"
     },
     "barModel": {
-      "title": "Bar Model Method",
+      "title": "วิธีแบบจำลองแท่ง",
       "desc": "โจทย์ปัญหาหลากหลายรูปแบบ: ส่วนรวม เปรียบเทียบ ก่อน-หลัง และชีวิตประจำวัน (Singapore Math)"
     },
     "addition": {
