@@ -87,12 +87,17 @@ const FlowerMathGame: React.FC<FlowerMathGameProps> = ({
         >
           {/* Petals */}
           {problem.innerNumbers.map((_, index) => {
-            const pos = getPetalPosition(index);
             const isQuestion = index === problem.questionIndex;
             const showCorrect = selectedAnswer !== null && isQuestion && isCorrect;
             const showWrong = selectedAnswer !== null && isQuestion && !isCorrect;
             
-            const petalColor = isQuestion && selectedAnswer === null
+            // For division, petals always show values (no "?")
+            const isDivision = problem.operation === 'division';
+            const shouldHighlight = isDivision ? false : (isQuestion && selectedAnswer === null);
+            
+            const petalColor = isDivision
+              ? '#FFB6C1' // Normal color for division
+              : isQuestion && selectedAnswer === null
               ? '#FF6B6B'
               : showCorrect
               ? '#4CAF50'
@@ -100,31 +105,33 @@ const FlowerMathGame: React.FC<FlowerMathGameProps> = ({
               ? '#F44336'
               : '#FFB6C1';
 
+            const pos = getPetalPosition(index);
+            
             return (
               <g key={index} transform={`translate(${pos.x}, ${pos.y}) rotate(${pos.angle + 90})`}>
                 {/* Petal shape */}
                 <ellipse
-                  rx={isQuestion && selectedAnswer === null ? "34" : "32"}
-                  ry={isQuestion && selectedAnswer === null ? "58" : "55"}
+                  rx={shouldHighlight ? "34" : "32"}
+                  ry={shouldHighlight ? "58" : "55"}
                   fill={petalColor}
                   stroke="#FF69B4"
-                  strokeWidth={isQuestion && selectedAnswer === null ? "3" : "2"}
-                  className={isQuestion && selectedAnswer === null ? 'animate-question-pulse' : ''}
+                  strokeWidth={shouldHighlight ? "3" : "2"}
+                  className={shouldHighlight ? 'animate-question-pulse' : ''}
                   style={{
                     transition: 'all 0.3s ease',
                   }}
                 />
-                {/* Result text or question mark */}
+                {/* Result text - always show for division */}
                 <text
                   textAnchor="middle"
                   dy="0.35em"
                   fill="white"
-                  fontSize={isQuestion ? "28" : "22"}
+                  fontSize={(isDivision || isQuestion) ? "28" : "22"}
                   fontWeight="bold"
                   transform={`rotate(${-pos.angle - 90})`}
                   style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.7)' }}
                 >
-                  {isQuestion ? '?' : problem.results[index]}
+                  {isDivision ? problem.results[index] : (isQuestion ? '?' : problem.results[index])}
                 </text>
               </g>
             );
@@ -133,15 +140,34 @@ const FlowerMathGame: React.FC<FlowerMathGameProps> = ({
           {/* Inner circle numbers (1-10) */}
           {problem.innerNumbers.map((num, index) => {
             const pos = getInnerPosition(index);
+            const isQuestion = index === problem.questionIndex;
+            const isDivision = problem.operation === 'division';
+            const showCorrect = selectedAnswer !== null && isQuestion && isCorrect && isDivision;
+            const showWrong = selectedAnswer !== null && isQuestion && !isCorrect && isDivision;
+            
+            // For division, inner number at questionIndex shows "?"
+            const shouldHighlight = isDivision && isQuestion && selectedAnswer === null;
+            const circleColor = shouldHighlight
+              ? '#FF6B6B'
+              : showCorrect
+              ? '#4CAF50'
+              : showWrong
+              ? '#F44336'
+              : '#4A90E2';
+            
             return (
               <g key={`inner-${index}`}>
                 <circle
                   cx={pos.x}
                   cy={pos.y}
-                  r="22"
-                  fill="#4A90E2"
-                  stroke="#2E5C8A"
-                  strokeWidth="2"
+                  r={shouldHighlight ? "25" : "22"}
+                  fill={circleColor}
+                  stroke={shouldHighlight ? "#FF0000" : "#2E5C8A"}
+                  strokeWidth={shouldHighlight ? "3" : "2"}
+                  className={shouldHighlight ? 'animate-question-pulse' : ''}
+                  style={{
+                    transition: 'all 0.3s ease',
+                  }}
                 />
                 <text
                   x={pos.x}
@@ -149,10 +175,10 @@ const FlowerMathGame: React.FC<FlowerMathGameProps> = ({
                   textAnchor="middle"
                   dy="0.35em"
                   fill="white"
-                  fontSize="18"
+                  fontSize={shouldHighlight ? "22" : "18"}
                   fontWeight="bold"
                 >
-                  {num}
+                  {isDivision && isQuestion ? '?' : num}
                 </text>
               </g>
             );
