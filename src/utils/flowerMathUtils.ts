@@ -21,8 +21,17 @@ export const generateFlowerProblem = (
   table: number = 4,
   difficulty: Difficulty
 ): FlowerProblem => {
-  const innerNumbers = Array.from({ length: 10 }, (_, i) => i + 1);
-  const multiplier = table;
+  // For subtraction, use 1-9 to prevent petal = 0 (when 10 - 10 = 0)
+  // For other operations, use 1-10
+  const innerNumbers = operation === 'subtraction' 
+    ? Array.from({ length: 9 }, (_, i) => i + 1)  // 1-9
+    : Array.from({ length: 10 }, (_, i) => i + 1); // 1-10
+  
+  // For subtraction, ensure multiplier >= 10 to prevent negative results
+  let multiplier = table;
+  if (operation === 'subtraction' && table < 10) {
+    multiplier = 10;
+  }
 
   // Calculate results based on operation
   const results = innerNumbers.map(num => {
@@ -30,10 +39,10 @@ export const generateFlowerProblem = (
       case 'addition':
         return multiplier + num;
       case 'subtraction':
-        // For subtraction: petal shows the sum (multiplier + num)
-        // Question: petal - center = ?
-        // Answer: inner number (always positive)
-        return multiplier + num;
+        // For subtraction: petal = center - inner
+        // Question: 10 - ? = 6
+        // Answer: inner number (e.g., 4)
+        return multiplier - num;
       case 'multiplication':
         return multiplier * num;
       case 'division':
