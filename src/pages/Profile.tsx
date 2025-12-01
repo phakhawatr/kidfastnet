@@ -1486,7 +1486,7 @@ const Profile = () => {
               <div className="text-sm text-[hsl(var(--text-muted))] mt-2">{t('appDetails.technology')}</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-orange-500 mb-1">22+</div>
+              <div className="text-2xl font-bold text-orange-500 mb-1">30+</div>
               <div className="text-sm text-[hsl(var(--text-muted))]">{t('appDetails.lessons')}</div>
             </div>
             <div className="text-center">
