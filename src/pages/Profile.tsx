@@ -74,7 +74,7 @@ const recommendationCategories = {
     apps: [
       { key: 'mentalMath', icon: '⚡', link: '/mental-math' },
       { key: 'quickMath', icon: '⏱️', link: '/quick-math' },
-      { key: 'sumGridPuzzles', icon: '🧩', link: '/SumGridPuzzles' },
+      { key: 'sumGridPuzzles', icon: '🧩', link: '/sum-grid' },
       { key: 'numberBonds', icon: '🔗', link: '/number-bonds' },
       { key: 'areaModel', icon: '📐', link: '/area-model' },
       { key: 'barModel', icon: '📊', link: '/bar-model' },

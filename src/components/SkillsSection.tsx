@@ -364,7 +364,7 @@ const getDefaultSkills = (t: any): Skill[] => [
     backgroundGradient: 'bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600',
     textColor: 'text-white',
     sticker: '🔢',
-    hrefPreview: '/SumGridPuzzles',
+    hrefPreview: '/sum-grid',
     translationKey: 'sumGrid',
     category: 'advanced'
   }, {
