@@ -20,6 +20,22 @@ const ChoiceRenderer: React.FC<ChoiceRendererProps> = ({
   
   console.log('🎯 ChoiceRenderer processing:', { choiceStr });
 
+  // Check if this is a Thai time format: "X นาฬิกา Y นาที"
+  const thaiTimePattern = /^(\d{1,2})\s*นาฬิกา\s*(\d{1,2})?\s*นาที$/i;
+  const thaiTimeMatch = choiceStr.trim().match(thaiTimePattern);
+  
+  if (thaiTimeMatch) {
+    const hour = parseInt(thaiTimeMatch[1], 10);
+    const minute = thaiTimeMatch[2] ? parseInt(thaiTimeMatch[2], 10) : 0;
+    console.log('🕐 Thai time pattern matched:', { hour, minute });
+    return (
+      <div className={`flex flex-col items-center gap-1 ${className}`}>
+        <ClockDisplay hour={hour} minute={minute} size={size} />
+        <span className="text-xs text-muted-foreground">{choiceStr}</span>
+      </div>
+    );
+  }
+
   // Check if this is a time pattern: [time:HH:MM]
   const timePattern = /^\[time:(\d{1,2}):(\d{1,2})\]$/i;
   const timeMatch = choiceStr.trim().match(timePattern);
