@@ -31,6 +31,7 @@ export default function CompareStarsApp() {
   } = useMissionMode();
 
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
+  const [numberOfProblems, setNumberOfProblems] = useState<number>(10);
   const [gameStarted, setGameStarted] = useState(false);
   const [score, setScore] = useState(0);
   const [totalQuestions, setTotalQuestions] = useState(0);
@@ -62,8 +63,9 @@ export default function CompareStarsApp() {
     }
     setTotalQuestions(totalQuestions + 1);
 
-    // Check if mission complete (15 questions)
-    if (isMissionMode && totalQuestions + 1 >= 15) {
+    // Check if mission complete (15 questions for mission, or user-selected count)
+    const maxQuestions = isMissionMode ? 15 : numberOfProblems;
+    if (totalQuestions + 1 >= maxQuestions) {
       handleGameComplete(score + (isCorrect ? 1 : 0), totalQuestions + 1);
     }
   };
@@ -123,6 +125,27 @@ export default function CompareStarsApp() {
               </div>
             </div>
 
+            <div className="space-y-3">
+              <p className="font-semibold text-slate-700">{t('numberOfProblems')}</p>
+              <div className="grid grid-cols-4 gap-2">
+                {[5, 10, 20, 30].map((num) => (
+                  <Button
+                    key={num}
+                    onClick={() => setNumberOfProblems(num)}
+                    variant={numberOfProblems === num ? 'default' : 'outline'}
+                    size="lg"
+                    className={`text-lg font-bold ${
+                      numberOfProblems === num
+                        ? 'bg-gradient-to-r from-purple-400 to-purple-600 text-white'
+                        : 'hover:bg-slate-100'
+                    }`}
+                  >
+                    {num}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
             <Button
               onClick={() => setGameStarted(true)}
               size="lg"
@@ -160,7 +183,7 @@ export default function CompareStarsApp() {
         onGameEnd={() => handleGameComplete(score, totalQuestions)}
         onRetry={handleRetry}
         isMissionMode={isMissionMode}
-        maxQuestions={isMissionMode ? 15 : 10}
+        maxQuestions={isMissionMode ? 15 : numberOfProblems}
       />
 
       {isMissionMode && missionResult && (
