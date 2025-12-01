@@ -238,47 +238,78 @@ export default function ManualQuestionForm({ teacherId, adminId, grade, topics, 
         </div>
       </Card>
 
+      {/* Format Guide */}
+      <Card className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 border-blue-200">
+        <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
+          💡 <span>รูปแบบพิเศษที่ใช้ได้</span>
+        </h4>
+        <div className="text-xs space-y-1 text-gray-700 dark:text-gray-300">
+          <p><strong>นาฬิกา (ในโจทย์):</strong> <code className="bg-white dark:bg-gray-800 px-1 py-0.5 rounded">[clock:ชั่วโมง:นาที]</code> เช่น [clock:2:40]</p>
+          <p><strong>รูปทรง (ในโจทย์หรือตัวเลือก):</strong> <code className="bg-white dark:bg-gray-800 px-1 py-0.5 rounded">circle-red</code>, <code className="bg-white dark:bg-gray-800 px-1 py-0.5 rounded">square-blue</code>, <code className="bg-white dark:bg-gray-800 px-1 py-0.5 rounded">triangle-green</code></p>
+          <p><strong>รูปทรงหลายอัน:</strong> <code className="bg-white dark:bg-gray-800 px-1 py-0.5 rounded">[shapes:circle-red,square-blue,triangle-green]</code></p>
+          <p className="text-xs text-gray-500">สี: red, blue, green, orange, yellow, sky, purple, pink, teal</p>
+        </div>
+      </Card>
+
       {/* Preview */}
       {questionText && (
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">ตัวอย่างโจทย์</h3>
+        <Card className="p-6 border-2 border-purple-300 dark:border-purple-700">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-2xl">🔍</span>
+            <h3 className="text-lg font-semibold">ตัวอย่างการแสดงผล</h3>
+            <span className="text-xs bg-purple-100 dark:bg-purple-900 px-2 py-1 rounded text-purple-700 dark:text-purple-300">
+              Live Preview
+            </span>
+          </div>
           <div className="space-y-4">
-            <QuestionTextRenderer text={questionText} className="font-medium" />
+            <div className="p-4 bg-white dark:bg-slate-900 rounded-lg border-2 border-dashed">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">โจทย์:</p>
+              <QuestionTextRenderer text={questionText} className="font-medium text-lg" />
+            </div>
             
             {imageUrls.length > 0 && (
-              <div className="grid grid-cols-2 gap-2">
-                {imageUrls.map((url, idx) => (
-                  <img key={idx} src={url} alt={`Preview ${idx + 1}`} className="rounded border" />
-                ))}
+              <div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">รูปภาพประกอบ:</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {imageUrls.map((url, idx) => (
+                    <img key={idx} src={url} alt={`Preview ${idx + 1}`} className="rounded border" />
+                  ))}
+                </div>
               </div>
             )}
 
-            <div className="space-y-2">
-              {choices.filter(c => c.trim()).map((choice, index) => (
-                <div
-                  key={index}
-                  className={`p-3 rounded border flex items-center gap-2 ${
-                    correctAnswer === index.toString()
-                      ? 'border-green-500 bg-green-50 dark:bg-green-950/20'
-                      : 'border-border'
-                  }`}
-                >
-                  <span className="text-sm font-light text-gray-500 dark:text-gray-400">{index + 1})</span>
-                  <ChoiceRenderer 
-                    choice={choice} 
-                    size={56}
-                    className="text-lg font-semibold text-blue-600 dark:text-blue-400"
-                  />
-                  {correctAnswer === index.toString() && (
-                    <span className="ml-2 text-green-600 font-medium">✓ คำตอบที่ถูก</span>
-                  )}
-                </div>
-              ))}
+            <div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">ตัวเลือกคำตอบ:</p>
+              <div className="space-y-2">
+                {choices.filter(c => c.trim()).map((choice, index) => (
+                  <div
+                    key={index}
+                    className={`p-4 rounded-lg border-2 flex items-center gap-3 transition-all ${
+                      correctAnswer === index.toString()
+                        ? 'border-green-500 bg-green-50 dark:bg-green-950/20 shadow-md'
+                        : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800'
+                    }`}
+                  >
+                    <span className="text-base font-medium text-gray-500 dark:text-gray-400 min-w-[24px]">{index + 1})</span>
+                    <ChoiceRenderer 
+                      choice={choice} 
+                      size={64}
+                      className="text-lg font-normal text-gray-900 dark:text-gray-100 flex-1"
+                    />
+                    {correctAnswer === index.toString() && (
+                      <span className="ml-auto text-green-600 dark:text-green-400 font-semibold flex items-center gap-1">
+                        <span className="text-xl">✓</span> คำตอบที่ถูก
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
 
             {explanation && (
-              <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded">
-                <p className="text-sm"><strong>คำอธิบาย:</strong> {explanation}</p>
+              <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <p className="text-xs text-blue-600 dark:text-blue-400 mb-1 font-semibold">คำอธิบาย:</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">{explanation}</p>
               </div>
             )}
           </div>

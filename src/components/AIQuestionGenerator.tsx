@@ -126,6 +126,18 @@ export default function AIQuestionGenerator({ teacherId, adminId, onSuccess }: A
 
   return (
     <div className="space-y-6">
+      {/* Format Guide */}
+      <Card className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 border-blue-200">
+        <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
+          💡 <span>AI จะสร้างโจทย์ด้วยรูปแบบพิเศษ</span>
+        </h4>
+        <div className="text-xs space-y-1 text-gray-700 dark:text-gray-300">
+          <p><strong>นาฬิกา:</strong> AI จะใช้ <code className="bg-white dark:bg-gray-800 px-1 py-0.5 rounded">[clock:ชั่วโมง:นาที]</code> ในโจทย์ เพื่อแสดงหน้าปัดนาฬิกา</p>
+          <p><strong>รูปทรง:</strong> AI จะใช้ <code className="bg-white dark:bg-gray-800 px-1 py-0.5 rounded">circle-red</code>, <code className="bg-white dark:bg-gray-800 px-1 py-0.5 rounded">square-blue</code> เพื่อแสดงรูปทรง SVG</p>
+          <p className="text-xs text-gray-500">คุณจะเห็นตัวอย่างการแสดงผลด้านล่างหลัง AI สร้างโจทย์เสร็จ</p>
+        </div>
+      </Card>
+
       <Card className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
@@ -301,66 +313,77 @@ export default function AIQuestionGenerator({ teacherId, adminId, onSuccess }: A
                     onCheckedChange={() => toggleQuestion(index)}
                     className="mt-1"
                   />
-                  <div className="flex-1 space-y-3">
+                   <div className="flex-1 space-y-4">
                     {/* Question Metadata Tags */}
-                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-3 rounded-lg border border-blue-200">
+                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
                       <div className="flex items-center gap-2 flex-wrap text-sm">
-                        <span className="font-semibold text-gray-700">ข้อ {index + 1}</span>
+                        <span className="font-semibold text-gray-700 dark:text-gray-300">ข้อ {index + 1}</span>
                         <span className="text-gray-400">|</span>
                         <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                          question.difficulty === 'easy' ? 'bg-green-100 text-green-800' :
-                          question.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
+                          question.difficulty === 'easy' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                          question.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
+                          'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                         }`}>
                           {question.difficulty === 'easy' ? 'ง่าย' :
                            question.difficulty === 'medium' ? 'ปานกลาง' : 'ยาก'}
                         </span>
                         <span className="text-gray-400">|</span>
-                        <span className="px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                        <span className="px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
                           ป.{question.grade || selectedGrade} {question.assessment_type === 'nt' || assessmentType === 'nt' ? 'NT' : `เทอม ${question.semester || selectedSemester}`}
                         </span>
                         <span className="text-gray-400">|</span>
-                        <span className="px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                        <span className="px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                           {question.skill_name || question.topic || selectedTopic}
                         </span>
                       </div>
                       {question.description && (
-                        <p className="text-xs text-gray-600 mt-2 leading-relaxed">
-                          <span className="font-semibold">:</span> {question.description}
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-2 leading-relaxed">
+                          <span className="font-semibold">รายละเอียด:</span> {question.description}
                         </p>
                       )}
                     </div>
 
-                    <QuestionTextRenderer text={question.question_text} className="font-medium" />
+                    {/* Question Text */}
+                    <div className="p-4 bg-white dark:bg-slate-900 rounded-lg border-2 border-dashed">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">โจทย์:</p>
+                      <QuestionTextRenderer text={question.question_text} className="font-medium text-lg" />
+                    </div>
 
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      {question.choices.map((choice: string, cIdx: number) => (
-                        <div
-                          key={cIdx}
-                          className={`p-3 rounded border ${
-                            choice === question.correct_answer
-                              ? 'border-green-500 bg-green-50 dark:bg-green-950/20'
-                              : 'border-border'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-light text-gray-500 dark:text-gray-400">{cIdx + 1})</span>
-                            <ChoiceRenderer 
-                              choice={choice} 
-                              size={56}
-                              className="text-lg font-semibold text-blue-600 dark:text-blue-400"
-                            />
+                    {/* Choices */}
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">ตัวเลือกคำตอบ:</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        {question.choices.map((choice: string, cIdx: number) => (
+                          <div
+                            key={cIdx}
+                            className={`p-4 rounded-lg border-2 transition-all ${
+                              choice === question.correct_answer
+                                ? 'border-green-500 bg-green-50 dark:bg-green-950/20 shadow-md'
+                                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800'
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <span className="text-base font-medium text-gray-500 dark:text-gray-400 min-w-[24px]">{cIdx + 1})</span>
+                              <ChoiceRenderer 
+                                choice={choice} 
+                                size={64}
+                                className="text-lg font-normal text-gray-900 dark:text-gray-100 flex-1"
+                              />
+                              {choice === question.correct_answer && (
+                                <span className="ml-auto text-green-600 dark:text-green-400 font-semibold flex items-center gap-1">
+                                  <span className="text-xl">✓</span>
+                                </span>
+                              )}
+                            </div>
                           </div>
-                          {choice === question.correct_answer && (
-                            <span className="ml-2 text-green-600 font-medium">✓</span>
-                          )}
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
 
                     {question.explanation && (
-                      <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded text-sm">
-                        <strong>คำอธิบาย:</strong> {question.explanation}
+                      <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                        <p className="text-xs text-blue-600 dark:text-blue-400 mb-1 font-semibold">คำอธิบาย:</p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">{question.explanation}</p>
                       </div>
                     )}
                   </div>
