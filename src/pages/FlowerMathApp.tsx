@@ -269,39 +269,47 @@ const FlowerMathApp = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6 max-w-6xl mx-auto">
-        <Button
-          onClick={handleBackToMenu}
-          variant="ghost"
-          size="sm"
-          className="text-foreground hover:text-foreground/80"
-        >
-          <ArrowLeft className="mr-2 h-5 w-5" />
-          {t('common.back', 'กลับ')}
-        </Button>
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-          🌸 {t('flowermath.title', 'ดอกไม้คณิตศาสตร์')}
-        </h1>
-        <div className="w-20"></div>
+    <div className="min-h-screen bg-gradient-to-b from-sky-300 via-sky-400 to-cyan-400 flex flex-col relative overflow-hidden">
+      {/* Decorative clouds */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-10 left-10 w-24 h-12 bg-white rounded-full opacity-80 animate-float"></div>
+        <div className="absolute top-20 right-20 w-32 h-16 bg-white rounded-full opacity-70 animate-float" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute bottom-32 left-1/4 w-20 h-10 bg-white rounded-full opacity-60 animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/3 right-1/4 w-28 h-14 bg-white rounded-full opacity-50 animate-float" style={{ animationDelay: '3s' }}></div>
       </div>
+      
+      <div className="p-4 relative z-10">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6 max-w-6xl mx-auto">
+          <Button
+            onClick={handleBackToMenu}
+            className="flex items-center gap-2 text-white bg-white/20 hover:bg-white/30 border border-white/50"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            {t('common.back', 'กลับ')}
+          </Button>
+          <h1 className="text-2xl md:text-3xl font-bold text-white drop-shadow-lg">
+            🌸 {t('flowermath.title', 'ดอกไม้คณิตศาสตร์')}
+          </h1>
+          <div className="w-20"></div>
+        </div>
 
-      {/* Game */}
-      {currentProblem && (
-        <FlowerMathGame
-          problem={currentProblem}
-          choices={choices}
-          selectedAnswer={selectedAnswer}
-          isCorrect={isCorrect}
-          onAnswerSelect={handleAnswerSelect}
-          score={score}
-          streak={streak}
-          problemNumber={problemNumber}
-          totalProblems={totalProblems}
-          timeRemaining={timeRemaining}
-        />
-      )}
+        {/* Game */}
+        {currentProblem && (
+          <FlowerMathGame
+            problem={currentProblem}
+            choices={choices}
+            selectedAnswer={selectedAnswer}
+            isCorrect={isCorrect}
+            onAnswerSelect={handleAnswerSelect}
+            score={score}
+            streak={streak}
+            problemNumber={problemNumber}
+            totalProblems={totalProblems}
+            timeRemaining={timeRemaining}
+          />
+        )}
+      </div>
     </div>
   );
 };
