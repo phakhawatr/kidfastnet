@@ -26,25 +26,9 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Check AI quota
-    const { data: quotaData, error: quotaError } = await supabase.rpc(
-      'check_and_reset_ai_quota',
-      { p_user_id: userId }
-    );
-
-    if (quotaError) {
-      console.error('Quota check error:', quotaError);
-      throw quotaError;
-    }
-
-    if (!quotaData?.[0]?.has_quota) {
-      return new Response(
-        JSON.stringify({ error: 'AI quota exceeded', remaining: 0 }),
-        { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    console.log('AI quota available:', quotaData[0].remaining);
+    // Note: Groq API quota is workspace-level (14,400 requests/day), not per-user
+    // No need to check individual user quotas anymore
+    console.log('Using Groq API for mission generation');
 
     // Get last 7 days of missions
     const sevenDaysAgo = new Date();
