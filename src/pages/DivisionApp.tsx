@@ -247,9 +247,24 @@ const DivisionApp: React.FC = () => {
   // Generate division problems based on settings
   const generateDivisionProblems = useCallback((count: number, level: Level, divType: DivisionType): Problem[] => {
     const generatedProblems: Problem[] = [];
-    for (let i = 0; i < count; i++) {
-      generatedProblems.push(generateDivisionProblem(level, divType));
+    const used = new Set<string>();
+    let guard = 0;
+    
+    while (generatedProblems.length < count && guard < 10000) {
+      guard++;
+      
+      const problem = generateDivisionProblem(level, divType);
+      
+      // Create unique key to prevent duplicate problems
+      const key = `${problem.dividend}÷${problem.divisor}`;
+      
+      // Skip if duplicate
+      if (used.has(key)) continue;
+      used.add(key);
+      
+      generatedProblems.push(problem);
     }
+    
     return generatedProblems;
   }, []);
 

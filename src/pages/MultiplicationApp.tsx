@@ -168,10 +168,26 @@ const MultiplicationApp = () => {
   // Generate new problems
   const generateProblems = useCallback(() => {
     const newProblems: Problem[] = [];
+    const used = new Set<string>();
+    let guard = 0;
     
-    for (let i = 0; i < problemCount; i++) {
+    while (newProblems.length < problemCount && guard < 10000) {
+      guard++;
+      
       const multiplicand = generateNumber(dimensions[0]);
       const multiplier = generateNumber(dimensions[1]);
+      
+      // Create unique key - use sorted values to prevent duplicates like 3×5 and 5×3
+      const num1 = parseInt(multiplicand);
+      const num2 = parseInt(multiplier);
+      const minNum = Math.min(num1, num2);
+      const maxNum = Math.max(num1, num2);
+      const key = `${minNum}×${maxNum}`;
+      
+      // Skip if duplicate
+      if (used.has(key)) continue;
+      used.add(key);
+      
       const { partialProducts, finalAnswer } = calculateLongMultiplication(multiplicand, multiplier);
       
       newProblems.push({
