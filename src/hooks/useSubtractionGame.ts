@@ -70,8 +70,11 @@ export function useSubtractionGame() {
   }
 
   function startTimerIfNeeded() {
-    if (!startedAt) { setStartedAt(Date.now()); setElapsedMs(0); }
-    try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch {}
+    if (!startedAt) { 
+      setStartedAt(Date.now()); 
+      setElapsedMs(0);
+      try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch {}
+    }
   }
 
   function finalizeAndLog(endTs = Date.now()) {
