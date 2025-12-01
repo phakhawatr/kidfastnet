@@ -337,6 +337,14 @@
   .animate-ai-float {
     animation: ai-float 3s ease-in-out infinite;
   }
+
+  .animate-question-pulse {
+    animation: question-pulse 1.5s ease-in-out infinite;
+  }
+
+  .animate-shake {
+    animation: shake 0.4s ease-in-out;
+  }
 }
 
 @keyframes online-blink {
@@ -384,6 +392,23 @@
   50% {
     transform: translateY(-10px);
   }
+}
+
+@keyframes question-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
 }
 
 @layer base {

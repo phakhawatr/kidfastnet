@@ -29,9 +29,9 @@ const FlowerMathGame: React.FC<FlowerMathGameProps> = ({
 }) => {
   const centerX = 200;
   const centerY = 200;
-  const petalRadius = 120;
-  const innerCircleRadius = 60;
-  const centerCircleRadius = 40;
+  const petalRadius = 140; // ขยายจาก 120
+  const innerCircleRadius = 70; // ขยายจาก 60
+  const centerCircleRadius = 48; // ขยายจาก 40
 
   // Calculate petal positions (10 petals around circle)
   const getPetalPosition = (index: number) => {
@@ -52,35 +52,37 @@ const FlowerMathGame: React.FC<FlowerMathGameProps> = ({
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 items-start justify-center w-full max-w-6xl mx-auto p-4">
+    <div className="flex flex-col items-center lg:flex-row lg:items-start gap-6 justify-center w-full max-w-6xl mx-auto px-4">
       {/* Stats Bar - Mobile Top */}
-      <div className="w-full lg:hidden flex justify-between items-center mb-4 bg-secondary/50 backdrop-blur-sm rounded-lg p-4">
-        <div className="text-foreground">
-          <span className="text-sm opacity-80">คะแนน:</span>
-          <span className="ml-2 font-bold text-xl">{score}/{totalProblems}</span>
-        </div>
-        <div className="text-foreground">
-          <span className="text-sm opacity-80">ข้อที่:</span>
-          <span className="ml-2 font-bold text-xl">{problemNumber}/{totalProblems}</span>
-        </div>
-        {streak > 1 && (
-          <div className="flex items-center gap-2 text-orange-500">
-            <span className="text-2xl">🔥</span>
-            <span className="font-bold text-xl">{streak}</span>
+      <div className="w-full lg:hidden bg-slate-800/90 backdrop-blur-md rounded-xl p-4 shadow-xl border border-slate-700/50 mb-4">
+        <div className="flex justify-between items-center gap-3">
+          <div className="text-white">
+            <span className="text-sm text-slate-300">คะแนน:</span>
+            <span className="ml-2 font-bold text-2xl text-yellow-400">{score}/{totalProblems}</span>
           </div>
-        )}
-        {timeRemaining !== null && (
-          <div className={`font-bold text-xl ${timeRemaining < 30 ? 'text-red-500 animate-pulse' : 'text-foreground'}`}>
-            ⏱️ {Math.floor(timeRemaining / 60)}:{(timeRemaining % 60).toString().padStart(2, '0')}
+          <div className="text-white">
+            <span className="text-sm text-slate-300">ข้อที่:</span>
+            <span className="ml-2 font-bold text-2xl text-cyan-400">{problemNumber}/{totalProblems}</span>
           </div>
-        )}
+          {streak > 1 && (
+            <div className="flex items-center gap-1 text-orange-500">
+              <span className="text-2xl">🔥</span>
+              <span className="font-bold text-2xl">{streak}</span>
+            </div>
+          )}
+          {timeRemaining !== null && (
+            <div className={`font-bold text-xl ${timeRemaining < 30 ? 'text-red-400 animate-pulse' : 'text-white'}`}>
+              ⏱️ {Math.floor(timeRemaining / 60)}:{(timeRemaining % 60).toString().padStart(2, '0')}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Flower Visualization */}
-      <div className="flex-1 flex justify-center">
+      <div className="flex-1 flex justify-center items-center">
         <svg
           viewBox="0 0 400 400"
-          className="w-full max-w-md h-auto"
+          className="w-full max-w-[340px] sm:max-w-lg lg:max-w-xl h-auto mx-auto"
           style={{ filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.3))' }}
         >
           {/* Petals */}
@@ -102,11 +104,12 @@ const FlowerMathGame: React.FC<FlowerMathGameProps> = ({
               <g key={index} transform={`translate(${pos.x}, ${pos.y}) rotate(${pos.angle + 90})`}>
                 {/* Petal shape */}
                 <ellipse
-                  rx="28"
-                  ry="50"
+                  rx={isQuestion && selectedAnswer === null ? "34" : "32"}
+                  ry={isQuestion && selectedAnswer === null ? "58" : "55"}
                   fill={petalColor}
                   stroke="#FF69B4"
-                  strokeWidth="2"
+                  strokeWidth={isQuestion && selectedAnswer === null ? "3" : "2"}
+                  className={isQuestion && selectedAnswer === null ? 'animate-question-pulse' : ''}
                   style={{
                     transition: 'all 0.3s ease',
                   }}
@@ -116,10 +119,10 @@ const FlowerMathGame: React.FC<FlowerMathGameProps> = ({
                   textAnchor="middle"
                   dy="0.35em"
                   fill="white"
-                  fontSize="20"
+                  fontSize={isQuestion ? "28" : "22"}
                   fontWeight="bold"
                   transform={`rotate(${-pos.angle - 90})`}
-                  style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}
+                  style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.7)' }}
                 >
                   {isQuestion ? '?' : problem.results[index]}
                 </text>
@@ -135,7 +138,7 @@ const FlowerMathGame: React.FC<FlowerMathGameProps> = ({
                 <circle
                   cx={pos.x}
                   cy={pos.y}
-                  r="18"
+                  r="22"
                   fill="#4A90E2"
                   stroke="#2E5C8A"
                   strokeWidth="2"
@@ -146,7 +149,7 @@ const FlowerMathGame: React.FC<FlowerMathGameProps> = ({
                   textAnchor="middle"
                   dy="0.35em"
                   fill="white"
-                  fontSize="16"
+                  fontSize="18"
                   fontWeight="bold"
                 >
                   {num}
@@ -170,7 +173,7 @@ const FlowerMathGame: React.FC<FlowerMathGameProps> = ({
             textAnchor="middle"
             dy="0.35em"
             fill="#333"
-            fontSize="24"
+            fontSize="28"
             fontWeight="bold"
           >
             {problem.multiplier}{getOperationSymbol(problem.operation)}
@@ -210,40 +213,43 @@ const FlowerMathGame: React.FC<FlowerMathGameProps> = ({
         </div>
 
         {/* Answer Choices */}
-        <div className="space-y-3">
-          <h3 className="text-lg font-bold text-foreground text-center lg:text-left mb-4">
+        <div className="space-y-4">
+          <h3 className="text-xl font-bold text-foreground text-center lg:text-left mb-4">
             🌸 เลือกคำตอบ
           </h3>
-          {choices.map((choice, index) => {
-            const isSelected = selectedAnswer === choice;
-            const isCorrectAnswer = choice === problem.correctAnswer && selectedAnswer !== null;
-            const isWrongAnswer = isSelected && !isCorrect;
+          <div className="grid grid-cols-2 lg:grid-cols-1 gap-3">
+            {choices.map((choice, index) => {
+              const isSelected = selectedAnswer === choice;
+              const isCorrectAnswer = choice === problem.correctAnswer && selectedAnswer !== null;
+              const isWrongAnswer = isSelected && !isCorrect;
 
-            return (
-              <button
-                key={index}
-                onClick={() => onAnswerSelect(choice)}
-                disabled={selectedAnswer !== null}
-                className={`
-                  w-full p-4 rounded-lg text-xl font-bold
-                  transition-all duration-300 transform
-                  ${selectedAnswer === null
-                    ? 'bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-105'
-                    : isCorrectAnswer
-                    ? 'bg-green-500 text-white scale-105 shadow-lg'
-                    : isWrongAnswer
-                    ? 'bg-red-500 text-white'
-                    : 'bg-muted text-muted-foreground'
-                  }
-                  disabled:cursor-not-allowed
-                `}
-              >
-                {choice}
-                {isCorrectAnswer && ' ✓'}
-                {isWrongAnswer && ' ✗'}
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={index}
+                  onClick={() => onAnswerSelect(choice)}
+                  disabled={selectedAnswer !== null}
+                  className={`
+                    w-full p-4 md:p-5 rounded-2xl text-2xl md:text-3xl font-bold
+                    transition-all duration-200 transform
+                    shadow-lg border-b-4
+                    ${selectedAnswer === null
+                      ? 'bg-gradient-to-b from-violet-400 via-purple-500 to-purple-600 text-white border-purple-800 hover:from-violet-300 hover:to-purple-500 hover:scale-105 active:scale-95'
+                      : isCorrectAnswer
+                      ? 'bg-gradient-to-b from-green-400 to-green-600 text-white scale-105 border-green-800'
+                      : isWrongAnswer
+                      ? 'bg-gradient-to-b from-red-400 to-red-600 text-white animate-shake border-red-800'
+                      : 'bg-slate-400 text-slate-200 border-slate-600'
+                    }
+                    disabled:cursor-not-allowed
+                  `}
+                >
+                  {choice}
+                  {isCorrectAnswer && ' ✓'}
+                  {isWrongAnswer && ' ✗'}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
