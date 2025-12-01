@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DndContext, DragEndEvent, useDraggable, useDroppable } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, useDraggable, useDroppable, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import Confetti from 'react-confetti';
 import { CountingObjects } from '@/components/CountingObjects';
 import { DraggableNumberTile } from '@/components/DraggableNumberTile';
@@ -67,6 +67,18 @@ export const ChalkboardGame = ({ difficulty, totalQuestions, onComplete, onScore
   const [activeId, setActiveId] = useState<string | null>(null);
   const [showHandGuide, setShowHandGuide] = useState(true);
 
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 5,
+      },
+    })
+  );
+
   useEffect(() => {
     onScoreChange(score);
   }, [score, onScoreChange]);
@@ -120,7 +132,7 @@ export const ChalkboardGame = ({ difficulty, totalQuestions, onComplete, onScore
   }
 
   return (
-    <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="max-w-5xl mx-auto">
         {showConfetti && <Confetti numberOfPieces={200} recycle={false} />}
 

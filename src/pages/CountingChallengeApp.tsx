@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { DndContext, DragEndEvent } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import Confetti from 'react-confetti';
 import { CountingCard } from '@/components/CountingCard';
 import { useCountingChallenge } from '@/hooks/useCountingChallenge';
@@ -46,6 +46,18 @@ export default function CountingChallengeApp() {
   const [showSettings, setShowSettings] = useState(true);
   const [startTime, setStartTime] = useState<number>(0);
   const [problemsSolved, setProblemsSolved] = useState(0);
+
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 5,
+      },
+    })
+  );
 
   useEffect(() => {
     const handleResize = () => {
@@ -172,7 +184,7 @@ export default function CountingChallengeApp() {
       </div>
 
       {/* Game Board - Split Screen */}
-      <DndContext onDragEnd={handleDragEnd}>
+      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         <div className="grid md:grid-cols-2 gap-6 mb-6">
           {challenge1 && (
             <CountingCard
