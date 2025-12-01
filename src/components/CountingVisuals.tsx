@@ -6,7 +6,7 @@ interface CountingVisualsProps {
 }
 
 const Fish = () => (
-  <svg width="80" height="60" viewBox="0 0 80 60" className="animate-pulse">
+  <svg width="80" height="60" viewBox="0 0 80 60">
     <ellipse cx="35" cy="30" rx="28" ry="20" fill="#FF69B4" />
     <polygon points="60,30 80,15 80,45" fill="#FF69B4" />
     <circle cx="22" cy="25" r="6" fill="white" />
@@ -19,7 +19,7 @@ const Fish = () => (
 );
 
 const BeachBall = () => (
-  <svg width="50" height="50" viewBox="0 0 50 50" className="animate-bounce">
+  <svg width="50" height="50" viewBox="0 0 50 50">
     <circle cx="25" cy="25" r="23" fill="#FF4444" />
     <path d="M25,2 Q35,25 25,48" fill="#FFD700" />
     <path d="M25,2 Q15,25 25,48" fill="#FFD700" />
@@ -28,7 +28,7 @@ const BeachBall = () => (
 );
 
 const Apple = () => (
-  <svg width="50" height="60" viewBox="0 0 50 60" className="animate-pulse">
+  <svg width="50" height="60" viewBox="0 0 50 60">
     <ellipse cx="25" cy="35" rx="20" ry="22" fill="#FF3333" />
     <path d="M25,13 Q20,8 25,3" stroke="#8B4513" strokeWidth="2" fill="none" />
     <ellipse cx="30" cy="15" rx="8" ry="12" fill="#228B22" />
@@ -37,14 +37,14 @@ const Apple = () => (
 );
 
 const Star = () => (
-  <svg width="50" height="50" viewBox="0 0 50 50" className="animate-pulse">
+  <svg width="50" height="50" viewBox="0 0 50 50">
     <polygon points="25,5 30,18 45,18 33,28 38,42 25,33 12,42 17,28 5,18 20,18" fill="#FFD700" />
     <polygon points="25,10 28,20 38,20 30,26 33,37 25,30 17,37 20,26 12,20 22,20" fill="#FFF" opacity="0.5" />
   </svg>
 );
 
 const Butterfly = () => (
-  <svg width="60" height="50" viewBox="0 0 60 50" className="animate-bounce">
+  <svg width="60" height="50" viewBox="0 0 60 50">
     <ellipse cx="20" cy="25" rx="15" ry="18" fill="#FF69B4" />
     <ellipse cx="40" cy="25" rx="15" ry="18" fill="#DDA0DD" />
     <rect x="27" y="15" width="6" height="20" fill="#8B4513" rx="3" />
@@ -55,7 +55,7 @@ const Butterfly = () => (
 );
 
 const Car = () => (
-  <svg width="70" height="40" viewBox="0 0 70 40" className="animate-pulse">
+  <svg width="70" height="40" viewBox="0 0 70 40">
     <rect x="10" y="15" width="50" height="15" fill="#FF6B35" rx="3" />
     <rect x="15" y="8" width="25" height="12" fill="#4ECDC4" rx="2" />
     <circle cx="20" cy="30" r="6" fill="#333" />
@@ -66,7 +66,7 @@ const Car = () => (
 );
 
 const Flower = () => (
-  <svg width="50" height="60" viewBox="0 0 50 60" className="animate-bounce">
+  <svg width="50" height="60" viewBox="0 0 50 60">
     <circle cx="25" cy="20" r="8" fill="#FFD700" />
     <circle cx="18" cy="15" r="6" fill="#FF69B4" />
     <circle cx="32" cy="15" r="6" fill="#FF69B4" />
@@ -78,7 +78,7 @@ const Flower = () => (
 );
 
 const Bird = () => (
-  <svg width="60" height="50" viewBox="0 0 60 50" className="animate-pulse">
+  <svg width="60" height="50" viewBox="0 0 60 50">
     <ellipse cx="30" cy="25" rx="18" ry="15" fill="#4ECDC4" />
     <circle cx="22" cy="20" r="4" fill="white" />
     <circle cx="22" cy="20" r="2" fill="black" />

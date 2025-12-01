@@ -40,8 +40,11 @@ export const generateChallenge = (theme: ThemeName, maxCount: number = 12): Coun
 
 export const generateWrongChoices = (correct: number): number[] => {
   const choices = new Set<number>();
+  let attempts = 0;
+  const maxAttempts = 100;
   
-  while (choices.size < 2) {
+  while (choices.size < 2 && attempts < maxAttempts) {
+    attempts++;
     const offset = Math.floor(Math.random() * 4) - 2; // -2 to +2
     const wrong = correct + offset;
     if (wrong > 0 && wrong !== correct && wrong <= 12) {
@@ -49,7 +52,15 @@ export const generateWrongChoices = (correct: number): number[] => {
     }
   }
   
-  return Array.from(choices);
+  // Fallback if unable to generate enough wrong choices
+  if (choices.size < 2) {
+    if (correct > 2) choices.add(correct - 1);
+    if (correct > 1 && choices.size < 2) choices.add(correct - 2);
+    if (correct < 12 && choices.size < 2) choices.add(correct + 1);
+    if (correct < 11 && choices.size < 2) choices.add(correct + 2);
+  }
+  
+  return Array.from(choices).slice(0, 2);
 };
 
 export const getRandomTheme = (): ThemeName => {
