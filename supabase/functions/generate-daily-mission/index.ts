@@ -522,12 +522,8 @@ ${addSingleMission
       throw insertError;
     }
 
-    // Increment AI usage
-    await supabase.rpc('increment_ai_usage', {
-      p_user_id: userId,
-      p_feature_type: 'daily_mission_generation',
-    });
-
+    // Note: We no longer increment AI usage for daily mission generation
+    // as it uses workspace-level Groq quota and is a system-initiated feature
     console.log(`${missionsNeeded} Missions created successfully:`, newMissions.map(m => m.id));
 
     // Combine completed missions with new missions for response
