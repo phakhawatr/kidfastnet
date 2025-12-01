@@ -30,7 +30,10 @@ export const generateFlowerProblem = (
       case 'addition':
         return multiplier + num;
       case 'subtraction':
-        return multiplier - num;
+        // For subtraction: petal shows the sum (multiplier + num)
+        // Question: petal - center = ?
+        // Answer: inner number (always positive)
+        return multiplier + num;
       case 'multiplication':
         return multiplier * num;
       case 'division':
@@ -46,16 +49,16 @@ export const generateFlowerProblem = (
   // Select question index randomly
   const questionIndex = Math.floor(Math.random() * 10);
   
-  // For division, answer is the inner number, not the petal value
+  // For division and subtraction, answer is the inner number, not the petal value
   let correctAnswer: number;
   let wrongAnswers: number[];
   let questionValue: number;
   let answerType: 'petal' | 'inner';
 
-  if (operation === 'division') {
+  if (operation === 'division' || operation === 'subtraction') {
     correctAnswer = innerNumbers[questionIndex]; // Answer is inner number (1-10)
     wrongAnswers = generateWrongAnswersForDivision(correctAnswer);
-    questionValue = results[questionIndex]; // Petal shows the product
+    questionValue = results[questionIndex]; // Petal shows the sum/product
     answerType = 'inner';
   } else {
     correctAnswer = results[questionIndex]; // Answer is petal value

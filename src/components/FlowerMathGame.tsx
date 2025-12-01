@@ -91,12 +91,12 @@ const FlowerMathGame: React.FC<FlowerMathGameProps> = ({
             const showCorrect = selectedAnswer !== null && isQuestion && isCorrect;
             const showWrong = selectedAnswer !== null && isQuestion && !isCorrect;
             
-            // For division, petals always show values (no "?")
-            const isDivision = problem.operation === 'division';
-            const shouldHighlight = isDivision ? false : (isQuestion && selectedAnswer === null);
+            // For division and subtraction, petals always show values (no "?")
+            const isDivOrSub = problem.operation === 'division' || problem.operation === 'subtraction';
+            const shouldHighlight = isDivOrSub ? false : (isQuestion && selectedAnswer === null);
             
-            const petalColor = isDivision
-              ? '#FFB6C1' // Normal color for division
+            const petalColor = isDivOrSub
+              ? '#FFB6C1' // Normal color for division/subtraction
               : isQuestion && selectedAnswer === null
               ? '#FF6B6B'
               : showCorrect
@@ -121,17 +121,17 @@ const FlowerMathGame: React.FC<FlowerMathGameProps> = ({
                     transition: 'all 0.3s ease',
                   }}
                 />
-                {/* Result text - always show for division */}
+                {/* Result text - always show for division/subtraction */}
                 <text
                   textAnchor="middle"
                   dy="0.35em"
                   fill="white"
-                  fontSize={(isDivision || isQuestion) ? "28" : "22"}
+                  fontSize={(isDivOrSub || isQuestion) ? "28" : "22"}
                   fontWeight="bold"
                   transform={`rotate(${-pos.angle - 90})`}
                   style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.7)' }}
                 >
-                  {isDivision ? problem.results[index] : (isQuestion ? '?' : problem.results[index])}
+                  {isDivOrSub ? problem.results[index] : (isQuestion ? '?' : problem.results[index])}
                 </text>
               </g>
             );
@@ -141,12 +141,12 @@ const FlowerMathGame: React.FC<FlowerMathGameProps> = ({
           {problem.innerNumbers.map((num, index) => {
             const pos = getInnerPosition(index);
             const isQuestion = index === problem.questionIndex;
-            const isDivision = problem.operation === 'division';
-            const showCorrect = selectedAnswer !== null && isQuestion && isCorrect && isDivision;
-            const showWrong = selectedAnswer !== null && isQuestion && !isCorrect && isDivision;
+            const isDivOrSub = problem.operation === 'division' || problem.operation === 'subtraction';
+            const showCorrect = selectedAnswer !== null && isQuestion && isCorrect && isDivOrSub;
+            const showWrong = selectedAnswer !== null && isQuestion && !isCorrect && isDivOrSub;
             
-            // For division, inner number at questionIndex shows "?"
-            const shouldHighlight = isDivision && isQuestion && selectedAnswer === null;
+            // For division/subtraction, inner number at questionIndex shows "?"
+            const shouldHighlight = isDivOrSub && isQuestion && selectedAnswer === null;
             const circleColor = shouldHighlight
               ? '#FF6B6B'
               : showCorrect
@@ -178,7 +178,7 @@ const FlowerMathGame: React.FC<FlowerMathGameProps> = ({
                   fontSize={shouldHighlight ? "22" : "18"}
                   fontWeight="bold"
                 >
-                  {isDivision && isQuestion ? '?' : num}
+                  {isDivOrSub && isQuestion ? '?' : num}
                 </text>
               </g>
             );
