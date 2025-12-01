@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { DndContext, DragEndEvent, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, PointerSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import Confetti from 'react-confetti';
 import { CountingCard } from '@/components/CountingCard';
 import { useCountingChallenge } from '@/hooks/useCountingChallenge';
@@ -49,13 +49,13 @@ export default function CountingChallengeApp() {
   const [correctCount, setCorrectCount] = useState(0);
 
   const sensors = useSensors(
-    useSensor(MouseSensor, {
+    useSensor(PointerSensor, {
       activationConstraint: { distance: 8 },
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 200,
-        tolerance: 5,
+        delay: 100,
+        tolerance: 8,
       },
     })
   );
@@ -197,7 +197,14 @@ export default function CountingChallengeApp() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-200 via-blue-300 to-blue-400 p-4 md:p-8">
       {/* Confetti */}
-      {showConfetti && <Confetti width={windowSize.width} height={windowSize.height} recycle={false} numberOfPieces={200} />}
+      {showConfetti && (
+        <Confetti 
+          width={windowSize.width} 
+          height={windowSize.height} 
+          recycle={false} 
+          numberOfPieces={windowSize.width < 768 ? 100 : 200}
+        />
+      )}
 
       {/* Header */}
       <div className="bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 rounded-2xl shadow-xl p-4 mb-6">
