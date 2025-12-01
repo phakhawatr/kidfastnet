@@ -11,9 +11,9 @@ serve(async (req) => {
   }
 
   try {
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+    const GROQ_API_KEY = Deno.env.get('GROQ_API_KEY');
+    if (!GROQ_API_KEY) {
+      throw new Error('GROQ_API_KEY is not configured');
     }
 
     const { grade, semester, assessmentType, topic, difficulty, count, description, range, language = 'th' } = await req.json();
@@ -25,15 +25,7 @@ serve(async (req) => {
       );
     }
 
-    // Log curriculum context
-    console.log('AI Generation Request:', {
-      grade,
-      semester,
-      assessmentType,
-      topic,
-      description,
-      range
-    });
+    console.log('AI Generation Request:', { grade, semester, assessmentType, topic, description, range });
 
     const systemPrompt = `คุณคือครูคณิตศาสตร์ที่เชี่ยวชาญในการสร้างโจทย์คณิตศาสตร์สำหรับนักเรียนระดับประถมศึกษา
 
@@ -73,14 +65,14 @@ ${range ? `- ช่วงตัวเลขที่ใช้: ${range[0]}-${ran
 3. correct_answer ต้องตรงกับหนึ่งในตัวเลือกที่ให้มาทุกประการ
 4. ตัวเลือกที่ผิดต้องสมเหตุสมผล ไม่ผิดพลาดชัดเจนเกินไป`;
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'llama-3.3-70b-versatile',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `สร้างโจทย์ ${count} ข้อ` }
@@ -97,14 +89,14 @@ ${range ? `- ช่วงตัวเลขที่ใช้: ${range[0]}-${ran
       }
       if (response.status === 402) {
         return new Response(
-          JSON.stringify({ error: 'Payment required. Please add credits to your Lovable AI workspace.' }),
+          JSON.stringify({ error: 'Payment required. Please add credits.' }),
           { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       const errorText = await response.text();
-      console.error('AI gateway error:', response.status, errorText);
+      console.error('Groq API error:', response.status, errorText);
       return new Response(
-        JSON.stringify({ error: 'AI gateway error' }),
+        JSON.stringify({ error: 'AI error' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -115,7 +107,6 @@ ${range ? `- ช่วงตัวเลขที่ใช้: ${range[0]}-${ran
     // Parse JSON from content
     let questions;
     try {
-      // Try to extract JSON array from markdown code blocks
       const jsonMatch = content.match(/```(?:json)?\s*(\[[\s\S]*?\])\s*```/) || 
                         content.match(/(\[[\s\S]*?\])/);
       if (jsonMatch) {
