@@ -166,10 +166,21 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
       ? question.choices.map(c => typeof c === 'string' ? c.replace(/^[A-D]\)\s*/, '') : c)
       : ['', '', '', ''];
     
+    // Convert correct_answer letter to actual choice text
+    let correctAnswerText = question.correct_answer.replace(/^[A-D]\)\s*/, '');
+    
+    // Check if correct_answer is just a letter (A, B, C, D)
+    if (/^[A-D]$/.test(question.correct_answer)) {
+      const letterIndex = question.correct_answer.charCodeAt(0) - 65; // A=0, B=1, C=2, D=3
+      if (letterIndex >= 0 && letterIndex < cleanedChoices.length) {
+        correctAnswerText = cleanedChoices[letterIndex];
+      }
+    }
+    
     setEditForm({
       question_text: question.question_text,
       choices: cleanedChoices,
-      correct_answer: question.correct_answer.replace(/^[A-D]\)\s*/, ''),
+      correct_answer: correctAnswerText,
       explanation: question.explanation || '',
       difficulty: question.difficulty,
       tags: question.tags || [],
