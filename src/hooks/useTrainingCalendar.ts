@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -80,7 +80,7 @@ export const useTrainingCalendar = () => {
   }, []);
 
   // Fetch missions for a specific month
-  const fetchMissions = async (month: number, year: number) => {
+  const fetchMissions = useCallback(async (month: number, year: number) => {
     if (!userId) {
       setIsLoading(false);
       return;
@@ -113,7 +113,7 @@ export const useTrainingCalendar = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userId, toast]);
 
   // Fetch user streak data
   const fetchStreak = async () => {
