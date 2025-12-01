@@ -35,6 +35,12 @@ const TodayFocusMode = () => {
   const needsRefresh = searchParams.get('refresh') === 'true';
   const dateParam = searchParams.get('date'); // e.g., "2025-11-25"
   const [loadingTimeout, setLoadingTimeout] = useState(false);
+  
+  // Rate limiting state
+  const lastGenerationAttempt = useRef<number>(0);
+  const generationRetryCount = useRef<number>(0);
+  const COOLDOWN_MS = 30000; // 30 seconds cooldown
+  const MAX_RETRIES = 3; // Maximum 3 retry attempts
 
   // Helper function to check if mission is completed
   // Mission is completed if EITHER status is 'completed' OR completed_at has a value
@@ -124,34 +130,78 @@ const TodayFocusMode = () => {
       if (hasAttemptedGeneration.current) return;
       if (isLoading || isGenerating || !userId) return;
       
+      // Rate limiting: Check cooldown period
+      const now = Date.now();
+      const timeSinceLastAttempt = now - lastGenerationAttempt.current;
+      if (timeSinceLastAttempt < COOLDOWN_MS) {
+        console.log(`⏱️ Rate limit: ${Math.ceil((COOLDOWN_MS - timeSinceLastAttempt) / 1000)}s until next attempt`);
+        return;
+      }
+      
+      // Check retry limit
+      if (generationRetryCount.current >= MAX_RETRIES) {
+        console.log(`🚫 Max retries (${MAX_RETRIES}) reached, manual action required`);
+        return;
+      }
+      
       // If it's weekend, don't auto-generate
       if (isWeekend) return;
       
       // If we have 3+ missions for today, no need to generate
-      if (todayMissions.length >= 3) return;
+      if (todayMissions.length >= 3) {
+        // Reset retry count on success
+        generationRetryCount.current = 0;
+        return;
+      }
       
       // Mark that we've attempted generation
       hasAttemptedGeneration.current = true;
+      lastGenerationAttempt.current = now;
+      generationRetryCount.current += 1;
+      
+      console.log(`🔄 Auto-generation attempt ${generationRetryCount.current}/${MAX_RETRIES}`);
       
       // Auto-generate: either regenerate (if some exist) or generate fresh
-      if (todayMissions.length > 0 && todayMissions.length < 3) {
-        // Has some missions but not 3, regenerate all
-        await regenerateMissions();
-      } else if (todayMissions.length === 0) {
-        // No missions, generate new
-        await generateTodayMission();
+      try {
+        if (todayMissions.length > 0 && todayMissions.length < 3) {
+          // Has some missions but not 3, regenerate all
+          await regenerateMissions();
+        } else if (todayMissions.length === 0) {
+          // No missions, generate new
+          await generateTodayMission();
+        }
+        
+        // Reset retry count on successful generation
+        generationRetryCount.current = 0;
+      } catch (error) {
+        console.error('❌ Auto-generation failed:', error);
       }
     };
     
     autoGenerateMissions();
   }, [userId, isLoading, isGenerating, todayMissions.length, isWeekend, needsRefresh, searchParams, navigate, isViewingPast]);
 
-  // Retry if no missions after loading completes
+  // Retry if no missions after loading completes (with rate limiting)
   useEffect(() => {
     if (!isLoading && !isGenerating && userId && todayMissions.length === 0 && !isWeekend && !isViewingPast) {
+      // Check retry limit before attempting
+      if (generationRetryCount.current >= MAX_RETRIES) {
+        console.log(`🚫 Max retries reached, stopping automatic generation`);
+        return;
+      }
+      
       // Wait 2 seconds and try again if still no missions
       const timer = setTimeout(() => {
         if (todayMissions.length === 0 && !hasAttemptedGeneration.current) {
+          const now = Date.now();
+          const timeSinceLastAttempt = now - lastGenerationAttempt.current;
+          
+          // Check cooldown
+          if (timeSinceLastAttempt < COOLDOWN_MS) {
+            console.log(`⏱️ Cooldown active, skipping retry`);
+            return;
+          }
+          
           console.log('🔄 Retry: No missions found after loading, attempting generation...');
           hasAttemptedGeneration.current = false; // Reset to allow retry
           generateTodayMission();
@@ -367,9 +417,14 @@ const TodayFocusMode = () => {
   };
 
   const handleGenerateMission = async () => {
+    // Reset rate limiting when user manually triggers generation
+    generationRetryCount.current = 0;
+    lastGenerationAttempt.current = Date.now();
+    
     const result = await generateTodayMission();
     if (result.success) {
       toast.success('AI สร้างภารกิจประจำวันให้คุณแล้ว! 🎯');
+      generationRetryCount.current = 0; // Reset on success
     }
   };
 
