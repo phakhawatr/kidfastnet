@@ -112,7 +112,7 @@ const TodayFocusMode = () => {
       if (needsRefresh) {
         console.log('🔄 Refresh mode: waiting for data sync...');
         await new Promise(resolve => setTimeout(resolve, 1500)); // รอ 1.5 วินาที
-        await fetchMissions(new Date().getMonth() + 1, new Date().getFullYear());
+        await fetchMissions(targetDate.getMonth() + 1, targetDate.getFullYear());
         // ลบ refresh param จาก URL
         const newSearchParams = new URLSearchParams(searchParams);
         newSearchParams.delete('refresh');
@@ -187,8 +187,7 @@ const TodayFocusMode = () => {
           });
           
           // Refresh missions after successful retry
-          const today = new Date();
-          fetchMissions(today.getMonth() + 1, today.getFullYear());
+          fetchMissions(targetDate.getMonth() + 1, targetDate.getFullYear());
         } else {
           console.warn('⚠️ Retry failed, will try again later');
         }
@@ -205,25 +204,34 @@ const TodayFocusMode = () => {
   // Auto-refresh missions on mount or when refresh=true query param
   useEffect(() => {
     if (userId && (needsRefresh || !missions.length)) {
-      console.log('📥 TodayFocusMode: Fetching missions...', { needsRefresh });
-      const today = new Date();
-      fetchMissions(today.getMonth() + 1, today.getFullYear());
+      console.log('📥 TodayFocusMode: Fetching missions...', { needsRefresh, targetDateStr });
+      // Use targetDate from dateParam (or today) instead of always using today
+      fetchMissions(targetDate.getMonth() + 1, targetDate.getFullYear());
     }
-  }, [userId, needsRefresh]);
+  }, [userId, needsRefresh, targetDate, fetchMissions]);
 
   // Auto-refresh missions when window regains focus
   useEffect(() => {
     const handleFocus = () => {
       console.log('🔄 Window focused, refreshing missions...');
       if (userId) {
-        const today = new Date();
-        fetchMissions(today.getMonth() + 1, today.getFullYear());
+        // Use targetDate from dateParam instead of always using today
+        fetchMissions(targetDate.getMonth() + 1, targetDate.getFullYear());
       }
     };
     
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
-  }, [userId, fetchMissions]);
+  }, [userId, fetchMissions, targetDate]);
+
+  // Fetch correct month when dateParam changes
+  useEffect(() => {
+    if (userId && dateParam) {
+      const paramDate = new Date(dateParam);
+      console.log('📅 Date parameter detected, fetching missions for:', dateParam);
+      fetchMissions(paramDate.getMonth() + 1, paramDate.getFullYear());
+    }
+  }, [userId, dateParam, fetchMissions]);
 
   const getSkillRoute = (skillName: string): string => {
     // Expanded skill routes mapping with variants
