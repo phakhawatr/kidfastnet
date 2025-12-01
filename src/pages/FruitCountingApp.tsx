@@ -259,10 +259,10 @@ export default function FruitCountingApp() {
       <div className="bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 rounded-2xl shadow-xl p-4 mb-6">
         <div className="flex items-center justify-between text-white">
           <h1 className="text-2xl md:text-3xl font-bold">
-            🍎 {t('header')}
+            🍎 {t('title')}
           </h1>
           <div className="flex items-center gap-4 text-lg md:text-xl">
-            <span className="font-bold">{t('question', { ns: 'common' })} {currentQuestion}/{totalQuestions}</span>
+            <span className="font-bold">{currentQuestion}/{totalQuestions}</span>
             <span className="font-bold">{t('score', { ns: 'common' })}: {score}</span>
           </div>
         </div>
