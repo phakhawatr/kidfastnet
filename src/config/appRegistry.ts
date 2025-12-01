@@ -147,7 +147,7 @@ export const appRegistry: Record<string, AppInfo> = {
     nameKey: 'recommendations.apps.sumGridPuzzles.title',
     icon: '🧩',
     color: 'bg-gradient-to-br from-purple-200 to-purple-300',
-    link: '/SumGridPuzzles'
+    link: '/sum-grid'
   },
   'number-bonds': {
     nameKey: 'recommendations.apps.numberBonds.title',
