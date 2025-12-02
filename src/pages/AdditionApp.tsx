@@ -8,10 +8,11 @@ import { useBackgroundMusic } from "../hooks/useBackgroundMusic";
 import { BackgroundMusic } from "../components/BackgroundMusic";
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { useTrainingCalendar } from "@/hooks/useTrainingCalendar";
+import { type QuestionAttempt } from '@/hooks/useTrainingCalendar';
 import { useRecentApps } from "@/hooks/useRecentApps";
 import { MissionCompleteModal } from "@/components/MissionCompleteModal";
 import { toast } from "sonner";
+import { useMissionMode } from '@/hooks/useMissionMode';
 
 // ================= Utilities =================
 function randInt(min, max) {
@@ -356,11 +357,17 @@ function ProblemCard({ idx, prob, answer, setAnswer, result, showAnswer, onReset
 export default function AdditionApp() {
   const { t } = useTranslation('exercises');
   const [searchParams] = useSearchParams();
-  const { completeMission } = useTrainingCalendar();
   const { trackAppUsage } = useRecentApps();
   
-  // Get missionId from URL params
-  const missionId = searchParams.get('missionId');
+  // Mission mode integration
+  const {
+    isMissionMode,
+    missionId,
+    showMissionComplete,
+    setShowMissionComplete,
+    missionResult,
+    handleCompleteMission
+  } = useMissionMode();
   
   // Track app usage on mount
   useEffect(() => {
@@ -401,15 +408,7 @@ export default function AdditionApp() {
   const [showSummary, setShowSummary] = useState(false);
   const [summary, setSummary] = useState(null);
   
-  // mission complete modal states
-  const [showMissionComplete, setShowMissionComplete] = useState(false);
-  const [missionResult, setMissionResult] = useState<{
-    stars: number;
-    correct: number;
-    total: number;
-    timeSpent: number;
-    isPassed: boolean;
-  } | null>(null);
+  // mission complete modal states (removed, using useMissionMode now)
   
   // LINE sending states
   const [isSendingLine, setIsSendingLine] = useState(false);
@@ -731,9 +730,26 @@ export default function AdditionApp() {
     };
     setHistory((prev) => [entry, ...prev].slice(0, 10));
     
+    // Build question attempts for mission tracking
+    const questionAttempts: QuestionAttempt[] = problems.map((p, i) => {
+      const correct = operands === 3 ? p.a + p.b + p.c : p.a + p.b;
+      const userAnswer = answerToNumber(answers[i]);
+      const question = operands === 3 
+        ? `${p.a} + ${p.b} + ${p.c}` 
+        : `${p.a} + ${p.b}`;
+      
+      return {
+        index: i + 1,
+        question: question,
+        userAnswer: isNaN(userAnswer) ? '' : userAnswer.toString(),
+        correctAnswer: correct.toString(),
+        isCorrect: userAnswer === correct
+      };
+    });
+    
     // If mission mode, complete mission and show MissionCompleteModal
     if (missionId) {
-      handleCompleteMission(correctCount, count, duration);
+      handleCompleteMission(correctCount, count, duration, questionAttempts);
       return;
     }
     
@@ -756,100 +772,6 @@ export default function AdditionApp() {
     }
   }
   
-  async function handleCompleteMission(correct: number, total: number, timeMs: number) {
-    console.log('🎯 handleCompleteMission START');
-    console.log('📝 missionId:', missionId);
-    console.log('📝 missionId type:', typeof missionId);
-    console.log('📝 missionId length:', missionId?.length);
-    
-    if (!missionId) {
-      console.error('❌ missionId is null or undefined!');
-      toast.error('ไม่พบ missionId');
-      return;
-    }
-    
-    const accuracy = (correct / total) * 100;
-    const timeSeconds = Math.floor(timeMs / 1000);
-    
-    // Pass threshold: >80%
-    const isPassed = accuracy > 80;
-    
-    // Calculate stars (only if passed)
-    let stars = 0;
-    if (isPassed) {
-      const timeMinutes = timeSeconds / 60;
-      if (accuracy >= 90 && timeMinutes <= 10) {
-        stars = 3;
-      } else if (accuracy >= 80) {
-        stars = 2;
-      } else if (accuracy >= 70) {
-        stars = 1;
-      }
-    }
-    
-    console.log('📊 Mission stats:', { accuracy, isPassed, stars, timeSeconds });
-    
-    // Save to database with retry and localStorage backup
-    let saveSuccess = false;
-    try {
-      console.log('💾 Calling completeMission with missionId:', missionId);
-      const result = await completeMission(missionId!, {
-        total_questions: total,
-        correct_answers: correct,
-        time_spent: timeSeconds
-      });
-      console.log('✅ completeMission result:', result);
-      saveSuccess = result.success;
-      
-      if (result.success) {
-        // Clear any pending results on success
-        localStorage.removeItem('pendingMissionResult');
-        
-        // Show success toast
-        toast.success(`บันทึกสำเร็จ! ได้ ${stars} ดาว ⭐`, {
-          description: `คะแนน ${correct}/${total} (${accuracy.toFixed(0)}%)`,
-          duration: 3000,
-        });
-      } else {
-        throw new Error('Mission completion failed');
-      }
-    } catch (error) {
-      console.error('❌ Error completing mission:', error);
-      saveSuccess = false;
-      
-      // Store pending result in localStorage if save failed
-      localStorage.setItem('pendingMissionResult', JSON.stringify({
-        missionId: missionId,
-        results: { 
-          total_questions: total, 
-          correct_answers: correct, 
-          time_spent: timeSeconds 
-        },
-        timestamp: Date.now()
-      }));
-      
-      toast.error('บันทึกไม่สำเร็จ', {
-        description: 'ระบบจะลองบันทึกใหม่เมื่อกลับสู่ปฏิทิน',
-        duration: 5000,
-      });
-    }
-    
-    // Show mission complete modal
-    setMissionResult({
-      stars: saveSuccess ? stars : 0,  // Only show stars if saved successfully
-      correct,
-      total,
-      timeSpent: timeSeconds,
-      isPassed: saveSuccess && isPassed  // Only mark as passed if saved
-    });
-    setShowMissionComplete(true);
-    
-    if (isPassed && saveSuccess) {
-      setCelebrate(true);
-      setTimeout(() => setCelebrate(false), 2000);
-    }
-  }
-
   async function handleSendToLine() {
     if (isSendingLine || lineSent) return;
     

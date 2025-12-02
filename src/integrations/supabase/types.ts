@@ -324,6 +324,7 @@ export type Database = {
           id: string
           mission_date: string
           mission_option: number | null
+          question_attempts: Json | null
           skill_name: string
           stars_earned: number | null
           status: string
@@ -343,6 +344,7 @@ export type Database = {
           id?: string
           mission_date: string
           mission_option?: number | null
+          question_attempts?: Json | null
           skill_name: string
           stars_earned?: number | null
           status?: string
@@ -362,6 +364,7 @@ export type Database = {
           id?: string
           mission_date?: string
           mission_option?: number | null
+          question_attempts?: Json | null
           skill_name?: string
           stars_earned?: number | null
           status?: string

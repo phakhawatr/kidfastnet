@@ -34,10 +34,19 @@ export interface UserStreak {
   updated_at: string;
 }
 
+export interface QuestionAttempt {
+  index: number;
+  question: string;
+  userAnswer: string;
+  correctAnswer: string;
+  isCorrect: boolean;
+}
+
 interface MissionResults {
   total_questions: number;
   correct_answers: number;
   time_spent: number;
+  question_attempts?: QuestionAttempt[];
 }
 
 export const useTrainingCalendar = () => {
@@ -232,6 +241,7 @@ export const useTrainingCalendar = () => {
             time_spent: results.time_spent,
             stars_earned: stars,
             completed_at: new Date().toISOString(),
+            question_attempts: results.question_attempts ? JSON.parse(JSON.stringify(results.question_attempts)) : null,
           })
           .eq('id', cleanMissionId);
 

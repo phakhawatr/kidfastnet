@@ -59,5 +59,18 @@
     "pending": "ยังไม่ทำ",
     "skipped": "ข้าม",
     "catchup": "ทำทันภายหลัง"
+  },
+  
+  "questionModal": {
+    "title": "รายละเอียดโจทย์",
+    "question": "โจทย์",
+    "yourAnswer": "คำตอบของคุณ",
+    "correctAnswer": "คำตอบที่ถูก",
+    "status": "สถานะ",
+    "correct": "ถูก",
+    "incorrect": "ผิด",
+    "noData": "ไม่มีข้อมูลโจทย์ (ภารกิจเก่าก่อนระบบบันทึก)",
+    "close": "ปิด",
+    "viewDetails": "ดูรายละเอียด"
   }
 }

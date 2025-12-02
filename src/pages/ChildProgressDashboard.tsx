@@ -10,13 +10,22 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { ArrowLeft, TrendingUp, Award, Target, Flame, Star, Bell, BellOff } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Award, Target, Flame, Star, Bell, BellOff, Eye } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface StreakData {
   current_streak: number;
   longest_streak: number;
   total_stars_earned: number;
   perfect_days: number;
+}
+
+interface QuestionAttempt {
+  index: number;
+  question: string;
+  userAnswer: string;
+  correctAnswer: string;
+  isCorrect: boolean;
 }
 
 interface MissionData {
@@ -26,6 +35,7 @@ interface MissionData {
   stars_earned: number;
   correct_answers: number;
   completed_questions: number;
+  question_attempts?: QuestionAttempt[];
 }
 
 interface SkillStats {
@@ -52,6 +62,8 @@ const ChildProgressDashboard = () => {
   const [lineConnected, setLineConnected] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [isPublicView, setIsPublicView] = useState(false);
+  const [selectedMission, setSelectedMission] = useState<MissionData | null>(null);
+  const [showQuestionModal, setShowQuestionModal] = useState(false);
 
   useEffect(() => {
     // Check if accessing via token (public view)
@@ -180,7 +192,13 @@ const ChildProgressDashboard = () => {
         .not('completed_at', 'is', null)
         .order('mission_date', { ascending: false });
       
-      setRecentMissions(missions || []);
+      // Cast and parse question_attempts from Json to QuestionAttempt[]
+      const parsedMissions = (missions || []).map(m => ({
+        ...m,
+        question_attempts: m.question_attempts ? (m.question_attempts as any) as QuestionAttempt[] : undefined
+      }));
+      
+      setRecentMissions(parsedMissions);
 
       // Process weekly data for chart
       const dailyAccuracy: { [key: string]: { total: number; correct: number } } = {};
@@ -267,6 +285,11 @@ const ChildProgressDashboard = () => {
       console.error('Error saving preferences:', error);
       toast.error(t('notifications.saveError'));
     }
+  };
+
+  const handleViewQuestions = (mission: MissionData) => {
+    setSelectedMission(mission);
+    setShowQuestionModal(true);
   };
 
   const getStatusBadge = (status: string) => {
@@ -489,6 +512,7 @@ const ChildProgressDashboard = () => {
                       <th className="text-center py-3 px-4 text-sm font-semibold text-slate-300">{t('recentMissions.status')}</th>
                       <th className="text-center py-3 px-4 text-sm font-semibold text-slate-300">{t('recentMissions.stars')}</th>
                       <th className="text-right py-3 px-4 text-sm font-semibold text-slate-300">{t('recentMissions.accuracy')}</th>
+                      <th className="text-center py-3 px-4 text-sm font-semibold text-slate-300">{t('questionModal.viewDetails')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -524,6 +548,16 @@ const ChildProgressDashboard = () => {
                             }`}>
                               {accuracy}%
                             </span>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleViewQuestions(mission)}
+                              className="text-blue-400 hover:text-blue-300 hover:bg-slate-700/50"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
                           </td>
                         </tr>
                       );
@@ -590,6 +624,86 @@ const ChildProgressDashboard = () => {
           </Card>
         )}
       </main>
+
+      {/* Question Details Modal */}
+      <Dialog open={showQuestionModal} onOpenChange={setShowQuestionModal}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-slate-800 border-slate-700">
+          <DialogHeader>
+            <DialogTitle className="text-white text-xl">
+              {t('questionModal.title')} - {selectedMission?.skill_name}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-3 mt-4">
+            {selectedMission?.question_attempts && selectedMission.question_attempts.length > 0 ? (
+              selectedMission.question_attempts.map((attempt) => (
+                <div 
+                  key={attempt.index}
+                  className={`p-4 rounded-lg border-2 ${
+                    attempt.isCorrect 
+                      ? 'bg-green-900/20 border-green-600' 
+                      : 'bg-red-900/20 border-red-600'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 mt-1">
+                      {attempt.isCorrect ? (
+                        <div className="w-6 h-6 rounded-full bg-green-600 flex items-center justify-center text-white text-sm font-bold">
+                          ✓
+                        </div>
+                      ) : (
+                        <div className="w-6 h-6 rounded-full bg-red-600 flex items-center justify-center text-white text-sm font-bold">
+                          ✗
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex-1">
+                      <div className="text-white font-semibold mb-2">
+                        {t('questionModal.question')} {attempt.index}: {attempt.question}
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <span className="text-slate-400">{t('questionModal.yourAnswer')}: </span>
+                          <span className={`font-semibold ${attempt.isCorrect ? 'text-green-400' : 'text-red-400'}`}>
+                            {attempt.userAnswer || '-'}
+                          </span>
+                        </div>
+                        
+                        {!attempt.isCorrect && (
+                          <div>
+                            <span className="text-slate-400">{t('questionModal.correctAnswer')}: </span>
+                            <span className="font-semibold text-green-400">
+                              {attempt.correctAnswer}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-12">
+                <div className="text-slate-400 text-lg mb-2">📝</div>
+                <p className="text-slate-400">
+                  {t('questionModal.noData')}
+                </p>
+              </div>
+            )}
+          </div>
+          
+          <div className="flex justify-end mt-6">
+            <Button 
+              onClick={() => setShowQuestionModal(false)}
+              className="bg-slate-700 hover:bg-slate-600 text-white"
+            >
+              {t('questionModal.close')}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
