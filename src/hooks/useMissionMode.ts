@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useTrainingCalendar } from './useTrainingCalendar';
+import { useTrainingCalendar, type QuestionAttempt } from './useTrainingCalendar';
 
 interface MissionResult {
   stars: number;
@@ -30,8 +30,14 @@ export function useMissionMode() {
    * @param correct - Number of correct answers
    * @param total - Total number of questions
    * @param timeMs - Time spent in milliseconds
+   * @param questionAttempts - Optional array of individual question attempts
    */
-  const handleCompleteMission = async (correct: number, total: number, timeMs: number) => {
+  const handleCompleteMission = async (
+    correct: number, 
+    total: number, 
+    timeMs: number,
+    questionAttempts?: QuestionAttempt[]
+  ) => {
     console.log('🟢 useMissionMode.handleCompleteMission called:', {
       missionId,
       correct,
@@ -98,7 +104,8 @@ export function useMissionMode() {
       await completeMission(missionId, {
         total_questions: total,
         correct_answers: correct,
-        time_spent: timeSeconds
+        time_spent: timeSeconds,
+        question_attempts: questionAttempts
       });
       console.log('✅ completeMission succeeded');
     } catch (error) {

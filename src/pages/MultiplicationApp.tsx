@@ -14,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useMissionMode } from '@/hooks/useMissionMode';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 import { useSearchParams } from 'react-router-dom';
+import { type QuestionAttempt } from '@/hooks/useTrainingCalendar';
 
 interface Problem {
   multiplicand: string;
@@ -281,10 +282,12 @@ const MultiplicationApp = () => {
     let allCorrect = true;
     let correctCount = 0;
     const newResults = [...results];
+    const questionAttempts: QuestionAttempt[] = [];
     
     problems.forEach((problem, problemIdx) => {
-      // Check partial products
       let problemCorrect = true;
+      
+      // Check partial products
       problem.partialProducts.forEach((correctProduct, rowIdx) => {
         const userAnswer = answers[problemIdx].partialProducts[rowIdx].join('');
         const isCorrect = userAnswer === correctProduct;
@@ -318,6 +321,15 @@ const MultiplicationApp = () => {
       }
       
       if (problemCorrect) correctCount++;
+      
+      // Record question attempt
+      questionAttempts.push({
+        index: problemIdx + 1,
+        question: `${problem.multiplicand} × ${problem.multiplier}`,
+        userAnswer: userFinalAnswer || '',
+        correctAnswer: problem.finalAnswer,
+        isCorrect: problemCorrect
+      });
     });
     
     setResults(newResults);
@@ -326,7 +338,7 @@ const MultiplicationApp = () => {
     // If mission mode, complete mission
     if (isMissionMode) {
       const duration = startTime ? Date.now() - startTime : currentTime;
-      await handleCompleteMission(correctCount, problems.length, duration);
+      await handleCompleteMission(correctCount, problems.length, duration, questionAttempts);
       return;
     }
     

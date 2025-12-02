@@ -59,5 +59,18 @@
     "pending": "Pending",
     "skipped": "Skipped",
     "catchup": "Catch-up"
+  },
+  
+  "questionModal": {
+    "title": "Question Details",
+    "question": "Question",
+    "yourAnswer": "Your Answer",
+    "correctAnswer": "Correct Answer",
+    "status": "Status",
+    "correct": "Correct",
+    "incorrect": "Incorrect",
+    "noData": "No question data available (old mission before tracking)",
+    "close": "Close",
+    "viewDetails": "View Details"
   }
 }

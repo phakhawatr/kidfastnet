@@ -11,6 +11,7 @@ import { BackgroundMusic } from "../components/BackgroundMusic";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useMissionMode } from "@/hooks/useMissionMode";
 import { MissionCompleteModal } from "@/components/MissionCompleteModal";
+import { type QuestionAttempt } from "@/hooks/useTrainingCalendar";
 import { 
   formatMS, 
   fmtDate, 
@@ -76,11 +77,27 @@ const SubtractionApp: React.FC = () => {
       
       // Manually calculate correct count with enhanced logging
       let correctCount = 0;
+      const questionAttempts: QuestionAttempt[] = [];
+      
       problems.forEach((prob, idx) => {
         const userNum = answerToNumber(answers[idx], digits);
         const correctAns = prob.c != null ? prob.a - prob.b - prob.c : prob.a - prob.b;
         const isCorrect = !isNaN(userNum) && userNum === correctAns;
         if (isCorrect) correctCount++;
+        
+        // Build question string
+        const question = prob.c != null 
+          ? `${prob.a} - ${prob.b} - ${prob.c}` 
+          : `${prob.a} - ${prob.b}`;
+        
+        // Record attempt
+        questionAttempts.push({
+          index: idx + 1,
+          question: question,
+          userAnswer: isNaN(userNum) ? '' : userNum.toString(),
+          correctAnswer: correctAns.toString(),
+          isCorrect: isCorrect
+        });
         
         // Log each problem for debugging
         if (idx < 3) { // Always log first 3
@@ -114,7 +131,7 @@ const SubtractionApp: React.FC = () => {
         durationSeconds: Math.floor(duration / 1000)
       });
       
-      await handleCompleteMission(correctCount, problems.length, duration);
+      await handleCompleteMission(correctCount, problems.length, duration, questionAttempts);
       return;
     }
     
