@@ -64,6 +64,7 @@ import AdminQuestionBank from "./pages/AdminQuestionBank";
 import TagManagement from "./pages/TagManagement";
 import PublicExam from "./pages/PublicExam";
 import StudentExamResult from "./pages/StudentExamResult";
+import TestNotifications from "./pages/TestNotifications";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
@@ -548,6 +549,7 @@ const App = () => {
           <Route path="/exam-result/:sessionId" element={<StudentExamResult />} />
           
           <Route path="/background-remover" element={<BackgroundRemoverPage />} />
+          <Route path="/test-notifications" element={<TestNotifications />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         
