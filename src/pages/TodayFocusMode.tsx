@@ -422,9 +422,20 @@ const TodayFocusMode = () => {
     lastGenerationAttempt.current = Date.now();
     
     const result = await generateTodayMission();
+    
     if (result.success) {
       toast.success('AI สร้างภารกิจประจำวันให้คุณแล้ว! 🎯');
       generationRetryCount.current = 0; // Reset on success
+    } else {
+      // แม้ว่าจะ fail ก็ยัง refresh missions เพราะ edge function อาจทำสำเร็จอยู่เบื้องหลัง
+      console.log('🔄 Refreshing missions after failed attempt...');
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      await fetchMissions(targetDate.getMonth() + 1, targetDate.getFullYear());
+      
+      // ตรวจสอบว่ามี missions ถูกสร้างไหม
+      if (todayMissions.length >= 3) {
+        toast.success('พบภารกิจที่สร้างแล้ว! 🎯');
+      }
     }
   };
 
@@ -485,15 +496,30 @@ const TodayFocusMode = () => {
             <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4 max-w-md mx-auto">
               <Clock className="w-8 h-8 mx-auto mb-2 text-yellow-400" />
               <p className="text-yellow-300 mb-3">
-                AI ใช้เวลานานกว่าปกติ กรุณารอสักครู่หรือลองใหม่อีกครั้ง
+                AI ใช้เวลานานกว่าปกติ กรุณารอสักครู่หรือลองตรวจสอบภารกิจ
               </p>
-              <Button
-                onClick={() => window.location.reload()}
-                variant="outline"
-                className="bg-yellow-500/20 border-yellow-500 text-yellow-300 hover:bg-yellow-500/30"
-              >
-                ลองใหม่อีกครั้ง
-              </Button>
+              <div className="flex gap-2 justify-center">
+                <Button
+                  onClick={async () => {
+                    setLoadingTimeout(false);
+                    await fetchMissions(targetDate.getMonth() + 1, targetDate.getFullYear());
+                    if (todayMissions.length >= 3) {
+                      toast.success('พบภารกิจที่สร้างแล้ว! 🎯');
+                    }
+                  }}
+                  variant="outline"
+                  className="bg-green-500/20 border-green-500 text-green-300 hover:bg-green-500/30"
+                >
+                  ✓ ตรวจสอบภารกิจ
+                </Button>
+                <Button
+                  onClick={() => window.location.reload()}
+                  variant="outline"
+                  className="bg-yellow-500/20 border-yellow-500 text-yellow-300 hover:bg-yellow-500/30"
+                >
+                  🔄 รีเฟรชหน้า
+                </Button>
+              </div>
             </div>
           )}
         </div>

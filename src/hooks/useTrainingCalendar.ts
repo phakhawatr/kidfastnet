@@ -563,6 +563,7 @@ export const useTrainingCalendar = () => {
             title: 'หมดเวลา',
             description: 'AI ใช้เวลานานเกินไป กรุณาลองใหม่อีกครั้ง',
             variant: 'destructive',
+            duration: 5000,
           });
           return { success: false };
         } else if (error.message?.includes('429')) {
@@ -570,12 +571,14 @@ export const useTrainingCalendar = () => {
             title: 'ใช้งานบ่อยเกินไป',
             description: 'กรุณารอสักครู่แล้วลองใหม่',
             variant: 'destructive',
+            duration: 5000,
           });
         } else if (error.message?.includes('402')) {
           toast({
             title: 'โควต้า AI หมด',
             description: 'กรุณาติดต่อผู้ดูแลระบบ',
             variant: 'destructive',
+            duration: 5000,
           });
         } else {
           throw error;
@@ -599,11 +602,19 @@ export const useTrainingCalendar = () => {
       }
     } catch (error) {
       console.error('Error generating mission:', error);
+      
+      // แสดง toast warning แทน error (เพราะ mission อาจถูกสร้างแล้ว)
       toast({
-        title: 'เกิดข้อผิดพลาด',
-        description: 'ไม่สามารถสร้างภารกิจได้',
-        variant: 'destructive',
+        title: 'กำลังตรวจสอบ...',
+        description: 'รอสักครู่ ระบบกำลังตรวจสอบภารกิจ',
+        duration: 3000, // 3 วินาที
       });
+      
+      // รอ 2 วินาทีแล้ว fetch missions ใหม่เพื่อตรวจสอบ
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      const today = new Date();
+      await fetchMissions(today.getMonth() + 1, today.getFullYear());
+      
       return { success: false };
     } finally {
       setIsGenerating(false);
