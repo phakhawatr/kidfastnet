@@ -307,8 +307,8 @@ const TodayFocusMode = () => {
       'การลบเลข': '/subtraction',
       
       // Multiplication variants
-      'คูณเลข': '/multiplication',
-      'การคูณเลข': '/multiplication',
+      'คูณเลข': '/multiply',
+      'การคูณเลข': '/multiply',
       
       // Division variants
       'หารเลข': '/division',
@@ -369,7 +369,7 @@ const TodayFocusMode = () => {
     // Basic skills
     if (skillLower.includes('บวก')) return '/addition';
     if (skillLower.includes('ลบ')) return '/subtraction';
-    if (skillLower.includes('คูณ')) return '/multiplication';
+    if (skillLower.includes('คูณ')) return '/multiply';
     if (skillLower.includes('หาร')) return '/division';
     if (skillLower.includes('เศษส่วน')) return '/fraction-shapes';
     if (skillLower.includes('ทศนิยม')) return '/place-value';
