@@ -46,6 +46,8 @@ serve(async (req) => {
     }
 
     // Find users with LINE connected
+    console.log('📋 Query: Fetching users with LINE connected');
+    
     const { data: users, error: usersError } = await supabase
       .from('user_registrations')
       .select(`
@@ -55,15 +57,16 @@ serve(async (req) => {
         line_user_id_2,
         parent_email
       `)
-      .where('line_user_id', 'not.is', null)
-      .or('line_user_id_2.not.is.null');
+      .or('line_user_id.not.is.null,line_user_id_2.not.is.null');
 
     if (usersError) {
-      console.error('❌ Error fetching users:', usersError);
+      console.error('❌ Error fetching users:', JSON.stringify(usersError));
       throw usersError;
     }
 
-    console.log(`👥 Found ${users?.length || 0} users with LINE connected`);
+    console.log(`✅ Found ${users?.length || 0} users with LINE:`, 
+      users?.map(u => ({ nickname: u.nickname, hasLine1: !!u.line_user_id, hasLine2: !!u.line_user_id_2 }))
+    );
 
     let successCount = 0;
     let failCount = 0;
