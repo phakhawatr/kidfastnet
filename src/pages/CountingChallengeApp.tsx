@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { useMissionMode } from '@/hooks/useMissionMode';
 import { useRecentApps } from '@/hooks/useRecentApps';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
+import { type QuestionAttempt } from '@/hooks/useTrainingCalendar';
 
 export default function CountingChallengeApp() {
   const { t } = useTranslation(['countingchallenge', 'common']);
@@ -47,6 +48,7 @@ export default function CountingChallengeApp() {
   const [problemCount, setProblemCount] = useState<5 | 10 | 20 | 30>(10);
   const [showSummary, setShowSummary] = useState(false);
   const [correctCount, setCorrectCount] = useState(0);
+  const [problemHistory, setProblemHistory] = useState<QuestionAttempt[]>([]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -79,6 +81,7 @@ export default function CountingChallengeApp() {
     setStartTime(Date.now());
     setProblemsSolved(0);
     setCorrectCount(0);
+    setProblemHistory([]);
   };
 
   const handleReset = () => {
@@ -86,10 +89,22 @@ export default function CountingChallengeApp() {
     setProblemsSolved(0);
     setCorrectCount(0);
     setShowSummary(false);
+    setProblemHistory([]);
   };
 
   const handleCardAnswer = (answer: number) => {
     const result = handleAnswer(answer);
+    
+    // Track problem history
+    const newAttempt: QuestionAttempt = {
+      index: problemHistory.length + 1,
+      question: `นับจำนวน ${challenge?.theme || 'วัตถุ'}: ${challenge?.count || '?'}`,
+      userAnswer: answer.toString(),
+      correctAnswer: challenge?.count?.toString() || '-',
+      isCorrect: result.isCorrect
+    };
+    const updatedHistory = [...problemHistory, newAttempt];
+    setProblemHistory(updatedHistory);
     
     if (result.isCorrect) {
       const newCorrect = correctCount + 1;
@@ -101,7 +116,7 @@ export default function CountingChallengeApp() {
       if (newProblemsSolved >= problemCount) {
         if (isMissionMode) {
           const timeSpent = Math.floor((Date.now() - startTime) / 1000);
-          handleCompleteMission(newCorrect, problemCount, timeSpent);
+          handleCompleteMission(newCorrect, problemCount, timeSpent, updatedHistory);
         } else {
           setShowSummary(true);
         }
@@ -116,6 +131,7 @@ export default function CountingChallengeApp() {
     setShowSettings(true);
     setProblemsSolved(0);
     setCorrectCount(0);
+    setProblemHistory([]);
   };
 
   const handleCloseMissionModal = () => {

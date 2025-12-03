@@ -4,6 +4,7 @@ import { ChevronLeft, Volume2, VolumeX, ArrowLeft, ArrowRight } from 'lucide-rea
 import { Link, useSearchParams } from 'react-router-dom';
 import { useMissionMode } from '@/hooks/useMissionMode';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
+import { type QuestionAttempt } from '@/hooks/useTrainingCalendar';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -260,7 +261,19 @@ const SumGridPuzzles: React.FC = () => {
       // Mission mode completion
       if (isMissionMode) {
         const elapsedMs = Date.now() - startTime;
-        handleCompleteMission(completed, totalQuestions, elapsedMs);
+        const questionAttempts: QuestionAttempt[] = grids.map((grid, i) => {
+          const isGridComplete = grid.slice(0, 3).every(row => 
+            row.slice(0, 3).every(cell => !cell.isInput || cell.isCorrect)
+          );
+          return {
+            index: i + 1,
+            question: `ตารางบวก 3x3 ข้อ ${i + 1}`,
+            userAnswer: isGridComplete ? 'ถูกต้อง' : 'ไม่ครบ',
+            correctAnswer: 'ถูกต้อง',
+            isCorrect: isGridComplete
+          };
+        });
+        handleCompleteMission(completed, totalQuestions, elapsedMs, questionAttempts);
       }
     }
   };

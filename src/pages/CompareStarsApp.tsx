@@ -9,6 +9,7 @@ import CompareStarsGame from '@/components/CompareStarsGame';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 import { useMissionMode } from '@/hooks/useMissionMode';
 import { useRecentApps } from '@/hooks/useRecentApps';
+import { type QuestionAttempt } from '@/hooks/useTrainingCalendar';
 import Confetti from 'react-confetti';
 
 export default function CompareStarsApp() {
@@ -37,6 +38,7 @@ export default function CompareStarsApp() {
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [showConfetti, setShowConfetti] = useState(false);
   const [startTime] = useState(Date.now());
+  const [problemHistory, setProblemHistory] = useState<QuestionAttempt[]>([]);
 
   // Auto-start if coming from mission
   useEffect(() => {
@@ -45,11 +47,11 @@ export default function CompareStarsApp() {
     }
   }, [isMissionMode, searchParams]);
 
-  const handleGameComplete = async (correct: number, total: number) => {
+  const handleGameComplete = async (correct: number, total: number, history: QuestionAttempt[]) => {
     const timeSpent = Date.now() - startTime;
     
     if (isMissionMode && missionId) {
-      await handleCompleteMission(correct, total, timeSpent);
+      await handleCompleteMission(correct, total, timeSpent, history);
     } else {
       // Show regular confetti for non-mission mode
       setShowConfetti(true);
@@ -57,7 +59,20 @@ export default function CompareStarsApp() {
     }
   };
 
-  const handleAnswer = (isCorrect: boolean) => {
+  const handleAnswer = (isCorrect: boolean, leftCount?: number, rightCount?: number, userChoice?: string) => {
+    // Track problem history
+    const newAttempt: QuestionAttempt = {
+      index: totalQuestions + 1,
+      question: `เปรียบเทียบ: ${leftCount || '?'} กับ ${rightCount || '?'}`,
+      userAnswer: userChoice || (isCorrect ? 'ถูก' : 'ผิด'),
+      correctAnswer: leftCount !== undefined && rightCount !== undefined 
+        ? (leftCount > rightCount ? '>' : leftCount < rightCount ? '<' : '=')
+        : '-',
+      isCorrect
+    };
+    const updatedHistory = [...problemHistory, newAttempt];
+    setProblemHistory(updatedHistory);
+    
     if (isCorrect) {
       setScore(score + 1);
     }
@@ -66,7 +81,7 @@ export default function CompareStarsApp() {
     // Check if mission complete (15 questions for mission, or user-selected count)
     const maxQuestions = isMissionMode ? 15 : numberOfProblems;
     if (totalQuestions + 1 >= maxQuestions) {
-      handleGameComplete(score + (isCorrect ? 1 : 0), totalQuestions + 1);
+      handleGameComplete(score + (isCorrect ? 1 : 0), totalQuestions + 1, updatedHistory);
     }
   };
 
@@ -74,12 +89,14 @@ export default function CompareStarsApp() {
     setScore(0);
     setTotalQuestions(0);
     setGameStarted(false);
+    setProblemHistory([]);
   };
 
   const handleMissionRetry = () => {
     setShowMissionComplete(false);
     setScore(0);
     setTotalQuestions(0);
+    setProblemHistory([]);
   };
 
   if (!gameStarted) {
@@ -180,7 +197,7 @@ export default function CompareStarsApp() {
         score={score}
         totalQuestions={totalQuestions}
         onAnswer={handleAnswer}
-        onGameEnd={() => handleGameComplete(score, totalQuestions)}
+        onGameEnd={() => handleGameComplete(score, totalQuestions, problemHistory)}
         onRetry={handleRetry}
         isMissionMode={isMissionMode}
         maxQuestions={isMissionMode ? 15 : numberOfProblems}

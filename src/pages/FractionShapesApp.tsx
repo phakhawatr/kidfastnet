@@ -9,6 +9,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useMissionMode } from '@/hooks/useMissionMode';
 import { useRecentApps } from '@/hooks/useRecentApps';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
+import { type QuestionAttempt } from '@/hooks/useTrainingCalendar';
 
 // Shape Types
 type ShapeType = 'circle' | 'triangle' | 'pentagon' | 'heptagon' | 'flower' | 'star' | 'plus' | 'cube';
@@ -604,7 +605,19 @@ const FractionShapesApp: React.FC = () => {
     // If mission mode, complete mission
     if (isMissionMode) {
       const duration = timer * 1000; // Convert seconds to milliseconds
-      await handleCompleteMission(correct, problems.length, duration);
+      const questionAttempts: QuestionAttempt[] = problems.map((problem, index) => {
+        const userAns = userAnswers[index];
+        const isCorrect = parseInt(userAns.numerator) === problem.correctNumerator &&
+          parseInt(userAns.denominator) === problem.correctDenominator;
+        return {
+          index: index + 1,
+          question: `เศษส่วนรูป ${problem.shapeType} (${problem.filledParts}/${problem.totalParts})`,
+          userAnswer: userAns.numerator && userAns.denominator ? `${userAns.numerator}/${userAns.denominator}` : '-',
+          correctAnswer: `${problem.correctNumerator}/${problem.correctDenominator}`,
+          isCorrect
+        };
+      });
+      await handleCompleteMission(correct, problems.length, duration, questionAttempts);
       return;
     }
     
