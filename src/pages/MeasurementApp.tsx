@@ -4,6 +4,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import { useMissionMode } from '@/hooks/useMissionMode';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
+import { type QuestionAttempt } from '@/hooks/useTrainingCalendar';
 
 // ================= Utilities =================
 function randInt(min, max) {
@@ -358,7 +359,22 @@ export default function MeasurementApp() {
       
       // Mission mode completion
       if (isMissionMode) {
-        await handleCompleteMission(correctCount, problems.length, elapsedMs);
+        // Build questionAttempts for parent dashboard
+        const questionAttempts: QuestionAttempt[] = problems.map((p, i) => {
+          const userMeters = parseInt(answers[i].meters) || 0;
+          const userCm = parseInt(answers[i].centimeters) || 0;
+          const userTotalCm = parseInt(answers[i].totalCm) || 0;
+          
+          return {
+            index: i + 1,
+            question: `วัดความสูง ${p.object.name} ${p.object.emoji}`,
+            userAnswer: userTotalCm ? `${userTotalCm} ซม.` : `${userMeters} ม. ${userCm} ซม.`,
+            correctAnswer: `${p.meters} ม. ${p.centimeters} ซม. (${p.height} ซม.)`,
+            isCorrect: next[i] === "correct"
+          };
+        });
+        
+        await handleCompleteMission(correctCount, problems.length, elapsedMs, questionAttempts);
       }
     }
   }

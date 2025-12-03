@@ -5,6 +5,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useMissionMode } from '@/hooks/useMissionMode';
 import { useRecentApps } from '@/hooks/useRecentApps';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
+import { type QuestionAttempt } from '@/hooks/useTrainingCalendar';
 
 // Object types for measurement problems
 type MeasurementObject = {
@@ -384,7 +385,17 @@ export default function QuickMathApp() {
     // Mission mode completion
     if (isMissionMode) {
       const correctCount = newResults.filter(r => r === 'correct').length;
-      await handleCompleteMission(correctCount, problems.length, elapsedTime);
+      
+      // Build questionAttempts for parent dashboard
+      const questionAttempts: QuestionAttempt[] = problems.map((problem, index) => ({
+        index: index + 1,
+        question: `วัดความยาว ${problem.thaiName}`,
+        userAnswer: userAnswers[index].cm ? `${userAnswers[index].cm} ซม.` : `${userAnswers[index].mm} มม.`,
+        correctAnswer: `${problem.actualLength} ซม.`,
+        isCorrect: newResults[index] === 'correct'
+      }));
+      
+      await handleCompleteMission(correctCount, problems.length, elapsedTime, questionAttempts);
     }
   };
 
