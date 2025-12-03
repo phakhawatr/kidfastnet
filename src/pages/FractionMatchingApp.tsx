@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { useTranslation } from 'react-i18next';
 import { useMissionMode } from '@/hooks/useMissionMode';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
+import { type QuestionAttempt } from '@/hooks/useTrainingCalendar';
 
 interface FractionPair {
   id: number;
@@ -277,7 +278,19 @@ const FractionMatchingApp: React.FC = () => {
       
       // Complete mission if in mission mode
       if (isMissionMode) {
-        await handleCompleteMission(correctCount, questions.length, timeElapsed * 1000);
+        // Build questionAttempts for parent dashboard
+        const questionAttempts: QuestionAttempt[] = questions.map((question, index) => {
+          const conn = newConnections.find(c => c.leftId === question.id);
+          return {
+            index: index + 1,
+            question: `${question.filledParts}/${question.totalParts} = ?`,
+            userAnswer: conn ? `${question.numerator}/${question.denominator}` : '-',
+            correctAnswer: `${question.numerator}/${question.denominator}`,
+            isCorrect: conn?.isCorrect === true
+          };
+        });
+        
+        await handleCompleteMission(correctCount, questions.length, timeElapsed * 1000, questionAttempts);
       }
     }
   };

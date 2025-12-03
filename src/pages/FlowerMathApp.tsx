@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft } from 'lucide-react';
@@ -9,6 +9,7 @@ import { type Operation, type Difficulty } from '@/utils/flowerMathUtils';
 import { useMissionMode } from '@/hooks/useMissionMode';
 import { useRecentApps } from '@/hooks/useRecentApps';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
+import { type QuestionAttempt } from '@/hooks/useTrainingCalendar';
 
 const FlowerMathApp = () => {
   const { t } = useTranslation();
@@ -20,6 +21,10 @@ const FlowerMathApp = () => {
   const [selectedOperation, setSelectedOperation] = useState<Operation>('multiplication');
   const [selectedTable, setSelectedTable] = useState(4);
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>('easy');
+  
+  // Track problem history for mission completion
+  const [problemHistory, setProblemHistory] = useState<QuestionAttempt[]>([]);
+  const problemHistoryRef = useRef<QuestionAttempt[]>([]);
 
   const {
     currentProblem,
@@ -32,8 +37,8 @@ const FlowerMathApp = () => {
     totalProblems,
     timeRemaining,
     isGameOver,
-    handleAnswerSelect,
-    resetGame,
+    handleAnswerSelect: originalHandleAnswerSelect,
+    resetGame: originalResetGame,
     getElapsedTime,
   } = useFlowerMath(selectedOperation, selectedTable, selectedDifficulty);
 
@@ -50,6 +55,32 @@ const FlowerMathApp = () => {
   useEffect(() => {
     trackAppUsage('flower-math');
   }, []);
+  
+  // Track answer selections
+  const handleAnswerSelectWithHistory = (answer: number) => {
+    if (currentProblem) {
+      const answerIsCorrect = answer === currentProblem.correctAnswer;
+      const opSymbol = selectedOperation === 'multiplication' ? '×' : selectedOperation === 'division' ? '÷' : selectedOperation === 'addition' ? '+' : '-';
+      const questionText = `${currentProblem.multiplier} ${opSymbol} ${currentProblem.innerNumbers[currentProblem.questionIndex]}`;
+      const newAttempt: QuestionAttempt = {
+        index: problemNumber,
+        question: questionText,
+        userAnswer: String(answer),
+        correctAnswer: String(currentProblem.correctAnswer),
+        isCorrect: answerIsCorrect
+      };
+      const updatedHistory = [...problemHistoryRef.current, newAttempt];
+      problemHistoryRef.current = updatedHistory;
+      setProblemHistory(updatedHistory);
+    }
+    originalHandleAnswerSelect(answer);
+  };
+  
+  const resetGame = () => {
+    setProblemHistory([]);
+    problemHistoryRef.current = [];
+    originalResetGame();
+  };
 
   const operations: { value: Operation; label: string; icon: string }[] = [
     { value: 'addition', label: t('flowermath.operations.addition', 'บวก'), icon: '➕' },
@@ -79,7 +110,7 @@ const FlowerMathApp = () => {
   const handleGameEnd = async () => {
     if (missionId) {
       const timeSpent = getElapsedTime();
-      await handleCompleteMission(score, totalProblems, timeSpent * 1000);
+      await handleCompleteMission(score, totalProblems, timeSpent * 1000, problemHistoryRef.current);
     }
   };
 
@@ -322,7 +353,7 @@ const FlowerMathApp = () => {
             choices={choices}
             selectedAnswer={selectedAnswer}
             isCorrect={isCorrect}
-            onAnswerSelect={handleAnswerSelect}
+            onAnswerSelect={handleAnswerSelectWithHistory}
             score={score}
             streak={streak}
             problemNumber={problemNumber}

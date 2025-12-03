@@ -10,6 +10,7 @@ import jsPDF from 'jspdf';
 import { useTranslation } from 'react-i18next';
 import { useMissionMode } from '@/hooks/useMissionMode';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
+import { type QuestionAttempt } from '@/hooks/useTrainingCalendar';
 
 // Types for percentage problems
 interface PercentageProblem {
@@ -266,7 +267,19 @@ const PercentageApp: React.FC = () => {
       const correctCount = problems.filter(p => 
         p.userAnswer.trim().toLowerCase() === p.correctAnswer.toLowerCase()
       ).length;
-      await handleCompleteMission(correctCount, problems.length, timeElapsed * 1000);
+      
+      // Build questionAttempts for parent dashboard
+      const questionAttempts: QuestionAttempt[] = problems.map((problem, index) => ({
+        index: index + 1,
+        question: problem.type === 'fraction' 
+          ? `ร้อยละ ${problem.percentage} = เศษส่วน?`
+          : `${problem.percentage}% = ทศนิยม?`,
+        userAnswer: problem.userAnswer || '-',
+        correctAnswer: problem.correctAnswer,
+        isCorrect: problem.userAnswer.trim().toLowerCase() === problem.correctAnswer.toLowerCase()
+      }));
+      
+      await handleCompleteMission(correctCount, problems.length, timeElapsed * 1000, questionAttempts);
     }
   }, [problems, isMissionMode, handleCompleteMission, timeElapsed]);
 

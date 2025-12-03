@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { useMissionMode } from '@/hooks/useMissionMode';
 import { useRecentApps } from '@/hooks/useRecentApps';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
+import { type QuestionAttempt } from '@/hooks/useTrainingCalendar';
 
 const NumberBondsApp = () => {
   const { t } = useTranslation('exercises');
@@ -73,11 +74,26 @@ const NumberBondsApp = () => {
   const handleSubmit = async () => {
     // Check if this is the last question
     if (currentIndex === problems.length - 1) {
-      const correctCount = getCorrectCount() + (checkBondAnswer(getCurrentProblem().bond, currentProblem.userAnswer) ? 1 : 0);
+      const currentIsCorrect = checkBondAnswer(getCurrentProblem().bond, currentProblem.userAnswer);
+      const correctCount = getCorrectCount() + (currentIsCorrect ? 1 : 0);
       
       // Mission mode completion
       if (isMissionMode) {
-        await handleCompleteMission(correctCount, problems.length, elapsedTime);
+        // Build questionAttempts for parent dashboard
+        const questionAttempts: QuestionAttempt[] = problems.map((problem, index) => {
+          const bond = problem.bond;
+          const missing = bond.missingPart;
+          const correctAnswer = missing === 'whole' ? bond.whole : (missing === 'part1' ? bond.part1 : bond.part2);
+          return {
+            index: index + 1,
+            question: `${bond.whole} = ${bond.part1} + ${bond.part2} (หา${missing === 'whole' ? 'ผลรวม' : missing === 'part1' ? 'ส่วนที่ 1' : 'ส่วนที่ 2'})`,
+            userAnswer: problem.userAnswer || '-',
+            correctAnswer: String(correctAnswer),
+            isCorrect: problem.isCorrect === true || (index === currentIndex && currentIsCorrect)
+          };
+        });
+        
+        await handleCompleteMission(correctCount, problems.length, elapsedTime, questionAttempts);
       } else {
         submitAnswers();
       }

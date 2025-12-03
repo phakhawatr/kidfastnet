@@ -10,6 +10,7 @@ import { MissionCompleteModal } from '@/components/MissionCompleteModal';
 import { useMissionMode } from '@/hooks/useMissionMode';
 import { useRecentApps } from '@/hooks/useRecentApps';
 import type { Operation, Difficulty } from '@/utils/balloonMathUtils';
+import { type QuestionAttempt } from '@/hooks/useTrainingCalendar';
 import { Home, RotateCcw } from 'lucide-react';
 import elephantMascot from '@/assets/elephant-mascot.png';
 
@@ -23,6 +24,9 @@ export default function BalloonMathApp() {
   const [showSettings, setShowSettings] = useState(true);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
+  
+  // Track problem history for mission completion
+  const [problemHistory, setProblemHistory] = useState<QuestionAttempt[]>([]);
 
   const {
     problem,
@@ -83,18 +87,33 @@ export default function BalloonMathApp() {
   const handleStartGame = () => {
     setShowSettings(false);
     setStartTime(Date.now());
+    setProblemHistory([]); // Reset problem history
     reset();
   };
 
   const handleAnswerSelect = (answer: number) => {
     if (selectedAnswer !== null) return;
+    
+    const answerIsCorrect = answer === problem.answer;
+    
+    // Track this problem attempt
+    const newAttempt: QuestionAttempt = {
+      index: totalProblems + 1,
+      question: `${problem.num1} ${problem.operatorSymbol} ${problem.num2}`,
+      userAnswer: String(answer),
+      correctAnswer: String(problem.answer),
+      isCorrect: answerIsCorrect
+    };
+    const updatedHistory = [...problemHistory, newAttempt];
+    setProblemHistory(updatedHistory);
+    
     checkAnswer(answer);
 
     // Check if mission complete (10 problems)
     if (isMissionMode && totalProblems + 1 >= 10) {
       const timeSpent = startTime ? Date.now() - startTime : 0;
-      const finalScore = answer === problem.answer ? score + 1 : score;
-      handleCompleteMission(finalScore, 10, timeSpent);
+      const finalScore = answerIsCorrect ? score + 1 : score;
+      handleCompleteMission(finalScore, 10, timeSpent, updatedHistory);
     }
   };
 

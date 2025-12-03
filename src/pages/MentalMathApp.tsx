@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMissionMode } from '@/hooks/useMissionMode';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
+import { type QuestionAttempt } from '@/hooks/useTrainingCalendar';
 import { Home, Settings, RefreshCw, Lightbulb, Award, Clock, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -144,7 +145,16 @@ const MentalMathApp = () => {
 
     // Mission mode completion
     if (isMissionMode) {
-      await handleCompleteMission(correctCount, problems.length, elapsedTime);
+      // Build questionAttempts for parent dashboard
+      const questionAttempts: QuestionAttempt[] = problems.map((problem, index) => ({
+        index: index + 1,
+        question: problem.question,
+        userAnswer: String(answers[index]) || '-',
+        correctAnswer: String(problem.answer),
+        isCorrect: newResults[index]
+      }));
+      
+      await handleCompleteMission(correctCount, problems.length, elapsedTime, questionAttempts);
     } else {
       // Save to Supabase (only in normal mode)
       await savePracticeSession(correctCount, problems.length, elapsedTime);

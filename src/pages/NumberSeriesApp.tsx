@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import { useToast } from '../hooks/use-toast';
 import { useMissionMode } from '@/hooks/useMissionMode';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
+import { type QuestionAttempt } from '@/hooks/useTrainingCalendar';
 interface Task {
   seq: number[];
   ans: number;
@@ -204,8 +205,17 @@ const NumberSeriesApp: React.FC = () => {
           const timeSpent = Date.now() - startTime;
           
           if (isMissionMode) {
+            // Build questionAttempts for parent dashboard
+            const questionAttempts: QuestionAttempt[] = state.tasks.map((task, index) => ({
+              index: index + 1,
+              question: `${task.seq.join(', ')}, ?`,
+              userAnswer: String(task.ans),
+              correctAnswer: String(task.ans),
+              isCorrect: true
+            }));
+            
             // Complete mission
-            await handleCompleteMission(newCorrect, state.tasks.length, timeSpent);
+            await handleCompleteMission(newCorrect, state.tasks.length, timeSpent, questionAttempts);
           } else {
             // Show normal completion modal
             setShowCompleted(true);

@@ -3,6 +3,7 @@ import { ArrowLeft, RotateCcw, Play, Eye, Settings, Volume2, VolumeX, Printer, S
 import { Link, useSearchParams } from 'react-router-dom';
 import { useMissionMode } from '@/hooks/useMissionMode';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
+import { type QuestionAttempt } from '@/hooks/useTrainingCalendar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -310,7 +311,17 @@ const WeighingApp: React.FC = () => {
         if (isMissionMode) {
           // Calculate elapsed time
           const elapsedMs = Date.now() - gameStartTime;
-          await handleCompleteMission(newCorrectCount, tasks.length, elapsedMs);
+          
+          // Build questionAttempts for parent dashboard
+          const questionAttempts: QuestionAttempt[] = tasks.map((t, i) => ({
+            index: i + 1,
+            question: `อ่านค่าน้ำหนัก ${t.name} (${t.unit === 'kg' ? 'กิโลกรัม' : 'กรัม'})`,
+            userAnswer: t.userAnswer || '-',
+            correctAnswer: `${t.value} ${t.unit === 'kg' ? 'กก.' : 'ก.'}`,
+            isCorrect: t.isCorrect === true
+          }));
+          
+          await handleCompleteMission(newCorrectCount, tasks.length, elapsedMs, questionAttempts);
         } else {
           setTimeout(() => setShowResults(true), 100);
         }

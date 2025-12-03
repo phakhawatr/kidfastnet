@@ -17,6 +17,7 @@ import { supabase } from '@/integrations/supabase/client';
 import Confetti from 'react-confetti';
 import { useMissionMode } from '@/hooks/useMissionMode';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
+import { type QuestionAttempt } from '@/hooks/useTrainingCalendar';
 
 const AreaModelApp = () => {
   const navigate = useNavigate();
@@ -139,7 +140,16 @@ const AreaModelApp = () => {
 
     // Complete mission if in mission mode
     if (isMissionMode) {
-      await handleCompleteMission(correctCount, problems.length, elapsedTime);
+      // Build questionAttempts for parent dashboard
+      const questionAttempts: QuestionAttempt[] = problems.map((problem, index) => ({
+        index: index + 1,
+        question: problem.question,
+        userAnswer: String(answers[index]) || '-',
+        correctAnswer: String(problem.answer),
+        isCorrect: newResults[index]
+      }));
+      
+      await handleCompleteMission(correctCount, problems.length, elapsedTime, questionAttempts);
     } else {
       // Save to Supabase only if not in mission mode
       await savePracticeSession(correctCount, problems.length, elapsedTime);
