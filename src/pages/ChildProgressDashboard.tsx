@@ -97,7 +97,24 @@ const ChildProgressDashboard = () => {
 
       // Check if token is expired
       if (new Date(tokenData.expires_at) < new Date()) {
-        toast.error('ลิงก์หมดอายุแล้ว (1 ชั่วโมง)');
+        // Token expired - check if user has active auth session as fallback
+        const authState = localStorage.getItem('kidfast_auth');
+        if (authState) {
+          try {
+            const parsed = JSON.parse(authState);
+            if (parsed.registrationId) {
+              toast.info('ลิงก์หมดอายุแล้ว แต่คุณยัง login อยู่');
+              setIsPublicView(false);
+              setUserId(parsed.registrationId);
+              await loadUserData(parsed.registrationId);
+              setIsLoading(false);
+              return;
+            }
+          } catch (e) {
+            // Invalid auth state, continue to login redirect
+          }
+        }
+        toast.error('ลิงก์หมดอายุแล้ว (72 ชั่วโมง) กรุณา login เพื่อดูข้อมูล');
         navigate('/login');
         return;
       }
