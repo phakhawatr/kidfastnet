@@ -127,10 +127,10 @@ serve(async (req) => {
           continue;
         }
 
-        // Generate progress token (expires in 1 hour)
+        // Generate progress token (expires in 72 hours / 3 days)
         const token = crypto.randomUUID();
         const expiresAt = new Date();
-        expiresAt.setHours(expiresAt.getHours() + 1);
+        expiresAt.setHours(expiresAt.getHours() + 72);
 
         await supabase.from('progress_view_tokens').insert({
           token,
