@@ -8,6 +8,7 @@ import ShapeDisplay from '@/components/ShapeDisplay';
 import { useMissionMode } from '@/hooks/useMissionMode';
 import { useRecentApps } from '@/hooks/useRecentApps';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
+import { type QuestionAttempt } from '@/hooks/useTrainingCalendar';
 
 type ShapeType = 'circle' | 'square' | 'triangle' | 'ellipse';
 type ColorType = 'red' | 'blue' | 'green' | 'orange' | 'yellow' | 'sky' | 'purple' | 'pink' | 'teal';
@@ -243,7 +244,19 @@ const ShapeSeriesApp = () => {
 
     // Complete mission if in mission mode
     if (isMissionMode) {
-      await handleCompleteMission(correct, problems.length, timer * 1000);
+      const questionAttempts: QuestionAttempt[] = problems.map((problem, index) => {
+        const selectedIdx = selectedAnswers[index];
+        const selectedShape = selectedIdx >= 0 ? problem.choices[selectedIdx] : null;
+        const isAnswerCorrect = selectedShape && shapesEqual(selectedShape, problem.answer);
+        return {
+          index: index + 1,
+          question: `อนุกรมรูปทรง (${problem.patternType})`,
+          userAnswer: selectedShape ? `${selectedShape.type}-${selectedShape.color}` : '-',
+          correctAnswer: `${problem.answer.type}-${problem.answer.color}`,
+          isCorrect: isAnswerCorrect === true
+        };
+      });
+      await handleCompleteMission(correct, problems.length, timer * 1000, questionAttempts);
     }
   };
 

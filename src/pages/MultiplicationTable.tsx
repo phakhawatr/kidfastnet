@@ -4,6 +4,7 @@ import { ArrowLeft, RotateCcw, CheckCircle, X, Trophy, Target, Clock } from 'luc
 import { useTranslation } from 'react-i18next';
 import { useMissionMode } from '@/hooks/useMissionMode';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
+import { type QuestionAttempt } from '@/hooks/useTrainingCalendar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -35,6 +36,7 @@ const MultiplicationTable = () => {
   const [gameActive, setGameActive] = useState<boolean>(false);
   const [streak, setStreak] = useState<number>(0);
   const [bestStreak, setBestStreak] = useState<number>(0);
+  const [problemHistory, setProblemHistory] = useState<QuestionAttempt[]>([]);
   const { toast } = useToast();
 
   const correctAnswer = selectedTable * currentQuestion;
@@ -55,6 +57,7 @@ const MultiplicationTable = () => {
     setScore(0);
     setTotalQuestions(0);
     setStreak(0);
+    setProblemHistory([]);
     setCurrentQuestion(Math.floor(Math.random() * 12) + 1);
     setUserAnswer('');
     setShowResult(false);
@@ -70,7 +73,7 @@ const MultiplicationTable = () => {
     // Mission mode completion
     if (isMissionMode && totalQuestions > 0) {
       const elapsedMs = (30 - timeLeft) * 1000; // Time used
-      await handleCompleteMission(score, totalQuestions, elapsedMs);
+      await handleCompleteMission(score, totalQuestions, elapsedMs, problemHistory);
     } else {
       toast({
         title: "เกมส์จบแล้ว! 🎮",
@@ -85,6 +88,16 @@ const MultiplicationTable = () => {
     setIsCorrect(correct);
     setShowResult(true);
     setTotalQuestions(prev => prev + 1);
+    
+    // Track problem history for mission mode
+    const newAttempt: QuestionAttempt = {
+      index: problemHistory.length + 1,
+      question: `${selectedTable} × ${currentQuestion}`,
+      userAnswer: userAnswer || '-',
+      correctAnswer: correctAnswer.toString(),
+      isCorrect: correct
+    };
+    setProblemHistory(prev => [...prev, newAttempt]);
     
     if (correct) {
       setScore(prev => prev + 1);
@@ -131,6 +144,7 @@ const MultiplicationTable = () => {
     setGameActive(false);
     setTimeLeft(30);
     setStreak(0);
+    setProblemHistory([]);
   };
 
   // Load best streak from localStorage

@@ -10,6 +10,7 @@ import { ChalkboardGame } from '@/components/ChalkboardGame';
 import { useMissionMode } from '@/hooks/useMissionMode';
 import { useRecentApps } from '@/hooks/useRecentApps';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
+import { type QuestionAttempt } from '@/hooks/useTrainingCalendar';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
 
@@ -59,7 +60,15 @@ export default function BoardCountingApp() {
     setGameCompleted(true);
     
     if (missionId) {
-      handleCompleteMission(completedScore, totalQuestions, timeSpent);
+      // Create summary question attempts (ChalkboardGame doesn't expose individual problems)
+      const questionAttempts: QuestionAttempt[] = [{
+        index: 1,
+        question: `นับบนกระดาน (${difficulty}) - ${totalQuestions} ข้อ`,
+        userAnswer: `${completedScore}/${totalQuestions} ข้อถูก`,
+        correctAnswer: `${totalQuestions}/${totalQuestions} ข้อถูก`,
+        isCorrect: completedScore === totalQuestions
+      }];
+      handleCompleteMission(completedScore, totalQuestions, timeSpent, questionAttempts);
     }
   };
 
