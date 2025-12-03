@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { useMissionMode } from "@/hooks/useMissionMode";
 import { useRecentApps } from "@/hooks/useRecentApps";
 import { MissionCompleteModal } from "@/components/MissionCompleteModal";
+import { type QuestionAttempt } from "@/hooks/useTrainingCalendar";
 
 // ---------- Utilities ----------
 function randInt(min, max) {
@@ -284,7 +285,21 @@ export default function TimeApp() {
     // Mission mode
     if (isMissionMode) {
       const timeSpent = Date.now() - (startedAt || Date.now());
-      await handleCompleteMission(correctCount, times.length, timeSpent);
+      
+      // Build questionAttempts for parent dashboard
+      const questionAttempts: QuestionAttempt[] = times.map((t, i) => {
+        const userH = normalizeHour12(answers[i].h);
+        const userM = parseInt(answers[i].m, 10);
+        return {
+          index: i + 1,
+          question: `นาฬิกาแสดงเวลา ${t.h} นาฬิกา ${t.m} นาที`,
+          userAnswer: `${answers[i].h || '-'}:${answers[i].m || '-'}`,
+          correctAnswer: `${t.h}:${pad2(t.m)}`,
+          isCorrect: newResults[i] === 'correct'
+        };
+      });
+      
+      await handleCompleteMission(correctCount, times.length, timeSpent, questionAttempts);
       return;
     }
 

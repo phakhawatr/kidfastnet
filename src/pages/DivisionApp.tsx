@@ -12,6 +12,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { supabase } from '@/integrations/supabase/client';
 import { useMissionMode } from '@/hooks/useMissionMode';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
+import type { QuestionAttempt } from '@/hooks/useTrainingCalendar';
 
 // Types and interfaces
 type DivisionType = 'integer' | 'decimal' | 'remainder';
@@ -392,7 +393,35 @@ const DivisionApp: React.FC = () => {
     // If mission mode, complete mission
     if (isMissionMode) {
       const timeSpent = startedAt ? now - startedAt : elapsedMs;
-      await handleCompleteMission(correct, problems.length, timeSpent);
+      
+      // Build questionAttempts array for parent dashboard
+      const questionAttempts: QuestionAttempt[] = problems.map((problem, index) => {
+        const userAnswer = answers[index][0] || '';
+        let isCorrect = false;
+        let correctAnswer = '';
+        
+        if (divisionType === 'remainder') {
+          correctAnswer = `${problem.quotient} เศษ ${problem.remainder}`;
+          const expectedAnswer = `${problem.quotient}-${problem.remainder}`;
+          isCorrect = userAnswer === expectedAnswer;
+        } else if (divisionType === 'decimal') {
+          correctAnswer = problem.quotient.toFixed(2);
+          isCorrect = Math.abs(parseFloat(userAnswer) - problem.quotient) < 0.01;
+        } else {
+          correctAnswer = problem.quotient.toString();
+          isCorrect = parseFloat(userAnswer) === problem.quotient;
+        }
+        
+        return {
+          index: index + 1,
+          question: `${problem.dividend} ÷ ${problem.divisor}`,
+          userAnswer: userAnswer || '-',
+          correctAnswer,
+          isCorrect
+        };
+      });
+      
+      await handleCompleteMission(correct, problems.length, timeSpent, questionAttempts);
       return;
     }
     

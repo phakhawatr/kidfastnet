@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { useMissionMode } from '@/hooks/useMissionMode';
 import { useRecentApps } from '@/hooks/useRecentApps';
 import { MissionCompleteModal } from '@/components/MissionCompleteModal';
+import { type QuestionAttempt } from '@/hooks/useTrainingCalendar';
 
 // Import mascots and images
 import moneyMascot from '../assets/mascot-money.png';
@@ -129,7 +130,17 @@ const MoneyApp = () => {
       const correctCount = updatedProblems.filter(p => p.isCorrect === true).length;
       // Calculate actual duration from mission start time
       const duration = missionStartTime ? Date.now() - missionStartTime : 10000; // Default 10s if no start time
-      await handleCompleteMission(correctCount, problems.length, duration);
+      
+      // Build questionAttempts for parent dashboard
+      const questionAttempts: QuestionAttempt[] = updatedProblems.map((problem, index) => ({
+        index: index + 1,
+        question: problem.question,
+        userAnswer: problem.userAnswer || '-',
+        correctAnswer: `${problem.correctAnswer} บาท`,
+        isCorrect: problem.isCorrect === true
+      }));
+      
+      await handleCompleteMission(correctCount, problems.length, duration, questionAttempts);
       return;
     }
     
