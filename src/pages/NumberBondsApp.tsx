@@ -74,8 +74,8 @@ const NumberBondsApp = () => {
   const handleSubmit = async () => {
     // Check if this is the last question
     if (currentIndex === problems.length - 1) {
-      const currentIsCorrect = checkBondAnswer(getCurrentProblem().bond, currentProblem.userAnswer);
-      const correctCount = getCorrectCount() + (currentIsCorrect ? 1 : 0);
+      // Get correct count - already includes current answer if answered correctly via handleAnswer
+      const correctCount = getCorrectCount();
       
       // Mission mode completion
       if (isMissionMode) {
@@ -89,7 +89,7 @@ const NumberBondsApp = () => {
             question: `${bond.whole} = ${bond.part1} + ${bond.part2} (หา${missing === 'whole' ? 'ผลรวม' : missing === 'part1' ? 'ส่วนที่ 1' : 'ส่วนที่ 2'})`,
             userAnswer: problem.userAnswer || '-',
             correctAnswer: String(correctAnswer),
-            isCorrect: problem.isCorrect === true || (index === currentIndex && currentIsCorrect)
+            isCorrect: problem.isCorrect === true
           };
         });
         
