@@ -329,7 +329,7 @@ const NumberBondsApp = () => {
 
             <Button
               onClick={handleSubmit}
-              disabled={!currentProblem.userAnswer}
+              disabled={!currentProblem.userAnswer && currentProblem.isCorrect === null}
               className="gap-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
             >
               {currentIndex < problems.length - 1 ? (
