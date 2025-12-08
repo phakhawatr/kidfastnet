@@ -503,15 +503,19 @@ export default function AdditionApp() {
     }
   }, []); // Run once on mount
 
-  // keep answers shape in sync with problems/digits
+  // keep answers shape in sync with problems - use actual digits needed per problem
   useEffect(() => {
     setAnswers((prev) => {
       if (!Array.isArray(prev) || prev.length !== problems.length) {
-        return problems.map(() => Array(digits).fill(""));
+        return createAnswersArray(problems, operands);
       }
-      return prev.map((a) => (Array.isArray(a) && a.length === digits ? a : Array(digits).fill("")));
+      return prev.map((a, i) => {
+        const actualDigits = getActualDigits(problems[i], operands);
+        if (Array.isArray(a) && a.length === actualDigits) return a;
+        return Array(actualDigits).fill("");
+      });
     });
-  }, [problems, digits]);
+  }, [problems, operands]);
 
   // detail modal state for viewing previous results
   const [detailOpen, setDetailOpen] = useState(false);
