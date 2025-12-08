@@ -155,8 +155,7 @@ export function MissionCompleteModal({
                     onOpenChange(false);
                     navigate('/mission-history');
                   }}
-                  variant="outline"
-                  className="w-full border-slate-600 text-white hover:bg-slate-800"
+                  className="w-full bg-slate-700 border-slate-600 text-white hover:bg-slate-600 font-medium"
                 >
                   <History className="w-5 h-5 mr-2" />
                   ดูประวัติภารกิจ
@@ -179,8 +178,7 @@ export function MissionCompleteModal({
                     onOpenChange(false);
                     navigate('/today-mission?refresh=true');
                   }}
-                  variant="outline"
-                  className="w-full border-slate-600 text-white hover:bg-slate-800"
+                  className="w-full bg-slate-700 border-slate-600 text-white hover:bg-slate-600 font-medium"
                 >
                   <Calendar className="w-5 h-5 mr-2" />
                   กลับสู่ปฏิทิน
