@@ -7,23 +7,44 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  const startTime = Date.now();
+  
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Initialize Supabase client
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+  const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+  const supabase = createClient(supabaseUrl, supabaseKey);
+
+  // Job tracking variables
+  let usersFound = 0;
+  let messagesSent = 0;
+  let messagesSkipped = 0;
+  const skipReasons: { user?: string; reason: string }[] = [];
+  const errors: { user?: string; error: string }[] = [];
+  const results: any[] = [];
+
   try {
     console.log('🌅 Starting morning mission alert job...');
-
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Get LINE channel access token
     const lineAccessToken = Deno.env.get('LINE_CHANNEL_ACCESS_TOKEN');
     if (!lineAccessToken) {
       console.error('❌ LINE_CHANNEL_ACCESS_TOKEN not configured');
+      errors.push({ error: 'LINE_CHANNEL_ACCESS_TOKEN not configured' });
+      
+      // Log job execution even on config error
+      await logJobExecution(supabase, 'send-morning-mission-alert', startTime, {
+        usersFound: 0,
+        messagesSent: 0,
+        messagesSkipped: 0,
+        skipReasons,
+        errors,
+      });
+      
       return new Response(
         JSON.stringify({ success: false, error: 'LINE token not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -39,8 +60,18 @@ serve(async (req) => {
     const dayOfWeek = today.getDay();
     if (dayOfWeek === 0 || dayOfWeek === 6) {
       console.log('⏭️ Weekend detected, skipping morning alerts');
+      skipReasons.push({ reason: `Weekend (day ${dayOfWeek})` });
+      
+      await logJobExecution(supabase, 'send-morning-mission-alert', startTime, {
+        usersFound: 0,
+        messagesSent: 0,
+        messagesSkipped: 0,
+        skipReasons,
+        errors,
+      });
+      
       return new Response(
-        JSON.stringify({ success: true, message: 'Weekend - no alerts sent' }),
+        JSON.stringify({ success: true, message: 'Weekend - no alerts sent', skipReasons }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -61,16 +92,41 @@ serve(async (req) => {
 
     if (usersError) {
       console.error('❌ Error fetching users:', JSON.stringify(usersError));
+      errors.push({ error: `Database error: ${usersError.message}` });
+      
+      await logJobExecution(supabase, 'send-morning-mission-alert', startTime, {
+        usersFound: 0,
+        messagesSent: 0,
+        messagesSkipped: 0,
+        skipReasons,
+        errors,
+      });
+      
       throw usersError;
     }
 
-    console.log(`✅ Found ${users?.length || 0} users with LINE:`, 
+    usersFound = users?.length || 0;
+    console.log(`✅ Found ${usersFound} users with LINE:`, 
       users?.map(u => ({ nickname: u.nickname, hasLine1: !!u.line_user_id, hasLine2: !!u.line_user_id_2 }))
     );
 
-    let successCount = 0;
-    let failCount = 0;
-    const results = [];
+    // If no users found, log and return
+    if (usersFound === 0) {
+      skipReasons.push({ reason: 'No users with LINE connected' });
+      
+      await logJobExecution(supabase, 'send-morning-mission-alert', startTime, {
+        usersFound: 0,
+        messagesSent: 0,
+        messagesSkipped: 0,
+        skipReasons,
+        errors,
+      });
+      
+      return new Response(
+        JSON.stringify({ success: true, message: 'No users with LINE connected', skipReasons }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     for (const user of users || []) {
       try {
@@ -87,6 +143,8 @@ serve(async (req) => {
         
         if (!shouldSendAlert) {
           console.log(`⏭️ Notifications disabled for ${user.nickname}`);
+          messagesSkipped++;
+          skipReasons.push({ user: user.nickname, reason: 'Notifications disabled by user' });
           continue;
         }
 
@@ -100,6 +158,7 @@ serve(async (req) => {
 
         if (missionsError) {
           console.error(`❌ Error fetching missions for ${user.nickname}:`, missionsError);
+          errors.push({ user: user.nickname, error: `Missions fetch error: ${missionsError.message}` });
           continue;
         }
 
@@ -108,13 +167,7 @@ serve(async (req) => {
           m => m.status !== 'completed' && !m.completed_at
         ) || [];
 
-        console.log(`📊 ${user.nickname}: ${incompleteMissions.length} missions available`);
-
-        // Skip if no missions available
-        if (incompleteMissions.length === 0) {
-          console.log(`⏭️ ${user.nickname}: No missions available for today`);
-          continue;
-        }
+        console.log(`📊 ${user.nickname}: ${todayMissions?.length || 0} total missions, ${incompleteMissions.length} incomplete`);
 
         // Get user streak data
         const { data: streak } = await supabase
@@ -126,92 +179,169 @@ serve(async (req) => {
         const currentStreak = streak?.current_streak || 0;
         console.log(`🔥 ${user.nickname}: Streak = ${currentStreak} days`);
 
-        // Build missions list (up to 3)
-        const missionsList = incompleteMissions.slice(0, 3).map((m, i) => 
-          `• ภารกิจที่ ${i + 1}: ${m.skill_name}`
-        ).join('\n');
-
-        // Construct LINE Flex Message for morning alert
-        const flexMessage = {
-          type: 'bubble',
-          body: {
-            type: 'box',
-            layout: 'vertical',
-            contents: [
-              // Header with greeting
-              {
-                type: 'text',
-                text: `🌅 สวัสดีตอนเช้า ${user.nickname}!`,
-                weight: 'bold',
-                size: 'xl',
-                wrap: true,
-                color: '#1a1a1a',
-              },
-              {
-                type: 'text',
-                text: `วันนี้มี ${incompleteMissions.length} ภารกิจรอคุณอยู่นะ! 💪`,
-                color: '#4A90E2',
-                margin: 'sm',
-                wrap: true,
-              },
-              // Separator
-              { type: 'separator', margin: 'lg' },
-              
-              // Missions section
-              {
-                type: 'text',
-                text: '📌 ภารกิจวันนี้:',
-                weight: 'bold',
-                margin: 'lg',
-                color: '#333333',
-              },
-              {
-                type: 'text',
-                text: missionsList,
-                wrap: true,
-                margin: 'sm',
-                size: 'md',
-                color: '#555555',
-              },
-              
-              // Streak section
-              { type: 'separator', margin: 'lg' },
-              {
-                type: 'text',
-                text: `🔥 Streak ปัจจุบัน: ${currentStreak} วัน`,
-                weight: 'bold',
-                margin: 'lg',
-                color: currentStreak > 0 ? '#FF8C00' : '#999999',
-              },
-              {
-                type: 'text',
-                text: currentStreak > 0 
-                  ? 'มาสานต่อความสำเร็จกันเลย! 🚀'
-                  : 'เริ่มต้น Streak ของคุณวันนี้เลย! 🌟',
-                margin: 'sm',
-                size: 'sm',
-                color: '#888888',
-                wrap: true,
-              },
-            ],
-          },
-          footer: {
-            type: 'box',
-            layout: 'vertical',
-            contents: [
-              {
-                type: 'button',
-                action: {
-                  type: 'uri',
-                  label: '🚀 เริ่มทำภารกิจ',
-                  uri: 'https://kidfast.netlify.app/today-mission',
+        // Determine message content based on mission availability
+        let flexMessage;
+        let altText;
+        
+        if (incompleteMissions.length === 0 && (!todayMissions || todayMissions.length === 0)) {
+          // No missions generated yet - send "preparing" message
+          console.log(`📌 ${user.nickname}: No missions yet, sending preparation message`);
+          
+          flexMessage = {
+            type: 'bubble',
+            body: {
+              type: 'box',
+              layout: 'vertical',
+              contents: [
+                {
+                  type: 'text',
+                  text: `🌅 สวัสดีตอนเช้า ${user.nickname}!`,
+                  weight: 'bold',
+                  size: 'xl',
+                  wrap: true,
+                  color: '#1a1a1a',
                 },
-                style: 'primary',
-                color: '#00B900',
-              },
-            ],
-          },
-        };
+                {
+                  type: 'text',
+                  text: 'กำลังเตรียมภารกิจให้คุณอยู่นะ! 🎯',
+                  color: '#4A90E2',
+                  margin: 'sm',
+                  wrap: true,
+                },
+                { type: 'separator', margin: 'lg' },
+                {
+                  type: 'text',
+                  text: '📌 ภารกิจวันนี้กำลังถูกสร้างโดย AI',
+                  weight: 'bold',
+                  margin: 'lg',
+                  color: '#333333',
+                },
+                {
+                  type: 'text',
+                  text: 'เข้ามาตรวจสอบภารกิจของคุณในแอพได้เลย!',
+                  wrap: true,
+                  margin: 'sm',
+                  size: 'md',
+                  color: '#555555',
+                },
+                { type: 'separator', margin: 'lg' },
+                {
+                  type: 'text',
+                  text: `🔥 Streak ปัจจุบัน: ${currentStreak} วัน`,
+                  weight: 'bold',
+                  margin: 'lg',
+                  color: currentStreak > 0 ? '#FF8C00' : '#999999',
+                },
+              ],
+            },
+            footer: {
+              type: 'box',
+              layout: 'vertical',
+              contents: [
+                {
+                  type: 'button',
+                  action: {
+                    type: 'uri',
+                    label: '🚀 เข้าดูภารกิจ',
+                    uri: 'https://kidfast.netlify.app/today-mission',
+                  },
+                  style: 'primary',
+                  color: '#00B900',
+                },
+              ],
+            },
+          };
+          altText = `🌅 ภารกิจวันนี้กำลังเตรียมให้คุณ - ${user.nickname}`;
+          
+        } else if (incompleteMissions.length === 0) {
+          // All missions completed - send congratulations
+          console.log(`🎉 ${user.nickname}: All missions completed`);
+          messagesSkipped++;
+          skipReasons.push({ user: user.nickname, reason: 'All missions already completed' });
+          continue;
+          
+        } else {
+          // Has incomplete missions - send normal alert
+          const missionsList = incompleteMissions.slice(0, 3).map((m, i) => 
+            `• ภารกิจที่ ${i + 1}: ${m.skill_name}`
+          ).join('\n');
+
+          flexMessage = {
+            type: 'bubble',
+            body: {
+              type: 'box',
+              layout: 'vertical',
+              contents: [
+                {
+                  type: 'text',
+                  text: `🌅 สวัสดีตอนเช้า ${user.nickname}!`,
+                  weight: 'bold',
+                  size: 'xl',
+                  wrap: true,
+                  color: '#1a1a1a',
+                },
+                {
+                  type: 'text',
+                  text: `วันนี้มี ${incompleteMissions.length} ภารกิจรอคุณอยู่นะ! 💪`,
+                  color: '#4A90E2',
+                  margin: 'sm',
+                  wrap: true,
+                },
+                { type: 'separator', margin: 'lg' },
+                {
+                  type: 'text',
+                  text: '📌 ภารกิจวันนี้:',
+                  weight: 'bold',
+                  margin: 'lg',
+                  color: '#333333',
+                },
+                {
+                  type: 'text',
+                  text: missionsList,
+                  wrap: true,
+                  margin: 'sm',
+                  size: 'md',
+                  color: '#555555',
+                },
+                { type: 'separator', margin: 'lg' },
+                {
+                  type: 'text',
+                  text: `🔥 Streak ปัจจุบัน: ${currentStreak} วัน`,
+                  weight: 'bold',
+                  margin: 'lg',
+                  color: currentStreak > 0 ? '#FF8C00' : '#999999',
+                },
+                {
+                  type: 'text',
+                  text: currentStreak > 0 
+                    ? 'มาสานต่อความสำเร็จกันเลย! 🚀'
+                    : 'เริ่มต้น Streak ของคุณวันนี้เลย! 🌟',
+                  margin: 'sm',
+                  size: 'sm',
+                  color: '#888888',
+                  wrap: true,
+                },
+              ],
+            },
+            footer: {
+              type: 'box',
+              layout: 'vertical',
+              contents: [
+                {
+                  type: 'button',
+                  action: {
+                    type: 'uri',
+                    label: '🚀 เริ่มทำภารกิจ',
+                    uri: 'https://kidfast.netlify.app/today-mission',
+                  },
+                  style: 'primary',
+                  color: '#00B900',
+                },
+              ],
+            },
+          };
+          altText = `🌅 ภารกิจใหม่ประจำวัน - ${user.nickname}`;
+        }
 
         // Send LINE message to both accounts if connected
         const lineUserIds = [user.line_user_id, user.line_user_id_2].filter(Boolean);
@@ -228,7 +358,7 @@ serve(async (req) => {
               messages: [
                 {
                   type: 'flex',
-                  altText: `🌅 ภารกิจใหม่ประจำวัน - ${user.nickname}`,
+                  altText,
                   contents: flexMessage,
                 },
               ],
@@ -237,13 +367,18 @@ serve(async (req) => {
 
           if (lineResponse.ok) {
             console.log(`✅ Sent morning alert to ${user.nickname} (${lineUserId})`);
-            successCount++;
+            messagesSent++;
             
             // Log to line_message_logs
             await supabase.from('line_message_logs').insert({
               user_id: user.id,
               exercise_type: 'morning_mission_alert',
-              message_data: { missionsCount: incompleteMissions.length, streak: currentStreak, lineUserId },
+              message_data: { 
+                missionsCount: incompleteMissions.length, 
+                hasMissions: (todayMissions?.length || 0) > 0,
+                streak: currentStreak, 
+                lineUserId 
+              },
               success: true,
             });
 
@@ -251,7 +386,7 @@ serve(async (req) => {
           } else {
             const errorText = await lineResponse.text();
             console.error(`❌ Failed to send to ${user.nickname} (${lineUserId}):`, errorText);
-            failCount++;
+            errors.push({ user: user.nickname, error: `LINE API error: ${errorText}` });
             
             await supabase.from('line_message_logs').insert({
               user_id: user.id,
@@ -267,21 +402,33 @@ serve(async (req) => {
 
       } catch (userError) {
         console.error(`❌ Error processing user ${user.nickname}:`, userError);
-        failCount++;
+        errors.push({ user: user.nickname, error: String(userError) });
         results.push({ user: user.nickname, status: 'error', error: String(userError) });
       }
     }
 
-    console.log(`\n📊 Summary: ${successCount} sent, ${failCount} failed`);
+    console.log(`\n📊 Summary: ${messagesSent} sent, ${messagesSkipped} skipped, ${errors.length} errors`);
+
+    // Log job execution
+    await logJobExecution(supabase, 'send-morning-mission-alert', startTime, {
+      usersFound,
+      messagesSent,
+      messagesSkipped,
+      skipReasons,
+      errors,
+    });
 
     return new Response(
       JSON.stringify({
         success: true,
         summary: {
-          total: users?.length || 0,
-          sent: successCount,
-          failed: failCount,
+          total: usersFound,
+          sent: messagesSent,
+          skipped: messagesSkipped,
+          errors: errors.length,
         },
+        skipReasons,
+        errors,
         results,
       }),
       { 
@@ -292,9 +439,51 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('❌ Error in send-morning-mission-alert:', error);
+    errors.push({ error: String(error) });
+    
+    // Log job execution even on error
+    await logJobExecution(supabase, 'send-morning-mission-alert', startTime, {
+      usersFound,
+      messagesSent,
+      messagesSkipped,
+      skipReasons,
+      errors,
+    });
+    
     return new Response(
-      JSON.stringify({ success: false, error: String(error) }),
+      JSON.stringify({ success: false, error: String(error), skipReasons, errors }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
+
+// Helper function to log job execution
+async function logJobExecution(
+  supabase: any, 
+  jobName: string, 
+  startTime: number,
+  data: {
+    usersFound: number;
+    messagesSent: number;
+    messagesSkipped: number;
+    skipReasons: any[];
+    errors: any[];
+  }
+) {
+  const executionTimeMs = Date.now() - startTime;
+  
+  try {
+    await supabase.from('notification_job_logs').insert({
+      job_name: jobName,
+      users_found: data.usersFound,
+      messages_sent: data.messagesSent,
+      messages_skipped: data.messagesSkipped,
+      skip_reasons: data.skipReasons,
+      errors: data.errors,
+      execution_time_ms: executionTimeMs,
+    });
+    console.log(`📝 Job execution logged: ${jobName} (${executionTimeMs}ms)`);
+  } catch (logError) {
+    console.error('❌ Failed to log job execution:', logError);
+  }
+}
