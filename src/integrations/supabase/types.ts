@@ -842,6 +842,45 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_job_logs: {
+        Row: {
+          created_at: string
+          errors: Json | null
+          execution_time_ms: number | null
+          id: string
+          job_name: string
+          messages_sent: number | null
+          messages_skipped: number | null
+          skip_reasons: Json | null
+          triggered_at: string
+          users_found: number | null
+        }
+        Insert: {
+          created_at?: string
+          errors?: Json | null
+          execution_time_ms?: number | null
+          id?: string
+          job_name: string
+          messages_sent?: number | null
+          messages_skipped?: number | null
+          skip_reasons?: Json | null
+          triggered_at?: string
+          users_found?: number | null
+        }
+        Update: {
+          created_at?: string
+          errors?: Json | null
+          execution_time_ms?: number | null
+          id?: string
+          job_name?: string
+          messages_sent?: number | null
+          messages_skipped?: number | null
+          skip_reasons?: Json | null
+          triggered_at?: string
+          users_found?: number | null
+        }
+        Relationships: []
+      }
       notification_preferences: {
         Row: {
           created_at: string
