@@ -653,54 +653,61 @@ const ChildProgressDashboard = () => {
           
           <div className="space-y-3 mt-4">
             {selectedMission?.question_attempts && selectedMission.question_attempts.length > 0 ? (
-              selectedMission.question_attempts.map((attempt) => (
-                <div 
-                  key={attempt.index}
-                  className={`p-4 rounded-lg border-2 ${
-                    attempt.isCorrect 
-                      ? 'bg-green-900/20 border-green-600' 
-                      : 'bg-red-900/20 border-red-600'
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 mt-1">
-                      {attempt.isCorrect ? (
-                        <div className="w-6 h-6 rounded-full bg-green-600 flex items-center justify-center text-white text-sm font-bold">
-                          ✓
-                        </div>
-                      ) : (
-                        <div className="w-6 h-6 rounded-full bg-red-600 flex items-center justify-center text-white text-sm font-bold">
-                          ✗
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="flex-1">
-                      <div className="text-white font-semibold mb-2">
-                        {t('questionModal.question')} {attempt.index}: {attempt.question}
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div>
-                          <span className="text-slate-400">{t('questionModal.yourAnswer')}: </span>
-                          <span className={`font-semibold ${attempt.isCorrect ? 'text-green-400' : 'text-red-400'}`}>
-                            {attempt.userAnswer || '-'}
-                          </span>
-                        </div>
-                        
-                        {!attempt.isCorrect && (
-                          <div>
-                            <span className="text-slate-400">{t('questionModal.correctAnswer')}: </span>
-                            <span className="font-semibold text-green-400">
-                              {attempt.correctAnswer}
-                            </span>
+              selectedMission.question_attempts.map((attempt) => {
+                // Recalculate isCorrect by comparing answers (fixes data where isCorrect was stored incorrectly)
+                const normalizedUserAnswer = String(attempt.userAnswer || '').trim();
+                const normalizedCorrectAnswer = String(attempt.correctAnswer || '').trim();
+                const isAnswerCorrect = normalizedUserAnswer === normalizedCorrectAnswer && normalizedUserAnswer !== '';
+                
+                return (
+                  <div 
+                    key={attempt.index}
+                    className={`p-4 rounded-lg border-2 ${
+                      isAnswerCorrect 
+                        ? 'bg-green-900/20 border-green-600' 
+                        : 'bg-red-900/20 border-red-600'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 mt-1">
+                        {isAnswerCorrect ? (
+                          <div className="w-6 h-6 rounded-full bg-green-600 flex items-center justify-center text-white text-sm font-bold">
+                            ✓
+                          </div>
+                        ) : (
+                          <div className="w-6 h-6 rounded-full bg-red-600 flex items-center justify-center text-white text-sm font-bold">
+                            ✗
                           </div>
                         )}
                       </div>
+                      
+                      <div className="flex-1">
+                        <div className="text-white font-semibold mb-2">
+                          {t('questionModal.question')} {attempt.index}: {attempt.question}
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          <div>
+                            <span className="text-slate-400">{t('questionModal.yourAnswer')}: </span>
+                            <span className={`font-semibold ${isAnswerCorrect ? 'text-green-400' : 'text-red-400'}`}>
+                              {attempt.userAnswer || '-'}
+                            </span>
+                          </div>
+                          
+                          {!isAnswerCorrect && (
+                            <div>
+                              <span className="text-slate-400">{t('questionModal.correctAnswer')}: </span>
+                              <span className="font-semibold text-green-400">
+                                {attempt.correctAnswer}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <div className="text-center py-12">
                 <div className="text-slate-400 text-lg mb-2">📝</div>
