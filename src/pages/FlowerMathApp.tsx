@@ -110,7 +110,9 @@ const FlowerMathApp = () => {
   const handleGameEnd = async () => {
     if (missionId) {
       const timeSpent = getElapsedTime();
-      await handleCompleteMission(score, totalProblems, timeSpent * 1000, problemHistoryRef.current);
+      // Calculate correct count from history to avoid stale state issues
+      const correctCount = problemHistoryRef.current.filter(a => a.isCorrect).length;
+      await handleCompleteMission(correctCount, totalProblems, timeSpent * 1000, problemHistoryRef.current);
     }
   };
 
