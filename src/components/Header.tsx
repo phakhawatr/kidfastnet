@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
@@ -5,8 +6,15 @@ import { useTeacherRole } from '../hooks/useTeacherRole';
 import { useIsMobile } from '../hooks/use-mobile';
 import LanguageSwitcher from './LanguageSwitcher';
 import logoAIBrain from '../assets/logo-ai-final.png';
-import { FileQuestion, Rocket, RefreshCw, Atom, GraduationCap } from 'lucide-react';
+import { FileQuestion, Rocket, RefreshCw, Atom, GraduationCap, Menu, LogOut, UserPlus, LogIn } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 
 const Header = () => {
   const { isLoggedIn, logout, registrationId } = useAuth();
@@ -14,13 +22,23 @@ const Header = () => {
   const location = useLocation();
   const { isTeacher } = useTeacherRole(registrationId);
   const isMobile = useIsMobile();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   
   const isAdminPage = location.pathname.startsWith('/admin');
+  
+  // Check if we should show hamburger menu (mobile or tablet)
+  const showHamburger = isMobile || (typeof window !== 'undefined' && window.innerWidth < 1024);
+  
+  const handleMenuClose = () => setIsMenuOpen(false);
+  
+  const handleLogout = () => {
+    handleMenuClose();
+    logout();
+  };
   
   return (
     <header className="sticky top-0 z-50 backdrop-blur-md bg-white/20 border-b border-white/20">
       <div className="container mx-auto px-4 py-3">
-        {/* แถวที่ 1: Logo + Utility Buttons */}
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 text-xl md:text-2xl font-bold text-white hover:scale-105 transition-transform duration-200">
@@ -29,7 +47,7 @@ const Header = () => {
             <span className="text-amber-400 sm:hidden">KidFast</span>
           </Link>
           
-          {/* Utility buttons only for row 1 */}
+          {/* Right side controls */}
           <div className="flex items-center gap-2 md:gap-3">
             {!isAdminPage && <LanguageSwitcher />}
             
@@ -44,7 +62,7 @@ const Header = () => {
             </button>
             
             {/* Large Desktop (lg+): แสดงปุ่มเมนูในแถวเดียวกัน */}
-            {!isMobile && isLoggedIn && (
+            {isLoggedIn && (
               <div className="hidden lg:flex items-center gap-2">
                 <Link 
                   to="/profile" 
@@ -54,7 +72,6 @@ const Header = () => {
                   {t('startPractice')}
                 </Link>
                 
-                {/* STEMxAI Button with Beta Badge */}
                 <div className="relative">
                   <Link 
                     to="/stem" 
@@ -63,14 +80,11 @@ const Header = () => {
                     <Atom className="w-4 h-4" />
                     {t('stemxai')}
                   </Link>
-                  <Badge 
-                    className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-0.5 animate-pulse shadow-lg border-2 border-white"
-                  >
+                  <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-0.5 animate-pulse shadow-lg border-2 border-white">
                     Beta
                   </Badge>
                 </div>
                 
-                {/* Quiz Button with New Badge */}
                 <div className="relative">
                   <Link 
                     to="/quiz" 
@@ -79,9 +93,7 @@ const Header = () => {
                     <FileQuestion className="w-4 h-4" />
                     {t('quiz')}
                   </Link>
-                  <Badge 
-                    className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-0.5 animate-pulse shadow-lg border-2 border-white"
-                  >
+                  <Badge className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-0.5 animate-pulse shadow-lg border-2 border-white">
                     New !
                   </Badge>
                 </div>
@@ -105,7 +117,7 @@ const Header = () => {
             )}
             
             {/* Large Desktop (lg+): ยังไม่ login */}
-            {!isMobile && !isLoggedIn && (
+            {!isLoggedIn && (
               <div className="hidden lg:flex items-center gap-2">
                 <Link to="/signup" className="btn-primary text-sm">
                   {t('signup')}
@@ -122,166 +134,120 @@ const Header = () => {
                 </Link>
               </div>
             )}
+            
+            {/* Hamburger Menu for Mobile & Tablet */}
+            <div className="lg:hidden">
+              <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+                <SheetTrigger asChild>
+                  <button
+                    className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all duration-200 border border-white/20"
+                    aria-label="Menu"
+                  >
+                    <Menu className="w-6 h-6" />
+                  </button>
+                </SheetTrigger>
+                <SheetContent 
+                  side="right" 
+                  className="w-[280px] sm:w-[320px] bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 border-l border-purple-500/30"
+                >
+                  <SheetHeader className="pb-4 border-b border-white/10">
+                    <SheetTitle className="text-white flex items-center gap-2">
+                      <img src={logoAIBrain} alt="Logo" className="w-8 h-8" />
+                      <span className="text-amber-400">KidFastAI</span>
+                    </SheetTitle>
+                  </SheetHeader>
+                  
+                  <nav className="mt-6 flex flex-col gap-3">
+                    {isLoggedIn ? (
+                      <>
+                        <Link 
+                          to="/profile" 
+                          onClick={handleMenuClose}
+                          className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium shadow-md hover:scale-[1.02] transition-all"
+                        >
+                          <Rocket className="w-5 h-5" />
+                          {t('startPractice')}
+                        </Link>
+                        
+                        <div className="relative">
+                          <Link 
+                            to="/stem" 
+                            onClick={handleMenuClose}
+                            className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 text-white font-medium shadow-md hover:scale-[1.02] transition-all"
+                          >
+                            <Atom className="w-5 h-5" />
+                            {t('stemxai')}
+                          </Link>
+                          <Badge className="absolute top-1 right-2 bg-red-500 text-white text-[10px] px-1.5 py-0 animate-pulse">
+                            Beta
+                          </Badge>
+                        </div>
+                        
+                        <div className="relative">
+                          <Link 
+                            to="/quiz" 
+                            onClick={handleMenuClose}
+                            className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium shadow-md hover:scale-[1.02] transition-all"
+                          >
+                            <FileQuestion className="w-5 h-5" />
+                            {t('quiz')}
+                          </Link>
+                          <Badge className="absolute top-1 right-2 bg-green-500 text-white text-[10px] px-1.5 py-0 animate-pulse">
+                            New !
+                          </Badge>
+                        </div>
+                        
+                        {isTeacher && (
+                          <Link 
+                            to="/teacher" 
+                            onClick={handleMenuClose}
+                            className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-medium shadow-md hover:scale-[1.02] transition-all"
+                          >
+                            <GraduationCap className="w-5 h-5" />
+                            {t('teacherDashboard', 'ครู')}
+                          </Link>
+                        )}
+                        
+                        <div className="border-t border-white/10 my-2" />
+                        
+                        <button 
+                          onClick={handleLogout}
+                          className="flex items-center gap-3 px-4 py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-medium shadow-md hover:scale-[1.02] transition-all"
+                        >
+                          <LogOut className="w-5 h-5" />
+                          {t('logout')}
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <Link 
+                          to="/signup" 
+                          onClick={handleMenuClose}
+                          className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium shadow-md hover:scale-[1.02] transition-all"
+                        >
+                          <UserPlus className="w-5 h-5" />
+                          {t('signup')}
+                        </Link>
+                        
+                        <Link 
+                          to="/login" 
+                          onClick={handleMenuClose}
+                          className="flex items-center gap-3 px-4 py-3 rounded-xl text-white font-medium shadow-md hover:scale-[1.02] transition-all"
+                          style={{
+                            background: 'linear-gradient(135deg, hsl(142, 100%, 60%) 0%, hsl(171, 100%, 65%) 100%)',
+                          }}
+                        >
+                          <LogIn className="w-5 h-5" />
+                          {t('login')}
+                        </Link>
+                      </>
+                    )}
+                  </nav>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
         </div>
-        
-        {/* แถวที่ 2: Tablet Menu (md to lg) - Logged In */}
-        {!isMobile && isLoggedIn && (
-          <div className="hidden md:flex lg:hidden flex-wrap items-center justify-center gap-3 mt-3 pt-3 border-t border-white/10">
-            <Link 
-              to="/profile" 
-              className="px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium text-sm flex items-center gap-2 shadow-md hover:scale-105 transition-all"
-            >
-              <Rocket className="w-4 h-4" />
-              {t('startPractice')}
-            </Link>
-            
-            <div className="relative">
-              <Link 
-                to="/stem" 
-                className="px-4 py-2 rounded-full bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 text-white font-medium text-sm flex items-center gap-2 shadow-md hover:scale-105 transition-all"
-              >
-                <Atom className="w-4 h-4" />
-                {t('stemxai')}
-              </Link>
-              <Badge 
-                className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-0.5 animate-pulse shadow-lg border-2 border-white"
-              >
-                Beta
-              </Badge>
-            </div>
-            
-            <div className="relative">
-              <Link 
-                to="/quiz" 
-                className="px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium text-sm flex items-center gap-2 shadow-md hover:scale-105 transition-all"
-              >
-                <FileQuestion className="w-4 h-4" />
-                {t('quiz')}
-              </Link>
-              <Badge 
-                className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-0.5 animate-pulse shadow-lg border-2 border-white"
-              >
-                New !
-              </Badge>
-            </div>
-            
-            {isTeacher && (
-              <Link 
-                to="/teacher" 
-                className="px-4 py-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-medium text-sm flex items-center gap-2 shadow-md hover:scale-105 transition-all"
-              >
-                <GraduationCap className="w-4 h-4" />
-                {t('teacherDashboard', 'ครู')}
-              </Link>
-            )}
-            
-            <button 
-              onClick={logout} 
-              className="px-4 py-2 rounded-full text-white text-sm bg-red-600 hover:bg-red-500 shadow-md hover:scale-105 transition-all"
-            >
-              {t('logout')}
-            </button>
-          </div>
-        )}
-        
-        {/* แถวที่ 2: Tablet Menu (md to lg) - Not Logged In */}
-        {!isMobile && !isLoggedIn && (
-          <div className="hidden md:flex lg:hidden flex-wrap items-center justify-center gap-3 mt-3 pt-3 border-t border-white/10">
-            <Link to="/signup" className="btn-primary text-sm px-4 py-2">
-              {t('signup')}
-            </Link>
-            <Link 
-              to="/login" 
-              className="px-4 py-2 rounded-full text-white font-medium text-sm shadow-md hover:scale-105 transition-all" 
-              style={{
-                background: 'linear-gradient(135deg, hsl(142, 100%, 60%) 0%, hsl(171, 100%, 65%) 100%)',
-                boxShadow: '0 4px 15px hsl(142 100% 60% / 0.3)'
-              }}
-            >
-              {t('login')}
-            </Link>
-          </div>
-        )}
-        
-        {/* แถวที่ 2: Mobile Menu Buttons (Logged In) */}
-        {isMobile && isLoggedIn && (
-          <div className="flex flex-wrap items-center justify-center gap-2 mt-3 pt-3 border-t border-white/10">
-            <Link 
-              to="/profile" 
-              className="px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium text-xs flex items-center gap-1.5 shadow-md"
-            >
-              <Rocket className="w-3.5 h-3.5" />
-              {t('startPractice')}
-            </Link>
-            
-            <div className="relative">
-              <Link 
-                to="/stem" 
-                className="px-3 py-1.5 rounded-full bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 text-white font-medium text-xs flex items-center gap-1.5 shadow-md"
-              >
-                <Atom className="w-3.5 h-3.5" />
-                {t('stemxai')}
-              </Link>
-              <Badge 
-                className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] px-1.5 py-0 animate-pulse shadow-lg border border-white"
-              >
-                Beta
-              </Badge>
-            </div>
-            
-            <div className="relative">
-              <Link 
-                to="/quiz" 
-                className="px-3 py-1.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium text-xs flex items-center gap-1.5 shadow-md"
-              >
-                <FileQuestion className="w-3.5 h-3.5" />
-                {t('quiz')}
-              </Link>
-              <Badge 
-                className="absolute -top-1.5 -right-1.5 bg-green-500 text-white text-[10px] px-1.5 py-0 animate-pulse shadow-lg border border-white"
-              >
-                New
-              </Badge>
-            </div>
-            
-            {isTeacher && (
-              <Link 
-                to="/teacher" 
-                className="px-3 py-1.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-medium text-xs flex items-center gap-1.5 shadow-md"
-              >
-                <GraduationCap className="w-3.5 h-3.5" />
-                {t('teacherDashboard', 'ครู')}
-              </Link>
-            )}
-            
-            <button 
-              onClick={logout} 
-              className="px-3 py-1.5 rounded-full text-white text-xs bg-red-600 hover:bg-red-500 shadow-md"
-            >
-              {t('logout')}
-            </button>
-          </div>
-        )}
-        
-        {/* แถวที่ 2: Mobile - Not Logged In */}
-        {isMobile && !isLoggedIn && (
-          <div className="flex flex-wrap items-center justify-center gap-2 mt-3 pt-3 border-t border-white/10">
-            <Link to="/signup" className="btn-primary text-xs px-3 py-1.5">
-              {t('signup')}
-            </Link>
-            <Link 
-              to="/login" 
-              className="px-3 py-1.5 rounded-full text-white font-medium text-xs shadow-md" 
-              style={{
-                background: 'linear-gradient(135deg, hsl(142, 100%, 60%) 0%, hsl(171, 100%, 65%) 100%)',
-                boxShadow: '0 4px 15px hsl(142 100% 60% / 0.3)'
-              }}
-            >
-              {t('login')}
-            </Link>
-          </div>
-        )}
       </div>
     </header>
   );
