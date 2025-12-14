@@ -29,7 +29,7 @@ const Header = () => {
             <span className="text-amber-400 sm:hidden">KidFast</span>
           </Link>
           
-          {/* Utility buttons + Desktop Menu */}
+          {/* Utility buttons only for row 1 */}
           <div className="flex items-center gap-2 md:gap-3">
             {!isAdminPage && <LanguageSwitcher />}
             
@@ -43,9 +43,9 @@ const Header = () => {
               <span className="text-sm font-medium hidden sm:inline">{t('refresh', 'รีเฟรช')}</span>
             </button>
             
-            {/* Desktop: แสดงปุ่มเมนูในแถวเดียวกัน */}
+            {/* Large Desktop (lg+): แสดงปุ่มเมนูในแถวเดียวกัน */}
             {!isMobile && isLoggedIn && (
-              <>
+              <div className="hidden lg:flex items-center gap-2">
                 <Link 
                   to="/profile" 
                   className="px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium transition-all duration-300 hover:scale-105 text-sm flex items-center gap-2 shadow-md hover:shadow-lg"
@@ -101,12 +101,12 @@ const Header = () => {
                 >
                   {t('logout')}
                 </button>
-              </>
+              </div>
             )}
             
-            {/* Desktop: ยังไม่ login */}
+            {/* Large Desktop (lg+): ยังไม่ login */}
             {!isMobile && !isLoggedIn && (
-              <>
+              <div className="hidden lg:flex items-center gap-2">
                 <Link to="/signup" className="btn-primary text-sm">
                   {t('signup')}
                 </Link>
@@ -120,10 +120,89 @@ const Header = () => {
                 >
                   {t('login')}
                 </Link>
-              </>
+              </div>
             )}
           </div>
         </div>
+        
+        {/* แถวที่ 2: Tablet Menu (md to lg) - Logged In */}
+        {!isMobile && isLoggedIn && (
+          <div className="hidden md:flex lg:hidden flex-wrap items-center justify-center gap-3 mt-3 pt-3 border-t border-white/10">
+            <Link 
+              to="/profile" 
+              className="px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium text-sm flex items-center gap-2 shadow-md hover:scale-105 transition-all"
+            >
+              <Rocket className="w-4 h-4" />
+              {t('startPractice')}
+            </Link>
+            
+            <div className="relative">
+              <Link 
+                to="/stem" 
+                className="px-4 py-2 rounded-full bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 text-white font-medium text-sm flex items-center gap-2 shadow-md hover:scale-105 transition-all"
+              >
+                <Atom className="w-4 h-4" />
+                {t('stemxai')}
+              </Link>
+              <Badge 
+                className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-0.5 animate-pulse shadow-lg border-2 border-white"
+              >
+                Beta
+              </Badge>
+            </div>
+            
+            <div className="relative">
+              <Link 
+                to="/quiz" 
+                className="px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium text-sm flex items-center gap-2 shadow-md hover:scale-105 transition-all"
+              >
+                <FileQuestion className="w-4 h-4" />
+                {t('quiz')}
+              </Link>
+              <Badge 
+                className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-0.5 animate-pulse shadow-lg border-2 border-white"
+              >
+                New !
+              </Badge>
+            </div>
+            
+            {isTeacher && (
+              <Link 
+                to="/teacher" 
+                className="px-4 py-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-medium text-sm flex items-center gap-2 shadow-md hover:scale-105 transition-all"
+              >
+                <GraduationCap className="w-4 h-4" />
+                {t('teacherDashboard', 'ครู')}
+              </Link>
+            )}
+            
+            <button 
+              onClick={logout} 
+              className="px-4 py-2 rounded-full text-white text-sm bg-red-600 hover:bg-red-500 shadow-md hover:scale-105 transition-all"
+            >
+              {t('logout')}
+            </button>
+          </div>
+        )}
+        
+        {/* แถวที่ 2: Tablet Menu (md to lg) - Not Logged In */}
+        {!isMobile && !isLoggedIn && (
+          <div className="hidden md:flex lg:hidden flex-wrap items-center justify-center gap-3 mt-3 pt-3 border-t border-white/10">
+            <Link to="/signup" className="btn-primary text-sm px-4 py-2">
+              {t('signup')}
+            </Link>
+            <Link 
+              to="/login" 
+              className="px-4 py-2 rounded-full text-white font-medium text-sm shadow-md hover:scale-105 transition-all" 
+              style={{
+                background: 'linear-gradient(135deg, hsl(142, 100%, 60%) 0%, hsl(171, 100%, 65%) 100%)',
+                boxShadow: '0 4px 15px hsl(142 100% 60% / 0.3)'
+              }}
+            >
+              {t('login')}
+            </Link>
+          </div>
+        )}
         
         {/* แถวที่ 2: Mobile Menu Buttons (Logged In) */}
         {isMobile && isLoggedIn && (
