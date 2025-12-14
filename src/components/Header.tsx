@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useTeacherRole } from '../hooks/useTeacherRole';
 import { useIsMobile } from '../hooks/use-mobile';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -17,12 +18,16 @@ import {
 } from '@/components/ui/sheet';
 
 const Header = () => {
-  const { isLoggedIn, logout, registrationId } = useAuth();
+  const { isLoggedIn, logout, registrationId, username, profile } = useAuth();
   const { t } = useTranslation('header');
   const location = useLocation();
   const { isTeacher } = useTeacherRole(registrationId);
   const isMobile = useIsMobile();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+  // Get avatar URL from profile or use default
+  const avatarUrl = profile?.avatar || '';
+  const displayName = username || profile?.nickname || 'ผู้ใช้';
   
   const isAdminPage = location.pathname.startsWith('/admin');
   
@@ -157,7 +162,23 @@ const Header = () => {
                     </SheetTitle>
                   </SheetHeader>
                   
-                  <nav className="mt-6 flex flex-col gap-3">
+                  {/* User Info Section */}
+                  {isLoggedIn && (
+                    <div className="mt-4 flex items-center gap-3 p-3 rounded-xl bg-white/10 border border-white/10">
+                      <Avatar className="w-12 h-12 border-2 border-purple-400 shadow-lg">
+                        <AvatarImage src={avatarUrl} alt={displayName} />
+                        <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white text-lg font-bold">
+                          {displayName.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white font-semibold truncate">{displayName}</p>
+                        <p className="text-white/60 text-sm">{profile?.grade || ''}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <nav className="mt-4 flex flex-col gap-3">
                     {isLoggedIn ? (
                       <>
                         <Link 
