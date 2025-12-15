@@ -884,67 +884,72 @@ const TeacherDashboard = () => {
                 <div className="space-y-4">
                   {examLinks.map((link) => (
                     <div key={link.id} className="p-4 border border-border rounded-lg bg-card/50">
-                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex-1">
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
-                              <span className="font-mono text-lg font-bold text-primary break-all">{link.link_code}</span>
-                              <div className="flex-shrink-0">
-                                {getStatusBadge(link.status)}
+                      {/* Header Row: Link Code + Status Badge (right-aligned) */}
+                      <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+                        <span className="font-mono text-lg font-bold text-primary">{link.link_code}</span>
+                        <div className="flex-shrink-0 ml-auto">
+                          {getStatusBadge(link.status)}
+                        </div>
+                      </div>
+                      
+                      {/* Content: Info + Actions */}
+                      <div className="flex flex-col lg:flex-row lg:items-start gap-4">
+                        {/* Left: Info Section */}
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm text-muted-foreground space-y-1">
+                            {link.activity_name && (
+                              <p className="flex items-center gap-2 font-medium text-base text-foreground">
+                                <FileText className="w-4 h-4 flex-shrink-0" />
+                                <span className="truncate">{link.activity_name}</span>
+                              </p>
+                            )}
+                            
+                            {/* School Info */}
+                            {(link.school_name || link.school_logo_url) && (
+                              <div className="flex items-center gap-2 py-2 border-y border-border/50 my-2">
+                                {link.school_logo_url && (
+                                  <img 
+                                    src={link.school_logo_url} 
+                                    alt="School Logo" 
+                                    className="w-8 h-8 object-contain flex-shrink-0"
+                                  />
+                                )}
+                                {link.school_name && (
+                                  <p className="font-medium text-foreground truncate">
+                                    🏫 {link.school_name}
+                                  </p>
+                                )}
                               </div>
-                            </div>
-                            <div className="text-sm text-muted-foreground space-y-1">
-                              {link.activity_name && (
-                                <p className="flex items-center gap-2 font-medium text-base text-foreground">
-                                  <FileText className="w-4 h-4" />
-                                  {link.activity_name}
-                                </p>
-                              )}
-                              
-                              {/* School Info */}
-                              {(link.school_name || link.school_logo_url) && (
-                                <div className="flex items-center gap-2 py-2 border-y border-border/50 my-2">
-                                  {link.school_logo_url && (
-                                    <img 
-                                      src={link.school_logo_url} 
-                                      alt="School Logo" 
-                                      className="w-8 h-8 object-contain"
-                                    />
-                                  )}
-                                  {link.school_name && (
-                                    <p className="font-medium text-foreground">
-                                      🏫 {link.school_name}
-                                    </p>
-                                  )}
-                                </div>
-                              )}
-                              
-                              <p>📚 ชั้น ป.{link.grade} - {getAssessmentTypeName(link.assessment_type, link.semester)} ({link.total_questions} ข้อ)</p>
-                              <p className="flex items-center gap-2">
-                                <Users className="w-4 h-4" />
-                                {link.current_students} / {link.max_students} คน
+                            )}
+                            
+                            <p>📚 ชั้น ป.{link.grade} - {getAssessmentTypeName(link.assessment_type, link.semester)} ({link.total_questions} ข้อ)</p>
+                            <p className="flex items-center gap-2">
+                              <Users className="w-4 h-4 flex-shrink-0" />
+                              {link.current_students} / {link.max_students} คน
+                            </p>
+                            <p className="flex items-center gap-2">
+                              <Clock className="w-4 h-4 flex-shrink-0" />
+                              สร้างเมื่อ: {new Date(link.created_at).toLocaleDateString('th-TH')}
+                            </p>
+                            {link.expires_at && (
+                              <p className="flex items-center gap-2 text-orange-600">
+                                <Clock className="w-4 h-4 flex-shrink-0" />
+                                หมดอายุ: {new Date(link.expires_at).toLocaleDateString('th-TH')}
                               </p>
-                              <p className="flex items-center gap-2">
-                                <Clock className="w-4 h-4" />
-                                สร้างเมื่อ: {new Date(link.created_at).toLocaleDateString('th-TH')}
-                              </p>
-                              {link.expires_at && (
-                                <p className="flex items-center gap-2 text-orange-600">
-                                  <Clock className="w-4 h-4" />
-                                  หมดอายุ: {new Date(link.expires_at).toLocaleDateString('th-TH')}
-                                </p>
-                              )}
-                            </div>
+                            )}
                           </div>
+                        </div>
                         
-                        <div className="flex flex-col gap-2 w-full md:w-auto mt-3 md:mt-0">
-                          <div className="grid grid-cols-2 md:flex md:flex-wrap gap-2">
+                        {/* Right: Action Buttons */}
+                        <div className="flex-shrink-0 w-full lg:w-auto">
+                          <div className="flex flex-wrap gap-2">
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => handleCopyLink(link.link_code)}
-                              className="w-full md:w-auto whitespace-nowrap"
+                              className="flex-1 min-w-[120px] sm:flex-none whitespace-nowrap"
                             >
-                              <Copy className="w-4 h-4 mr-2" />
+                              <Copy className="w-4 h-4 mr-1.5" />
                               คัดลอก Link
                             </Button>
 
@@ -952,9 +957,9 @@ const TeacherDashboard = () => {
                               variant="outline"
                               size="sm"
                               onClick={() => setShowQRCode(link.link_code)}
-                              className="w-full md:w-auto whitespace-nowrap"
+                              className="flex-1 min-w-[100px] sm:flex-none whitespace-nowrap"
                             >
-                              <QrCode className="w-4 h-4 mr-2" />
+                              <QrCode className="w-4 h-4 mr-1.5" />
                               QR Code
                             </Button>
                             
@@ -962,9 +967,9 @@ const TeacherDashboard = () => {
                               variant="outline"
                               size="sm"
                               onClick={() => window.open(`/exam/${link.link_code}`, '_blank')}
-                              className="w-full md:w-auto whitespace-nowrap"
+                              className="flex-1 min-w-[70px] sm:flex-none whitespace-nowrap"
                             >
-                              <ExternalLink className="w-4 h-4 mr-2" />
+                              <ExternalLink className="w-4 h-4 mr-1.5" />
                               เปิด
                             </Button>
                             
@@ -972,9 +977,9 @@ const TeacherDashboard = () => {
                               variant="outline"
                               size="sm"
                               onClick={() => openQuestionSelector(link)}
-                              className="w-full md:w-auto whitespace-nowrap"
+                              className="flex-1 min-w-[140px] sm:flex-none whitespace-nowrap"
                             >
-                              <BookOpen className="w-4 h-4 mr-2" />
+                              <BookOpen className="w-4 h-4 mr-1.5" />
                               เพิ่มโจทย์จากคลัง
                             </Button>
 
@@ -983,9 +988,9 @@ const TeacherDashboard = () => {
                               size="sm"
                               onClick={() => handleViewReport(link.id, link.link_code)}
                               disabled={link.current_students === 0}
-                              className="w-full md:w-auto whitespace-nowrap"
+                              className="flex-1 min-w-[120px] sm:flex-none whitespace-nowrap"
                             >
-                              <BarChart className="w-4 h-4 mr-2" />
+                              <BarChart className="w-4 h-4 mr-1.5" />
                               รายงาน ({link.current_students})
                             </Button>
 
@@ -994,9 +999,9 @@ const TeacherDashboard = () => {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => handleEditExamLink(link.id, link.link_code)}
-                                className="w-full md:w-auto whitespace-nowrap"
+                                className="flex-1 min-w-[100px] sm:flex-none whitespace-nowrap"
                               >
-                                <Eye className="w-4 h-4 mr-2" />
+                                <Eye className="w-4 h-4 mr-1.5" />
                                 แก้ไขโจทย์
                               </Button>
                             )}
@@ -1006,7 +1011,7 @@ const TeacherDashboard = () => {
                                 variant="destructive"
                                 size="sm"
                                 onClick={() => updateExamLinkStatus(link.id, 'expired')}
-                                className="w-full md:w-auto whitespace-nowrap"
+                                className="flex-1 min-w-[60px] sm:flex-none whitespace-nowrap"
                               >
                                 ปิด
                               </Button>
@@ -1016,9 +1021,9 @@ const TeacherDashboard = () => {
                               variant="destructive"
                               size="sm"
                               onClick={() => handleDeleteExamLink(link.id, link.link_code)}
-                              className="w-full md:w-auto whitespace-nowrap"
+                              className="flex-1 min-w-[60px] sm:flex-none whitespace-nowrap"
                             >
-                              <Trash2 className="w-4 h-4 mr-2" />
+                              <Trash2 className="w-4 h-4 mr-1.5" />
                               ลบ
                             </Button>
                           </div>
