@@ -987,11 +987,11 @@ const TeacherDashboard = () => {
                               variant="default"
                               size="sm"
                               onClick={() => handleViewReport(link.id, link.link_code)}
-                              disabled={link.current_students === 0}
+                              disabled={(link.actual_session_count ?? link.current_students) === 0}
                               className="flex-1 min-w-[120px] sm:flex-none whitespace-nowrap"
                             >
                               <BarChart className="w-4 h-4 mr-1.5" />
-                              รายงาน ({link.current_students})
+                              รายงาน ({link.actual_session_count ?? link.current_students})
                             </Button>
 
                             {link.has_custom_questions && (
