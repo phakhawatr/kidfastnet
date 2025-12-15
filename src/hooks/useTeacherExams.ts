@@ -10,6 +10,7 @@ export interface ExamLink {
   assessment_type: 'semester' | 'nt';
   max_students: number;
   current_students: number;
+  actual_session_count?: number; // Actual count from exam_sessions table
   status: 'active' | 'full' | 'expired';
   expires_at: string | null;
   created_at: string;
@@ -91,14 +92,32 @@ export const useTeacherExams = (teacherId: string | null) => {
     if (!teacherId) return;
 
     try {
-      const { data, error } = await supabase
+      // Fetch exam links
+      const { data: linksData, error: linksError } = await supabase
         .from('exam_links')
         .select('*')
         .eq('teacher_id', teacherId)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setExamLinks((data as ExamLink[]) || []);
+      if (linksError) throw linksError;
+
+      // Fetch actual session counts for each exam link (non-draft only)
+      const linksWithCounts = await Promise.all(
+        (linksData || []).map(async (link) => {
+          const { count, error: countError } = await supabase
+            .from('exam_sessions')
+            .select('*', { count: 'exact', head: true })
+            .eq('exam_link_id', link.id)
+            .eq('is_draft', false);
+
+          return {
+            ...link,
+            actual_session_count: countError ? link.current_students : (count || 0)
+          } as ExamLink;
+        })
+      );
+
+      setExamLinks(linksWithCounts);
     } catch (error: any) {
       console.error('Error fetching exam links:', error);
       toast({
