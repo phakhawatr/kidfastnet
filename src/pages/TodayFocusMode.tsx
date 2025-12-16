@@ -314,6 +314,11 @@ const TodayFocusMode = () => {
       'หารเลข': '/division',
       'การหารเลข': '/division',
       
+      // Place Value - CRITICAL FIX
+      'ค่าประจำหลัก': '/place-value',
+      'placeValue': '/place-value',
+      'PlaceValue': '/place-value',
+      
       // Fractions
       'เศษส่วน': '/fraction-shapes',
       'เศษส่วนรูปทรง': '/fraction-shapes',
@@ -332,6 +337,7 @@ const TodayFocusMode = () => {
       // Measurement
       'การวัด': '/measurement',
       'การวัดความยาว': '/length-comparison',
+      'เปรียบเทียบความยาว': '/length-comparison',
       'การชั่งน้ำหนัก': '/weighing',
       'น้ำหนัก': '/weighing',
       
@@ -372,6 +378,7 @@ const TodayFocusMode = () => {
     if (skillLower.includes('คูณ')) return '/multiply';
     if (skillLower.includes('หาร')) return '/division';
     if (skillLower.includes('เศษส่วน')) return '/fraction-shapes';
+    if (skillLower.includes('ค่าประจำหลัก') || skillLower.includes('placevalue')) return '/place-value';
     if (skillLower.includes('ทศนิยม')) return '/place-value';
     if (skillLower.includes('ร้อยละ') || skillLower.includes('เปอร์เซ็นต์')) return '/percentage';
     if (skillLower.includes('เงิน')) return '/money';
@@ -379,8 +386,21 @@ const TodayFocusMode = () => {
     if (skillLower.includes('เวลา') || skillLower.includes('นาฬิกา')) return '/time';
     if (skillLower.includes('น้ำหนัก') || skillLower.includes('ชั่ง')) return '/weighing';
     if (skillLower.includes('รูปทรง')) return '/shape-matching';
+    if (skillLower.includes('เปรียบเทียบความยาว')) return '/length-comparison';
+    if (skillLower.includes('พันธะตัวเลข') || skillLower.includes('number bonds')) return '/number-bonds';
+    if (skillLower.includes('โมเดลบาร์') || skillLower.includes('bar model')) return '/bar-model';
+    if (skillLower.includes('โมเดลพื้นที่') || skillLower.includes('area model')) return '/area-model';
+    if (skillLower.includes('คิดเลขเร็ว') || skillLower.includes('mental')) return '/mental-math';
+    if (skillLower.includes('สูตรคูณ')) return '/multiplication-table';
+    if (skillLower.includes('ปริศนาตาราง') || skillLower.includes('sum grid')) return '/sum-grid';
+    if (skillLower.includes('โจทย์ปัญหา') || skillLower.includes('word problem')) return '/word-problems';
+    if (skillLower.includes('อนุกรมรูปทรง')) return '/shape-series';
+    if (skillLower.includes('อนุกรมตัวเลข')) return '/number-series';
     
-    return '/quiz'; // fallback
+    // Fallback - notify error and go to profile
+    console.error(`⚠️ Unknown skill: "${skillName}" - no route mapping found`);
+    toast.error(`ไม่พบเส้นทางสำหรับทักษะ "${skillName}"`);
+    return '/profile'; // Changed from /quiz to /profile
   };
 
   const handleStartMission = async (mission: DailyMission | null) => {

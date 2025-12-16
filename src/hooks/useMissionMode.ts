@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTrainingCalendar, type QuestionAttempt } from './useTrainingCalendar';
+import { calculateMissionStars, validateMissionResults } from '@/utils/missionUtils';
 
 interface MissionResult {
   stars: number;
@@ -12,8 +13,13 @@ interface MissionResult {
 
 /**
  * Custom hook to handle mission mode integration for exercise apps
- * Pass threshold: >80%
- * Star calculation: 3⭐ = 90-100% + ≤10min, 2⭐ = 80-89%, 1⭐ = 70-79%, 0⭐ = <70%
+ * 
+ * STANDARDIZED THRESHOLDS (from missionUtils):
+ * - Pass threshold: >80%
+ * - 3 stars: ≥90% accuracy AND ≤10 minutes
+ * - 2 stars: ≥80% accuracy
+ * - 1 star: ≥70% accuracy
+ * - 0 stars: <70% accuracy
  */
 export function useMissionMode() {
   const [searchParams] = useSearchParams();
@@ -51,15 +57,17 @@ export function useMissionMode() {
       return;
     }
     
-    // Validate inputs
-    if (correct < 0 || correct > total) {
-      console.error('❌ Invalid correct count:', { correct, total });
+    // Validate inputs using centralized validation
+    const validation = validateMissionResults(correct, total);
+    if (!validation.isValid) {
+      console.error('❌ Invalid mission results:', validation.error, { correct, total });
       return { stars: 0, isPassed: false };
     }
     
-    if (total <= 0) {
-      console.error('❌ Invalid total:', total);
-      return { stars: 0, isPassed: false };
+    // Clamp correct to total if somehow it exceeds (safety net)
+    const validCorrect = Math.min(correct, total);
+    if (validCorrect !== correct) {
+      console.warn(`⚠️ Clamped correct from ${correct} to ${validCorrect}`);
     }
     
     if (timeMs < 0) {
@@ -67,34 +75,17 @@ export function useMissionMode() {
       return { stars: 0, isPassed: false };
     }
     
-    const accuracy = (correct / total) * 100;
     const timeSeconds = Math.floor(timeMs / 1000);
     
-    console.log('📊 Calculated metrics:', {
+    // Use CENTRALIZED star calculation
+    const { stars, isPassed, accuracy } = calculateMissionStars(validCorrect, total, timeSeconds);
+    
+    console.log('📊 Mission results (using centralized calculation):', {
       accuracy: accuracy.toFixed(2) + '%',
       timeSeconds,
-      timeMinutes: (timeSeconds / 60).toFixed(2)
-    });
-    
-    // Pass threshold: >80%
-    const isPassed = accuracy > 80;
-    
-    // Calculate stars (only if passed)
-    let stars = 0;
-    if (isPassed) {
-      const timeMinutes = timeSeconds / 60;
-      if (accuracy >= 90 && timeMinutes <= 10) {
-        stars = 3;
-      } else if (accuracy >= 80) {
-        stars = 2;
-      } else if (accuracy >= 70) {
-        stars = 1;
-      }
-    }
-    
-    console.log('⭐ Mission results:', {
-      isPassed,
+      timeMinutes: (timeSeconds / 60).toFixed(2),
       stars,
+      isPassed,
       passThreshold: '80%'
     });
     
@@ -103,7 +94,7 @@ export function useMissionMode() {
       console.log('💾 Calling completeMission in useTrainingCalendar...');
       await completeMission(missionId, {
         total_questions: total,
-        correct_answers: correct,
+        correct_answers: validCorrect,
         time_spent: timeSeconds,
         question_attempts: questionAttempts
       });
@@ -115,7 +106,7 @@ export function useMissionMode() {
     // Show mission complete modal
     setMissionResult({
       stars,
-      correct,
+      correct: validCorrect,
       total,
       timeSpent: timeSeconds,
       isPassed

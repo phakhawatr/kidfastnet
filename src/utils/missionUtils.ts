@@ -77,3 +77,58 @@ export function calculateAccuracy(correct: number, total: number): number {
   if (total <= 0) return 0;
   return (correct / total) * 100;
 }
+
+/**
+ * CENTRALIZED Star Calculation for Mission System
+ * This is the SINGLE SOURCE OF TRUTH for star calculations
+ * 
+ * Thresholds:
+ * - 3 stars: ≥90% accuracy AND ≤10 minutes
+ * - 2 stars: ≥80% accuracy (passed)
+ * - 1 star: ≥70% accuracy (nearly passed)
+ * - 0 stars: <70% accuracy (failed)
+ * 
+ * Pass threshold: >80% accuracy
+ * 
+ * @param correct - Number of correct answers
+ * @param total - Total number of questions
+ * @param timeSeconds - Time spent in seconds
+ * @returns { stars: number, isPassed: boolean, accuracy: number }
+ */
+export function calculateMissionStars(
+  correct: number,
+  total: number,
+  timeSeconds: number
+): { stars: number; isPassed: boolean; accuracy: number } {
+  // Validate inputs
+  if (total <= 0) {
+    console.warn('⚠️ calculateMissionStars: total is 0 or negative');
+    return { stars: 0, isPassed: false, accuracy: 0 };
+  }
+  
+  // Clamp correct to valid range
+  const validCorrect = Math.max(0, Math.min(correct, total));
+  if (validCorrect !== correct) {
+    console.warn(`⚠️ calculateMissionStars: correct (${correct}) clamped to ${validCorrect}`);
+  }
+  
+  const accuracy = (validCorrect / total) * 100;
+  const timeMinutes = timeSeconds / 60;
+  
+  // Pass threshold: >80%
+  const isPassed = accuracy > 80;
+  
+  let stars = 0;
+  if (accuracy >= 90 && timeMinutes <= 10) {
+    stars = 3; // Excellent: high accuracy + fast time
+  } else if (accuracy >= 80) {
+    stars = 2; // Good: passed threshold
+  } else if (accuracy >= 70) {
+    stars = 1; // Nearly there
+  }
+  // < 70% = 0 stars
+  
+  console.log(`📊 calculateMissionStars: ${validCorrect}/${total} = ${accuracy.toFixed(1)}%, time=${timeMinutes.toFixed(1)}min → ${stars}⭐ (passed: ${isPassed})`);
+  
+  return { stars, isPassed, accuracy };
+}
