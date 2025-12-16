@@ -189,26 +189,59 @@ export const useTrainingCalendar = () => {
     }
   };
 
-  // Complete a mission with results - WITH RETRY LOGIC
+  // Complete a mission with results - WITH RETRY LOGIC and CENTRALIZED VALIDATION
   const completeMission = async (missionId: string, results: MissionResults) => {
     console.log('🔵 useTrainingCalendar.completeMission called:', { missionId, results });
     
-    // Calculate accuracy and stars first
-    const accuracy = (results.correct_answers / results.total_questions) * 100;
-    console.log('📊 Accuracy:', accuracy);
-
-    let stars = 0;
-    if (accuracy > 80) {
-      const timeMinutes = results.time_spent / 60;
-      if (accuracy >= 90 && timeMinutes <= 10) {
-        stars = 3;
-      } else if (accuracy >= 80) {
-        stars = 2;
-      } else if (accuracy >= 70) {
-        stars = 1;
-      }
+    // ===== VALIDATION SECTION =====
+    // Validate total_questions
+    if (!results.total_questions || results.total_questions <= 0) {
+      console.error('❌ Invalid total_questions:', results.total_questions);
+      toast({
+        title: 'ข้อมูลไม่ถูกต้อง',
+        description: 'จำนวนโจทย์ไม่ถูกต้อง',
+        variant: 'destructive',
+      });
+      return { success: false, stars: 0 };
     }
-    console.log('⭐ Calculated stars:', stars);
+    
+    // Validate and clamp correct_answers
+    let validCorrect = results.correct_answers;
+    if (validCorrect < 0) {
+      console.warn('⚠️ Negative correct_answers, clamping to 0');
+      validCorrect = 0;
+    }
+    if (validCorrect > results.total_questions) {
+      console.warn(`⚠️ correct_answers (${validCorrect}) > total_questions (${results.total_questions}), clamping`);
+      validCorrect = results.total_questions;
+    }
+    
+    // Calculate accuracy and stars using CENTRALIZED logic
+    const accuracy = (validCorrect / results.total_questions) * 100;
+    const timeMinutes = results.time_spent / 60;
+    
+    console.log('📊 Validation passed:', {
+      original_correct: results.correct_answers,
+      validated_correct: validCorrect,
+      total: results.total_questions,
+      accuracy: accuracy.toFixed(2) + '%',
+      timeMinutes: timeMinutes.toFixed(2)
+    });
+
+    // STANDARDIZED Star Calculation (matching missionUtils.ts)
+    // 3 stars: ≥90% AND ≤10 min
+    // 2 stars: ≥80%
+    // 1 star: ≥70%
+    // 0 stars: <70%
+    let stars = 0;
+    if (accuracy >= 90 && timeMinutes <= 10) {
+      stars = 3;
+    } else if (accuracy >= 80) {
+      stars = 2;
+    } else if (accuracy >= 70) {
+      stars = 1;
+    }
+    console.log('⭐ Calculated stars:', stars, `(accuracy: ${accuracy.toFixed(1)}%, time: ${timeMinutes.toFixed(1)}min)`);
 
     // Retry logic: up to 3 attempts
     let lastError = null;
@@ -231,13 +264,13 @@ export const useTrainingCalendar = () => {
       try {
         console.log(`💾 Attempt ${attempt}/3: Updating mission ${cleanMissionId}...`);
         
-        // Perform UPDATE
+        // Perform UPDATE with validated values
         const { error: updateError } = await supabase
           .from('daily_missions')
           .update({
             status: 'completed',
             completed_questions: results.total_questions,
-            correct_answers: results.correct_answers,
+            correct_answers: validCorrect, // Use validated value
             time_spent: results.time_spent,
             stars_earned: stars,
             completed_at: new Date().toISOString(),
@@ -271,10 +304,10 @@ export const useTrainingCalendar = () => {
 
         console.log(`📊 Verification data:`, verifyData);
 
-        // Verify all fields are correct
+        // Verify all fields are correct (use validated values)
         const verificationChecks = {
           status: verifyData.status === 'completed',
-          correct_answers: verifyData.correct_answers === results.correct_answers,
+          correct_answers: verifyData.correct_answers === validCorrect,
           total_questions: verifyData.completed_questions === results.total_questions,
           time_spent: verifyData.time_spent === results.time_spent,
           stars_earned: verifyData.stars_earned === stars,
@@ -289,7 +322,7 @@ export const useTrainingCalendar = () => {
           console.error(`❌ Attempt ${attempt}: Verification failed!`, {
             expected: {
               status: 'completed',
-              correct_answers: results.correct_answers,
+              correct_answers: validCorrect,
               total_questions: results.total_questions,
               time_spent: results.time_spent,
               stars_earned: stars
@@ -327,8 +360,15 @@ export const useTrainingCalendar = () => {
         console.error(`❌ Attempt ${attempt} failed:`, error);
         
         if (attempt === 3) {
-          // Save to localStorage for retry
-          const pendingResult = { missionId, results, timestamp: Date.now() };
+          // Save to localStorage for retry (use validated values)
+          const pendingResult = { 
+            missionId, 
+            results: {
+              ...results,
+              correct_answers: validCorrect // Save validated value
+            }, 
+            timestamp: Date.now() 
+          };
           localStorage.setItem('pendingMissionResult', JSON.stringify(pendingResult));
           console.log('💾 Saved to localStorage for retry');
         } else {
