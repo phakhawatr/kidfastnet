@@ -237,7 +237,7 @@ function Card({ idx, time, answer, setAnswer, result, showAnswer, onReset, timeF
           inputMode="numeric"
           maxLength={2}
           className="w-16 text-center border rounded-xl py-2 px-2 focus:outline-none focus:ring-2 focus:ring-sky-400"
-          placeholder={timeFormat === '24h' ? '0-23' : t('time.hour')}
+          placeholder="ชม."
           value={answer.h}
           onChange={(e) => {
             const v = e.target.value.replace(/\D/g, "");
