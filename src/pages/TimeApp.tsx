@@ -10,35 +10,38 @@ import { useRecentApps } from "@/hooks/useRecentApps";
 import { MissionCompleteModal } from "@/components/MissionCompleteModal";
 import { type QuestionAttempt } from "@/hooks/useTrainingCalendar";
 
+// ---------- Types ----------
+type TimePeriod = 'am' | 'pm' | 'mix';
+type TimeData = { h: number; m: number; period: 'am' | 'pm' };
+
 // ---------- Utilities ----------
-function randInt(min, max) {
+function randInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function generateRandomTimes(n = 6) {
-  const times = [];
+function generateRandomTimes(n = 6, timePeriod: TimePeriod = 'mix'): TimeData[] {
+  const times: TimeData[] = [];
   const used = new Set();
   while (times.length < n) {
     const h = randInt(1, 12);
     const m = randInt(0, 59);
-    const key = `${h}:${m}`;
+    
+    // Determine period based on selection
+    let period: 'am' | 'pm';
+    if (timePeriod === 'mix') {
+      period = Math.random() > 0.5 ? 'am' : 'pm';
+    } else {
+      period = timePeriod;
+    }
+    
+    const key = `${h}:${m}:${period}`;
     if (!used.has(key)) {
       used.add(key);
-      times.push({ h, m });
+      times.push({ h, m, period });
     }
   }
   return times;
 }
-
-const exampleTimes = [
-  // A preset resembling the worksheet style (you can change anytime)
-  { h: 10, m: 40 },
-  { h: 3, m: 20 },
-  { h: 1, m: 11 },
-  { h: 3, m: 15 },
-  { h: 7, m: 5 },
-  { h: 1, m: 35 },
-];
 
 const pad2 = (n) => String(n).padStart(2, "0");
 
@@ -121,11 +124,35 @@ function Clock({ hour, minute }) {
   );
 }
 
+// ---------- Period Badge ----------
+function PeriodBadge({ period }: { period: 'am' | 'pm' }) {
+  if (period === 'am') {
+    return (
+      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-sm font-medium">
+        ☀️ กลางวัน (AM)
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-sm font-medium">
+      🌙 กลางคืน (PM)
+    </span>
+  );
+}
+
 // ---------- One Card ----------
-function Card({ idx, time, answer, setAnswer, result, showAnswer, onReset }) {
+function Card({ idx, time, answer, setAnswer, result, showAnswer, onReset }: {
+  idx: number;
+  time: TimeData;
+  answer: { h: string; m: string };
+  setAnswer: (idx: number, val: { h: string; m: string }) => void;
+  result: string;
+  showAnswer: boolean;
+  onReset: (idx: number) => void;
+}) {
   const { t } = useTranslation('exercises');
-  const hourRef = useRef(null);
-  const minuteRef = useRef(null);
+  const hourRef = useRef<HTMLInputElement>(null);
+  const minuteRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // autofocus first empty field
@@ -146,6 +173,11 @@ function Card({ idx, time, answer, setAnswer, result, showAnswer, onReset }) {
 
   return (
     <div className={`rounded-2xl border ${border} bg-white shadow-sm p-4 flex flex-col items-center gap-3`}> 
+      {/* Period Badge above clock */}
+      <div className="text-center">
+        <PeriodBadge period={time.period} />
+      </div>
+      
       <div className="w-full max-w-[220px]">
         <Clock hour={time.h} minute={time.m} />
       </div>
@@ -186,7 +218,7 @@ function Card({ idx, time, answer, setAnswer, result, showAnswer, onReset }) {
         {status === "correct" && <span className="text-green-600">✅ {t('common.correct')}</span>}
         {status === "wrong" && <span className="text-red-500">❌ {t('common.tryAgain')}</span>}
         {status === "showing" && (
-          <span className="text-sky-700">{t('time.answer')}: {time.h}:{pad2(time.m)}</span>
+          <span className="text-sky-700">{t('time.answer')}: {time.h}:{pad2(time.m)} ({time.period === 'am' ? 'AM' : 'PM'})</span>
         )}
       </div>
 
@@ -221,7 +253,8 @@ export default function TimeApp() {
   } = useMissionMode();
   
   const [questionCount, setQuestionCount] = useState(10);
-  const [times, setTimes] = useState(() => generateRandomTimes(10));
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>('mix');
+  const [times, setTimes] = useState<TimeData[]>(() => generateRandomTimes(10, 'mix'));
   const [answers, setAnswers] = useState(() => times.map(() => ({ h: "", m: "" })));
   const [results, setResults] = useState(() => times.map(() => "pending"));
   const [showAnswers, setShowAnswers] = useState(false);
@@ -242,22 +275,27 @@ export default function TimeApp() {
     window.scrollTo(0, 0);
   }, []);
 
-  function setAnswer(idx, val) {
+  function setAnswer(idx: number, val: { h: string; m: string }) {
     setAnswers((prev) => prev.map((a, i) => (i === idx ? val : a)));
   }
 
-  function resetAll(count = questionCount) {
-    const newTimes = generateRandomTimes(count);
+  function resetAll(count = questionCount, period = timePeriod) {
+    const newTimes = generateRandomTimes(count, period);
     setTimes(newTimes);
     setAnswers(newTimes.map(() => ({ h: "", m: "" })));
     setResults(newTimes.map(() => "pending"));
     setShowAnswers(false);
     setCelebrate(false);
   }
+  
+  function handleTimePeriodChange(period: TimePeriod) {
+    setTimePeriod(period);
+    resetAll(questionCount, period);
+  }
 
-  function handleQuestionCountChange(newCount) {
+  function handleQuestionCountChange(newCount: number) {
     setQuestionCount(newCount);
-    resetAll(newCount);
+    resetAll(newCount, timePeriod);
     // Force scroll to top with multiple methods to ensure it works
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
@@ -288,13 +326,12 @@ export default function TimeApp() {
       
       // Build questionAttempts for parent dashboard
       const questionAttempts: QuestionAttempt[] = times.map((t, i) => {
-        const userH = normalizeHour12(answers[i].h);
-        const userM = parseInt(answers[i].m, 10);
+        const periodText = t.period === 'am' ? 'กลางวัน' : 'กลางคืน';
         return {
           index: i + 1,
-          question: `นาฬิกาแสดงเวลา ${t.h} นาฬิกา ${t.m} นาที`,
+          question: `นาฬิกาแสดงเวลา ${t.h} นาฬิกา ${t.m} นาที (${periodText})`,
           userAnswer: `${answers[i].h || '-'}:${answers[i].m || '-'}`,
-          correctAnswer: `${t.h}:${pad2(t.m)}`,
+          correctAnswer: `${t.h}:${pad2(t.m)} (${t.period.toUpperCase()})`,
           isCorrect: newResults[i] === 'correct'
         };
       });
@@ -379,8 +416,14 @@ export default function TimeApp() {
           numbersHTML += `<text x="${x}" y="${y}" text-anchor="middle" font-size="12px" fill="black">${n}</text>`;
         }
 
+        // Period badge styling
+        const periodBadge = time.period === 'am' 
+          ? `<div style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 9999px; background: #fef3c7; color: #b45309; font-size: 11px; font-weight: 500; margin-bottom: 4px;">☀️ กลางวัน (AM)</div>`
+          : `<div style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 9999px; background: #e0e7ff; color: #4338ca; font-size: 11px; font-weight: 500; margin-bottom: 4px;">🌙 กลางคืน (PM)</div>`;
+
         return `
           <div style="border: 2px solid #666; padding: 10px; background: white; border-radius: 8px; display: flex; flex-direction: column; align-items: center;">
+            ${periodBadge}
             <div style="font-weight: bold; margin-bottom: 6px; font-size: 14px;">นาฬิกา ${globalIdx + 1}</div>
             <div style="display: flex; justify-content: flex-start; align-items: center; width: 100%; padding-left: 15px;">
               <svg viewBox="0 0 ${size} ${size}" width="140" height="140" style="display: block;">
@@ -565,6 +608,32 @@ export default function TimeApp() {
                 }`}
               >
                 {count}
+              </button>
+            ))}
+          </div>
+          
+          {/* Time Period Selector */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-zinc-600">ช่วงเวลา:</span>
+            {([
+              { value: 'am' as TimePeriod, label: '☀️ กลางวัน (AM)' },
+              { value: 'pm' as TimePeriod, label: '🌙 กลางคืน (PM)' },
+              { value: 'mix' as TimePeriod, label: '🔀 ผสม (Mix)' },
+            ]).map((option) => (
+              <button
+                key={option.value}
+                onClick={() => handleTimePeriodChange(option.value)}
+                className={`px-3 py-2 rounded-xl text-sm shadow transition-colors ${
+                  timePeriod === option.value
+                    ? option.value === 'am' 
+                      ? 'bg-amber-500 text-white' 
+                      : option.value === 'pm' 
+                        ? 'bg-indigo-600 text-white' 
+                        : 'bg-teal-600 text-white'
+                    : 'bg-zinc-200 hover:bg-zinc-300 text-zinc-700'
+                }`}
+              >
+                {option.label}
               </button>
             ))}
           </div>
