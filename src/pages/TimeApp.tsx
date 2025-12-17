@@ -143,17 +143,37 @@ function Clock({ hour, minute }) {
 }
 
 // ---------- Period Badge ----------
-function PeriodBadge({ period, timeFormat }: { period: 'am' | 'pm'; timeFormat: TimeFormat }) {
+function PeriodBadge({ period, timeFormat, hour }: { period: 'am' | 'pm'; timeFormat: TimeFormat; hour: number }) {
+  // Special cases for 12 o'clock
+  if (hour === 12) {
+    if (period === 'am') {
+      // 12 AM = เที่ยงคืน (midnight)
+      return (
+        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-sm font-medium">
+          🌙 เที่ยงคืน {timeFormat === '12h' ? '(12 AM)' : ''}
+        </span>
+      );
+    } else {
+      // 12 PM = เที่ยงวัน (noon)
+      return (
+        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-sm font-medium">
+          ☀️ เที่ยงวัน {timeFormat === '12h' ? '(12 PM)' : ''}
+        </span>
+      );
+    }
+  }
+  
+  // Regular cases for 1-11
   if (period === 'am') {
     return (
       <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-sm font-medium">
-        ☀️ กลางวัน {timeFormat === '12h' ? '(AM)' : ''}
+        ☀️ ก่อนเที่ยง {timeFormat === '12h' ? '(AM)' : ''}
       </span>
     );
   }
   return (
     <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-sm font-medium">
-      🌙 กลางคืน {timeFormat === '12h' ? '(PM)' : ''}
+      🌙 หลังเที่ยง {timeFormat === '12h' ? '(PM)' : ''}
     </span>
   );
 }
@@ -202,7 +222,7 @@ function Card({ idx, time, answer, setAnswer, result, showAnswer, onReset, timeF
     <div className={`rounded-2xl border ${border} bg-white shadow-sm p-4 flex flex-col items-center gap-3`}> 
       {/* Period Badge above clock */}
       <div className="text-center">
-        <PeriodBadge period={time.period} timeFormat={timeFormat} />
+        <PeriodBadge period={time.period} timeFormat={timeFormat} hour={time.h} />
       </div>
       
       <div className="w-full max-w-[220px]">
@@ -369,7 +389,13 @@ export default function TimeApp() {
       
       // Build questionAttempts for parent dashboard
       const questionAttempts: QuestionAttempt[] = times.map((t, i) => {
-        const periodText = t.period === 'am' ? 'กลางวัน' : 'กลางคืน';
+        // Use proper Thai labels for time periods
+        let periodText: string;
+        if (t.h === 12) {
+          periodText = t.period === 'am' ? 'เที่ยงคืน' : 'เที่ยงวัน';
+        } else {
+          periodText = t.period === 'am' ? 'ก่อนเที่ยง' : 'หลังเที่ยง';
+        }
         const questionText = timeFormat === '24h'
           ? `นาฬิกาแสดงเวลา ${pad2(t.h24)}:${pad2(t.m)} น. (${periodText})`
           : `นาฬิกาแสดงเวลา ${t.h} นาฬิกา ${t.m} นาที (${periodText})`;
@@ -466,10 +492,21 @@ export default function TimeApp() {
           numbersHTML += `<text x="${x}" y="${y}" text-anchor="middle" font-size="12px" fill="black">${n}</text>`;
         }
 
-        // Period badge styling
-        const periodBadge = time.period === 'am' 
-          ? `<div style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 9999px; background: #fef3c7; color: #b45309; font-size: 11px; font-weight: 500; margin-bottom: 4px;">☀️ กลางวัน ${timeFormat === '12h' ? '(AM)' : ''}</div>`
-          : `<div style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 9999px; background: #e0e7ff; color: #4338ca; font-size: 11px; font-weight: 500; margin-bottom: 4px;">🌙 กลางคืน ${timeFormat === '12h' ? '(PM)' : ''}</div>`;
+        // Period badge styling with proper Thai labels
+        let periodBadge: string;
+        if (time.h === 12) {
+          // Special cases for 12 o'clock
+          if (time.period === 'am') {
+            periodBadge = `<div style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 9999px; background: #e0e7ff; color: #4338ca; font-size: 11px; font-weight: 500; margin-bottom: 4px;">🌙 เที่ยงคืน ${timeFormat === '12h' ? '(12 AM)' : ''}</div>`;
+          } else {
+            periodBadge = `<div style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 9999px; background: #fef3c7; color: #b45309; font-size: 11px; font-weight: 500; margin-bottom: 4px;">☀️ เที่ยงวัน ${timeFormat === '12h' ? '(12 PM)' : ''}</div>`;
+          }
+        } else {
+          // Regular cases for 1-11
+          periodBadge = time.period === 'am' 
+            ? `<div style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 9999px; background: #fef3c7; color: #b45309; font-size: 11px; font-weight: 500; margin-bottom: 4px;">☀️ ก่อนเที่ยง ${timeFormat === '12h' ? '(AM)' : ''}</div>`
+            : `<div style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 9999px; background: #e0e7ff; color: #4338ca; font-size: 11px; font-weight: 500; margin-bottom: 4px;">🌙 หลังเที่ยง ${timeFormat === '12h' ? '(PM)' : ''}</div>`;
+        }
 
         const hourHint = timeFormat === '24h' ? '(0-23)' : '(1-12)';
 
@@ -691,8 +728,8 @@ export default function TimeApp() {
           <div className="flex items-center gap-2">
             <span className="text-sm text-zinc-600">ช่วงเวลา:</span>
             {([
-              { value: 'am' as TimePeriod, label: '☀️ กลางวัน (AM)' },
-              { value: 'pm' as TimePeriod, label: '🌙 กลางคืน (PM)' },
+              { value: 'am' as TimePeriod, label: '☀️ ก่อนเที่ยง (AM)' },
+              { value: 'pm' as TimePeriod, label: '🌙 หลังเที่ยง (PM)' },
               { value: 'mix' as TimePeriod, label: '🔀 ผสม (Mix)' },
             ]).map((option) => (
               <button
