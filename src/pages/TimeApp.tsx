@@ -12,11 +12,21 @@ import { type QuestionAttempt } from "@/hooks/useTrainingCalendar";
 
 // ---------- Types ----------
 type TimePeriod = 'am' | 'pm' | 'mix';
-type TimeData = { h: number; m: number; period: 'am' | 'pm' };
+type TimeFormat = '12h' | '24h';
+type TimeData = { h: number; m: number; period: 'am' | 'pm'; h24: number };
 
 // ---------- Utilities ----------
 function randInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Calculate 24-hour format from 12-hour format
+function to24Hour(h: number, period: 'am' | 'pm'): number {
+  if (period === 'am') {
+    return h === 12 ? 0 : h;
+  } else {
+    return h === 12 ? 12 : h + 12;
+  }
 }
 
 function generateRandomTimes(n = 6, timePeriod: TimePeriod = 'mix'): TimeData[] {
@@ -34,10 +44,11 @@ function generateRandomTimes(n = 6, timePeriod: TimePeriod = 'mix'): TimeData[] 
       period = timePeriod;
     }
     
+    const h24 = to24Hour(h, period);
     const key = `${h}:${m}:${period}`;
     if (!used.has(key)) {
       used.add(key);
-      times.push({ h, m, period });
+      times.push({ h, m, period, h24 });
     }
   }
   return times;
@@ -52,6 +63,13 @@ function normalizeHour12(val) {
   if (n < 0) return NaN;
   // Allow 1..12 only
   return ((n - 1) % 12) + 1; // 12->12, 13->1, etc., but UI limits to 1..12
+}
+
+function normalizeHour24(val) {
+  const n = parseInt(val, 10);
+  if (isNaN(n)) return NaN;
+  if (n < 0 || n > 23) return NaN;
+  return n;
 }
 
 // ---------- Clock (SVG) ----------
@@ -125,23 +143,23 @@ function Clock({ hour, minute }) {
 }
 
 // ---------- Period Badge ----------
-function PeriodBadge({ period }: { period: 'am' | 'pm' }) {
+function PeriodBadge({ period, timeFormat }: { period: 'am' | 'pm'; timeFormat: TimeFormat }) {
   if (period === 'am') {
     return (
       <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-sm font-medium">
-        ☀️ กลางวัน (AM)
+        ☀️ กลางวัน {timeFormat === '12h' ? '(AM)' : ''}
       </span>
     );
   }
   return (
     <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-sm font-medium">
-      🌙 กลางคืน (PM)
+      🌙 กลางคืน {timeFormat === '12h' ? '(PM)' : ''}
     </span>
   );
 }
 
 // ---------- One Card ----------
-function Card({ idx, time, answer, setAnswer, result, showAnswer, onReset }: {
+function Card({ idx, time, answer, setAnswer, result, showAnswer, onReset, timeFormat }: {
   idx: number;
   time: TimeData;
   answer: { h: string; m: string };
@@ -149,6 +167,7 @@ function Card({ idx, time, answer, setAnswer, result, showAnswer, onReset }: {
   result: string;
   showAnswer: boolean;
   onReset: (idx: number) => void;
+  timeFormat: TimeFormat;
 }) {
   const { t } = useTranslation('exercises');
   const hourRef = useRef<HTMLInputElement>(null);
@@ -171,11 +190,19 @@ function Card({ idx, time, answer, setAnswer, result, showAnswer, onReset }: {
       ? "border-red-300"
       : "border-zinc-200";
 
+  // Format answer display based on time format
+  const getAnswerDisplay = () => {
+    if (timeFormat === '24h') {
+      return `${pad2(time.h24)}:${pad2(time.m)} น.`;
+    }
+    return `${time.h}:${pad2(time.m)} (${time.period === 'am' ? 'AM' : 'PM'})`;
+  };
+
   return (
     <div className={`rounded-2xl border ${border} bg-white shadow-sm p-4 flex flex-col items-center gap-3`}> 
       {/* Period Badge above clock */}
       <div className="text-center">
-        <PeriodBadge period={time.period} />
+        <PeriodBadge period={time.period} timeFormat={timeFormat} />
       </div>
       
       <div className="w-full max-w-[220px]">
@@ -190,7 +217,7 @@ function Card({ idx, time, answer, setAnswer, result, showAnswer, onReset }: {
           inputMode="numeric"
           maxLength={2}
           className="w-16 text-center border rounded-xl py-2 px-2 focus:outline-none focus:ring-2 focus:ring-sky-400"
-          placeholder={t('time.hour')}
+          placeholder={timeFormat === '24h' ? '0-23' : t('time.hour')}
           value={answer.h}
           onChange={(e) => {
             const v = e.target.value.replace(/\D/g, "");
@@ -218,7 +245,7 @@ function Card({ idx, time, answer, setAnswer, result, showAnswer, onReset }: {
         {status === "correct" && <span className="text-green-600">✅ {t('common.correct')}</span>}
         {status === "wrong" && <span className="text-red-500">❌ {t('common.tryAgain')}</span>}
         {status === "showing" && (
-          <span className="text-sky-700">{t('time.answer')}: {time.h}:{pad2(time.m)} ({time.period === 'am' ? 'AM' : 'PM'})</span>
+          <span className="text-sky-700">{t('time.answer')}: {getAnswerDisplay()}</span>
         )}
       </div>
 
@@ -254,6 +281,7 @@ export default function TimeApp() {
   
   const [questionCount, setQuestionCount] = useState(10);
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('mix');
+  const [timeFormat, setTimeFormat] = useState<TimeFormat>('12h');
   const [times, setTimes] = useState<TimeData[]>(() => generateRandomTimes(10, 'mix'));
   const [answers, setAnswers] = useState(() => times.map(() => ({ h: "", m: "" })));
   const [results, setResults] = useState(() => times.map(() => "pending"));
@@ -292,6 +320,14 @@ export default function TimeApp() {
     setTimePeriod(period);
     resetAll(questionCount, period);
   }
+  
+  function handleTimeFormatChange(format: TimeFormat) {
+    setTimeFormat(format);
+    // Reset answers when format changes
+    setAnswers(times.map(() => ({ h: "", m: "" })));
+    setResults(times.map(() => "pending"));
+    setShowAnswers(false);
+  }
 
   function handleQuestionCountChange(newCount: number) {
     setQuestionCount(newCount);
@@ -310,11 +346,18 @@ export default function TimeApp() {
     if (!startedAt) setStartedAt(Date.now());
     
     const newResults = times.map((t, i) => {
-      const hh = normalizeHour12(answers[i].h);
       const mm = parseInt(answers[i].m, 10);
-      if (isNaN(hh) || isNaN(mm)) return "wrong";
-      if (mm < 0 || mm > 59) return "wrong";
-      return hh === t.h && mm === t.m ? "correct" : "wrong";
+      if (isNaN(mm) || mm < 0 || mm > 59) return "wrong";
+      
+      if (timeFormat === '24h') {
+        const hh = normalizeHour24(answers[i].h);
+        if (isNaN(hh)) return "wrong";
+        return hh === t.h24 && mm === t.m ? "correct" : "wrong";
+      } else {
+        const hh = normalizeHour12(answers[i].h);
+        if (isNaN(hh)) return "wrong";
+        return hh === t.h && mm === t.m ? "correct" : "wrong";
+      }
     });
     setResults(newResults);
     
@@ -327,11 +370,18 @@ export default function TimeApp() {
       // Build questionAttempts for parent dashboard
       const questionAttempts: QuestionAttempt[] = times.map((t, i) => {
         const periodText = t.period === 'am' ? 'กลางวัน' : 'กลางคืน';
+        const questionText = timeFormat === '24h'
+          ? `นาฬิกาแสดงเวลา ${pad2(t.h24)}:${pad2(t.m)} น. (${periodText})`
+          : `นาฬิกาแสดงเวลา ${t.h} นาฬิกา ${t.m} นาที (${periodText})`;
+        const correctAnswer = timeFormat === '24h'
+          ? `${pad2(t.h24)}:${pad2(t.m)}`
+          : `${t.h}:${pad2(t.m)} (${t.period.toUpperCase()})`;
+        
         return {
           index: i + 1,
-          question: `นาฬิกาแสดงเวลา ${t.h} นาฬิกา ${t.m} นาที (${periodText})`,
+          question: questionText,
           userAnswer: `${answers[i].h || '-'}:${answers[i].m || '-'}`,
-          correctAnswer: `${t.h}:${pad2(t.m)} (${t.period.toUpperCase()})`,
+          correctAnswer: correctAnswer,
           isCorrect: newResults[i] === 'correct'
         };
       });
@@ -418,8 +468,10 @@ export default function TimeApp() {
 
         // Period badge styling
         const periodBadge = time.period === 'am' 
-          ? `<div style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 9999px; background: #fef3c7; color: #b45309; font-size: 11px; font-weight: 500; margin-bottom: 4px;">☀️ กลางวัน (AM)</div>`
-          : `<div style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 9999px; background: #e0e7ff; color: #4338ca; font-size: 11px; font-weight: 500; margin-bottom: 4px;">🌙 กลางคืน (PM)</div>`;
+          ? `<div style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 9999px; background: #fef3c7; color: #b45309; font-size: 11px; font-weight: 500; margin-bottom: 4px;">☀️ กลางวัน ${timeFormat === '12h' ? '(AM)' : ''}</div>`
+          : `<div style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 9999px; background: #e0e7ff; color: #4338ca; font-size: 11px; font-weight: 500; margin-bottom: 4px;">🌙 กลางคืน ${timeFormat === '12h' ? '(PM)' : ''}</div>`;
+
+        const hourHint = timeFormat === '24h' ? '(0-23)' : '(1-12)';
 
         return `
           <div style="border: 2px solid #666; padding: 10px; background: white; border-radius: 8px; display: flex; flex-direction: column; align-items: center;">
@@ -436,7 +488,9 @@ export default function TimeApp() {
               </svg>
             </div>
             <div style="margin-top: 10px; display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 16px;">
-              <div style="width: 45px; height: 40px; border: 2px solid #0ea5e9; border-radius: 6px; background: white;"></div>
+              <div style="width: 45px; height: 40px; border: 2px solid #0ea5e9; border-radius: 6px; background: white; position: relative;">
+                <span style="position: absolute; bottom: -16px; left: 50%; transform: translateX(-50%); font-size: 9px; color: #666;">${hourHint}</span>
+              </div>
               <span style="font-weight: bold;">:</span>
               <div style="width: 45px; height: 40px; border: 2px solid #0ea5e9; border-radius: 6px; background: white;"></div>
             </div>
@@ -612,6 +666,27 @@ export default function TimeApp() {
             ))}
           </div>
           
+          {/* Time Format Selector */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-zinc-600">บอกเวลา:</span>
+            {([
+              { value: '12h' as TimeFormat, label: '🕐 12 ชั่วโมง' },
+              { value: '24h' as TimeFormat, label: '🕛 24 ชั่วโมง' },
+            ]).map((option) => (
+              <button
+                key={option.value}
+                onClick={() => handleTimeFormatChange(option.value)}
+                className={`px-3 py-2 rounded-xl text-sm shadow transition-colors ${
+                  timeFormat === option.value
+                    ? 'bg-sky-600 text-white'
+                    : 'bg-zinc-200 hover:bg-zinc-300 text-zinc-700'
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+          
           {/* Time Period Selector */}
           <div className="flex items-center gap-2">
             <span className="text-sm text-zinc-600">ช่วงเวลา:</span>
@@ -682,6 +757,7 @@ export default function TimeApp() {
               answer={answers[i]}
               setAnswer={setAnswer}
               onReset={onReset}
+              timeFormat={timeFormat}
             />
           ))}
         </div>
