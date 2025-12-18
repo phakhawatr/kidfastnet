@@ -139,7 +139,7 @@ const AdminDashboard = () => {
     }
   }, [email]); // Add email as dependency
 
-  // Set up presence tracking for online users
+  // Set up presence tracking for online users (no auto-refresh)
   useEffect(() => {
     const channel = supabase.channel('admin-dashboard', {
       config: {
@@ -147,7 +147,7 @@ const AdminDashboard = () => {
       }
     });
 
-    // Listen for presence changes and sync with database
+    // Listen for presence changes - only update online status, no full refresh
     channel.on('presence', { event: 'sync' }, async () => {
       const state = channel.presenceState();
       const onlineUserIds = new Set<string>();
@@ -162,21 +162,16 @@ const AdminDashboard = () => {
       
       setOnlineUsers(onlineUserIds);
       console.log('Online users updated from presence:', Array.from(onlineUserIds));
-      
-      // Refresh registrations to get latest database status
-      fetchRegistrations();
     });
 
-    // Track when users join
+    // Track when users join (no refresh)
     channel.on('presence', { event: 'join' }, async ({ key, newPresences }) => {
       console.log('User joined presence:', key, newPresences);
     });
 
-    // Track when users leave and update database
+    // Track when users leave (no refresh)
     channel.on('presence', { event: 'leave' }, async ({ key, leftPresences }) => {
       console.log('User left presence:', key, leftPresences);
-      // Refresh to see updated status
-      fetchRegistrations();
     });
 
     channel.subscribe(async (status) => {
@@ -188,15 +183,6 @@ const AdminDashboard = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
-
-  // Auto-refresh every 5 minutes
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      fetchRegistrations(true); // true = auto refresh
-    }, 300000); // 5 minutes = 300,000 ms
-
-    return () => clearInterval(intervalId);
   }, []);
 
   // Check if user is currently online (both presence and database)
@@ -893,6 +879,15 @@ const AdminDashboard = () => {
             </p>
           </div>
           <div className="flex flex-wrap gap-3" role="group" aria-label="การดำเนินการหลัก">
+            <button
+              onClick={() => fetchRegistrations()}
+              disabled={isLoading}
+              className="bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white flex items-center gap-2 min-h-[44px] px-4 rounded-lg focus:ring-4 focus:ring-blue-300 focus:outline-none transition-colors"
+              aria-label="รีเฟรชข้อมูล"
+            >
+              <span aria-hidden="true">{isLoading ? '⏳' : '🔄'}</span>
+              <span>รีเฟรช</span>
+            </button>
             <Dialog open={createUserDialog} onOpenChange={setCreateUserDialog}>
               <DialogTrigger asChild>
                 <button
