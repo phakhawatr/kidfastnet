@@ -35,3 +35,6 @@ verify_jwt = true
 
 [functions.ai-import-pdf-questions]
 verify_jwt = true
+
+[functions.ai-lesson-planner]
+verify_jwt = false
