@@ -275,6 +275,79 @@ export type Database = {
           },
         ]
       }
+      class_assignments: {
+        Row: {
+          assignment_type: string
+          class_id: string
+          created_at: string
+          description: string | null
+          due_date: string | null
+          exam_link_id: string | null
+          grade: number | null
+          id: string
+          is_active: boolean | null
+          max_score: number | null
+          skill_name: string | null
+          teacher_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assignment_type?: string
+          class_id: string
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          exam_link_id?: string | null
+          grade?: number | null
+          id?: string
+          is_active?: boolean | null
+          max_score?: number | null
+          skill_name?: string | null
+          teacher_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assignment_type?: string
+          class_id?: string
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          exam_link_id?: string | null
+          grade?: number | null
+          id?: string
+          is_active?: boolean | null
+          max_score?: number | null
+          skill_name?: string | null
+          teacher_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_assignments_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_assignments_exam_link_id_fkey"
+            columns: ["exam_link_id"]
+            isOneToOne: false
+            referencedRelation: "exam_links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_assignments_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       class_students: {
         Row: {
           class_id: string
@@ -1674,6 +1747,80 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      student_submissions: {
+        Row: {
+          assignment_id: string
+          created_at: string
+          exam_session_id: string | null
+          feedback: string | null
+          graded_at: string | null
+          graded_by: string | null
+          id: string
+          score: number | null
+          status: string
+          student_id: string
+          submitted_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          assignment_id: string
+          created_at?: string
+          exam_session_id?: string | null
+          feedback?: string | null
+          graded_at?: string | null
+          graded_by?: string | null
+          id?: string
+          score?: number | null
+          status?: string
+          student_id: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          assignment_id?: string
+          created_at?: string
+          exam_session_id?: string | null
+          feedback?: string | null
+          graded_at?: string | null
+          graded_by?: string | null
+          id?: string
+          score?: number | null
+          status?: string
+          student_id?: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_submissions_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "class_assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_submissions_exam_session_id_fkey"
+            columns: ["exam_session_id"]
+            isOneToOne: false
+            referencedRelation: "exam_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_submissions_graded_by_fkey"
+            columns: ["graded_by"]
+            isOneToOne: false
+            referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_submissions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscription_plans: {
         Row: {
