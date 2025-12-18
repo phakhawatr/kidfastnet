@@ -2252,6 +2252,19 @@ export type Database = {
           success: boolean
         }[]
       }
+      create_school_with_admin: {
+        Args: {
+          p_address?: string
+          p_admin_user_id: string
+          p_code: string
+          p_district?: string
+          p_email?: string
+          p_name: string
+          p_phone?: string
+          p_province?: string
+        }
+        Returns: string
+      }
       delete_user_registration: {
         Args: { admin_id: string; registration_id: string }
         Returns: boolean
