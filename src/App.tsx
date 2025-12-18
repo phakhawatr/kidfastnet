@@ -72,6 +72,7 @@ import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import TeacherProtectedRoute from "./components/TeacherProtectedRoute";
 import SchoolAdminProtectedRoute from "./components/SchoolAdminProtectedRoute";
 import SchoolAdminDashboard from "./pages/SchoolAdminDashboard";
+import AdminSchoolManagement from "./pages/AdminSchoolManagement";
 import SchoolAnalyticsDashboard from "./pages/SchoolAnalyticsDashboard";
 import AILessonPlanner from "./pages/AILessonPlanner";
 import TeacherAssignments from "./pages/TeacherAssignments";
@@ -582,6 +583,16 @@ const App = () => {
               <SchoolAdminProtectedRoute>
                 <SchoolAnalyticsDashboard />
               </SchoolAdminProtectedRoute>
+            } 
+          />
+          
+          {/* Platform Admin - School Management */}
+          <Route 
+            path="/admin/school/:schoolId" 
+            element={
+              <AdminProtectedRoute>
+                <AdminSchoolManagement />
+              </AdminProtectedRoute>
             } 
           />
           

@@ -1232,7 +1232,7 @@ const AdminDashboard = () => {
                     <p className="text-sm text-gray-600">รหัส: {school.code}</p>
                   </div>
                   <button
-                    onClick={() => navigate('/school-admin')}
+                    onClick={() => navigate(`/admin/school/${school.id}`)}
                     className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded hover:bg-indigo-200"
                   >
                     จัดการ →
