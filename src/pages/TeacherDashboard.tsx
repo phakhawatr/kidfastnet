@@ -20,7 +20,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Copy, Link as LinkIcon, Users, Clock, BarChart, ExternalLink, CheckCircle, QrCode, Download, FileText, Trash2, Eye, X, FileDown, Upload, Image as ImageIcon, BookOpen } from 'lucide-react';
+import { Copy, Link as LinkIcon, Users, Clock, BarChart, ExternalLink, CheckCircle, QrCode, Download, FileText, Trash2, Eye, X, FileDown, Upload, Image as ImageIcon, BookOpen, GraduationCap, Sparkles, School } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { exportToCSV, exportToPDF, generateReportSummary, generateItemAnalysis, compareAnswers } from '@/utils/examReportUtils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -700,6 +700,54 @@ const TeacherDashboard = () => {
             <BookOpen className="w-4 h-4" />
             คลังข้อสอบ
           </Button>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <Card 
+            className="card-glass-dark cursor-pointer hover:border-purple-500/50 transition-all"
+            onClick={() => navigate('/teacher/classes')}
+          >
+            <CardContent className="p-6 flex items-center gap-4">
+              <div className="p-3 bg-blue-500/20 rounded-xl">
+                <GraduationCap className="w-6 h-6 text-blue-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-white">จัดการห้องเรียน</h3>
+                <p className="text-sm text-slate-400">ดูและจัดการนักเรียนในห้อง</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card 
+            className="card-glass-dark cursor-pointer hover:border-purple-500/50 transition-all"
+            onClick={() => navigate('/teacher/lesson-planner')}
+          >
+            <CardContent className="p-6 flex items-center gap-4">
+              <div className="p-3 bg-purple-500/20 rounded-xl">
+                <Sparkles className="w-6 h-6 text-purple-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-white">AI สร้างแผนการสอน</h3>
+                <p className="text-sm text-slate-400">สร้างแผนการสอนอัตโนมัติ</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card 
+            className="card-glass-dark cursor-pointer hover:border-purple-500/50 transition-all"
+            onClick={() => navigate('/teacher/assignments')}
+          >
+            <CardContent className="p-6 flex items-center gap-4">
+              <div className="p-3 bg-green-500/20 rounded-xl">
+                <FileText className="w-6 h-6 text-green-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-white">มอบหมายงาน</h3>
+                <p className="text-sm text-slate-400">สร้างและติดตามการบ้าน</p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Create Exam Link Section */}
