@@ -72,6 +72,7 @@ import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import TeacherProtectedRoute from "./components/TeacherProtectedRoute";
 import SchoolAdminProtectedRoute from "./components/SchoolAdminProtectedRoute";
 import SchoolAdminDashboard from "./pages/SchoolAdminDashboard";
+import SchoolAnalyticsDashboard from "./pages/SchoolAnalyticsDashboard";
 import { ToastContainer } from "./components/Toast";
 import { Toaster } from "@/components/ui/toaster";
 import { PWAUpdatePrompt } from "./components/PWAUpdatePrompt";
@@ -551,6 +552,15 @@ const App = () => {
             element={
               <SchoolAdminProtectedRoute>
                 <SchoolAdminDashboard />
+              </SchoolAdminProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/school-admin/analytics" 
+            element={
+              <SchoolAdminProtectedRoute>
+                <SchoolAnalyticsDashboard />
               </SchoolAdminProtectedRoute>
             } 
           />
