@@ -129,15 +129,13 @@ const AdminDashboard = () => {
     tiger: '🐯'
   };
 
+  // Initial fetch when email is available
   useEffect(() => {
-    // Only fetch when email is available and component is mounted
-    if (email && !isLoading) {
+    if (email) {
       console.log('useEffect: Fetching with email:', email);
       fetchRegistrations();
-    } else {
-      console.log('useEffect: Not fetching - email:', email, 'isLoading:', isLoading);
     }
-  }, [email]); // Add email as dependency
+  }, [email]);
 
   // Set up presence tracking for online users (no auto-refresh)
   useEffect(() => {
