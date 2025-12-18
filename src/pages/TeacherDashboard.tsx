@@ -25,6 +25,7 @@ import { useToast } from '@/hooks/use-toast';
 import { exportToCSV, exportToPDF, generateReportSummary, generateItemAnalysis, compareAnswers } from '@/utils/examReportUtils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import ManualDownloader from '@/components/ManualDownloader';
 
 const TeacherDashboard = () => {
   const { registrationId, username } = useAuth();
@@ -686,20 +687,28 @@ const TeacherDashboard = () => {
       <Header />
       
       <main className="flex-1 container mx-auto px-4 py-8 relative z-10">
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-4xl font-bold text-white mb-2">
               👨‍🏫 แผงควบคุมการทำงานของ ครู{teacherName ? ` ${teacherName}` : ''}
             </h1>
             <p className="text-gray-200">สร้างและจัดการ link ข้อสอบสำหรับนักเรียน</p>
           </div>
-          <Button
-            onClick={() => navigate('/teacher/question-bank')}
-            className="gap-2"
-          >
-            <BookOpen className="w-4 h-4" />
-            คลังข้อสอบ
-          </Button>
+          <div className="flex gap-2">
+            <ManualDownloader 
+              defaultManual="teacher" 
+              showDropdown={false}
+              buttonVariant="outline"
+              className="border-purple-500/50 text-purple-300 hover:bg-purple-500/20"
+            />
+            <Button
+              onClick={() => navigate('/teacher/question-bank')}
+              className="gap-2"
+            >
+              <BookOpen className="w-4 h-4" />
+              คลังข้อสอบ
+            </Button>
+          </div>
         </div>
 
         {/* Quick Actions */}
