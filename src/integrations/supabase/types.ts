@@ -2291,6 +2291,14 @@ export type Database = {
           user_status: string
         }[]
       }
+      get_student_class_ids: {
+        Args: { _student_id: string }
+        Returns: string[]
+      }
+      get_teacher_class_ids: {
+        Args: { _teacher_id: string }
+        Returns: string[]
+      }
       get_user_affiliate_stats: {
         Args: { p_user_email: string }
         Returns: {
@@ -2348,6 +2356,10 @@ export type Database = {
       }
       is_admin: { Args: { p_admin_id: string }; Returns: boolean }
       is_authenticated_admin: { Args: never; Returns: boolean }
+      is_class_teacher: {
+        Args: { _class_id: string; _teacher_id: string }
+        Returns: boolean
+      }
       is_school_admin: {
         Args: { _school_id: string; _user_id: string }
         Returns: boolean
@@ -2358,6 +2370,10 @@ export type Database = {
       }
       is_school_teacher: {
         Args: { _school_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_student_in_class: {
+        Args: { _class_id: string; _student_id: string }
         Returns: boolean
       }
       is_user_affiliate_owner: { Args: { p_user_id: string }; Returns: boolean }
