@@ -776,39 +776,19 @@ const AdminDashboard = () => {
         return;
       }
 
-      // Insert school
-      const { data: schoolData, error: schoolError } = await supabase
-        .from('schools')
-        .insert({
-          name: newSchool.name,
-          code: newSchool.code,
-          address: newSchool.address || null,
-          district: newSchool.district || null,
-          province: newSchool.province || null,
-          phone: newSchool.phone || null,
-          email: newSchool.email || null,
-          is_active: true
-        })
-        .select()
-        .single();
+      // Use RPC function to bypass RLS and create school with admin
+      const { data: schoolId, error: rpcError } = await supabase.rpc('create_school_with_admin', {
+        p_name: newSchool.name,
+        p_code: newSchool.code,
+        p_admin_user_id: newSchool.selectedAdminId,
+        p_address: newSchool.address || null,
+        p_district: newSchool.district || null,
+        p_province: newSchool.province || null,
+        p_phone: newSchool.phone || null,
+        p_email: newSchool.email || null
+      });
 
-      if (schoolError) throw schoolError;
-
-      // Add school admin membership
-      const { error: membershipError } = await supabase
-        .from('school_memberships')
-        .insert({
-          school_id: schoolData.id,
-          user_id: newSchool.selectedAdminId,
-          role: 'school_admin',
-          is_active: true
-        });
-
-      if (membershipError) throw membershipError;
-
-      // Note: school_admin role is managed via school_memberships table
-      // The user_roles table has app_role enum (admin, teacher, user, parent)
-      // School admin permissions are checked via is_school_admin() function
+      if (rpcError) throw rpcError;
 
       ToastManager.show({
         message: `🏫 สร้างโรงเรียน "${newSchool.name}" เรียบร้อย!`,
