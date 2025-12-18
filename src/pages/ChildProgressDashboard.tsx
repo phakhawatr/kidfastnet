@@ -10,8 +10,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { ArrowLeft, TrendingUp, Award, Target, Flame, Star, Bell, BellOff, Eye } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Award, Target, Flame, Star, Bell, BellOff, Eye, BookOpen } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import ManualDownloader from '@/components/ManualDownloader';
 
 interface StreakData {
   current_streak: number;
@@ -346,24 +347,34 @@ const ChildProgressDashboard = () => {
       
       <main className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+          <div className="flex items-center gap-4">
+            {!isPublicView && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/parent')}
+                className="text-white hover:bg-white/10"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+            )}
+            <h1 className="text-4xl font-bold text-white">
+              {t('pageTitle')}
+            </h1>
+            {isPublicView && (
+              <Badge className="bg-blue-500 text-white">
+                โหมดดูความก้าวหน้า (Public View)
+              </Badge>
+            )}
+          </div>
           {!isPublicView && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate('/parent')}
-              className="text-white hover:bg-white/10"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-          )}
-          <h1 className="text-4xl font-bold text-white">
-            {t('pageTitle')}
-          </h1>
-          {isPublicView && (
-            <Badge className="bg-blue-500 text-white">
-              โหมดดูความก้าวหน้า (Public View)
-            </Badge>
+            <ManualDownloader 
+              defaultManual="parent" 
+              showDropdown={false}
+              buttonVariant="outline"
+              className="border-purple-500/50 text-purple-300 hover:bg-purple-500/20"
+            />
           )}
         </div>
 

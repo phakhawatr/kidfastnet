@@ -30,6 +30,7 @@ import {
   BarChart3,
   Save
 } from 'lucide-react';
+import ManualDownloader from '@/components/ManualDownloader';
 
 const SchoolAdminDashboard = () => {
   const navigate = useNavigate();
@@ -322,16 +323,24 @@ const SchoolAdminDashboard = () => {
             <p className="text-slate-400">จัดการโรงเรียน ห้องเรียน และสมาชิก</p>
           </div>
           
-          {/* Navigation Button */}
-          {selectedSchool && (
-            <Button
-              onClick={() => navigate('/school-admin/analytics')}
-              className="mt-4 md:mt-0 bg-slate-700 hover:bg-slate-600"
-            >
-              <BarChart3 className="w-4 h-4 mr-2" />
-              ดูสถิติโรงเรียน
-            </Button>
-          )}
+          {/* Navigation Buttons */}
+          <div className="flex gap-2 mt-4 md:mt-0">
+            <ManualDownloader 
+              defaultManual="school-admin" 
+              showDropdown={false}
+              buttonVariant="outline"
+              className="border-purple-500/50 text-purple-300 hover:bg-purple-500/20"
+            />
+            {selectedSchool && (
+              <Button
+                onClick={() => navigate('/school-admin/analytics')}
+                className="bg-slate-700 hover:bg-slate-600"
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                ดูสถิติโรงเรียน
+              </Button>
+            )}
+          </div>
           
           {/* School Selector */}
           {userSchools.length > 0 && (
