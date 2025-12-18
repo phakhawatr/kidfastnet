@@ -23,8 +23,10 @@ import {
   MapPin,
   Globe,
   Edit,
-  Save
+  Save,
+  X
 } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 interface School {
   id: string;
@@ -59,6 +61,16 @@ interface MemberData {
   user_avatar?: string;
 }
 
+interface ClassStudentData {
+  id: string;
+  student_id: string;
+  student_number: number | null;
+  enrolled_at: string;
+  student_nickname?: string;
+  student_email?: string;
+  student_avatar?: string;
+}
+
 const AdminSchoolManagement = () => {
   const navigate = useNavigate();
   const { schoolId } = useParams<{ schoolId: string }>();
@@ -74,6 +86,14 @@ const AdminSchoolManagement = () => {
   const [showCreateClass, setShowCreateClass] = useState(false);
   const [showAddMember, setShowAddMember] = useState(false);
   const [showEditSchool, setShowEditSchool] = useState(false);
+  const [showClassManagement, setShowClassManagement] = useState(false);
+  
+  // Class management states
+  const [selectedClass, setSelectedClass] = useState<ClassData | null>(null);
+  const [classStudents, setClassStudents] = useState<ClassStudentData[]>([]);
+  const [loadingStudents, setLoadingStudents] = useState(false);
+  const [newStudentEmail, setNewStudentEmail] = useState('');
+  const [newStudentNumber, setNewStudentNumber] = useState<number | ''>('');
   
   // Form states
   const [editSchoolData, setEditSchoolData] = useState({
@@ -375,6 +395,149 @@ const AdminSchoolManagement = () => {
       toast({
         title: 'เกิดข้อผิดพลาด',
         description: error.message || 'ไม่สามารถบันทึกข้อมูลได้',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Class management functions
+  const openClassManagement = async (cls: ClassData) => {
+    setSelectedClass(cls);
+    setShowClassManagement(true);
+    await fetchClassStudents(cls.id);
+  };
+
+  const fetchClassStudents = async (classId: string) => {
+    setLoadingStudents(true);
+    try {
+      const { data: studentsData, error } = await supabase
+        .from('class_students')
+        .select('*')
+        .eq('class_id', classId)
+        .eq('is_active', true)
+        .order('student_number', { ascending: true });
+      
+      if (error) throw error;
+
+      const studentsWithDetails = await Promise.all(
+        (studentsData || []).map(async (student) => {
+          const { data: user } = await supabase
+            .from('user_registrations')
+            .select('nickname, parent_email, avatar')
+            .eq('id', student.student_id)
+            .single();
+          
+          return {
+            ...student,
+            student_nickname: user?.nickname,
+            student_email: user?.parent_email,
+            student_avatar: user?.avatar,
+          };
+        })
+      );
+      
+      setClassStudents(studentsWithDetails);
+    } catch (error: any) {
+      console.error('Error fetching class students:', error);
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: 'ไม่สามารถโหลดรายชื่อนักเรียนได้',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoadingStudents(false);
+    }
+  };
+
+  const handleAddStudentToClass = async () => {
+    if (!selectedClass || !newStudentEmail) {
+      toast({
+        title: 'กรุณากรอกข้อมูล',
+        description: 'อีเมลนักเรียนจำเป็นต้องกรอก',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    try {
+      // Find student by email
+      const { data: student, error: studentError } = await supabase
+        .from('user_registrations')
+        .select('id')
+        .eq('parent_email', newStudentEmail)
+        .single();
+      
+      if (studentError || !student) {
+        toast({
+          title: 'ไม่พบนักเรียน',
+          description: 'ไม่พบนักเรียนที่มีอีเมลนี้ในระบบ',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Check if already in class
+      const { data: existing } = await supabase
+        .from('class_students')
+        .select('id')
+        .eq('class_id', selectedClass.id)
+        .eq('student_id', student.id)
+        .eq('is_active', true)
+        .single();
+      
+      if (existing) {
+        toast({
+          title: 'นักเรียนอยู่ในห้องแล้ว',
+          description: 'นักเรียนคนนี้อยู่ในห้องเรียนนี้แล้ว',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Add student to class
+      const { error } = await supabase
+        .from('class_students')
+        .insert({
+          class_id: selectedClass.id,
+          student_id: student.id,
+          student_number: newStudentNumber || null,
+        });
+      
+      if (error) throw error;
+      
+      setNewStudentEmail('');
+      setNewStudentNumber('');
+      toast({ title: 'เพิ่มนักเรียนสำเร็จ' });
+      await fetchClassStudents(selectedClass.id);
+      fetchSchoolData(); // Update student count
+    } catch (error: any) {
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: error.message || 'ไม่สามารถเพิ่มนักเรียนได้',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleRemoveStudentFromClass = async (enrollmentId: string, studentName: string) => {
+    if (!confirm(`ยืนยันการลบ "${studentName}" ออกจากห้องเรียน?`)) return;
+    
+    try {
+      const { error } = await supabase
+        .from('class_students')
+        .update({ is_active: false })
+        .eq('id', enrollmentId);
+      
+      if (error) throw error;
+      toast({ title: 'ลบนักเรียนสำเร็จ' });
+      if (selectedClass) {
+        await fetchClassStudents(selectedClass.id);
+      }
+      fetchSchoolData(); // Update student count
+    } catch (error: any) {
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: error.message || 'ไม่สามารถลบนักเรียนได้',
         variant: 'destructive',
       });
     }
@@ -693,7 +856,11 @@ const AdminSchoolManagement = () => {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {classes.map(cls => (
-                    <Card key={cls.id} className="p-4 border border-gray-200">
+                    <Card 
+                      key={cls.id} 
+                      className="p-4 border border-gray-200 cursor-pointer hover:border-purple-400 hover:shadow-md transition-all"
+                      onClick={() => openClassManagement(cls)}
+                    >
                       <div className="flex items-start justify-between">
                         <div>
                           <h3 className="font-semibold text-gray-900">{cls.name}</h3>
@@ -705,15 +872,21 @@ const AdminSchoolManagement = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDeleteClass(cls.id, cls.name)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteClass(cls.id, cls.name);
+                          }}
                           className="text-red-500 hover:text-red-700 hover:bg-red-50"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
-                      <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
-                        <Users className="w-4 h-4" />
-                        <span>{cls.student_count || 0} / {cls.max_students || 40} คน</span>
+                      <div className="mt-2 flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                          <Users className="w-4 h-4" />
+                          <span>{cls.student_count || 0} / {cls.max_students || 40} คน</span>
+                        </div>
+                        <span className="text-xs text-purple-600">คลิกเพื่อจัดการ →</span>
                       </div>
                     </Card>
                   ))}
@@ -816,6 +989,118 @@ const AdminSchoolManagement = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Class Management Dialog */}
+        <Dialog open={showClassManagement} onOpenChange={setShowClassManagement}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <GraduationCap className="w-5 h-5" />
+                จัดการห้องเรียน: {selectedClass?.name}
+              </DialogTitle>
+            </DialogHeader>
+            
+            {selectedClass && (
+              <div className="space-y-6 mt-4">
+                {/* Class Info */}
+                <div className="p-4 bg-purple-50 rounded-lg">
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div><span className="text-gray-500">ระดับชั้น:</span> ป.{selectedClass.grade}</div>
+                    <div><span className="text-gray-500">ปีการศึกษา:</span> {selectedClass.academic_year}</div>
+                    <div><span className="text-gray-500">ภาคเรียน:</span> {selectedClass.semester}</div>
+                    <div><span className="text-gray-500">ครูประจำชั้น:</span> {selectedClass.teacher_name || '-'}</div>
+                  </div>
+                </div>
+
+                {/* Add Student Form */}
+                <div className="p-4 border rounded-lg bg-gray-50">
+                  <h3 className="font-medium mb-3 flex items-center gap-2">
+                    <UserPlus className="w-4 h-4" />
+                    เพิ่มนักเรียน
+                  </h3>
+                  <div className="flex gap-2">
+                    <Input
+                      type="email"
+                      value={newStudentEmail}
+                      onChange={(e) => setNewStudentEmail(e.target.value)}
+                      placeholder="อีเมลนักเรียน"
+                      className="flex-1"
+                    />
+                    <Input
+                      type="number"
+                      value={newStudentNumber}
+                      onChange={(e) => setNewStudentNumber(e.target.value ? parseInt(e.target.value) : '')}
+                      placeholder="เลขที่"
+                      className="w-20"
+                    />
+                    <Button onClick={handleAddStudentToClass} className="bg-purple-600 hover:bg-purple-700">
+                      <Plus className="w-4 h-4 mr-1" />
+                      เพิ่ม
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Student List */}
+                <div>
+                  <h3 className="font-medium mb-3 flex items-center gap-2">
+                    <Users className="w-4 h-4" />
+                    รายชื่อนักเรียน ({classStudents.length} คน)
+                  </h3>
+                  
+                  {loadingStudents ? (
+                    <div className="text-center py-4">
+                      <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-purple-600 mx-auto"></div>
+                    </div>
+                  ) : classStudents.length === 0 ? (
+                    <div className="text-center py-6 text-gray-500">
+                      <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                      <p>ยังไม่มีนักเรียนในห้องนี้</p>
+                    </div>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-16">เลขที่</TableHead>
+                          <TableHead>ชื่อ</TableHead>
+                          <TableHead>อีเมล</TableHead>
+                          <TableHead className="w-20"></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {classStudents.map((student) => (
+                          <TableRow key={student.id}>
+                            <TableCell className="font-medium">
+                              {student.student_number || '-'}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <span className="text-lg">{student.student_avatar || '👤'}</span>
+                                {student.student_nickname || 'ไม่ระบุชื่อ'}
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-gray-500 text-sm">
+                              {student.student_email}
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleRemoveStudentFromClass(student.id, student.student_nickname || '')}
+                                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  )}
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );
