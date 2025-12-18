@@ -54,6 +54,7 @@ import BiologyLabApp from "./pages/BiologyLabApp";
 import AstronomyLabApp from "./pages/AstronomyLabApp";
 import STEMProgressDashboard from "./pages/STEMProgressDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
+import TeacherClassManagement from "./pages/TeacherClassManagement";
 import QuestionBank from "./pages/QuestionBank";
 import TrainingCalendar from "./pages/TrainingCalendar";
 import TodayFocusMode from "./pages/TodayFocusMode";
@@ -531,6 +532,15 @@ const App = () => {
             element={
               <TeacherProtectedRoute>
                 <QuestionBank />
+              </TeacherProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/teacher/classes" 
+            element={
+              <TeacherProtectedRoute>
+                <TeacherClassManagement />
               </TeacherProtectedRoute>
             } 
           />
