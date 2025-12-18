@@ -26,7 +26,9 @@ import {
   Phone,
   MapPin,
   Globe,
-  Edit
+  Edit,
+  BarChart3,
+  Save
 } from 'lucide-react';
 
 const SchoolAdminDashboard = () => {
