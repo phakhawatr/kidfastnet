@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -47,6 +47,7 @@ const SchoolAdminDashboard = () => {
     classes,
     members,
     createSchool,
+    updateSchool,
     createClass,
     updateClass,
     deleteClass,
@@ -58,8 +59,21 @@ const SchoolAdminDashboard = () => {
   const [showCreateSchool, setShowCreateSchool] = useState(false);
   const [showCreateClass, setShowCreateClass] = useState(false);
   const [showAddMember, setShowAddMember] = useState(false);
+  const [showEditSchool, setShowEditSchool] = useState(false);
+  const [teachers, setTeachers] = useState<{id: string; nickname: string}[]>([]);
   
   const [newSchool, setNewSchool] = useState({
+    name: '',
+    code: '',
+    address: '',
+    district: '',
+    province: '',
+    phone: '',
+    email: '',
+    website: '',
+  });
+  
+  const [editSchoolData, setEditSchoolData] = useState({
     name: '',
     code: '',
     address: '',
@@ -76,12 +90,45 @@ const SchoolAdminDashboard = () => {
     academic_year: new Date().getFullYear() + 543,
     semester: 1,
     max_students: 40,
+    teacher_id: '',
   });
   
   const [newMember, setNewMember] = useState({
     email: '',
     role: 'teacher' as 'school_admin' | 'teacher' | 'student',
   });
+
+  // Fetch teachers when school changes
+  useEffect(() => {
+    const fetchTeachers = async () => {
+      if (!selectedSchool) return;
+      
+      const teacherMembers = members.filter(m => m.role === 'teacher' || m.role === 'school_admin');
+      const teacherData = teacherMembers.map(m => ({
+        id: m.user_id,
+        nickname: m.user_nickname || 'ไม่ระบุชื่อ',
+      }));
+      setTeachers(teacherData);
+    };
+    
+    fetchTeachers();
+  }, [selectedSchool, members]);
+
+  // Update edit school data when selected school changes
+  useEffect(() => {
+    if (selectedSchool) {
+      setEditSchoolData({
+        name: selectedSchool.name || '',
+        code: selectedSchool.code || '',
+        address: selectedSchool.address || '',
+        district: selectedSchool.district || '',
+        province: selectedSchool.province || '',
+        phone: selectedSchool.phone || '',
+        email: selectedSchool.email || '',
+        website: selectedSchool.website || '',
+      });
+    }
+  }, [selectedSchool]);
 
   const handleCreateSchool = async () => {
     try {
@@ -138,6 +185,7 @@ const SchoolAdminDashboard = () => {
         academic_year: new Date().getFullYear() + 543,
         semester: 1,
         max_students: 40,
+        teacher_id: '',
       });
       toast({
         title: 'สร้างห้องเรียนสำเร็จ',
@@ -215,6 +263,25 @@ const SchoolAdminDashboard = () => {
     }
   };
 
+  const handleUpdateSchool = async () => {
+    if (!selectedSchool) return;
+    
+    try {
+      await updateSchool(selectedSchool.id, editSchoolData);
+      setShowEditSchool(false);
+      toast({
+        title: 'บันทึกสำเร็จ',
+        description: 'ข้อมูลโรงเรียนถูกอัปเดตเรียบร้อยแล้ว',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: error.message || 'ไม่สามารถบันทึกข้อมูลได้',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const getRoleLabel = (role: string) => {
     switch (role) {
       case 'school_admin': return 'ผู้ดูแลโรงเรียน';
@@ -254,6 +321,17 @@ const SchoolAdminDashboard = () => {
             </h1>
             <p className="text-slate-400">จัดการโรงเรียน ห้องเรียน และสมาชิก</p>
           </div>
+          
+          {/* Navigation Button */}
+          {selectedSchool && (
+            <Button
+              onClick={() => navigate('/school-admin/analytics')}
+              className="mt-4 md:mt-0 bg-slate-700 hover:bg-slate-600"
+            >
+              <BarChart3 className="w-4 h-4 mr-2" />
+              ดูสถิติโรงเรียน
+            </Button>
+          )}
           
           {/* School Selector */}
           {userSchools.length > 0 && (
@@ -543,6 +621,27 @@ const SchoolAdminDashboard = () => {
                               />
                             </div>
                           </div>
+                          
+                          {/* Teacher Selection */}
+                          <div>
+                            <Label className="text-slate-300">ครูประจำชั้น</Label>
+                            <Select
+                              value={newClass.teacher_id}
+                              onValueChange={(value) => setNewClass({ ...newClass, teacher_id: value })}
+                            >
+                              <SelectTrigger className="bg-slate-900 border-slate-600 text-white mt-1">
+                                <SelectValue placeholder="เลือกครูประจำชั้น (ไม่บังคับ)" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-slate-800 border-slate-700">
+                                <SelectItem value="" className="text-slate-400">ไม่ระบุ</SelectItem>
+                                {teachers.map((teacher) => (
+                                  <SelectItem key={teacher.id} value={teacher.id} className="text-white">
+                                    {teacher.nickname}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
                         <div className="flex justify-end gap-3 mt-6">
                           <Button variant="ghost" onClick={() => setShowCreateClass(false)} className="text-slate-400">
@@ -784,10 +883,95 @@ const SchoolAdminDashboard = () => {
                     </div>
                     
                     <div className="pt-6 border-t border-slate-700">
-                      <Button variant="outline" className="border-purple-500/50 text-purple-300 hover:bg-purple-500/20">
-                        <Edit className="w-4 h-4 mr-2" />
-                        แก้ไขข้อมูลโรงเรียน
-                      </Button>
+                      <Dialog open={showEditSchool} onOpenChange={setShowEditSchool}>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" className="border-purple-500/50 text-purple-300 hover:bg-purple-500/20">
+                            <Edit className="w-4 h-4 mr-2" />
+                            แก้ไขข้อมูลโรงเรียน
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="bg-slate-800 border-slate-700 max-w-2xl">
+                          <DialogHeader>
+                            <DialogTitle className="text-white">แก้ไขข้อมูลโรงเรียน</DialogTitle>
+                          </DialogHeader>
+                          <div className="grid grid-cols-2 gap-4 mt-4">
+                            <div className="col-span-2">
+                              <Label className="text-slate-300">ชื่อโรงเรียน</Label>
+                              <Input
+                                value={editSchoolData.name}
+                                onChange={(e) => setEditSchoolData({ ...editSchoolData, name: e.target.value })}
+                                className="bg-slate-900 border-slate-600 text-white mt-1"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-slate-300">รหัสโรงเรียน</Label>
+                              <Input
+                                value={editSchoolData.code}
+                                onChange={(e) => setEditSchoolData({ ...editSchoolData, code: e.target.value.toUpperCase() })}
+                                className="bg-slate-900 border-slate-600 text-white mt-1"
+                                disabled
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-slate-300">เบอร์โทร</Label>
+                              <Input
+                                value={editSchoolData.phone}
+                                onChange={(e) => setEditSchoolData({ ...editSchoolData, phone: e.target.value })}
+                                className="bg-slate-900 border-slate-600 text-white mt-1"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-slate-300">อีเมล</Label>
+                              <Input
+                                value={editSchoolData.email}
+                                onChange={(e) => setEditSchoolData({ ...editSchoolData, email: e.target.value })}
+                                className="bg-slate-900 border-slate-600 text-white mt-1"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-slate-300">เว็บไซต์</Label>
+                              <Input
+                                value={editSchoolData.website}
+                                onChange={(e) => setEditSchoolData({ ...editSchoolData, website: e.target.value })}
+                                className="bg-slate-900 border-slate-600 text-white mt-1"
+                              />
+                            </div>
+                            <div className="col-span-2">
+                              <Label className="text-slate-300">ที่อยู่</Label>
+                              <Input
+                                value={editSchoolData.address}
+                                onChange={(e) => setEditSchoolData({ ...editSchoolData, address: e.target.value })}
+                                className="bg-slate-900 border-slate-600 text-white mt-1"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-slate-300">อำเภอ/เขต</Label>
+                              <Input
+                                value={editSchoolData.district}
+                                onChange={(e) => setEditSchoolData({ ...editSchoolData, district: e.target.value })}
+                                className="bg-slate-900 border-slate-600 text-white mt-1"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-slate-300">จังหวัด</Label>
+                              <Input
+                                value={editSchoolData.province}
+                                onChange={(e) => setEditSchoolData({ ...editSchoolData, province: e.target.value })}
+                                className="bg-slate-900 border-slate-600 text-white mt-1"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex justify-end gap-3 mt-6">
+                            <Button variant="ghost" onClick={() => setShowEditSchool(false)} className="text-slate-400">
+                              ยกเลิก
+                            </Button>
+                            <Button onClick={handleUpdateSchool} className="bg-purple-600 hover:bg-purple-700">
+                              <Save className="w-4 h-4 mr-2" />
+                              บันทึก
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   </div>
                 </Card>
