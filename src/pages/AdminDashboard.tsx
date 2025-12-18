@@ -65,6 +65,20 @@ interface UserPresence {
   online_at: string;
 }
 
+interface SchoolData {
+  id: string;
+  name: string;
+  code: string;
+  address?: string;
+  district?: string;
+  province?: string;
+  phone?: string;
+  email?: string;
+  is_active: boolean;
+  teacher_count?: number;
+  student_count?: number;
+}
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { name, email, logout, adminId } = useAdmin();
@@ -88,6 +102,20 @@ const AdminDashboard = () => {
     parent_phone: '',
     password: '',
     learning_style: 'visual'
+  });
+
+  // School management states
+  const [schools, setSchools] = useState<SchoolData[]>([]);
+  const [createSchoolDialog, setCreateSchoolDialog] = useState(false);
+  const [newSchool, setNewSchool] = useState({
+    name: '',
+    code: '',
+    address: '',
+    district: '',
+    province: '',
+    phone: '',
+    email: '',
+    selectedAdminId: ''
   });
 
   const avatarEmojis: Record<string, string> = {
@@ -689,6 +717,133 @@ const AdminDashboard = () => {
     }
   };
 
+  // Fetch schools
+  const fetchSchools = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('schools')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Get counts for each school
+      const schoolsWithCounts = await Promise.all((data || []).map(async (school) => {
+        const { count: teacherCount } = await supabase
+          .from('school_memberships')
+          .select('*', { count: 'exact', head: true })
+          .eq('school_id', school.id)
+          .eq('is_active', true)
+          .in('role', ['teacher', 'school_admin']);
+
+        const { count: studentCount } = await supabase
+          .from('school_memberships')
+          .select('*', { count: 'exact', head: true })
+          .eq('school_id', school.id)
+          .eq('is_active', true)
+          .eq('role', 'student');
+
+        return {
+          ...school,
+          teacher_count: teacherCount || 0,
+          student_count: studentCount || 0
+        };
+      }));
+
+      setSchools(schoolsWithCounts);
+    } catch (error) {
+      console.error('Error fetching schools:', error);
+    }
+  };
+
+  // Create school
+  const handleCreateSchool = async () => {
+    try {
+      if (!newSchool.name || !newSchool.code) {
+        ToastManager.show({
+          message: 'กรุณากรอกชื่อโรงเรียนและรหัสโรงเรียน',
+          type: 'error'
+        });
+        return;
+      }
+
+      if (!newSchool.selectedAdminId) {
+        ToastManager.show({
+          message: 'กรุณาเลือก School Admin',
+          type: 'error'
+        });
+        return;
+      }
+
+      // Insert school
+      const { data: schoolData, error: schoolError } = await supabase
+        .from('schools')
+        .insert({
+          name: newSchool.name,
+          code: newSchool.code,
+          address: newSchool.address || null,
+          district: newSchool.district || null,
+          province: newSchool.province || null,
+          phone: newSchool.phone || null,
+          email: newSchool.email || null,
+          is_active: true
+        })
+        .select()
+        .single();
+
+      if (schoolError) throw schoolError;
+
+      // Add school admin membership
+      const { error: membershipError } = await supabase
+        .from('school_memberships')
+        .insert({
+          school_id: schoolData.id,
+          user_id: newSchool.selectedAdminId,
+          role: 'school_admin',
+          is_active: true
+        });
+
+      if (membershipError) throw membershipError;
+
+      // Note: school_admin role is managed via school_memberships table
+      // The user_roles table has app_role enum (admin, teacher, user, parent)
+      // School admin permissions are checked via is_school_admin() function
+
+      ToastManager.show({
+        message: `🏫 สร้างโรงเรียน "${newSchool.name}" เรียบร้อย!`,
+        type: 'success'
+      });
+
+      // Reset form and close dialog
+      setNewSchool({
+        name: '',
+        code: '',
+        address: '',
+        district: '',
+        province: '',
+        phone: '',
+        email: '',
+        selectedAdminId: ''
+      });
+      setCreateSchoolDialog(false);
+      fetchSchools();
+    } catch (error: any) {
+      console.error('Error creating school:', error);
+      ToastManager.show({
+        message: 'เกิดข้อผิดพลาดในการสร้างโรงเรียน: ' + (error?.message || 'Unknown error'),
+        type: 'error'
+      });
+    }
+  };
+
+  // Fetch schools on mount
+  useEffect(() => {
+    if (email) {
+      fetchSchools();
+    }
+  }, [email]);
+
   const filteredRegistrations = registrations.filter(reg => {
     // Apply status filter
     let matchesFilter = false;
@@ -873,6 +1028,145 @@ const AdminDashboard = () => {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
+
+            {/* Create School Dialog */}
+            <Dialog open={createSchoolDialog} onOpenChange={setCreateSchoolDialog}>
+              <DialogTrigger asChild>
+                <button
+                  className="btn-primary flex items-center gap-2 min-h-[44px] px-4 focus:ring-4 focus:ring-indigo-300 focus:outline-none bg-indigo-600 hover:bg-indigo-700"
+                  aria-label="สร้างโรงเรียนใหม่"
+                >
+                  <span aria-hidden="true">🏫</span>
+                  <span>สร้างโรงเรียน</span>
+                </button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>🏫 สร้างโรงเรียนใหม่</DialogTitle>
+                  <DialogDescription>
+                    กรอกข้อมูลโรงเรียนและเลือกผู้ดูแลโรงเรียน (School Admin)
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="school-name" className="text-right">
+                      ชื่อโรงเรียน *
+                    </Label>
+                    <Input
+                      id="school-name"
+                      value={newSchool.name}
+                      onChange={(e) => setNewSchool({...newSchool, name: e.target.value})}
+                      className="col-span-3"
+                      placeholder="เช่น โรงเรียนอนุบาลสยาม"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="school-code" className="text-right">
+                      รหัสโรงเรียน *
+                    </Label>
+                    <Input
+                      id="school-code"
+                      value={newSchool.code}
+                      onChange={(e) => setNewSchool({...newSchool, code: e.target.value.toUpperCase()})}
+                      className="col-span-3"
+                      placeholder="เช่น ANB001"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="school-admin" className="text-right">
+                      School Admin *
+                    </Label>
+                    <Select
+                      value={newSchool.selectedAdminId}
+                      onValueChange={(value) => setNewSchool({...newSchool, selectedAdminId: value})}
+                    >
+                      <SelectTrigger className="col-span-3">
+                        <SelectValue placeholder="เลือกผู้ดูแลโรงเรียน" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {registrations
+                          .filter(r => r.status === 'approved' && r.is_teacher)
+                          .map(teacher => (
+                            <SelectItem key={teacher.id} value={teacher.id}>
+                              {teacher.nickname} ({teacher.parent_email})
+                            </SelectItem>
+                          ))
+                        }
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="school-address" className="text-right">
+                      ที่อยู่
+                    </Label>
+                    <Input
+                      id="school-address"
+                      value={newSchool.address}
+                      onChange={(e) => setNewSchool({...newSchool, address: e.target.value})}
+                      className="col-span-3"
+                      placeholder="ที่อยู่โรงเรียน"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="school-district" className="text-right">
+                      อำเภอ/เขต
+                    </Label>
+                    <Input
+                      id="school-district"
+                      value={newSchool.district}
+                      onChange={(e) => setNewSchool({...newSchool, district: e.target.value})}
+                      className="col-span-3"
+                      placeholder="เช่น บางกะปิ"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="school-province" className="text-right">
+                      จังหวัด
+                    </Label>
+                    <Input
+                      id="school-province"
+                      value={newSchool.province}
+                      onChange={(e) => setNewSchool({...newSchool, province: e.target.value})}
+                      className="col-span-3"
+                      placeholder="เช่น กรุงเทพมหานคร"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="school-phone" className="text-right">
+                      โทรศัพท์
+                    </Label>
+                    <Input
+                      id="school-phone"
+                      value={newSchool.phone}
+                      onChange={(e) => setNewSchool({...newSchool, phone: e.target.value})}
+                      className="col-span-3"
+                      placeholder="02-XXX-XXXX"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="school-email" className="text-right">
+                      อีเมล
+                    </Label>
+                    <Input
+                      id="school-email"
+                      type="email"
+                      value={newSchool.email}
+                      onChange={(e) => setNewSchool({...newSchool, email: e.target.value})}
+                      className="col-span-3"
+                      placeholder="school@example.com"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setCreateSchoolDialog(false)}>
+                    ยกเลิก
+                  </Button>
+                  <Button onClick={handleCreateSchool} className="bg-indigo-600 hover:bg-indigo-700">
+                    🏫 สร้างโรงเรียน
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
             
             <button
               onClick={() => {
@@ -940,6 +1234,49 @@ const AdminDashboard = () => {
           <div className="text-sm text-gray-700"><span aria-hidden="true">⏳</span> รอการชำระเงิน</div>
         </div>
       </section>
+
+      {/* Schools Section */}
+      {schools.length > 0 && (
+        <section aria-label="รายการโรงเรียน" className="card-glass p-4 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <span aria-hidden="true">🏫</span>
+              โรงเรียนในระบบ ({schools.length})
+            </h2>
+            <button
+              onClick={fetchSchools}
+              className="text-sm text-blue-600 hover:text-blue-800"
+            >
+              🔄 รีเฟรช
+            </button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {schools.map(school => (
+              <div key={school.id} className="bg-white/80 rounded-lg p-4 border border-gray-200">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="font-bold text-gray-900">{school.name}</h3>
+                    <p className="text-sm text-gray-600">รหัส: {school.code}</p>
+                  </div>
+                  <button
+                    onClick={() => navigate('/school-admin')}
+                    className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded hover:bg-indigo-200"
+                  >
+                    จัดการ →
+                  </button>
+                </div>
+                <div className="mt-2 flex gap-4 text-sm">
+                  <span className="text-green-700">👨‍🏫 ครู: {school.teacher_count || 0}</span>
+                  <span className="text-blue-700">👦 นักเรียน: {school.student_count || 0}</span>
+                </div>
+                {school.province && (
+                  <p className="text-xs text-gray-500 mt-1">📍 {school.district && `${school.district}, `}{school.province}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Search Box */}
       <div className="card-glass p-4 mb-4" role="search">
