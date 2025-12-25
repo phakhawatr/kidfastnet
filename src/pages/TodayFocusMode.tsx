@@ -1,14 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useTrainingCalendar, DailyMission } from '@/hooks/useTrainingCalendar';
+import { useTrainingCalendar, DailyMission, QuestionAttempt } from '@/hooks/useTrainingCalendar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { 
   ArrowLeft, Brain, Target, Zap, Trophy, Star, Flame, Sparkles, 
-  PartyPopper, CheckCircle2, Calendar, Loader2, Clock, History
+  PartyPopper, CheckCircle2, Calendar, Loader2, Clock, History, Eye
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -30,6 +31,8 @@ const TodayFocusMode = () => {
     completeMission
   } = useTrainingCalendar();
   const [selectedMission, setSelectedMission] = useState<DailyMission | null>(null);
+  const [showResultModal, setShowResultModal] = useState(false);
+  const [viewingMission, setViewingMission] = useState<DailyMission | null>(null);
   const hasAttemptedGeneration = useRef(false);
   const lastGeneratedDate = useRef<string>('');
   const needsRefresh = searchParams.get('refresh') === 'true';
@@ -869,17 +872,37 @@ const TodayFocusMode = () => {
                           คะแนน: {mission.correct_answers}/{mission.total_questions} ข้อ
                           ({Math.round((mission.correct_answers! / mission.total_questions) * 100)}%)
                         </p>
-                        {mission.can_retry && (
-                          <button
-                            className="mt-3 w-full px-4 py-2 text-sm font-semibold bg-slate-800 text-yellow-300 border border-yellow-400 rounded-lg hover:bg-yellow-500/20 transition-colors"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedMission(mission);
-                            }}
-                          >
-                            🔄 ทำใหม่
-                          </button>
-                        )}
+                        
+                        {/* Action buttons: View Results and Retry */}
+                        <div className="flex gap-2 mt-3">
+                          {mission.question_attempts && mission.question_attempts.length > 0 && (
+                            <button
+                              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setViewingMission(mission);
+                                setShowResultModal(true);
+                              }}
+                            >
+                              <Eye className="w-4 h-4" />
+                              ดูผล
+                            </button>
+                          )}
+                          {mission.can_retry && (
+                            <button
+                              className={cn(
+                                "flex-1 px-4 py-2 text-sm font-semibold bg-slate-800 text-yellow-300 border border-yellow-400 rounded-lg hover:bg-yellow-500/20 transition-colors",
+                                mission.question_attempts && mission.question_attempts.length > 0 ? "" : "w-full"
+                              )}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedMission(mission);
+                              }}
+                            >
+                              🔄 ทำใหม่
+                            </button>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -975,6 +998,101 @@ const TodayFocusMode = () => {
           </div>
         </div>
       </div>
+
+      {/* Results Modal */}
+      <Dialog open={showResultModal} onOpenChange={setShowResultModal}>
+        <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto bg-slate-900 border-slate-700">
+          <DialogHeader>
+            <DialogTitle className="text-white text-xl flex items-center gap-2">
+              <Trophy className="w-6 h-6 text-yellow-400" />
+              ผลลัพธ์ภารกิจ - {viewingMission?.skill_name}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {viewingMission && (
+            <div className="space-y-4">
+              {/* Summary */}
+              <div className="bg-slate-800 p-4 rounded-lg">
+                <div className="flex items-center gap-6 justify-center">
+                  <div className="text-center">
+                    <span className="text-3xl font-bold text-green-400">{viewingMission.correct_answers}</span>
+                    <span className="text-xl text-slate-400">/{viewingMission.total_questions}</span>
+                    <p className="text-sm text-slate-400">ข้อถูก</p>
+                  </div>
+                  <div className="flex">
+                    {Array.from({ length: viewingMission.stars_earned || 0 }).map((_, i) => (
+                      <Star key={i} className="w-8 h-8 text-yellow-400 fill-yellow-400" />
+                    ))}
+                    {viewingMission.stars_earned === 0 && (
+                      <span className="text-orange-400 font-medium">ไม่ได้รับดาว</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Question Details */}
+              <div className="space-y-3">
+                <h3 className="text-white font-semibold text-lg">รายละเอียดคำตอบ</h3>
+                {viewingMission.question_attempts && viewingMission.question_attempts.length > 0 ? (
+                  viewingMission.question_attempts.map((attempt, idx) => {
+                    const isCorrect = String(attempt.userAnswer || '').trim() === String(attempt.correctAnswer || '').trim();
+                    
+                    return (
+                      <div 
+                        key={idx}
+                        className={cn(
+                          "p-4 rounded-lg border-2",
+                          isCorrect 
+                            ? "bg-green-900/20 border-green-600" 
+                            : "bg-red-900/20 border-red-600"
+                        )}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className={cn(
+                            "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0",
+                            isCorrect ? "bg-green-600 text-white" : "bg-red-600 text-white"
+                          )}>
+                            {attempt.index || idx + 1}
+                          </div>
+                          <div className="flex-1 space-y-2">
+                            <p className="text-white font-medium">{attempt.question}</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                              <div className={cn(
+                                "p-2 rounded-lg",
+                                isCorrect ? "bg-green-800/50" : "bg-red-800/50"
+                              )}>
+                                <span className="text-slate-300">คำตอบของคุณ: </span>
+                                <span className={isCorrect ? "text-green-300 font-semibold" : "text-red-300 font-semibold"}>
+                                  {attempt.userAnswer || '-'}
+                                </span>
+                              </div>
+                              {!isCorrect && (
+                                <div className="p-2 rounded-lg bg-green-800/50">
+                                  <span className="text-slate-300">คำตอบที่ถูก: </span>
+                                  <span className="text-green-300 font-semibold">{attempt.correctAnswer}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="shrink-0">
+                            {isCorrect ? (
+                              <CheckCircle2 className="w-6 h-6 text-green-400" />
+                            ) : (
+                              <span className="text-red-400 text-xl">✗</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p className="text-slate-400 text-center py-4">ไม่มีข้อมูลคำตอบ</p>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

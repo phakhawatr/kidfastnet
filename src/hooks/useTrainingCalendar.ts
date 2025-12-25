@@ -20,6 +20,7 @@ export interface DailyMission {
   created_at: string;
   mission_option?: number;
   daily_message?: string;
+  question_attempts?: QuestionAttempt[];
 }
 
 export interface UserStreak {
@@ -111,7 +112,13 @@ export const useTrainingCalendar = () => {
 
       if (error) throw error;
 
-      setMissions((data || []) as DailyMission[]);
+      // Map data and properly type question_attempts from Json to QuestionAttempt[]
+      const mappedMissions = (data || []).map(mission => ({
+        ...mission,
+        question_attempts: mission.question_attempts as unknown as QuestionAttempt[] | undefined
+      })) as DailyMission[];
+      
+      setMissions(mappedMissions);
     } catch (error) {
       console.error('Error fetching missions:', error);
       toast({
@@ -747,7 +754,13 @@ export const useTrainingCalendar = () => {
       return [];
     }
 
-    return (data || []) as DailyMission[];
+    // Map data and properly type question_attempts from Json to QuestionAttempt[]
+    const mappedMissions = (data || []).map(mission => ({
+      ...mission,
+      question_attempts: mission.question_attempts as unknown as QuestionAttempt[] | undefined
+    })) as DailyMission[];
+    
+    return mappedMissions;
   };
 
   // Helper to check if mission is completed
