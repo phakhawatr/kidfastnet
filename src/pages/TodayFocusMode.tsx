@@ -1009,21 +1009,47 @@ const TodayFocusMode = () => {
             </DialogTitle>
           </DialogHeader>
           
-          {viewingMission && (
+          {viewingMission && (() => {
+            // Recalculate correct count from actual answers (fixes old data with wrong isCorrect)
+            const recalculatedResults = (() => {
+              if (!viewingMission.question_attempts || viewingMission.question_attempts.length === 0) {
+                return { correctCount: viewingMission.correct_answers || 0, total: viewingMission.total_questions, stars: viewingMission.stars_earned || 0 };
+              }
+              
+              let correctCount = 0;
+              viewingMission.question_attempts.forEach(attempt => {
+                const userAns = String(attempt.userAnswer || '').trim();
+                const correctAns = String(attempt.correctAnswer || '').trim();
+                if (userAns === correctAns) correctCount++;
+              });
+              
+              const total = viewingMission.question_attempts.length;
+              const accuracy = total > 0 ? (correctCount / total) * 100 : 0;
+              
+              // Calculate stars using same thresholds as missionUtils
+              let stars = 0;
+              if (accuracy >= 90) stars = 3;
+              else if (accuracy >= 80) stars = 2;
+              else if (accuracy >= 70) stars = 1;
+              
+              return { correctCount, total, stars };
+            })();
+            
+            return (
             <div className="space-y-4">
               {/* Summary */}
               <div className="bg-muted p-4 rounded-lg">
                 <div className="flex items-center gap-6 justify-center">
                   <div className="text-center">
-                    <span className="text-3xl font-bold text-green-600 dark:text-green-400">{viewingMission.correct_answers}</span>
-                    <span className="text-xl text-muted-foreground">/{viewingMission.total_questions}</span>
+                    <span className="text-3xl font-bold text-green-600 dark:text-green-400">{recalculatedResults.correctCount}</span>
+                    <span className="text-xl text-muted-foreground">/{recalculatedResults.total}</span>
                     <p className="text-sm text-muted-foreground">ข้อถูก</p>
                   </div>
                   <div className="flex">
-                    {Array.from({ length: viewingMission.stars_earned || 0 }).map((_, i) => (
+                    {Array.from({ length: recalculatedResults.stars }).map((_, i) => (
                       <Star key={i} className="w-8 h-8 text-yellow-500 fill-yellow-500" />
                     ))}
-                    {viewingMission.stars_earned === 0 && (
+                    {recalculatedResults.stars === 0 && (
                       <span className="text-orange-600 dark:text-orange-400 font-medium">ไม่ได้รับดาว</span>
                     )}
                   </div>
@@ -1035,10 +1061,8 @@ const TodayFocusMode = () => {
                 <h3 className="text-foreground font-semibold text-lg">รายละเอียดคำตอบ</h3>
                 {viewingMission.question_attempts && viewingMission.question_attempts.length > 0 ? (
                   viewingMission.question_attempts.map((attempt, idx) => {
-                    // Use stored isCorrect value if available, otherwise fallback to string comparison
-                    const isCorrect = typeof attempt.isCorrect === 'boolean' 
-                      ? attempt.isCorrect 
-                      : String(attempt.userAnswer || '').trim() === String(attempt.correctAnswer || '').trim();
+                    // Always compare actual answers (don't trust stored isCorrect which may be wrong)
+                    const isCorrect = String(attempt.userAnswer || '').trim() === String(attempt.correctAnswer || '').trim();
                     
                     return (
                       <div 
@@ -1100,7 +1124,8 @@ const TodayFocusMode = () => {
                 )}
               </div>
             </div>
-          )}
+            );
+          })()}
         </DialogContent>
       </Dialog>
     </div>
