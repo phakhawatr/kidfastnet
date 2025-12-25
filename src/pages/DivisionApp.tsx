@@ -399,23 +399,32 @@ const DivisionApp: React.FC = () => {
         const userAnswer = answers[index][0] || '';
         let isCorrect = false;
         let correctAnswer = '';
+        let displayUserAnswer = userAnswer || '-';
         
         if (divisionType === 'remainder') {
+          // Format both consistently for display and comparison
           correctAnswer = `${problem.quotient} เศษ ${problem.remainder}`;
           const expectedAnswer = `${problem.quotient}-${problem.remainder}`;
           isCorrect = userAnswer === expectedAnswer;
+          // Convert userAnswer to display format
+          if (userAnswer && userAnswer.includes('-')) {
+            const [q, r] = userAnswer.split('-');
+            displayUserAnswer = `${q} เศษ ${r}`;
+          }
         } else if (divisionType === 'decimal') {
           correctAnswer = problem.quotient.toFixed(2);
           isCorrect = Math.abs(parseFloat(userAnswer) - problem.quotient) < 0.01;
+          displayUserAnswer = userAnswer || '-';
         } else {
           correctAnswer = problem.quotient.toString();
           isCorrect = parseFloat(userAnswer) === problem.quotient;
+          displayUserAnswer = userAnswer || '-';
         }
         
         return {
           index: index + 1,
           question: `${problem.dividend} ÷ ${problem.divisor}`,
-          userAnswer: userAnswer || '-',
+          userAnswer: displayUserAnswer,
           correctAnswer,
           isCorrect
         };

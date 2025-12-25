@@ -185,11 +185,22 @@ const NumberSeriesApp: React.FC = () => {
     setStartTime(Date.now());
   }, [count]);
   
+  // Track user answers for each task
+  const [userAnswers, setUserAnswers] = useState<Map<number, { answer: number; isCorrect: boolean }>>(new Map());
+  
   const handleInputChange = useCallback(async (taskIndex: number, value: string) => {
     const numValue = Number(value.trim());
     if (!Number.isFinite(numValue)) return;
     const task = state.tasks[taskIndex];
     const isCorrect = numValue === task.ans;
+    
+    // Track this user's answer
+    setUserAnswers(prev => {
+      const newMap = new Map(prev);
+      newMap.set(taskIndex, { answer: numValue, isCorrect });
+      return newMap;
+    });
+    
     if (isCorrect) {
       const newCorrect = state.correct + 1;
       setState(prev => ({
@@ -205,14 +216,17 @@ const NumberSeriesApp: React.FC = () => {
           const timeSpent = Date.now() - startTime;
           
           if (isMissionMode) {
-            // Build questionAttempts for parent dashboard
-            const questionAttempts: QuestionAttempt[] = state.tasks.map((task, index) => ({
-              index: index + 1,
-              question: `${task.seq.join(', ')}, ?`,
-              userAnswer: String(task.ans),
-              correctAnswer: String(task.ans),
-              isCorrect: true
-            }));
+            // Build questionAttempts for parent dashboard with actual user answers
+            const questionAttempts: QuestionAttempt[] = state.tasks.map((task, index) => {
+              const userAttempt = userAnswers.get(index);
+              return {
+                index: index + 1,
+                question: `${task.seq.join(', ')}, ?`,
+                userAnswer: userAttempt ? String(userAttempt.answer) : String(task.ans),
+                correctAnswer: String(task.ans),
+                isCorrect: userAttempt ? userAttempt.isCorrect : true
+              };
+            });
             
             // Complete mission
             await handleCompleteMission(newCorrect, state.tasks.length, timeSpent, questionAttempts);
@@ -229,7 +243,7 @@ const NumberSeriesApp: React.FC = () => {
     } else {
       beep(220, 0.07, 'sawtooth');
     }
-  }, [state.tasks, state.correct, beep, toast, isMissionMode, handleCompleteMission, startTime]);
+  }, [state.tasks, state.correct, beep, toast, isMissionMode, handleCompleteMission, startTime, userAnswers]);
   const handlePreset = () => {
     setState(prev => ({
       ...prev,

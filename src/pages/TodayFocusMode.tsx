@@ -1035,7 +1035,10 @@ const TodayFocusMode = () => {
                 <h3 className="text-foreground font-semibold text-lg">รายละเอียดคำตอบ</h3>
                 {viewingMission.question_attempts && viewingMission.question_attempts.length > 0 ? (
                   viewingMission.question_attempts.map((attempt, idx) => {
-                    const isCorrect = String(attempt.userAnswer || '').trim() === String(attempt.correctAnswer || '').trim();
+                    // Use stored isCorrect value if available, otherwise fallback to string comparison
+                    const isCorrect = typeof attempt.isCorrect === 'boolean' 
+                      ? attempt.isCorrect 
+                      : String(attempt.userAnswer || '').trim() === String(attempt.correctAnswer || '').trim();
                     
                     return (
                       <div 
