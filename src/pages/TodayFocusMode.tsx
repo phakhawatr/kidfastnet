@@ -588,8 +588,9 @@ const TodayFocusMode = () => {
   // Check if all completed - require exactly 3 missions AND all completed
   const allCompleted = todayMissions.length >= 3 && todayMissions.every(m => isMissionCompleted(m));
 
-  // Show completed view only when ALL 3 missions are done
-  if (allCompleted) {
+  // Show completed view only when ALL 3 missions are done AND NOT viewing past date
+  // When viewing past, always show the mission cards with their status
+  if (allCompleted && !isViewingPast) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
         <div className="max-w-4xl mx-auto">

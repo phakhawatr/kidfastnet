@@ -73,9 +73,9 @@ const TrainingCalendar = () => {
   const getDayStyles = (status: string) => {
     const baseStyles = 'flex flex-col items-center justify-center p-2 rounded-xl transition-all duration-300 relative';
     
-    // Add cursor-pointer for clickable days
-    const isClickable = ['today', 'perfect', 'good', 'pass', 'skipped', 'catchup', 'pending'].includes(status);
-    const clickableStyles = isClickable ? 'cursor-pointer' : 'cursor-default';
+    // Add cursor-pointer for clickable days (all except future)
+    const isClickable = status !== 'future';
+    const clickableStyles = isClickable ? 'cursor-pointer hover:opacity-90' : 'cursor-default';
     
     switch (status) {
       case 'perfect':
@@ -131,17 +131,13 @@ const TrainingCalendar = () => {
     if (status === 'today') {
       // Today → go to today's mission page
       navigate('/today-mission');
-    } else if (status === 'skipped' && mission) {
-      // Skipped day with mission → view history
-      navigate(`/today-mission?date=${dateStr}`);
-    } else if (mission && (status === 'perfect' || status === 'good' || status === 'pass' || status === 'catchup')) {
-      // Completed mission → view history
-      navigate(`/today-mission?date=${dateStr}`);
-    } else if (status === 'pending' && mission) {
-      // Pending mission → view history
+    } else if (status === 'future') {
+      // Future days → do nothing (locked)
+      return;
+    } else {
+      // All past days are clickable (including rest, skipped, completed, etc.)
       navigate(`/today-mission?date=${dateStr}`);
     }
-    // Future and Rest → do nothing
   };
 
   const changeMonth = (direction: 'prev' | 'next') => {
