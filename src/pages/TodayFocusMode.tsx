@@ -1001,10 +1001,10 @@ const TodayFocusMode = () => {
 
       {/* Results Modal */}
       <Dialog open={showResultModal} onOpenChange={setShowResultModal}>
-        <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto bg-slate-900 border-slate-700">
+        <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto bg-background border-border">
           <DialogHeader>
-            <DialogTitle className="text-white text-xl flex items-center gap-2">
-              <Trophy className="w-6 h-6 text-yellow-400" />
+            <DialogTitle className="text-foreground text-xl flex items-center gap-2">
+              <Trophy className="w-6 h-6 text-yellow-500" />
               ผลลัพธ์ภารกิจ - {viewingMission?.skill_name}
             </DialogTitle>
           </DialogHeader>
@@ -1012,19 +1012,19 @@ const TodayFocusMode = () => {
           {viewingMission && (
             <div className="space-y-4">
               {/* Summary */}
-              <div className="bg-slate-800 p-4 rounded-lg">
+              <div className="bg-muted p-4 rounded-lg">
                 <div className="flex items-center gap-6 justify-center">
                   <div className="text-center">
-                    <span className="text-3xl font-bold text-green-400">{viewingMission.correct_answers}</span>
-                    <span className="text-xl text-slate-400">/{viewingMission.total_questions}</span>
-                    <p className="text-sm text-slate-400">ข้อถูก</p>
+                    <span className="text-3xl font-bold text-green-600 dark:text-green-400">{viewingMission.correct_answers}</span>
+                    <span className="text-xl text-muted-foreground">/{viewingMission.total_questions}</span>
+                    <p className="text-sm text-muted-foreground">ข้อถูก</p>
                   </div>
                   <div className="flex">
                     {Array.from({ length: viewingMission.stars_earned || 0 }).map((_, i) => (
-                      <Star key={i} className="w-8 h-8 text-yellow-400 fill-yellow-400" />
+                      <Star key={i} className="w-8 h-8 text-yellow-500 fill-yellow-500" />
                     ))}
                     {viewingMission.stars_earned === 0 && (
-                      <span className="text-orange-400 font-medium">ไม่ได้รับดาว</span>
+                      <span className="text-orange-600 dark:text-orange-400 font-medium">ไม่ได้รับดาว</span>
                     )}
                   </div>
                 </div>
@@ -1032,7 +1032,7 @@ const TodayFocusMode = () => {
               
               {/* Question Details */}
               <div className="space-y-3">
-                <h3 className="text-white font-semibold text-lg">รายละเอียดคำตอบ</h3>
+                <h3 className="text-foreground font-semibold text-lg">รายละเอียดคำตอบ</h3>
                 {viewingMission.question_attempts && viewingMission.question_attempts.length > 0 ? (
                   viewingMission.question_attempts.map((attempt, idx) => {
                     const isCorrect = String(attempt.userAnswer || '').trim() === String(attempt.correctAnswer || '').trim();
@@ -1043,42 +1043,49 @@ const TodayFocusMode = () => {
                         className={cn(
                           "p-4 rounded-lg border-2",
                           isCorrect 
-                            ? "bg-green-900/20 border-green-600" 
-                            : "bg-red-900/20 border-red-600"
+                            ? "bg-green-50 dark:bg-green-900/20 border-green-500" 
+                            : "bg-red-50 dark:bg-red-900/20 border-red-500"
                         )}
                       >
                         <div className="flex items-start gap-3">
                           <div className={cn(
-                            "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0",
-                            isCorrect ? "bg-green-600 text-white" : "bg-red-600 text-white"
+                            "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 text-white",
+                            isCorrect ? "bg-green-600" : "bg-red-600"
                           )}>
                             {attempt.index || idx + 1}
                           </div>
                           <div className="flex-1 space-y-2">
-                            <p className="text-white font-medium">{attempt.question}</p>
+                            <p className="text-foreground font-medium">{attempt.question}</p>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                               <div className={cn(
                                 "p-2 rounded-lg",
-                                isCorrect ? "bg-green-800/50" : "bg-red-800/50"
+                                isCorrect 
+                                  ? "bg-green-100 dark:bg-green-800/50" 
+                                  : "bg-red-100 dark:bg-red-800/50"
                               )}>
-                                <span className="text-slate-300">คำตอบของคุณ: </span>
-                                <span className={isCorrect ? "text-green-300 font-semibold" : "text-red-300 font-semibold"}>
+                                <span className="text-muted-foreground">คำตอบของคุณ: </span>
+                                <span className={cn(
+                                  "font-semibold",
+                                  isCorrect 
+                                    ? "text-green-700 dark:text-green-300" 
+                                    : "text-red-700 dark:text-red-300"
+                                )}>
                                   {attempt.userAnswer || '-'}
                                 </span>
                               </div>
                               {!isCorrect && (
-                                <div className="p-2 rounded-lg bg-green-800/50">
-                                  <span className="text-slate-300">คำตอบที่ถูก: </span>
-                                  <span className="text-green-300 font-semibold">{attempt.correctAnswer}</span>
+                                <div className="p-2 rounded-lg bg-green-100 dark:bg-green-800/50">
+                                  <span className="text-muted-foreground">คำตอบที่ถูก: </span>
+                                  <span className="text-green-700 dark:text-green-300 font-semibold">{attempt.correctAnswer}</span>
                                 </div>
                               )}
                             </div>
                           </div>
                           <div className="shrink-0">
                             {isCorrect ? (
-                              <CheckCircle2 className="w-6 h-6 text-green-400" />
+                              <CheckCircle2 className="w-6 h-6 text-green-600 dark:text-green-400" />
                             ) : (
-                              <span className="text-red-400 text-xl">✗</span>
+                              <span className="text-red-600 dark:text-red-400 text-xl font-bold">✗</span>
                             )}
                           </div>
                         </div>
@@ -1086,7 +1093,7 @@ const TodayFocusMode = () => {
                     );
                   })
                 ) : (
-                  <p className="text-slate-400 text-center py-4">ไม่มีข้อมูลคำตอบ</p>
+                  <p className="text-muted-foreground text-center py-4">ไม่มีข้อมูลคำตอบ</p>
                 )}
               </div>
             </div>
