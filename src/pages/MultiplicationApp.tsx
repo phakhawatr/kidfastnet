@@ -286,8 +286,9 @@ const MultiplicationApp = () => {
     
     problems.forEach((problem, problemIdx) => {
       let problemCorrect = true;
+      let partialProductsCorrect = true;
       
-      // Check partial products
+      // Check partial products (only if there are multiple partial products)
       problem.partialProducts.forEach((correctProduct, rowIdx) => {
         const userAnswer = answers[problemIdx].partialProducts[rowIdx].join('');
         const isCorrect = userAnswer === correctProduct;
@@ -300,35 +301,44 @@ const MultiplicationApp = () => {
         
         if (!isCorrect) {
           allCorrect = false;
-          problemCorrect = false;
+          partialProductsCorrect = false;
         }
       });
       
       // Check final answer
       const userFinalAnswer = answers[problemIdx].finalAnswer.join('');
-      const isCorrect = userFinalAnswer === problem.finalAnswer;
+      const finalAnswerCorrect = userFinalAnswer === problem.finalAnswer;
       const finalRowIdx = problem.partialProducts.length;
       
       for (let digitIdx = 0; digitIdx < problem.finalAnswer.length; digitIdx++) {
         if (newResults[problemIdx][finalRowIdx]) {
-          newResults[problemIdx][finalRowIdx][digitIdx] = isCorrect ? 'correct' : 'incorrect';
+          newResults[problemIdx][finalRowIdx][digitIdx] = finalAnswerCorrect ? 'correct' : 'incorrect';
         }
       }
       
-      if (!isCorrect) {
+      if (!finalAnswerCorrect) {
         allCorrect = false;
-        problemCorrect = false;
+      }
+      
+      // For mission mode: only check final answer (simple multiplication)
+      // For regular mode: check both partial products and final answer
+      if (isMissionMode) {
+        // In mission mode, only the final answer matters for scoring
+        problemCorrect = finalAnswerCorrect;
+      } else {
+        // Regular mode requires both partial products and final answer
+        problemCorrect = partialProductsCorrect && finalAnswerCorrect;
       }
       
       if (problemCorrect) correctCount++;
       
-      // Record question attempt
+      // Record question attempt - use final answer for comparison
       questionAttempts.push({
         index: problemIdx + 1,
         question: `${problem.multiplicand} × ${problem.multiplier}`,
-        userAnswer: userFinalAnswer || '',
+        userAnswer: userFinalAnswer || '-',
         correctAnswer: problem.finalAnswer,
-        isCorrect: problemCorrect
+        isCorrect: finalAnswerCorrect
       });
     });
     

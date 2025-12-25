@@ -132,11 +132,12 @@ const MoneyApp = () => {
       const duration = missionStartTime ? Date.now() - missionStartTime : 10000; // Default 10s if no start time
       
       // Build questionAttempts for parent dashboard
+      // Use consistent format without "บาท" suffix for proper comparison
       const questionAttempts: QuestionAttempt[] = updatedProblems.map((problem, index) => ({
         index: index + 1,
         question: problem.question,
         userAnswer: problem.userAnswer || '-',
-        correctAnswer: `${problem.correctAnswer} บาท`,
+        correctAnswer: problem.correctAnswer.toString(),
         isCorrect: problem.isCorrect === true
       }));
       

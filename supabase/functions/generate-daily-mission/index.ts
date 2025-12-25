@@ -286,7 +286,7 @@ ${skillsList}
     {
       "skill_name": "ชื่อทักษะ",
       "difficulty": "easy|medium|hard",
-      "total_questions": 10-15,
+      "total_questions": 10,
       "reasoning": "เหตุผลสั้นๆ ว่าทำไมเลือกทักษะนี้"
     }
   ],
@@ -318,7 +318,7 @@ ${skillsList}
     {
       "skill_name": "ชื่อทักษะ",
       "difficulty": "easy|medium|hard",
-      "total_questions": 10-15,
+      "total_questions": 10,
       "reasoning": "เหตุผลสั้นๆ ว่าทำไมเลือกทักษะนี้"
     }
   ],
@@ -503,7 +503,7 @@ ${addSingleMission
       mission_date: today,
       skill_name: mission.skill_name,
       difficulty: mission.difficulty,
-      total_questions: mission.total_questions || 15,
+      total_questions: 10, // Always 10 questions per mission
       status: 'pending',
       ai_reasoning: mission.reasoning,
       mission_option: startingOption + index, // Use correct option numbers
