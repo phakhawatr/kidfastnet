@@ -5,6 +5,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { ToastManager } from '../components/Toast';
 import { useUserPresence } from './useUserPresence';
 import { sessionManager } from '../utils/sessionTimeout';
+import { hasAppAccess } from '../config/subscriptionConfig';
 
 interface AuthState {
   loggedIn: boolean;
@@ -12,6 +13,7 @@ interface AuthState {
   isDemo?: boolean;
   registrationId?: string; // Store registration ID for presence tracking
   memberId?: string; // Store member ID
+  isOAuth?: boolean; // Track if user logged in via OAuth
 }
 
 interface ProfileData {
@@ -70,8 +72,54 @@ export const useAuth = () => {
         
         // Defer profile fetch to avoid recursion
         if (session?.user) {
-          setTimeout(() => {
-            fetchUserProfile(session.user.id);
+          // Check if this is an OAuth user (Google)
+          const isOAuth = session.user.app_metadata?.provider === 'google';
+          
+          setTimeout(async () => {
+            // For OAuth users, fetch from user_registrations directly
+            if (isOAuth) {
+              try {
+                const { data: regData } = await supabase
+                  .from('user_registrations')
+                  .select('id, nickname, age, grade, avatar, subscription_tier, ai_features_enabled, ai_monthly_quota, ai_usage_count, ai_quota_reset_date, member_id')
+                  .eq('id', session.user.id)
+                  .maybeSingle();
+                
+                if (regData) {
+                  // Set up localStorage auth state for OAuth user
+                  const authState: AuthState = {
+                    loggedIn: true,
+                    username: regData.nickname,
+                    isDemo: false,
+                    registrationId: regData.id,
+                    memberId: regData.member_id,
+                    isOAuth: true
+                  };
+                  localStorage.setItem('kidfast_auth', JSON.stringify(authState));
+                  localStorage.setItem('kidfast_last_email', session.user.email || '');
+                  
+                  setProfile({
+                    nickname: regData.nickname,
+                    age: regData.age,
+                    grade: regData.grade,
+                    avatar: regData.avatar,
+                    is_approved: true,
+                    subscription_tier: regData.subscription_tier,
+                    ai_features_enabled: regData.ai_features_enabled,
+                    ai_monthly_quota: regData.ai_monthly_quota,
+                    ai_usage_count: regData.ai_usage_count,
+                    ai_quota_reset_date: regData.ai_quota_reset_date,
+                  });
+                  
+                  // Trigger auth change event
+                  window.dispatchEvent(new Event('auth-change'));
+                }
+              } catch (error) {
+                console.error('[useAuth] Error fetching OAuth user profile:', error);
+              }
+            } else {
+              fetchUserProfile(session.user.id);
+            }
           }, 0);
         } else {
           // Fallback: Check localStorage auth
@@ -389,6 +437,40 @@ export const useAuth = () => {
     }
   };
 
+  // Google OAuth Sign In
+  const signInWithGoogle = async () => {
+    try {
+      const redirectUrl = `${window.location.origin}/profile`;
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectUrl,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
+      });
+
+      if (error) {
+        ToastManager.show({
+          message: 'เกิดข้อผิดพลาดในการเข้าสู่ระบบด้วย Google',
+          type: 'error'
+        });
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (error: any) {
+      ToastManager.show({
+        message: 'เกิดข้อผิดพลาดในการเข้าสู่ระบบด้วย Google',
+        type: 'error'
+      });
+      return { success: false, error: error.message };
+    }
+  };
+
   const logout = async () => {
     try {
       // Stop session monitoring
@@ -488,10 +570,13 @@ export const useAuth = () => {
     isDemo,
     isLoading,
     registrationId: authState?.registrationId,
+    subscriptionTier: profile?.subscription_tier || 'basic',
+    hasAppAccess: (appPath: string) => hasAppAccess(appPath, profile?.subscription_tier),
     login,
     signup,
     logout,
     demoLogin,
+    signInWithGoogle,
     fetchUserProfile
   };
 };
