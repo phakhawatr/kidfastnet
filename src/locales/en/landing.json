@@ -32,9 +32,9 @@
     ]
   },
   "premiumFeatures": {
-    "badge": "👑 Premium Features",
-    "title": "✨ Special Features for Premium Members",
-    "subtitle": "Unlock AI features that make learning math more fun and effective!",
+    "badge": "👑 Premium Features - 40+ Activities",
+    "title": "✨ Unlock 40+ Premium Features",
+    "subtitle": "Complete with AI tutors, 8 STEM labs, real-world skills, and learning progress tracking tools!",
     "features": [
       {
         "icon": "🤖",
@@ -46,16 +46,37 @@
         "icon": "📊",
         "title": "AI Strengths-Weaknesses Analysis",
         "description": "Analyze learning results and provide personalized recommendations to develop missing skills",
-        "badge": "Coming Soon"
+        "badge": "Available Now"
       },
       {
         "icon": "🎯",
         "title": "AI Adaptive Problem Generator",
         "description": "Create problems that adjust difficulty based on ability level for continuous learning",
-        "badge": "Coming Soon"
+        "badge": "Available Now"
       }
     ],
-    "upgradeButton": "Upgrade to Premium for These Features"
+    "upgradeButton": "🚀 Upgrade Premium - Unlock All Features",
+    "stats": {
+      "activities": "40+",
+      "activitiesLabel": "Learning Activities",
+      "stemLabs": "8",
+      "stemLabsLabel": "STEM Labs",
+      "unlimited": "∞",
+      "unlimitedLabel": "Unlimited AI Problems",
+      "tracking": "24/7",
+      "trackingLabel": "Learning Tracking"
+    },
+    "categories": {
+      "ai": "🤖 AI Features",
+      "stem": "🔬 STEM Hub",
+      "realworld": "💰 Life Skills",
+      "advanced": "🧮 Advanced Math",
+      "parents": "👨‍👩‍👧 Parents"
+    },
+    "unlockCta": "Unlock All Features Today!",
+    "priceInfo": "Starting at ฿199/month or ฿399/6 months (Save 67%!)",
+    "trustBadge": "Trusted by 500+ families",
+    "cancelAnytime": "Cancel anytime"
   },
   "aiExamples": {
     "title": "✨ AI Practice Examples",
