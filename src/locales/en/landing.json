@@ -121,17 +121,20 @@
     ],
     "cta": "🎯 Sign up today, practice first excel first, Olympic gold medal awaits!"
   },
-  "promotion": {
-    "badge": "🔥 Special Promotion 🔥",
-    "title": "For the First 500 Students",
-    "originalPriceLabel": "From 6-month membership price",
-    "originalPrice": "799 Baht",
-    "discountLabel": "Special discount price only",
-    "specialPrice": "399 Baht",
-    "onlyText": "Only!",
-    "supportText": "💙 To Support Thai Children's Education 💙",
-    "ctaButton": "Sign Up Now!",
-    "urgencyText": "⏰ Only a few spots left! Register before quota runs out! ⏰"
+  "freeSignup": {
+    "badge": "🎁 Free Member 🎁",
+    "title": "Start Practicing Math Now - It's Free!",
+    "message": "KidFastAI wants every Thai child to master Addition, Subtraction, Multiplication, and Division at a national level. As a tool for developing all Thai children,",
+    "highlight": "KidFastAI generously offers FREE membership with access to 4 Apps!",
+    "addition": "Addition",
+    "subtraction": "Subtraction",
+    "multiplication": "Multiplication",
+    "division": "Division",
+    "gmailNote": "Just have a Gmail account and click to sign up - start practicing instantly!",
+    "ctaButton": "Sign Up Free with Gmail",
+    "noCost": "No cost",
+    "noCard": "No credit card",
+    "useForever": "Use forever"
   },
   "finalCta": {
     "button": "✨ Sign Up Now! ✨",
