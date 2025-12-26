@@ -1,6 +1,19 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { 
+  getCachedMissions, 
+  cacheMissions, 
+  getCachedStreak, 
+  cacheStreak,
+  invalidateMissionCache 
+} from '@/utils/missionCache';
+import { 
+  isFreeTier, 
+  checkFreeTierRateLimit, 
+  recordFreeTierApiCall,
+  markWarningShown 
+} from '@/utils/freeTierRateLimiter';
 
 export interface DailyMission {
   id: string;
@@ -89,7 +102,7 @@ export const useTrainingCalendar = () => {
     initializeUser();
   }, []);
 
-  // Fetch missions for a specific month
+  // Fetch missions for a specific month (with caching for free tier)
   const fetchMissions = useCallback(async (month: number, year: number) => {
     if (!userId) {
       setIsLoading(false);
@@ -98,6 +111,43 @@ export const useTrainingCalendar = () => {
 
     try {
       setIsLoading(true);
+      
+      // Check cache first for free tier users
+      if (isFreeTier()) {
+        const cachedData = getCachedMissions(userId, month, year);
+        if (cachedData) {
+          const mappedMissions = cachedData.map(mission => ({
+            ...mission,
+            question_attempts: mission.question_attempts as unknown as QuestionAttempt[] | undefined
+          })) as DailyMission[];
+          setMissions(mappedMissions);
+          setIsLoading(false);
+          return;
+        }
+        
+        // Check rate limit before making API call
+        const rateCheck = checkFreeTierRateLimit();
+        if (!rateCheck.allowed) {
+          console.warn('⚠️ Free tier rate limit reached');
+          toast({
+            title: 'กรุณารอสักครู่',
+            description: 'ระบบกำลังประมวลผล กรุณารอ 5 นาที',
+            variant: 'destructive',
+          });
+          setIsLoading(false);
+          return;
+        }
+        
+        if (rateCheck.shouldWarn) {
+          markWarningShown();
+          toast({
+            title: 'คำแนะนำ',
+            description: `คุณใช้งานค่อนข้างบ่อย (${rateCheck.callsInWindow}/60 ครั้ง/ชม.)`,
+          });
+        }
+        
+        recordFreeTierApiCall();
+      }
       
       const startDate = new Date(year, month - 1, 1).toISOString().split('T')[0];
       const endDate = new Date(year, month, 0).toISOString().split('T')[0];
@@ -118,6 +168,11 @@ export const useTrainingCalendar = () => {
         question_attempts: mission.question_attempts as unknown as QuestionAttempt[] | undefined
       })) as DailyMission[];
       
+      // Cache for free tier users
+      if (isFreeTier() && data) {
+        cacheMissions(userId, month, year, data);
+      }
+      
       setMissions(mappedMissions);
     } catch (error) {
       console.error('Error fetching missions:', error);
@@ -131,11 +186,28 @@ export const useTrainingCalendar = () => {
     }
   }, [userId, toast]);
 
-  // Fetch user streak data
+  // Fetch user streak data (with caching for free tier)
   const fetchStreak = async () => {
     if (!userId) return;
 
     try {
+      // Check cache first for free tier users
+      if (isFreeTier()) {
+        const cachedData = getCachedStreak(userId);
+        if (cachedData) {
+          setStreak(cachedData);
+          return;
+        }
+        
+        // Check rate limit before making API call
+        const rateCheck = checkFreeTierRateLimit();
+        if (!rateCheck.allowed) {
+          console.warn('⚠️ Free tier rate limit reached for streak');
+          return;
+        }
+        recordFreeTierApiCall();
+      }
+      
       const { data, error } = await supabase
         .from('user_streaks')
         .select('*')
@@ -145,6 +217,10 @@ export const useTrainingCalendar = () => {
       if (error && error.code !== 'PGRST116') throw error;
 
       if (data) {
+        // Cache for free tier users
+        if (isFreeTier()) {
+          cacheStreak(userId, data);
+        }
         setStreak(data);
       } else {
         // Create initial streak record
@@ -162,6 +238,11 @@ export const useTrainingCalendar = () => {
           .single();
 
         if (createError) throw createError;
+        
+        // Cache the new streak
+        if (isFreeTier() && newStreak) {
+          cacheStreak(userId, newStreak);
+        }
         setStreak(newStreak);
       }
     } catch (error) {
@@ -349,6 +430,9 @@ export const useTrainingCalendar = () => {
 
         // Clear any pending saves
         localStorage.removeItem('pendingMissionResult');
+        
+        // Invalidate cache after mission completion
+        invalidateMissionCache();
 
         // Success! Update streak and refresh
         await Promise.all([
