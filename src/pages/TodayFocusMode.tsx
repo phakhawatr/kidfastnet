@@ -214,43 +214,49 @@ const TodayFocusMode = () => {
     }
   }, [isLoading, isGenerating, userId, todayMissions.length, isWeekend, isViewingPast, generateTodayMission]);
 
-  // Retry pending mission results from localStorage
+  // Retry pending mission results from queue (migrated from localStorage)
   useEffect(() => {
-    const retryPendingResult = async () => {
-      const pending = localStorage.getItem('pendingMissionResult');
-      if (!pending) return;
+    const retryPendingResults = async () => {
+      // Import queue functions
+      const { getPendingQueue, removePendingFromQueue, migrateLegacyPendingResult } = await import('@/utils/missionCache');
       
-      try {
-        const { missionId, results, timestamp } = JSON.parse(pending);
+      // Migrate any legacy single pending result to queue
+      migrateLegacyPendingResult();
+      
+      const queue = getPendingQueue();
+      if (queue.length === 0) return;
+      
+      console.log(`🔄 Found ${queue.length} pending results in queue`);
+      
+      // Process only the first item (others will be handled by OfflineSyncManager)
+      const pending = queue[0];
+      
+      // Check if expired (24 hours)
+      const EXPIRY_MS = 24 * 60 * 60 * 1000;
+      if (Date.now() - pending.timestamp > EXPIRY_MS) {
+        console.log('⏰ Pending result expired, removing...');
+        removePendingFromQueue(pending.missionId);
+        return;
+      }
+      
+      console.log('🔄 Retrying pending mission result...', { missionId: pending.missionId });
+      const result = await completeMission(pending.missionId, pending.results);
+      
+      if (result.success) {
+        removePendingFromQueue(pending.missionId);
+        toast.success('บันทึกผลสำเร็จ! ⭐', {
+          description: `ได้ ${result.stars} ดาว`
+        });
         
-        // Only retry if less than 1 hour old
-        if (Date.now() - timestamp > 3600000) {
-          console.log('⏰ Pending result expired, removing...');
-          localStorage.removeItem('pendingMissionResult');
-          return;
-        }
-        
-        console.log('🔄 Retrying pending mission result...', { missionId, results });
-        const result = await completeMission(missionId, results);
-        
-        if (result.success) {
-          localStorage.removeItem('pendingMissionResult');
-          toast.success('บันทึกผลสำเร็จ! ⭐', {
-            description: `ได้ ${result.stars} ดาว`
-          });
-          
-          // Refresh missions after successful retry
-          fetchMissions(targetDate.getMonth() + 1, targetDate.getFullYear());
-        } else {
-          console.warn('⚠️ Retry failed, will try again later');
-        }
-      } catch (e) {
-        console.error('❌ Retry failed:', e);
+        // Refresh missions after successful retry
+        fetchMissions(targetDate.getMonth() + 1, targetDate.getFullYear());
+      } else {
+        console.warn('⚠️ Retry failed, will try again later');
       }
     };
     
     if (userId) {
-      retryPendingResult();
+      retryPendingResults();
     }
   }, [userId, completeMission, fetchMissions]);
 

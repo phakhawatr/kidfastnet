@@ -79,14 +79,16 @@ import TeacherAssignments from "./pages/TeacherAssignments";
 import { ToastContainer } from "./components/Toast";
 import { Toaster } from "@/components/ui/toaster";
 import { PWAUpdatePrompt } from "./components/PWAUpdatePrompt";
+import { OfflineSyncManager } from "./components/OfflineSyncManager";
 
 const queryClient = new QueryClient();
 
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
+      <OfflineSyncManager>
+        <BrowserRouter>
+          <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/landing" element={<Landing />} />
           <Route path="/signup" element={<Signup />} />
@@ -624,7 +626,8 @@ const App = () => {
         
         {/* Custom Toast Container - legacy support */}
         <ToastContainer />
-      </BrowserRouter>
+        </BrowserRouter>
+      </OfflineSyncManager>
     </QueryClientProvider>
   );
 };

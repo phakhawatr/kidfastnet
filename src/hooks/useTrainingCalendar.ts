@@ -6,7 +6,9 @@ import {
   cacheMissions, 
   getCachedStreak, 
   cacheStreak,
-  invalidateMissionCache 
+  invalidateMissionCache,
+  addToPendingQueue,
+  removePendingFromQueue
 } from '@/utils/missionCache';
 import { 
   isFreeTier, 
@@ -14,6 +16,7 @@ import {
   recordFreeTierApiCall,
   markWarningShown 
 } from '@/utils/freeTierRateLimiter';
+import { checkOnlineStatus } from '@/hooks/useOnlineStatus';
 
 export interface DailyMission {
   id: string;
@@ -428,8 +431,8 @@ export const useTrainingCalendar = () => {
 
         console.log(`✅ Attempt ${attempt} VERIFIED! All data matches expected values`);
 
-        // Clear any pending saves
-        localStorage.removeItem('pendingMissionResult');
+        // Clear from pending queue if it was there
+        removePendingFromQueue(cleanMissionId);
         
         // Invalidate cache after mission completion
         invalidateMissionCache();
@@ -451,17 +454,16 @@ export const useTrainingCalendar = () => {
         console.error(`❌ Attempt ${attempt} failed:`, error);
         
         if (attempt === 3) {
-          // Save to localStorage for retry (use validated values)
-          const pendingResult = { 
+          // Save to pending queue for retry (use validated values)
+          addToPendingQueue({
             missionId, 
             results: {
               ...results,
               correct_answers: validCorrect // Save validated value
             }, 
             timestamp: Date.now() 
-          };
-          localStorage.setItem('pendingMissionResult', JSON.stringify(pendingResult));
-          console.log('💾 Saved to localStorage for retry');
+          });
+          console.log('💾 Added to pending queue for retry');
         } else {
           // Wait before retry (exponential backoff: 500ms, 1000ms, 1500ms)
           const delayMs = 500 * attempt;
