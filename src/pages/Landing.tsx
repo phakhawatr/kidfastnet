@@ -10,6 +10,10 @@ import exampleMultiplication from '../assets/example-multiplication.jpg';
 import exampleFractions from '../assets/example-fractions.jpg';
 import exampleWeighing from '../assets/example-weighing.jpg';
 import exampleMeasurement from '../assets/example-measurement.jpg';
+import student1 from '../assets/students/student-1.jpg';
+import student3 from '../assets/students/student-3.jpg';
+import student4 from '../assets/students/student-4.jpg';
+import student6 from '../assets/students/student-6.jpg';
 
 const Landing = () => {
   const { t } = useTranslation('landing');
@@ -263,7 +267,7 @@ const Landing = () => {
                     <div className="space-y-3 md:space-y-4">
                       <div className="relative rounded-2xl overflow-hidden shadow-xl transform hover:scale-105 transition-all duration-500 border-4 border-white/50">
                         <img 
-                          src="/src/assets/students/student-1.jpg" 
+                          src={student1} 
                           alt="นักเรียนใช้งาน KidFastAI" 
                           className="w-full h-32 md:h-40 object-cover"
                         />
@@ -271,7 +275,7 @@ const Landing = () => {
                       </div>
                       <div className="relative rounded-2xl overflow-hidden shadow-xl transform hover:scale-105 transition-all duration-500 border-4 border-white/50">
                         <img 
-                          src="/src/assets/students/student-3.jpg" 
+                          src={student3} 
                           alt="นักเรียนใช้งาน KidFastAI" 
                           className="w-full h-40 md:h-52 object-cover"
                         />
@@ -281,7 +285,7 @@ const Landing = () => {
                     <div className="space-y-3 md:space-y-4 pt-6">
                       <div className="relative rounded-2xl overflow-hidden shadow-xl transform hover:scale-105 transition-all duration-500 border-4 border-white/50">
                         <img 
-                          src="/src/assets/students/student-4.jpg" 
+                          src={student4} 
                           alt="นักเรียนใช้งาน KidFastAI" 
                           className="w-full h-40 md:h-52 object-cover"
                         />
@@ -289,7 +293,7 @@ const Landing = () => {
                       </div>
                       <div className="relative rounded-2xl overflow-hidden shadow-xl transform hover:scale-105 transition-all duration-500 border-4 border-white/50">
                         <img 
-                          src="/src/assets/students/student-6.jpg" 
+                          src={student6} 
                           alt="นักเรียนใช้งาน KidFastAI" 
                           className="w-full h-32 md:h-40 object-cover"
                         />
