@@ -1,7 +1,9 @@
 // Mission data caching for free tier users to reduce server load
 
 const CACHE_KEY = 'kidfast_missions_cache';
+const PENDING_QUEUE_KEY = 'kidfast_pending_mission_queue';
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes cache freshness
+const PENDING_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours for pending results
 
 interface CachedMissions {
   data: any[];
@@ -18,6 +20,19 @@ interface MissionCache {
     userId: string;
     cachedAt: number;
   } | null;
+}
+
+// === Pending Mission Queue Types ===
+export interface PendingMissionResult {
+  missionId: string;
+  results: {
+    total_questions: number;
+    correct_answers: number;
+    time_spent: number;
+    question_attempts?: any[];
+  };
+  timestamp: number;
+  retryCount: number;
 }
 
 // Get cached missions if fresh
@@ -154,5 +169,104 @@ export const cleanupCache = (): void => {
     }
   } catch (e) {
     console.error('Error cleaning up cache:', e);
+  }
+};
+
+// === Pending Mission Queue Functions ===
+
+// Get pending mission queue
+export const getPendingQueue = (): PendingMissionResult[] => {
+  try {
+    const queueStr = localStorage.getItem(PENDING_QUEUE_KEY);
+    if (!queueStr) return [];
+    
+    const queue: PendingMissionResult[] = JSON.parse(queueStr);
+    const now = Date.now();
+    
+    // Filter out expired items (older than 24 hours)
+    return queue.filter(item => now - item.timestamp < PENDING_EXPIRY_MS);
+  } catch (e) {
+    console.error('Error reading pending queue:', e);
+    return [];
+  }
+};
+
+// Add to pending queue
+export const addToPendingQueue = (result: Omit<PendingMissionResult, 'retryCount'>): void => {
+  try {
+    const queue = getPendingQueue();
+    
+    // Check if mission already in queue
+    const existingIndex = queue.findIndex(item => item.missionId === result.missionId);
+    
+    if (existingIndex >= 0) {
+      // Update existing entry
+      queue[existingIndex] = { ...result, retryCount: queue[existingIndex].retryCount + 1 };
+      console.log(`📝 Updated pending result for mission ${result.missionId} (retry ${queue[existingIndex].retryCount})`);
+    } else {
+      // Add new entry
+      queue.push({ ...result, retryCount: 0 });
+      console.log(`📝 Added new pending result for mission ${result.missionId}`);
+    }
+    
+    localStorage.setItem(PENDING_QUEUE_KEY, JSON.stringify(queue));
+    console.log(`📦 Pending queue size: ${queue.length}`);
+  } catch (e) {
+    console.error('Error adding to pending queue:', e);
+  }
+};
+
+// Remove from pending queue
+export const removePendingFromQueue = (missionId: string): void => {
+  try {
+    const queue = getPendingQueue();
+    const filtered = queue.filter(item => item.missionId !== missionId);
+    
+    if (filtered.length === 0) {
+      localStorage.removeItem(PENDING_QUEUE_KEY);
+    } else {
+      localStorage.setItem(PENDING_QUEUE_KEY, JSON.stringify(filtered));
+    }
+    
+    console.log(`🗑️ Removed mission ${missionId} from pending queue`);
+  } catch (e) {
+    console.error('Error removing from pending queue:', e);
+  }
+};
+
+// Get pending queue count
+export const getPendingQueueCount = (): number => {
+  return getPendingQueue().length;
+};
+
+// Clear entire pending queue
+export const clearPendingQueue = (): void => {
+  try {
+    localStorage.removeItem(PENDING_QUEUE_KEY);
+    console.log('🗑️ Cleared entire pending queue');
+  } catch (e) {
+    console.error('Error clearing pending queue:', e);
+  }
+};
+
+// Migrate old single pending result to queue (backward compatibility)
+export const migrateLegacyPendingResult = (): void => {
+  try {
+    const legacyKey = 'pendingMissionResult';
+    const legacyStr = localStorage.getItem(legacyKey);
+    if (!legacyStr) return;
+    
+    const legacy = JSON.parse(legacyStr);
+    if (legacy.missionId && legacy.results && legacy.timestamp) {
+      addToPendingQueue({
+        missionId: legacy.missionId,
+        results: legacy.results,
+        timestamp: legacy.timestamp,
+      });
+      localStorage.removeItem(legacyKey);
+      console.log('✅ Migrated legacy pending result to queue');
+    }
+  } catch (e) {
+    console.error('Error migrating legacy pending result:', e);
   }
 };
