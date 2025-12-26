@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SkillsSection from '../components/SkillsSection';
+import PremiumFeaturesShowcase from '../components/PremiumFeaturesShowcase';
 import exampleAddition from '../assets/example-addition.jpg';
 import exampleSubtraction from '../assets/example-subtraction.jpg';
 import exampleMultiplication from '../assets/example-multiplication.jpg';
@@ -102,79 +103,8 @@ const Landing = () => {
           </div>
         </section>
 
-        {/* AI Premium Features Section */}
-        <section className="mb-12">
-          <div className="card-glass p-8 border-4 border-purple-400/50">
-            <div className="text-center mb-8">
-              <div className="inline-block mb-4">
-                <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white px-6 py-2 rounded-full text-lg font-bold shadow-lg">
-                  {t('premiumFeatures.badge')}
-                </span>
-              </div>
-              <h2 
-                className="text-2xl md:text-3xl font-bold text-[hsl(var(--text-primary))] mb-4"
-                dangerouslySetInnerHTML={{ __html: t('premiumFeatures.title') }}
-              />
-              <p className="text-lg text-[hsl(var(--text-secondary))] max-w-3xl mx-auto">
-                {t('premiumFeatures.subtitle')}
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Link to="/ai-math-tutor" className="group bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
-                <div className="text-6xl mb-4 text-center">{t('premiumFeatures.features.0.icon')}</div>
-                <h3 className="font-bold text-xl mb-3 text-white text-center">
-                  {t('premiumFeatures.features.0.title')}
-                </h3>
-                <p className="text-sm text-white/90 text-center">
-                  {t('premiumFeatures.features.0.description')}
-                </p>
-                <div className="mt-4 text-center">
-                  <span className="inline-block bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium">
-                    {t('premiumFeatures.features.0.cta')}
-                  </span>
-                </div>
-              </Link>
-
-              <div className="group bg-gradient-to-br from-blue-500 via-cyan-500 to-teal-500 p-6 rounded-2xl shadow-xl opacity-60 relative">
-                <div className="absolute top-4 right-4 bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-xs font-bold">
-                  {t('premiumFeatures.features.1.badge')}
-                </div>
-                <div className="text-6xl mb-4 text-center opacity-70">{t('premiumFeatures.features.1.icon')}</div>
-                <h3 className="font-bold text-xl mb-3 text-white text-center">
-                  {t('premiumFeatures.features.1.title')}
-                </h3>
-                <p className="text-sm text-white/90 text-center">
-                  {t('premiumFeatures.features.1.description')}
-                </p>
-              </div>
-
-              <div className="group bg-gradient-to-br from-green-500 via-emerald-500 to-teal-500 p-6 rounded-2xl shadow-xl opacity-60 relative">
-                <div className="absolute top-4 right-4 bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-xs font-bold">
-                  {t('premiumFeatures.features.2.badge')}
-                </div>
-                <div className="text-6xl mb-4 text-center opacity-70">{t('premiumFeatures.features.2.icon')}</div>
-                <h3 className="font-bold text-xl mb-3 text-white text-center">
-                  {t('premiumFeatures.features.2.title')}
-                </h3>
-                <p className="text-sm text-white/90 text-center">
-                  {t('premiumFeatures.features.2.description')}
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-8 text-center">
-              <Link 
-                to="/profile?tab=subscription"
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-              >
-                <span className="text-2xl">✨</span>
-                <span>{t('premiumFeatures.upgradeButton')}</span>
-                <span className="text-2xl">👑</span>
-              </Link>
-            </div>
-          </div>
-        </section>
+        {/* Premium Features Showcase - New Component */}
+        <PremiumFeaturesShowcase />
 
         {/* AI Examples Section */}
         <section className="mb-12">
