@@ -1,0 +1,98 @@
+{
+  "title": "KidFastAI",
+  "tagline": "AI-Powered Math Learning สำหรับเด็กไทย",
+  "downloadPdf": "ดาวน์โหลด PDF",
+  "generating": "กำลังสร้าง PDF...",
+  "slideOf": "สไลด์ {{current}} จาก {{total}}",
+  "cover": {
+    "subtitle": "แพลตฟอร์มการเรียนคณิตศาสตร์อัจฉริยะ",
+    "forGrades": "สำหรับนักเรียน ป.1 - ป.6",
+    "scanToTry": "สแกนเพื่อทดลองใช้"
+  },
+  "problem": {
+    "title": "ปัญหาและโอกาส",
+    "challenges": "ความท้าทายในปัจจุบัน",
+    "challenge1": "เด็กไทยอ่อนคณิตศาสตร์ (อันดับ 54 จาก 79 ประเทศ)",
+    "challenge2": "ขาดเครื่องมือฝึกที่สนุกและเข้าถึงได้",
+    "challenge3": "ครูมีภาระงานมาก ไม่มีเวลาดูแลรายบุคคล",
+    "challenge4": "ผู้ปกครองไม่ทราบจุดอ่อนของบุตรหลาน",
+    "opportunity": "โอกาสทางธุรกิจ",
+    "students": "8 ล้าน+",
+    "studentsLabel": "นักเรียน ป.1-6 ทั่วประเทศ",
+    "schools": "30,000+",
+    "schoolsLabel": "โรงเรียนระดับประถมศึกษา",
+    "policy": "นโยบาย AI Education",
+    "policyLabel": "รัฐบาลสนับสนุนการนำ AI มาใช้ในการศึกษา"
+  },
+  "solution": {
+    "title": "แพลตฟอร์ม KidFastAI",
+    "description": "ระบบเรียนรู้คณิตศาสตร์ด้วย AI ที่ปรับให้เหมาะกับผู้เรียนแต่ละคน",
+    "apps": "30+ แอปฝึกคณิต",
+    "appsDesc": "ครอบคลุมหลักสูตร ป.1-6",
+    "roles": "4 บทบาทผู้ใช้",
+    "rolesDesc": "นักเรียน ครู ผู้ปกครอง โรงเรียน",
+    "aiFeatures": "AI ปรับระดับ",
+    "aiFeaturesDesc": "เรียนรู้ตามความสามารถ",
+    "languages": "2 ภาษา",
+    "languagesDesc": "ไทย และ อังกฤษ"
+  },
+  "students": {
+    "title": "ฟีเจอร์สำหรับนักเรียน",
+    "calendar": "Training Calendar",
+    "calendarDesc": "3 ภารกิจต่อวัน ปรับระดับตาม AI",
+    "tutor": "AI Math Tutor",
+    "tutorDesc": "ถามตอบคณิตศาสตร์แบบ Chat",
+    "stem": "STEM Hub",
+    "stemDesc": "เรียนรู้วิทยาศาสตร์และเทคโนโลยี",
+    "gamification": "Gamification",
+    "gamificationDesc": "ดาว, Streak, Badge สร้างแรงจูงใจ"
+  },
+  "school": {
+    "title": "ฟีเจอร์สำหรับครู & โรงเรียน",
+    "multiTenant": "School Version",
+    "multiTenantDesc": "ระบบ Multi-tenant สำหรับโรงเรียน",
+    "questionBank": "Question Bank",
+    "questionBankDesc": "คลังข้อสอบส่วนตัว + AI สร้างโจทย์",
+    "lessonPlanner": "AI Lesson Planner",
+    "lessonPlannerDesc": "สร้างแผนการสอนด้วย AI",
+    "analytics": "Analytics Dashboard",
+    "analyticsDesc": "วิเคราะห์ผลการเรียนรายห้อง/รายโรงเรียน"
+  },
+  "ai": {
+    "title": "เทคโนโลยี AI",
+    "groq": "Groq API",
+    "groqDesc": "14,400 requests/day ฟรี, ประมวลผลเร็ว",
+    "edgeFunctions": "6 Edge Functions",
+    "edgeFunctionsDesc": "generate-mission, math-tutor, generate-questions ฯลฯ",
+    "adaptive": "Adaptive Learning",
+    "adaptiveDesc": "ปรับความยาก 1-3 ดาวตามผลการเรียน",
+    "future": "อนาคต",
+    "futureDesc": "OCR, Voice-to-Text, 3D Avatar Tutor"
+  },
+  "business": {
+    "title": "Business Model",
+    "freemium": "Freemium",
+    "freemiumDesc": "Free: 4 Apps / Premium: Full Access",
+    "schoolLicense": "School Licensing",
+    "schoolLicenseDesc": "ราคาต่อโรงเรียน/เขตการศึกษา",
+    "partnership": "Partnership",
+    "partnershipDesc": "ร่วมมือกับสำนักพิมพ์และหน่วยงานการศึกษา",
+    "revenueTarget": "เป้ารายได้ปีแรก",
+    "revenueAmount": "5 ล้านบาท"
+  },
+  "roadmap": {
+    "title": "Roadmap & ติดต่อ",
+    "current": "สถานะปัจจุบัน",
+    "currentDesc": "Production Ready, ใช้งานได้จริง",
+    "phase1": "Phase 1 (Q1)",
+    "phase1Desc": "เพิ่มโรงเรียนนำร่อง 10 แห่ง",
+    "phase2": "Phase 2 (Q2-Q3)",
+    "phase2Desc": "Mobile App, เพิ่มฟีเจอร์ AI",
+    "phase3": "Phase 3 (Q4)",
+    "phase3Desc": "ขยายสู่ภูมิภาค, B2B Enterprise",
+    "contact": "ติดต่อ",
+    "email": "Email: contact@kidfastai.com",
+    "website": "Website: kidfastai.com",
+    "callToAction": "ร่วมเป็นส่วนหนึ่งของการเปลี่ยนแปลงการศึกษาไทย"
+  }
+}

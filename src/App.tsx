@@ -76,6 +76,7 @@ import AdminSchoolManagement from "./pages/AdminSchoolManagement";
 import SchoolAnalyticsDashboard from "./pages/SchoolAnalyticsDashboard";
 import AILessonPlanner from "./pages/AILessonPlanner";
 import TeacherAssignments from "./pages/TeacherAssignments";
+import PresentationPage from "./pages/PresentationPage";
 import { ToastContainer } from "./components/Toast";
 import { Toaster } from "@/components/ui/toaster";
 import { PWAUpdatePrompt } from "./components/PWAUpdatePrompt";
@@ -127,6 +128,8 @@ const App = () => {
           />
           {/* Public view for progress (token-based from LINE) */}
           <Route path="/view-progress" element={<ChildProgressDashboard />} />
+          {/* Public presentation page */}
+          <Route path="/presentation" element={<PresentationPage />} />
           <Route
             path="/analytics" 
             element={
