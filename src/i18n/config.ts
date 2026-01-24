@@ -32,6 +32,7 @@ import countingchallengeTh from '../locales/th/countingchallenge.json';
 import comparestarsth from '../locales/th/comparestars.json';
 import boardcountingTh from '../locales/th/boardcounting.json';
 import fruitcountingTh from '../locales/th/fruitcounting.json';
+import presentationTh from '../locales/th/presentation.json';
 
 import commonEn from '../locales/en/common.json';
 import headerEn from '../locales/en/header.json';
@@ -62,6 +63,7 @@ import countingchallengeEn from '../locales/en/countingchallenge.json';
 import comparestarsEn from '../locales/en/comparestars.json';
 import boardcountingEn from '../locales/en/boardcounting.json';
 import fruitcountingEn from '../locales/en/fruitcounting.json';
+import presentationEn from '../locales/en/presentation.json';
 
 const resources = {
   th: {
@@ -94,6 +96,7 @@ const resources = {
     comparestars: comparestarsth,
     boardcounting: boardcountingTh,
     fruitcounting: fruitcountingTh,
+    presentation: presentationTh,
   },
   en: {
     common: commonEn,
@@ -125,6 +128,7 @@ const resources = {
     comparestars: comparestarsEn,
     boardcounting: boardcountingEn,
     fruitcounting: fruitcountingEn,
+    presentation: presentationEn,
   }
 };
 
