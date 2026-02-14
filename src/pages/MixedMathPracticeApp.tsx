@@ -134,11 +134,11 @@ const generate3OpStory = (inputNums: number[], allowedOps: string[], allowCarry:
   }
 
   const templates: Template[] = [
+    // +- templates
     {
       ops: ['+', '-'],
       gen: () => {
-        let a = inputNums[0];
-        const b = inputNums[1];
+        const a = inputNums[0], b = inputNums[1];
         let c = inputNums[2];
         const sum = a + b;
         if (c > sum) c = Math.floor(sum * 0.7);
@@ -151,19 +151,33 @@ const generate3OpStory = (inputNums: number[], allowedOps: string[], allowCarry:
       }
     },
     {
+      ops: ['+'],
+      gen: () => {
+        const a = inputNums[0], b = inputNums[1], c = inputNums[2];
+        const item = getRandItem('fruit');
+        return {
+          q: `${item}อยู่ในตะกร้า 3 ใบ ใบแรกมี ${a.toLocaleString()} ผล ใบที่สองมี ${b.toLocaleString()} ผล ใบที่สามมี ${c.toLocaleString()} ผล รวม${item}ทั้งหมดกี่ผล?`,
+          sym: `${a.toLocaleString()} + ${b.toLocaleString()} + ${c.toLocaleString()} = ?`,
+          h: "นำทั้ง 3 จำนวนมาบวกรวมกัน",
+          a: a + b + c
+        };
+      }
+    },
+    // - only
+    {
       ops: ['-'],
       gen: () => {
         const a = inputNums[0] + inputNums[1] + inputNums[2];
-        const b = inputNums[1];
-        const c = inputNums[2];
+        const b = inputNums[1], c = inputNums[2];
         return {
           q: `มีน้ำในถัง ${a.toLocaleString()} ลิตร วันแรกใช้ไป ${b.toLocaleString()} ลิตร วันที่สองใช้ไป ${c.toLocaleString()} ลิตร เหลือน้ำในถังกี่ลิตร?`,
-          sym: `(${a} - ${b}) - ${c} = ?`,
+          sym: `${a.toLocaleString()} - ${b.toLocaleString()} - ${c.toLocaleString()} = ?`,
           h: "ลบปริมาณที่ใช้วันแรกออก แล้วลบวันที่สองออกอีกที",
           a: a - b - c
         };
       }
     },
+    // +* templates
     {
       ops: ['+', '*'],
       gen: () => {
@@ -177,11 +191,113 @@ const generate3OpStory = (inputNums: number[], allowedOps: string[], allowCarry:
           a: baseMoney + (qty * price)
         };
       }
+    },
+    // -* templates
+    {
+      ops: ['-', '*'],
+      gen: () => {
+        const qty = getRandomInt(2, 9);
+        const price = getRandomInt(10, 50);
+        const total = inputNums[0] + qty * price;
+        return {
+          q: `แม่ค้ามีเงิน ${total.toLocaleString()} บาท ซื้อของ ${qty} ชิ้น ชิ้นละ ${price} บาท แม่ค้าจะเหลือเงินกี่บาท?`,
+          sym: `${total.toLocaleString()} - (${qty} × ${price}) = ?`,
+          h: "หาค่าของที่ซื้อก่อน (คูณ) แล้วนำไปลบออก",
+          a: total - (qty * price)
+        };
+      }
+    },
+    // * only
+    {
+      ops: ['*'],
+      gen: () => {
+        const a = getRandomInt(2, 9), b = getRandomInt(2, 9), c = getRandomInt(2, 5);
+        return {
+          q: `โรงเรียนมี ${a} ชั้นเรียน แต่ละชั้นมี ${b} แถว แถวละ ${c} คน มีนักเรียนทั้งหมดกี่คน?`,
+          sym: `${a} × ${b} × ${c} = ?`,
+          h: "คูณจำนวนห้อง จำนวนแถว และจำนวนคนต่อแถว เข้าด้วยกัน",
+          a: a * b * c
+        };
+      }
+    },
+    // / only
+    {
+      ops: ['/'],
+      gen: () => {
+        const c = getRandomInt(2, 5), b = getRandomInt(2, 9);
+        const a = b * c * getRandomInt(2, 9);
+        return {
+          q: `มีขนม ${a} ชิ้น แบ่งเป็น ${b} กลุ่ม แต่ละกลุ่มแบ่งให้เด็กอีก ${c} คน แต่ละคนจะได้ขนมกี่ชิ้น?`,
+          sym: `${a} ÷ ${b} ÷ ${c} = ?`,
+          h: "แบ่งเป็นกลุ่มก่อน แล้วแบ่งให้เด็กในแต่ละกลุ่มอีกที",
+          a: a / b / c
+        };
+      }
+    },
+    // +/ templates
+    {
+      ops: ['+', '/'],
+      gen: () => {
+        const divisor = getRandomInt(2, 9);
+        const perPerson = getRandomInt(5, 20);
+        const total = divisor * perPerson;
+        const extra = inputNums[0];
+        return {
+          q: `มีดินสอ ${total} แท่ง แบ่งให้เด็ก ${divisor} คนเท่าๆ กัน แล้วซื้อมาเพิ่มอีก ${extra.toLocaleString()} แท่ง แต่ละคนจะมีดินสอทั้งหมดกี่แท่ง?`,
+          sym: `(${total} ÷ ${divisor}) + ${extra.toLocaleString()} = ?`,
+          h: "แบ่งดินสอก่อน (หาร) แล้วบวกที่ซื้อเพิ่ม",
+          a: (total / divisor) + extra
+        };
+      }
+    },
+    // -/ templates
+    {
+      ops: ['-', '/'],
+      gen: () => {
+        const divisor = getRandomInt(2, 9);
+        const result = getRandomInt(5, 20);
+        const total = divisor * result;
+        const give = getRandomInt(1, result - 1);
+        return {
+          q: `มีคุ้กกี้ ${total} ชิ้น แบ่งให้เพื่อน ${divisor} คนเท่าๆ กัน แล้วให้น้องไปอีก ${give} ชิ้น แต่ละคนจะเหลือคุ้กกี้กี่ชิ้น?`,
+          sym: `(${total} ÷ ${divisor}) - ${give} = ?`,
+          h: "แบ่งคุ้กกี้ก่อน (หาร) แล้วลบที่ให้น้อง",
+          a: (total / divisor) - give
+        };
+      }
+    },
+    // */ templates
+    {
+      ops: ['*', '/'],
+      gen: () => {
+        const groups = getRandomInt(2, 6);
+        const perGroup = getRandomInt(2, 9);
+        const divisor = getRandomInt(2, 5);
+        const total = groups * perGroup * divisor;
+        return {
+          q: `มีลูกแก้ว ${total} ลูก แบ่งเป็น ${divisor} ถุงเท่าๆ กัน แล้วนำแต่ละถุงจัดใส่กล่อง ${groups} กล่อง กล่องละกี่ลูก?`,
+          sym: `(${total} ÷ ${divisor}) ÷ ${groups} = ?`,
+          h: "แบ่งเป็นถุงก่อน (หาร) แล้วจัดใส่กล่อง (หาร)",
+          a: total / divisor / groups
+        };
+      }
     }
   ];
 
+  // Filter: at least one op from template must be in allowedOps
   const available = templates.filter(t => t.ops.every(op => allowedOps.includes(op)));
-  if (available.length === 0) return generate2OpStory(inputNums, allowedOps, allowCarry);
+  
+  if (available.length === 0) {
+    // Fallback: generate a simple 3-number addition/subtraction story
+    const a = inputNums[0], b = inputNums[1], c = inputNums[2];
+    const item = getRandItem('food');
+    return {
+      question: `มี${item} ${a.toLocaleString()} ชิ้น ซื้อเพิ่ม ${b.toLocaleString()} ชิ้น แล้วกินไป ${c.toLocaleString()} ชิ้น เหลือ${item}กี่ชิ้น?`,
+      answer: a + b - c,
+      symbolic: `${a.toLocaleString()} + ${b.toLocaleString()} - ${c.toLocaleString()} = ?`,
+      hint: "บวกที่ซื้อเพิ่มก่อน แล้วลบที่กินไป"
+    };
+  }
   
   const selected = available[Math.floor(Math.random() * available.length)];
   const res = selected.gen();
