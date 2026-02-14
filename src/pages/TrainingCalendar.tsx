@@ -49,11 +49,9 @@ const TrainingCalendar = () => {
   const getDayStatus = (day: Date) => {
     const mission = getMissionForDay(day);
     const dayOfWeek = getDay(day);
-    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    if (isWeekend) return 'rest';
     if (isToday(day)) return 'today';
     if (isAfter(day, today)) return 'future';
     if (!mission) return 'skipped';
@@ -153,10 +151,7 @@ const TrainingCalendar = () => {
   };
 
   // Calculate progress
-  const workDays = daysInMonth.filter(day => {
-    const dayOfWeek = getDay(day);
-    return dayOfWeek !== 0 && dayOfWeek !== 6 && !isAfter(day, new Date());
-  }).length;
+  const workDays = daysInMonth.filter(day => !isAfter(day, new Date())).length;
 
   const completedMissions = missions.filter(m => isMissionCompleted(m) || m.status === 'catchup').length;
   const progressPercentage = workDays > 0 ? (completedMissions / workDays) * 100 : 0;
@@ -398,10 +393,6 @@ const TrainingCalendar = () => {
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-gradient-to-br from-orange-400 to-yellow-400 rounded animate-pulse"></div>
                 <span>วันนี้</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-gradient-to-br from-blue-100 to-sky-200 rounded border border-blue-300"></div>
-                <span>วันหยุด</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-gradient-to-br from-yellow-400 to-amber-500 rounded"></div>

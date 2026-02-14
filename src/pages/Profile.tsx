@@ -148,11 +148,6 @@ const Profile = () => {
       // Skip if loading, generating, or no userId
       if (missionsLoading || isGenerating || !calendarUserId) return;
       
-      // Skip if weekend
-      const today = new Date();
-      const dayOfWeek = today.getDay();
-      if (dayOfWeek === 0 || dayOfWeek === 6) return;
-      
       // Check if today has fewer than 3 missions
       if (todayMissions.length < 3) {
         console.log('🚀 Profile: Auto-generating missions (', todayMissions.length, '/3)');
