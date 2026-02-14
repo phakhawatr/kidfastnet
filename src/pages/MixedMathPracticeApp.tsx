@@ -22,6 +22,7 @@ interface Question {
   question: string;
   answer: number;
   symbolic: string;
+  symbolicAlt?: string; // alternative form (with/without parentheses)
   hint: string;
 }
 
@@ -130,7 +131,7 @@ const generate2OpStory = (inputNums: number[], allowedOps: string[], allowCarry:
 const generate3OpStory = (inputNums: number[], allowedOps: string[], allowCarry: boolean): Omit<Question, 'id'> => {
   interface Template {
     ops: string[];
-    gen: () => { q: string; sym: string; h: string; a: number };
+    gen: () => { q: string; sym: string; symAlt?: string; h: string; a: number };
   }
 
   const templates: Template[] = [
@@ -144,7 +145,8 @@ const generate3OpStory = (inputNums: number[], allowedOps: string[], allowCarry:
         if (c > sum) c = Math.floor(sum * 0.7);
         return {
           q: `พ่อมีเงิน ${a.toLocaleString()} บาท แม่ให้มาอีก ${b.toLocaleString()} บาท จ่ายค่าซ่อมรถไป ${c.toLocaleString()} บาท พ่อจะเหลือเงินกี่บาท?`,
-          sym: `(${a.toLocaleString()} + ${b.toLocaleString()}) - ${c.toLocaleString()} = ?`,
+          sym: `${a.toLocaleString()} + ${b.toLocaleString()} - ${c.toLocaleString()} = ?`,
+          symAlt: `(${a.toLocaleString()} + ${b.toLocaleString()}) - ${c.toLocaleString()} = ?`,
           h: "นำเงินพ่อกับแม่มารวมกันก่อน แล้วลบด้วยค่าใช้จ่าย",
           a: (a + b) - c
         };
@@ -172,6 +174,7 @@ const generate3OpStory = (inputNums: number[], allowedOps: string[], allowCarry:
         return {
           q: `มีน้ำในถัง ${a.toLocaleString()} ลิตร วันแรกใช้ไป ${b.toLocaleString()} ลิตร วันที่สองใช้ไป ${c.toLocaleString()} ลิตร เหลือน้ำในถังกี่ลิตร?`,
           sym: `${a.toLocaleString()} - ${b.toLocaleString()} - ${c.toLocaleString()} = ?`,
+          symAlt: `${a.toLocaleString()} - (${b.toLocaleString()} + ${c.toLocaleString()}) = ?`,
           h: "ลบปริมาณที่ใช้วันแรกออก แล้วลบวันที่สองออกอีกที",
           a: a - b - c
         };
@@ -186,7 +189,8 @@ const generate3OpStory = (inputNums: number[], allowedOps: string[], allowCarry:
         const baseMoney = inputNums[0];
         return {
           q: `หนูดีมีเงินเก็บ ${baseMoney.toLocaleString()} บาท ทำงานพิเศษได้เงินเพิ่ม ${qty} วัน วันละ ${price} บาท รวมหนูดีมีเงินกี่บาท?`,
-          sym: `${baseMoney.toLocaleString()} + (${qty} × ${price}) = ?`,
+          sym: `${baseMoney.toLocaleString()} + ${qty} × ${price} = ?`,
+          symAlt: `${baseMoney.toLocaleString()} + (${qty} × ${price}) = ?`,
           h: "หาเงินที่หาได้เพิ่มก่อน (คูณ) แล้วนำมารวมกับเงินเก็บเดิม (บวก)",
           a: baseMoney + (qty * price)
         };
@@ -201,7 +205,8 @@ const generate3OpStory = (inputNums: number[], allowedOps: string[], allowCarry:
         const total = inputNums[0] + qty * price;
         return {
           q: `แม่ค้ามีเงิน ${total.toLocaleString()} บาท ซื้อของ ${qty} ชิ้น ชิ้นละ ${price} บาท แม่ค้าจะเหลือเงินกี่บาท?`,
-          sym: `${total.toLocaleString()} - (${qty} × ${price}) = ?`,
+          sym: `${total.toLocaleString()} - ${qty} × ${price} = ?`,
+          symAlt: `${total.toLocaleString()} - (${qty} × ${price}) = ?`,
           h: "หาค่าของที่ซื้อก่อน (คูณ) แล้วนำไปลบออก",
           a: total - (qty * price)
         };
@@ -217,7 +222,8 @@ const generate3OpStory = (inputNums: number[], allowedOps: string[], allowCarry:
         const extra = inputNums[0];
         return {
           q: `มีดินสอ ${total} แท่ง แบ่งให้เด็ก ${divisor} คนเท่าๆ กัน แล้วซื้อมาเพิ่มอีก ${extra.toLocaleString()} แท่ง แต่ละคนจะมีดินสอทั้งหมดกี่แท่ง?`,
-          sym: `(${total} ÷ ${divisor}) + ${extra.toLocaleString()} = ?`,
+          sym: `${total} ÷ ${divisor} + ${extra.toLocaleString()} = ?`,
+          symAlt: `(${total} ÷ ${divisor}) + ${extra.toLocaleString()} = ?`,
           h: "แบ่งดินสอก่อน (หาร) แล้วบวกที่ซื้อเพิ่ม",
           a: (total / divisor) + extra
         };
@@ -233,7 +239,8 @@ const generate3OpStory = (inputNums: number[], allowedOps: string[], allowCarry:
         const give = getRandomInt(1, result - 1);
         return {
           q: `มีคุ้กกี้ ${total} ชิ้น แบ่งให้เพื่อน ${divisor} คนเท่าๆ กัน แล้วให้น้องไปอีก ${give} ชิ้น แต่ละคนจะเหลือคุ้กกี้กี่ชิ้น?`,
-          sym: `(${total} ÷ ${divisor}) - ${give} = ?`,
+          sym: `${total} ÷ ${divisor} - ${give} = ?`,
+          symAlt: `(${total} ÷ ${divisor}) - ${give} = ?`,
           h: "แบ่งคุ้กกี้ก่อน (หาร) แล้วลบที่ให้น้อง",
           a: (total / divisor) - give
         };
@@ -252,7 +259,8 @@ const generate3OpStory = (inputNums: number[], allowedOps: string[], allowCarry:
         const fruit = getRandItem('fruit');
         return {
           q: `ซื้อ${fruit} ${a} ถุง ถุงละ ${b * c} ผล แบ่งให้เพื่อน ${c} คนเท่าๆ กัน แต่ละคนจะได้${fruit}กี่ผล?`,
-          sym: `(${a} × ${b * c}) ÷ ${c} = ?`,
+          sym: `${a} × ${b * c} ÷ ${c} = ?`,
+          symAlt: `(${a} × ${b * c}) ÷ ${c} = ?`,
           h: "หาจำนวนทั้งหมดก่อน (คูณ) แล้วแบ่งให้เพื่อน (หาร)",
           a: (a * b * c) / c
         };
@@ -268,7 +276,8 @@ const generate3OpStory = (inputNums: number[], allowedOps: string[], allowCarry:
         const c = getRandomInt(2, 5);
         return {
           q: `มีลูกอม ${a} เม็ด แบ่งใส่ถุง ${b} ถุงเท่าๆ กัน แล้วนำไปขาย ${c} วัน วันละ 1 ถุง ขายลูกอมไปทั้งหมดกี่เม็ด?`,
-          sym: `(${a} ÷ ${b}) × ${c} = ?`,
+          sym: `${a} ÷ ${b} × ${c} = ?`,
+          symAlt: `(${a} ÷ ${b}) × ${c} = ?`,
           h: "หาจำนวนต่อถุงก่อน (หาร) แล้วคูณจำนวนวัน",
           a: (a / b) * c
         };
@@ -314,13 +323,14 @@ const generate3OpStory = (inputNums: number[], allowedOps: string[], allowCarry:
       question: `มี${item} ${a.toLocaleString()} ชิ้น ซื้อเพิ่ม ${b.toLocaleString()} ชิ้น แล้วกินไป ${c.toLocaleString()} ชิ้น เหลือ${item}กี่ชิ้น?`,
       answer: a + b - c,
       symbolic: `${a.toLocaleString()} + ${b.toLocaleString()} - ${c.toLocaleString()} = ?`,
+      symbolicAlt: `(${a.toLocaleString()} + ${b.toLocaleString()}) - ${c.toLocaleString()} = ?`,
       hint: "บวกที่ซื้อเพิ่มก่อน แล้วลบที่กินไป"
     };
   }
   
   const selected = available[Math.floor(Math.random() * available.length)];
   const res = selected.gen();
-  return { question: res.q, answer: res.a, symbolic: res.sym, hint: res.h };
+  return { question: res.q, answer: res.a, symbolic: res.sym, symbolicAlt: res.symAlt, hint: res.h };
 };
 
 const MixedMathPracticeApp = () => {
@@ -553,6 +563,7 @@ const MixedMathPracticeApp = () => {
                     <div className="bg-muted rounded-lg p-3 mb-4 text-sm space-y-1">
                       {showHint && <div className="flex gap-2 text-amber-600 dark:text-amber-400"><Lightbulb size={16} className="mt-0.5 shrink-0" /> <span>{q.hint}</span></div>}
                       {showEq && <div className="flex gap-2 text-indigo-600 dark:text-indigo-400"><FunctionSquare size={16} className="mt-0.5 shrink-0" /> <span>{q.symbolic}</span></div>}
+                      {showEq && q.symbolicAlt && <div className="flex gap-2 text-purple-600 dark:text-purple-400"><FunctionSquare size={16} className="mt-0.5 shrink-0" /> <span>{q.symbolicAlt}</span></div>}
                     </div>
                   )}
                   <div className="flex items-center justify-end gap-3 bg-muted p-2 rounded-xl border border-border">
