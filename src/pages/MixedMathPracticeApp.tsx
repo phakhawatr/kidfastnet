@@ -219,13 +219,14 @@ const generate3OpStory = (inputNums: number[], allowedOps: string[], allowCarry:
         const divisor = getRandomInt(2, 9);
         const perPerson = getRandomInt(5, 20);
         const total = divisor * perPerson;
-        const extra = inputNums[0];
+        const extra = getRandomInt(1, perPerson);
+        const answer = perPerson + extra;
         return {
-          q: `มีดินสอ ${total} แท่ง แบ่งให้เด็ก ${divisor} คนเท่าๆ กัน แล้วซื้อมาเพิ่มอีก ${extra.toLocaleString()} แท่ง แต่ละคนจะมีดินสอทั้งหมดกี่แท่ง?`,
-          sym: `${total} ÷ ${divisor} + ${extra.toLocaleString()} = ?`,
-          symAlt: `(${total} ÷ ${divisor}) + ${extra.toLocaleString()} = ?`,
+          q: `มีดินสอ ${total} แท่ง แบ่งให้เด็ก ${divisor} คนเท่าๆ กัน แล้วแต่ละคนซื้อเพิ่มอีกคนละ ${extra} แท่ง แต่ละคนจะมีดินสอทั้งหมดกี่แท่ง?`,
+          sym: `${total} ÷ ${divisor} + ${extra} = ?`,
+          symAlt: `(${total} ÷ ${divisor}) + ${extra} = ?`,
           h: "แบ่งดินสอก่อน (หาร) แล้วบวกที่ซื้อเพิ่ม",
-          a: (total / divisor) + extra
+          a: answer
         };
       }
     },
