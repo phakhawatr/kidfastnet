@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, Clock, Brain, Calculator, BookOpen, Lightbulb, FunctionSquare, Plus, Minus, X, Divide, RotateCcw, ArrowLeft } from 'lucide-react';
+import { Check, Clock, Brain, Calculator, BookOpen, Lightbulb, FunctionSquare, Plus, Minus, X, Divide, RotateCcw, ArrowLeft, PenLine } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import ScratchPad from '@/components/ScratchPad';
 
 interface MathConfig {
   questionCount: number;
@@ -350,6 +351,7 @@ const MixedMathPracticeApp = () => {
   const [revealedHints, setRevealedHints] = useState<Record<string, boolean>>({});
   const [revealedEqs, setRevealedEqs] = useState<Record<string, boolean>>({});
   const [isChecked, setIsChecked] = useState(false);
+  const [scratchPadOpen, setScratchPadOpen] = useState<{ id: string; num: number } | null>(null);
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -557,6 +559,7 @@ const MixedMathPracticeApp = () => {
                     <div className="flex gap-1.5">
                       <button onClick={() => setRevealedHints({ ...revealedHints, [q.id]: !showHint })} className="p-1.5 text-amber-400/70 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 rounded-lg transition-colors"><Lightbulb size={18} /></button>
                       <button onClick={() => setRevealedEqs({ ...revealedEqs, [q.id]: !showEq })} className="p-1.5 text-indigo-400/70 hover:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 rounded-lg transition-colors"><FunctionSquare size={18} /></button>
+                      <button onClick={() => setScratchPadOpen({ id: q.id, num: idx + 1 })} className="p-1.5 text-emerald-400/70 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 rounded-lg transition-colors" title="กระดาษทด"><PenLine size={18} /></button>
                     </div>
                   </div>
                   <p className="text-lg text-white font-medium leading-relaxed mb-4">{q.question}</p>
@@ -596,6 +599,11 @@ const MixedMathPracticeApp = () => {
             <p className="text-lg font-bold">เลือกการตั้งค่าแล้วกด "สร้างโจทย์ใหม่" ได้เลยครับ</p>
           </div>
         )}
+        <ScratchPad
+          open={!!scratchPadOpen}
+          onClose={() => setScratchPadOpen(null)}
+          questionNumber={scratchPadOpen?.num ?? 0}
+        />
       </main>
       <Footer />
     </div>
