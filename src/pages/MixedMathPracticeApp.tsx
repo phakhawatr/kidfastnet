@@ -603,6 +603,7 @@ const MixedMathPracticeApp = () => {
           open={!!scratchPadOpen}
           onClose={() => setScratchPadOpen(null)}
           questionNumber={scratchPadOpen?.num ?? 0}
+          questionText={questions.find(q => q.id === scratchPadOpen?.id)?.question ?? ''}
         />
       </main>
       <Footer />

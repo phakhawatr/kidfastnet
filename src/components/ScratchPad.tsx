@@ -7,9 +7,10 @@ interface ScratchPadProps {
   open: boolean;
   onClose: () => void;
   questionNumber: number;
+  questionText: string;
 }
 
-const ScratchPad: React.FC<ScratchPadProps> = ({ open, onClose, questionNumber }) => {
+const ScratchPad: React.FC<ScratchPadProps> = ({ open, onClose, questionNumber, questionText }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDrawing = useRef(false);
   const lastPos = useRef<{ x: number; y: number } | null>(null);
@@ -89,6 +90,9 @@ const ScratchPad: React.FC<ScratchPadProps> = ({ open, onClose, questionNumber }
           <DialogTitle className="text-white flex items-center gap-2">
             📝 กระดาษทด - ข้อที่ {questionNumber}
           </DialogTitle>
+          <p className="text-sm text-amber-300 bg-amber-500/10 rounded-lg px-3 py-2 mt-2 leading-relaxed">
+            📖 {questionText}
+          </p>
         </DialogHeader>
         <div className="rounded-xl overflow-hidden border-2 border-slate-600 touch-none">
           <canvas
