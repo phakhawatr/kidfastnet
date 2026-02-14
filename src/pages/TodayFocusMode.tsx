@@ -86,14 +86,14 @@ const TodayFocusMode = () => {
     }
   }, [todayStr]);
 
-  // Loading timeout detection (35 seconds)
+  // Loading timeout detection (15 seconds - reduced due to smart fallback)
   useEffect(() => {
     if (isGenerating) {
       setLoadingTimeout(false);
       const timer = setTimeout(() => {
         setLoadingTimeout(true);
         console.log('⏰ Loading timeout reached');
-      }, 35000);
+      }, 15000);
       return () => clearTimeout(timer);
     } else {
       setLoadingTimeout(false);
@@ -511,15 +511,53 @@ const TodayFocusMode = () => {
     }
   };
 
-  // Loading or generating state
+  // Loading or generating state - with skeleton cards
   if (isLoading || isGenerating) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-yellow-400 mx-auto mb-4"></div>
-          <p className="text-white text-lg mb-4">
-            {isGenerating ? 'AI กำลังสร้างภารกิจให้คุณ...' : 'กำลังโหลด...'}
-          </p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
+        <div className="max-w-6xl mx-auto">
+          <Button
+            onClick={() => navigate('/training-calendar')}
+            variant="ghost"
+            className="mb-4 text-white hover:bg-white/10"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            กลับสู่หน้าปฏิทินของฉัน
+          </Button>
+
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Loader2 className="w-8 h-8 text-yellow-400 animate-spin" />
+              <h1 className="text-2xl font-bold text-white">
+                {isGenerating ? 'AI กำลังสร้างภารกิจให้คุณ...' : 'กำลังโหลด...'}
+              </h1>
+            </div>
+            <p className="text-slate-400 text-sm">
+              {isGenerating ? 'ใช้เวลาเพียงไม่กี่วินาที' : 'กรุณารอสักครู่'}
+            </p>
+          </div>
+
+          {/* Skeleton Mission Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            {[1, 2, 3].map((i) => (
+              <Card key={i} className="bg-slate-800/60 border-slate-700 animate-pulse">
+                <CardHeader>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="h-6 w-16 bg-slate-700 rounded-full" />
+                    <div className="h-6 w-20 bg-slate-700 rounded-full" />
+                  </div>
+                  <div className="h-7 w-3/4 bg-slate-700 rounded mt-2" />
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="h-5 w-24 bg-slate-700 rounded" />
+                    <div className="h-16 w-full bg-slate-700/50 rounded-lg" />
+                    <div className="h-10 w-full bg-slate-700/30 rounded-lg" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
           
           {loadingTimeout && (
             <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4 max-w-md mx-auto">
