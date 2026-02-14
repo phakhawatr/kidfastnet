@@ -554,9 +554,9 @@ const MixedMathPracticeApp = () => {
                 <div key={q.id} className="bg-slate-800/90 backdrop-blur-sm p-5 rounded-2xl border border-slate-700 shadow-sm relative group hover:border-purple-500/40 transition-all">
                   <div className="flex justify-between items-start mb-3">
                     <span className="bg-slate-700 text-slate-300 text-xs font-bold px-2 py-1 rounded-md">ข้อที่ {idx + 1}</span>
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => setRevealedHints({ ...revealedHints, [q.id]: !showHint })} className="p-1.5 text-slate-400 hover:text-amber-400 hover:bg-amber-900/30 rounded-lg"><Lightbulb size={18} /></button>
-                      <button onClick={() => setRevealedEqs({ ...revealedEqs, [q.id]: !showEq })} className="p-1.5 text-slate-400 hover:text-indigo-400 hover:bg-indigo-900/30 rounded-lg"><FunctionSquare size={18} /></button>
+                    <div className="flex gap-1.5">
+                      <button onClick={() => setRevealedHints({ ...revealedHints, [q.id]: !showHint })} className="p-1.5 text-amber-400/70 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 rounded-lg transition-colors"><Lightbulb size={18} /></button>
+                      <button onClick={() => setRevealedEqs({ ...revealedEqs, [q.id]: !showEq })} className="p-1.5 text-indigo-400/70 hover:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 rounded-lg transition-colors"><FunctionSquare size={18} /></button>
                     </div>
                   </div>
                   <p className="text-lg text-white font-medium leading-relaxed mb-4">{q.question}</p>
