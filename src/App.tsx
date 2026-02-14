@@ -44,6 +44,7 @@ import PlaceValueApp from "./pages/PlaceValueApp";
 import MentalMathApp from "./pages/MentalMathApp";
 import AreaModelApp from "./pages/AreaModelApp";
 import WordProblemsApp from "./pages/WordProblemsApp";
+import MixedMathPracticeApp from "./pages/MixedMathPracticeApp";
 import STEMHub from "./pages/STEMHub";
 import CodingBasicsApp from "./pages/CodingBasicsApp";
 import ScienceLabApp from "./pages/ScienceLabApp";
@@ -458,6 +459,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <WordProblemsApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/mixed-math" 
+            element={
+              <ProtectedRoute>
+                <MixedMathPracticeApp />
               </ProtectedRoute>
             } 
           />

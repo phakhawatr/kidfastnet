@@ -190,5 +190,11 @@ export const appRegistry: Record<string, AppInfo> = {
     icon: '✖️📋',
     color: 'bg-gradient-to-br from-violet-200 to-violet-300',
     link: '/multiplication-table'
+  },
+  'mixed-math': {
+    nameKey: 'recommendations.apps.mixedMath.title',
+    icon: '🔢',
+    color: 'bg-gradient-to-br from-indigo-200 to-indigo-300',
+    link: '/mixed-math'
   }
 };

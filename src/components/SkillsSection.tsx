@@ -377,6 +377,16 @@ const getDefaultSkills = (t: any): Skill[] => [
     hrefPreview: '/word-problems',
     translationKey: 'wordProblems',
     category: 'advanced'
+  }, {
+    icon: Calculator,
+    title: t('skills.mixedMath.title'),
+    desc: t('skills.mixedMath.desc'),
+    backgroundGradient: 'bg-gradient-to-br from-sky-400 via-indigo-500 to-purple-600',
+    textColor: 'text-white',
+    sticker: '🔢',
+    hrefPreview: '/mixed-math',
+    translationKey: 'mixedMath',
+    category: 'advanced'
   }
 ];
 
