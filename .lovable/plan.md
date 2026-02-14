@@ -1,40 +1,26 @@
 
-# เพิ่มปุ่ม "กระดาษทด" (Scratch Pad) ในแต่ละข้อ
 
-## สิ่งที่จะทำ
+# ขยายกระดาษทดให้เลื่อนลงได้
 
-เพิ่มปุ่ม icon รูปดินสอ/กระดาษ ข้างปุ่ม Hint และ Equation ในแต่ละข้อ เมื่อกดจะแสดง popup Canvas ให้เด็กใช้นิ้วหรือเมาส์วาด/เขียนทดเลขได้ พร้อมปุ่มลบ (ล้างกระดาษ) และปุ่มปิด
+## ปัญหา
+Canvas มีขนาดคงที่ 600x400px ถ้าเด็กเขียนเต็มกระดาษจะไม่มีพื้นที่เพิ่ม
 
-## การแก้ไข
+## แนวทางแก้ไข
 
-| ไฟล์ | การเปลี่ยนแปลง |
-|------|----------------|
-| `src/pages/MixedMathPracticeApp.tsx` | เพิ่ม ScratchPad component และปุ่ม icon |
+ปรับ `src/components/ScratchPad.tsx`:
 
-## รายละเอียดทางเทคนิค
+1. **เพิ่มปุ่ม "เพิ่มกระดาษ"** -- เพิ่มปุ่มที่ขยาย canvas ลงด้านล่างทีละ 400px (เพิ่มหน้ากระดาษ) โดยคัดลอกภาพวาดเดิมไว้แล้ววาด grid ต่อส่วนที่เพิ่ม
+2. **ครอบ canvas ด้วย ScrollArea** -- ใส่ container ที่มี `overflow-y: auto` และ `max-height` จำกัดตาม viewport เพื่อให้เลื่อนดูส่วนที่เพิ่มได้
+3. **State สำหรับความสูง** -- เพิ่ม `canvasHeight` state เริ่มต้นที่ 400 และเพิ่มได้เรื่อย ๆ
+4. **ปุ่มลบ reset ขนาด** -- เมื่อกด "ลบทั้งหมด" จะ reset ความสูงกลับเป็น 400px
 
-### 1. เพิ่ม import
-- เพิ่ม `Pencil` จาก `lucide-react` สำหรับ icon ปุ่มกระดาษทด
-- เพิ่ม `Dialog, DialogContent, DialogHeader, DialogTitle` จาก `@/components/ui/dialog`
+### รายละเอียดทางเทคนิค
 
-### 2. สร้าง ScratchPad component (inline ในไฟล์เดียวกัน)
-- ใช้ HTML5 `<canvas>` element สำหรับวาด
-- รองรับทั้ง mouse events (`mousedown`, `mousemove`, `mouseup`) และ touch events (`touchstart`, `touchmove`, `touchend`) เพื่อใช้งานได้บนมือถือ/แท็บเล็ต
-- พื้นหลังสีขาวหรือครีม เส้นสีน้ำเงินเข้ม ขนาดเส้น 2-3px
-- ปุ่ม "ลบทั้งหมด" (ไอคอนถังขยะ/ยางลบ) เพื่อ clear canvas
-- ขนาด canvas ยืดหยุ่นตาม dialog (ประมาณ 400x300 บน mobile, ใหญ่ขึ้นบน desktop)
+| ส่วน | รายละเอียด |
+|------|-----------|
+| State | เพิ่ม `canvasHeight` useState เริ่มที่ 400 |
+| ปุ่มเพิ่มกระดาษ | ไอคอน `ChevronDown` หรือ `Plus` พร้อมข้อความ "เพิ่มกระดาษ" วางใต้ canvas |
+| Scroll container | `div` ครอบ canvas ด้วย `max-h-[60vh] overflow-y-auto` |
+| ขยาย canvas | Save imageData เดิม -> เพิ่ม height +400 -> restore imageData -> วาด grid ส่วนใหม่ |
+| Clear | Reset `canvasHeight` กลับ 400 แล้ว `clearCanvas()` ตามปกติ |
 
-### 3. เพิ่มปุ่ม icon ในแต่ละ question card
-- เพิ่มปุ่มที่มี icon `Pencil` ข้างปุ่ม Hint และ Equation
-- สี: `text-emerald-400/70` พร้อม `bg-emerald-500/10` ให้เข้ากับ theme มืด
-- เมื่อกด เปิด Dialog ที่มี ScratchPad
-
-### 4. State management
-- เพิ่ม state `scratchPadOpen` เก็บ question id ที่กำลังเปิดกระดาษทด (หรือ `null` ถ้าไม่มี)
-- Canvas data เก็บไว้ใน ref เพื่อไม่ให้หายเมื่อปิด-เปิด (optional, อาจ reset ทุกครั้ง)
-
-### 5. Dialog popup
-- ใช้ Radix Dialog component ที่มีอยู่แล้ว
-- Header แสดง "กระดาษทด - ข้อที่ X"
-- Footer มีปุ่ม "ลบ" (clear) และ "ปิด"
-- ขนาด `max-w-2xl` เพื่อให้พื้นที่วาดเพียงพอ
