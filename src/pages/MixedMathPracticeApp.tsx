@@ -413,47 +413,47 @@ const MixedMathPracticeApp = () => {
   const correctCount = questions.filter(q => parseInt(userAnswers[q.id]) === q.answer).length;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 text-white">
       <Header />
       <main className="container mx-auto px-4 py-6 max-w-6xl space-y-6">
         {/* Back Button */}
         <button
           onClick={() => navigate('/profile')}
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+          className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
         >
           <ArrowLeft size={20} />
           <span className="text-sm font-medium">กลับหน้าหลัก</span>
         </button>
 
         {/* Header */}
-        <div className="flex items-center gap-3 text-primary pb-2 border-b border-border">
+        <div className="flex items-center gap-3 text-purple-300 pb-2 border-b border-slate-700">
           <BookOpen size={32} />
-          <h1 className="text-2xl md:text-3xl font-bold">ฝึกฝนโจทย์ปัญหาคณิตศาสตร์</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-white">ฝึกฝนโจทย์ปัญหาคณิตศาสตร์</h1>
         </div>
 
         {/* Settings Panel */}
-        <div className="bg-card rounded-3xl shadow-sm border border-border p-6 space-y-6">
+        <div className="bg-slate-800/90 backdrop-blur-sm rounded-3xl shadow-lg border border-slate-700 p-6 space-y-6">
           {/* Row 1: Basic Configs */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">จำนวนโจทย์</label>
+              <label className="text-sm font-bold text-slate-400 uppercase tracking-wider">จำนวนโจทย์</label>
               <div className="flex gap-2">
                 {[10, 15, 30, 40].map(n => (
                   <button key={n} onClick={() => setConfig({ ...config, questionCount: n })}
                     className={`h-10 w-14 rounded-xl font-bold transition-all border-2 
-                    ${config.questionCount === n ? 'border-primary bg-primary text-primary-foreground' : 'border-border text-muted-foreground hover:border-primary/50'}`}>
+                    ${config.questionCount === n ? 'border-purple-500 bg-purple-600 text-white' : 'border-slate-600 text-slate-300 hover:border-purple-400'}`}>
                     {n}
                   </button>
                 ))}
               </div>
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">จำนวนหลัก (ความยาก)</label>
+              <label className="text-sm font-bold text-slate-400 uppercase tracking-wider">จำนวนหลัก (ความยาก)</label>
               <div className="flex gap-2">
                 {[1, 2, 3, 4].map(d => (
                   <button key={d} onClick={() => setConfig({ ...config, digits: d })}
                     className={`h-10 px-4 rounded-xl font-bold transition-all border-2 
-                    ${config.digits === d ? 'border-accent bg-accent text-accent-foreground' : 'border-border text-muted-foreground hover:border-accent/50'}`}>
+                    ${config.digits === d ? 'border-cyan-500 bg-cyan-600 text-white' : 'border-slate-600 text-slate-300 hover:border-cyan-400'}`}>
                     {d === 4 ? '4-5 หลัก' : `${d} หลัก`}
                   </button>
                 ))}
@@ -464,44 +464,44 @@ const MixedMathPracticeApp = () => {
           {/* Row 2: Operations & Carry */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="flex flex-col gap-2 lg:col-span-2">
-              <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">เครื่องหมาย</label>
+              <label className="text-sm font-bold text-slate-400 uppercase tracking-wider">เครื่องหมาย</label>
               <div className="flex flex-wrap gap-3">
-                <button onClick={() => toggleOp('add')} className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold transition-all ${config.ops.add ? 'border-blue-500 bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400' : 'border-border text-muted-foreground'}`}>
+                <button onClick={() => toggleOp('add')} className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold transition-all ${config.ops.add ? 'border-blue-400 bg-blue-900/50 text-blue-300' : 'border-slate-600 text-slate-400'}`}>
                   <Plus size={18} /> บวก
                 </button>
-                <button onClick={() => toggleOp('sub')} className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold transition-all ${config.ops.sub ? 'border-red-500 bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400' : 'border-border text-muted-foreground'}`}>
+                <button onClick={() => toggleOp('sub')} className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold transition-all ${config.ops.sub ? 'border-red-400 bg-red-900/50 text-red-300' : 'border-slate-600 text-slate-400'}`}>
                   <Minus size={18} /> ลบ
                 </button>
-                <button onClick={() => toggleOp('mul')} className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold transition-all ${config.ops.mul ? 'border-purple-500 bg-purple-50 text-purple-600 dark:bg-purple-950 dark:text-purple-400' : 'border-border text-muted-foreground'}`}>
+                <button onClick={() => toggleOp('mul')} className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold transition-all ${config.ops.mul ? 'border-purple-400 bg-purple-900/50 text-purple-300' : 'border-slate-600 text-slate-400'}`}>
                   <X size={18} /> คูณ
                 </button>
-                <button onClick={() => toggleOp('div')} className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold transition-all ${config.ops.div ? 'border-orange-500 bg-orange-50 text-orange-600 dark:bg-orange-950 dark:text-orange-400' : 'border-border text-muted-foreground'}`}>
+                <button onClick={() => toggleOp('div')} className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold transition-all ${config.ops.div ? 'border-orange-400 bg-orange-900/50 text-orange-300' : 'border-slate-600 text-slate-400'}`}>
                   <Divide size={18} /> หาร
                 </button>
               </div>
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">การทด / การยืม</label>
-              <div className="flex bg-muted p-1 rounded-xl w-fit">
+              <label className="text-sm font-bold text-slate-400 uppercase tracking-wider">การทด / การยืม</label>
+              <div className="flex bg-slate-700/50 p-1 rounded-xl w-fit">
                 <button onClick={() => setConfig({ ...config, allowCarry: true })}
-                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${config.allowCarry ? 'bg-card shadow-sm text-primary' : 'text-muted-foreground'}`}>มีทด</button>
+                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${config.allowCarry ? 'bg-slate-600 shadow-sm text-cyan-300' : 'text-slate-400'}`}>มีทด</button>
                 <button onClick={() => setConfig({ ...config, allowCarry: false })}
-                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${!config.allowCarry ? 'bg-card shadow-sm text-destructive' : 'text-muted-foreground'}`}>ไม่มีทด</button>
+                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${!config.allowCarry ? 'bg-slate-600 shadow-sm text-red-300' : 'text-slate-400'}`}>ไม่มีทด</button>
               </div>
             </div>
           </div>
 
           {/* Row 3: Operand Count & Actions */}
-          <div className="border-t border-border pt-4 flex flex-col md:flex-row items-center justify-between gap-4">
+           <div className="border-t border-slate-700 pt-4 flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">จำนวนตัวเลข:</label>
+              <label className="text-sm font-bold text-slate-400 uppercase tracking-wider">จำนวนตัวเลข:</label>
               <div className="flex gap-2">
                 <button onClick={() => setConfig({ ...config, operandCount: 2 })}
-                  className={`px-5 py-2 rounded-full font-bold border-2 transition-all ${config.operandCount === 2 ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-border text-muted-foreground hover:border-emerald-300'}`}>
+                  className={`px-5 py-2 rounded-full font-bold border-2 transition-all ${config.operandCount === 2 ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-slate-600 text-slate-300 hover:border-emerald-400'}`}>
                   2 จำนวน (ปกติ)
                 </button>
                 <button onClick={() => setConfig({ ...config, operandCount: 3 })}
-                  className={`px-5 py-2 rounded-full font-bold border-2 transition-all ${config.operandCount === 3 ? 'border-pink-500 bg-pink-500 text-white' : 'border-border text-muted-foreground hover:border-pink-300'}`}>
+                  className={`px-5 py-2 rounded-full font-bold border-2 transition-all ${config.operandCount === 3 ? 'border-pink-500 bg-pink-500 text-white' : 'border-slate-600 text-slate-300 hover:border-pink-400'}`}>
                   3 จำนวน (ระคน)
                 </button>
               </div>
@@ -519,7 +519,7 @@ const MixedMathPracticeApp = () => {
                   </button>
                   {isChecked && (
                     <button onClick={() => { setQuestions([]); setIsChecked(false); setTimeElapsed(0); }}
-                      className="flex items-center justify-center p-3 rounded-2xl bg-muted text-muted-foreground hover:bg-muted/80 transition-all">
+                      className="flex items-center justify-center p-3 rounded-2xl bg-slate-700 text-slate-300 hover:bg-slate-600 transition-all">
                       <RotateCcw size={24} />
                     </button>
                   )}
@@ -533,11 +533,11 @@ const MixedMathPracticeApp = () => {
         {questions.length > 0 && (
           <div className="flex justify-between items-center">
             {isChecked && (
-              <div className="bg-card px-4 py-2 rounded-full border border-border font-bold text-lg shadow-sm">
+              <div className="bg-slate-800/90 px-4 py-2 rounded-full border border-slate-700 font-bold text-lg shadow-sm text-emerald-300">
                 ✅ {correctCount}/{questions.length} ข้อ
               </div>
             )}
-            <div className="ml-auto bg-card px-4 py-2 rounded-full border border-border flex items-center gap-2 text-primary font-mono font-bold text-xl shadow-sm">
+            <div className="ml-auto bg-slate-800/90 px-4 py-2 rounded-full border border-slate-700 flex items-center gap-2 text-purple-300 font-mono font-bold text-xl shadow-sm">
               <Clock size={20} /> {formatTime(timeElapsed)}
             </div>
           </div>
@@ -551,38 +551,38 @@ const MixedMathPracticeApp = () => {
               const showHint = revealedHints[q.id];
               const showEq = revealedEqs[q.id];
               return (
-                <div key={q.id} className="bg-card p-5 rounded-2xl border border-border shadow-sm relative group hover:border-primary/30 transition-all">
+                <div key={q.id} className="bg-slate-800/90 backdrop-blur-sm p-5 rounded-2xl border border-slate-700 shadow-sm relative group hover:border-purple-500/40 transition-all">
                   <div className="flex justify-between items-start mb-3">
-                    <span className="bg-muted text-muted-foreground text-xs font-bold px-2 py-1 rounded-md">ข้อที่ {idx + 1}</span>
+                    <span className="bg-slate-700 text-slate-300 text-xs font-bold px-2 py-1 rounded-md">ข้อที่ {idx + 1}</span>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => setRevealedHints({ ...revealedHints, [q.id]: !showHint })} className="p-1.5 text-muted-foreground hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950 rounded-lg"><Lightbulb size={18} /></button>
-                      <button onClick={() => setRevealedEqs({ ...revealedEqs, [q.id]: !showEq })} className="p-1.5 text-muted-foreground hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950 rounded-lg"><FunctionSquare size={18} /></button>
+                      <button onClick={() => setRevealedHints({ ...revealedHints, [q.id]: !showHint })} className="p-1.5 text-slate-400 hover:text-amber-400 hover:bg-amber-900/30 rounded-lg"><Lightbulb size={18} /></button>
+                      <button onClick={() => setRevealedEqs({ ...revealedEqs, [q.id]: !showEq })} className="p-1.5 text-slate-400 hover:text-indigo-400 hover:bg-indigo-900/30 rounded-lg"><FunctionSquare size={18} /></button>
                     </div>
                   </div>
-                  <p className="text-lg text-foreground font-medium leading-relaxed mb-4">{q.question}</p>
+                  <p className="text-lg text-white font-medium leading-relaxed mb-4">{q.question}</p>
                   {(showHint || showEq) && (
-                    <div className="bg-muted rounded-lg p-3 mb-4 text-sm space-y-1">
-                      {showHint && <div className="flex gap-2 text-amber-600 dark:text-amber-400"><Lightbulb size={16} className="mt-0.5 shrink-0" /> <span>{q.hint}</span></div>}
-                      {showEq && <div className="flex gap-2 text-indigo-600 dark:text-indigo-400"><FunctionSquare size={16} className="mt-0.5 shrink-0" /> <span>{q.symbolic}</span></div>}
-                      {showEq && q.symbolicAlt && <div className="flex gap-2 text-purple-600 dark:text-purple-400"><FunctionSquare size={16} className="mt-0.5 shrink-0" /> <span>{q.symbolicAlt}</span></div>}
+                    <div className="bg-slate-700/50 rounded-lg p-3 mb-4 text-sm space-y-1">
+                      {showHint && <div className="flex gap-2 text-amber-400"><Lightbulb size={16} className="mt-0.5 shrink-0" /> <span>{q.hint}</span></div>}
+                      {showEq && <div className="flex gap-2 text-indigo-300"><FunctionSquare size={16} className="mt-0.5 shrink-0" /> <span>{q.symbolic}</span></div>}
+                      {showEq && q.symbolicAlt && <div className="flex gap-2 text-purple-300"><FunctionSquare size={16} className="mt-0.5 shrink-0" /> <span>{q.symbolicAlt}</span></div>}
                     </div>
                   )}
-                  <div className="flex items-center justify-end gap-3 bg-muted p-2 rounded-xl border border-border">
-                    <span className="text-sm font-bold text-muted-foreground">คำตอบ:</span>
+                  <div className="flex items-center justify-end gap-3 bg-slate-700/50 p-2 rounded-xl border border-slate-600">
+                    <span className="text-sm font-bold text-slate-400">คำตอบ:</span>
                     <input
                       type="number"
                       disabled={isChecked}
                       value={userAnswers[q.id] || ''}
                       onChange={(e) => setUserAnswers({ ...userAnswers, [q.id]: e.target.value })}
-                      className={`w-32 text-center font-bold text-lg bg-card border-2 rounded-lg py-1 px-2 outline-none transition-all
+                      className={`w-32 text-center font-bold text-lg rounded-lg py-1 px-2 outline-none transition-all
                         ${isChecked
-                          ? (isCorrect ? 'border-emerald-500 text-emerald-600 bg-emerald-50 dark:bg-emerald-950' : 'border-red-500 text-red-600 bg-red-50 dark:bg-red-950')
-                          : 'border-border focus:border-primary text-foreground'
+                          ? (isCorrect ? 'border-2 border-emerald-500 text-emerald-300 bg-emerald-900/40' : 'border-2 border-red-500 text-red-300 bg-red-900/40')
+                          : 'border-2 border-slate-600 focus:border-purple-400 text-white bg-slate-900/50'
                         }`}
                     />
                   </div>
                   {isChecked && !isCorrect && (
-                    <div className="mt-2 text-right text-destructive text-sm font-bold">
+                    <div className="mt-2 text-right text-red-400 text-sm font-bold">
                       เฉลย: {q.answer.toLocaleString()}
                     </div>
                   )}
@@ -591,7 +591,7 @@ const MixedMathPracticeApp = () => {
             })}
           </div>
         ) : (
-          <div className="text-center py-20 bg-card rounded-3xl border-2 border-dashed border-border text-muted-foreground">
+          <div className="text-center py-20 bg-slate-800/60 rounded-3xl border-2 border-dashed border-slate-700 text-slate-400">
             <Calculator size={64} className="mx-auto mb-4 opacity-50" />
             <p className="text-lg font-bold">เลือกการตั้งค่าแล้วกด "สร้างโจทย์ใหม่" ได้เลยครับ</p>
           </div>
