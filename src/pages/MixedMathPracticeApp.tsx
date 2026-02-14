@@ -207,33 +207,6 @@ const generate3OpStory = (inputNums: number[], allowedOps: string[], allowCarry:
         };
       }
     },
-    // * only
-    {
-      ops: ['*'],
-      gen: () => {
-        const a = getRandomInt(2, 9), b = getRandomInt(2, 9), c = getRandomInt(2, 5);
-        return {
-          q: `โรงเรียนมี ${a} ชั้นเรียน แต่ละชั้นมี ${b} แถว แถวละ ${c} คน มีนักเรียนทั้งหมดกี่คน?`,
-          sym: `${a} × ${b} × ${c} = ?`,
-          h: "คูณจำนวนห้อง จำนวนแถว และจำนวนคนต่อแถว เข้าด้วยกัน",
-          a: a * b * c
-        };
-      }
-    },
-    // / only
-    {
-      ops: ['/'],
-      gen: () => {
-        const c = getRandomInt(2, 5), b = getRandomInt(2, 9);
-        const a = b * c * getRandomInt(2, 9);
-        return {
-          q: `มีขนม ${a} ชิ้น แบ่งเป็น ${b} กลุ่ม แต่ละกลุ่มแบ่งให้เด็กอีก ${c} คน แต่ละคนจะได้ขนมกี่ชิ้น?`,
-          sym: `${a} ÷ ${b} ÷ ${c} = ?`,
-          h: "แบ่งเป็นกลุ่มก่อน แล้วแบ่งให้เด็กในแต่ละกลุ่มอีกที",
-          a: a / b / c
-        };
-      }
-    },
     // +/ templates
     {
       ops: ['+', '/'],
@@ -266,19 +239,65 @@ const generate3OpStory = (inputNums: number[], allowedOps: string[], allowCarry:
         };
       }
     },
-    // */ templates
+    // */ templates - A × B ÷ C
     {
       ops: ['*', '/'],
       gen: () => {
-        const groups = getRandomInt(2, 6);
-        const perGroup = getRandomInt(2, 9);
-        const divisor = getRandomInt(2, 5);
-        const total = groups * perGroup * divisor;
+        const a = getRandomInt(2, 9);
+        const b = getRandomInt(2, 9);
+        const c = getRandomInt(2, 5);
+        const product = a * b;
+        // ensure divisible
+        const total = product * c;
+        const fruit = getRandItem('fruit');
         return {
-          q: `มีลูกแก้ว ${total} ลูก แบ่งเป็น ${divisor} ถุงเท่าๆ กัน แล้วนำแต่ละถุงจัดใส่กล่อง ${groups} กล่อง กล่องละกี่ลูก?`,
-          sym: `(${total} ÷ ${divisor}) ÷ ${groups} = ?`,
-          h: "แบ่งเป็นถุงก่อน (หาร) แล้วจัดใส่กล่อง (หาร)",
-          a: total / divisor / groups
+          q: `ซื้อ${fruit} ${a} ถุง ถุงละ ${b * c} ผล แบ่งให้เพื่อน ${c} คนเท่าๆ กัน แต่ละคนจะได้${fruit}กี่ผล?`,
+          sym: `(${a} × ${b * c}) ÷ ${c} = ?`,
+          h: "หาจำนวนทั้งหมดก่อน (คูณ) แล้วแบ่งให้เพื่อน (หาร)",
+          a: (a * b * c) / c
+        };
+      }
+    },
+    // */ templates - A ÷ B × C
+    {
+      ops: ['*', '/'],
+      gen: () => {
+        const b = getRandomInt(2, 9);
+        const perPerson = getRandomInt(2, 12);
+        const a = b * perPerson;
+        const c = getRandomInt(2, 5);
+        return {
+          q: `มีลูกอม ${a} เม็ด แบ่งใส่ถุง ${b} ถุงเท่าๆ กัน แล้วนำไปขาย ${c} วัน วันละ 1 ถุง ขายลูกอมไปทั้งหมดกี่เม็ด?`,
+          sym: `(${a} ÷ ${b}) × ${c} = ?`,
+          h: "หาจำนวนต่อถุงก่อน (หาร) แล้วคูณจำนวนวัน",
+          a: (a / b) * c
+        };
+      }
+    },
+    // */ templates - A × B × C (pure multiply)
+    {
+      ops: ['*'],
+      gen: () => {
+        const a = getRandomInt(2, 9), b = getRandomInt(2, 9), c = getRandomInt(2, 5);
+        return {
+          q: `โรงเรียนมี ${a} ชั้นเรียน แต่ละชั้นมี ${b} แถว แถวละ ${c} คน มีนักเรียนทั้งหมดกี่คน?`,
+          sym: `${a} × ${b} × ${c} = ?`,
+          h: "คูณจำนวนชั้น จำนวนแถว และจำนวนคนต่อแถว เข้าด้วยกัน",
+          a: a * b * c
+        };
+      }
+    },
+    // */ templates - A ÷ B ÷ C (pure divide)
+    {
+      ops: ['/'],
+      gen: () => {
+        const c = getRandomInt(2, 5), b = getRandomInt(2, 9);
+        const a = b * c * getRandomInt(2, 9);
+        return {
+          q: `มีขนม ${a} ชิ้น แบ่งเป็น ${b} กลุ่ม แต่ละกลุ่มแบ่งให้เด็กอีก ${c} คน แต่ละคนจะได้ขนมกี่ชิ้น?`,
+          sym: `${a} ÷ ${b} ÷ ${c} = ?`,
+          h: "แบ่งเป็นกลุ่มก่อน แล้วแบ่งให้เด็กในแต่ละกลุ่มอีกที",
+          a: a / b / c
         };
       }
     }
