@@ -590,7 +590,7 @@ export const useTrainingCalendar = () => {
           body: { userId, localDate, addSingleMission: true },
         }),
         new Promise<{ data: null; error: Error }>((_, reject) => 
-          setTimeout(() => reject(new Error('TIMEOUT')), 35000)
+          setTimeout(() => reject(new Error('TIMEOUT')), 15000)
         )
       ]).catch((err) => {
         if (err.message === 'TIMEOUT') {
@@ -691,7 +691,7 @@ export const useTrainingCalendar = () => {
           body: { userId, localDate },
         }),
         new Promise<{ data: null; error: Error }>((_, reject) => 
-          setTimeout(() => reject(new Error('TIMEOUT')), 35000)
+          setTimeout(() => reject(new Error('TIMEOUT')), 15000)
         )
       ]).catch((err) => {
         if (err.message === 'TIMEOUT') {
@@ -764,7 +764,7 @@ export const useTrainingCalendar = () => {
     }
   };
 
-  // Regenerate missions (delete old incomplete ones and create new)
+  // Regenerate missions (generate new first, edge function handles deletion)
   const regenerateMissions = async () => {
     if (!userId) {
       toast({
@@ -784,31 +784,27 @@ export const useTrainingCalendar = () => {
     try {
       setIsGenerating(true);
 
-      // Delete only NON-COMPLETED missions to preserve completed work
-      // Check both status AND completed_at for extra safety
+      // Edge function now handles create-before-delete internally
       const localDate = getLocalDateString(new Date());
-      const { error: deleteError } = await supabase
-        .from('daily_missions')
-        .delete()
-        .eq('user_id', userId)
-        .eq('mission_date', localDate)
-        .neq('status', 'completed') // Keep completed missions
-        .is('completed_at', null); // Extra check: don't delete if has completion timestamp
 
-      if (deleteError) throw deleteError;
-
-      // Wait longer to ensure deletions are processed and database has synced
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // Call edge function to generate new missions
-      const { data: functionData, error: functionError } = await supabase.functions.invoke(
-        'generate-daily-mission',
-        { body: { userId, localDate } }
-      );
+      const { data: functionData, error: functionError } = await Promise.race([
+        supabase.functions.invoke(
+          'generate-daily-mission',
+          { body: { userId, localDate } }
+        ),
+        new Promise<{ data: null; error: Error }>((_, reject) => 
+          setTimeout(() => reject(new Error('TIMEOUT')), 15000)
+        )
+      ]).catch((err) => {
+        if (err.message === 'TIMEOUT') {
+          return { data: null, error: new Error('Request timeout') };
+        }
+        throw err;
+      });
 
       if (functionError) throw functionError;
 
-      if (functionData?.missions) {
+      if (functionData?.success) {
         await fetchMissions(new Date().getMonth() + 1, new Date().getFullYear());
         return { success: true };
       }

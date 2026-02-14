@@ -341,6 +341,19 @@ export const useAuth = () => {
               // Trigger auth change event for ProtectedRoute
               window.dispatchEvent(new Event('auth-change'));
               
+              // Pre-generate daily missions in background (don't await)
+              const localDate = (() => {
+                const d = new Date();
+                return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+              })();
+              supabase.functions.invoke('generate-daily-mission', {
+                body: { userId: result.user_id, localDate }
+              }).then(res => {
+                console.log('📅 Pre-generated daily missions on login:', res.data?.success);
+              }).catch(err => {
+                console.warn('⚠️ Pre-generation failed (non-blocking):', err);
+              });
+              
               ToastManager.show({
                 message: `ยินดีต้อนรับ ${result.nickname}!`,
                 type: 'success'
