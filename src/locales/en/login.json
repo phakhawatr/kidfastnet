@@ -5,7 +5,7 @@
   "emailPlaceholder": "parent@email.com",
   "passwordLabel": "Password",
   "passwordPlaceholder": "Your password",
-  "rememberMe": "Remember me",
+  "rememberMe": "Remember password permanently",
   "loginButton": "🚀 Login!",
   "forgotPassword": "Forgot password?",
   "noAccount": "Don't have an account?",

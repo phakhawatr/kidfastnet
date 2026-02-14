@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
@@ -10,12 +10,19 @@ import { rateLimiter } from '../utils/rateLimiter';
 import { ToastManager } from '../components/Toast';
 import { Separator } from '@/components/ui/separator';
 
+const CREDENTIALS_KEY = 'kidfast_remembered_credentials';
+
 const Login = () => {
   const { t } = useTranslation('login');
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    rememberMe: false
+  const [formData, setFormData] = useState(() => {
+    try {
+      const saved = localStorage.getItem(CREDENTIALS_KEY);
+      if (saved) {
+        const decoded = JSON.parse(atob(saved));
+        return { email: decoded.e || '', password: decoded.p || '', rememberMe: true };
+      }
+    } catch { /* ignore */ }
+    return { email: '', password: '', rememberMe: false };
   });
   const [showPassword, setShowPassword] = useState(false);
   const [sessionConflict, setSessionConflict] = useState({
@@ -63,6 +70,13 @@ const Login = () => {
     // Reset rate limiter on successful login
     if (result.success) {
       rateLimiter.resetAttempts(formData.email);
+      // Save or clear remembered credentials
+      if (formData.rememberMe) {
+        const encoded = btoa(JSON.stringify({ e: formData.email, p: formData.password }));
+        localStorage.setItem(CREDENTIALS_KEY, encoded);
+      } else {
+        localStorage.removeItem(CREDENTIALS_KEY);
+      }
     }
     
     if (!result.success && result.error) {
@@ -157,7 +171,7 @@ const Login = () => {
                   checked={formData.rememberMe}
                   onChange={(e) => setFormData(prev => ({ ...prev, rememberMe: e.target.checked }))}
                 />
-                <span className="text-sm">{t('rememberMe')}</span>
+                <span className="text-sm">🔐 ช่วยจำรหัสอย่างถาวร</span>
               </label>
 
               {/* Login Button */}
