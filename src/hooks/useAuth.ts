@@ -511,6 +511,7 @@ export const useAuth = () => {
       // Clear local storage
       localStorage.removeItem('kidfast_auth');
       localStorage.removeItem('kidfast_session_id');
+      localStorage.removeItem('kidfast_remembered_credentials');
       
       const { error } = await supabase.auth.signOut();
 
