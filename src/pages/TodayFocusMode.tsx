@@ -74,8 +74,6 @@ const TodayFocusMode = () => {
     return missionDateStr === targetDateStr;
   }).sort((a, b) => ((a as any).mission_option || 1) - ((b as any).mission_option || 1));
 
-  const dayOfWeek = targetDate.getDay();
-  const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
   // Reset generation tracking when date changes
   useEffect(() => {
@@ -147,9 +145,6 @@ const TodayFocusMode = () => {
         return;
       }
       
-      // If it's weekend, don't auto-generate
-      if (isWeekend) return;
-      
       // If we have 3+ missions for today, no need to generate
       if (todayMissions.length >= 3) {
         // Reset retry count on success
@@ -182,11 +177,11 @@ const TodayFocusMode = () => {
     };
     
     autoGenerateMissions();
-  }, [userId, isLoading, isGenerating, todayMissions.length, isWeekend, needsRefresh, searchParams, navigate, isViewingPast]);
+  }, [userId, isLoading, isGenerating, todayMissions.length, needsRefresh, searchParams, navigate, isViewingPast]);
 
   // Retry if no missions after loading completes (with rate limiting)
   useEffect(() => {
-    if (!isLoading && !isGenerating && userId && todayMissions.length === 0 && !isWeekend && !isViewingPast) {
+    if (!isLoading && !isGenerating && userId && todayMissions.length === 0 && !isViewingPast) {
       // Check retry limit before attempting
       if (generationRetryCount.current >= MAX_RETRIES) {
         console.log(`🚫 Max retries reached, stopping automatic generation`);
@@ -212,7 +207,7 @@ const TodayFocusMode = () => {
       }, 2000);
       return () => clearTimeout(timer);
     }
-  }, [isLoading, isGenerating, userId, todayMissions.length, isWeekend, isViewingPast, generateTodayMission]);
+  }, [isLoading, isGenerating, userId, todayMissions.length, isViewingPast, generateTodayMission]);
 
   // Retry pending mission results from queue (migrated from localStorage)
   useEffect(() => {
@@ -598,39 +593,6 @@ const TodayFocusMode = () => {
     return null;
   }
 
-  // Weekend view
-  if (isWeekend && todayMissions.length === 0) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
-        <div className="max-w-4xl mx-auto">
-          <Button
-            onClick={() => navigate('/training-calendar')}
-            variant="ghost"
-            className="mb-4 text-white hover:bg-white/10"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            กลับสู่หน้าปฏิทินของฉัน
-          </Button>
-
-          <Card className="bg-slate-800/90 backdrop-blur-sm border-slate-700 text-center p-8">
-            <PartyPopper className="w-16 h-16 mx-auto mb-4 text-blue-400" />
-            <h2 className="text-3xl font-bold text-white mb-2">
-              🎉 วันหยุดพักผ่อน!
-            </h2>
-            <p className="text-slate-300 mb-6">
-              ผ่อนคลายและเตรียมพร้อมสำหรับสัปดาห์หน้า
-            </p>
-            <Button
-              onClick={() => navigate('/training-calendar')}
-              className="bg-blue-500 hover:bg-blue-600"
-            >
-              ดูปฏิทินการฝึก
-            </Button>
-          </Card>
-        </div>
-      </div>
-    );
-  }
 
   // Check if all completed - require exactly 3 missions AND all completed
   const allCompleted = todayMissions.length >= 3 && todayMissions.every(m => isMissionCompleted(m));
