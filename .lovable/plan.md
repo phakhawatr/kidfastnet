@@ -1,26 +1,28 @@
 
-
-# ขยายกระดาษทดให้เลื่อนลงได้
+# แก้ไข Error "Cannot read properties of undefined (reading 'skill_name')" ในหน้า Profile
 
 ## ปัญหา
-Canvas มีขนาดคงที่ 600x400px ถ้าเด็กเขียนเต็มกระดาษจะไม่มีพื้นที่เพิ่ม
+
+มี 2 ปัญหาที่เกิดขึ้นพร้อมกัน:
+
+1. **ฟังก์ชัน `generateTodayMission`** (บรรทัด 735) พยายามอ่าน `data.mission.skill_name` แต่ edge function `generate-daily-mission` คืนค่า `data.missions` (array) ไม่ใช่ `data.mission` (object เดี่ยว) ทำให้เกิด TypeError
+2. **Auto-generate loop ไม่หยุด** - เมื่อ error เกิดขึ้น todayMissions ยังคง < 3 ทำให้ useEffect ใน Profile.tsx เรียก generateTodayMission ซ้ำไปเรื่อยๆ ทุกๆ 2 วินาที
 
 ## แนวทางแก้ไข
 
-ปรับ `src/components/ScratchPad.tsx`:
+### 1. แก้ไข `src/hooks/useTrainingCalendar.ts`
 
-1. **เพิ่มปุ่ม "เพิ่มกระดาษ"** -- เพิ่มปุ่มที่ขยาย canvas ลงด้านล่างทีละ 400px (เพิ่มหน้ากระดาษ) โดยคัดลอกภาพวาดเดิมไว้แล้ววาด grid ต่อส่วนที่เพิ่ม
-2. **ครอบ canvas ด้วย ScrollArea** -- ใส่ container ที่มี `overflow-y: auto` และ `max-height` จำกัดตาม viewport เพื่อให้เลื่อนดูส่วนที่เพิ่มได้
-3. **State สำหรับความสูง** -- เพิ่ม `canvasHeight` state เริ่มต้นที่ 400 และเพิ่มได้เรื่อย ๆ
-4. **ปุ่มลบ reset ขนาด** -- เมื่อกด "ลบทั้งหมด" จะ reset ความสูงกลับเป็น 400px
+- บรรทัด 735: เปลี่ยนจาก `data.mission.skill_name` เป็น `data.missions?.[0]?.skill_name` หรือใช้ optional chaining `data.mission?.skill_name` เพื่อรองรับทั้งสองกรณี
+- เพิ่ม fallback text กรณีไม่มีข้อมูล
 
-### รายละเอียดทางเทคนิค
+### 2. แก้ไข `src/pages/Profile.tsx`
 
-| ส่วน | รายละเอียด |
-|------|-----------|
-| State | เพิ่ม `canvasHeight` useState เริ่มที่ 400 |
-| ปุ่มเพิ่มกระดาษ | ไอคอน `ChevronDown` หรือ `Plus` พร้อมข้อความ "เพิ่มกระดาษ" วางใต้ canvas |
-| Scroll container | `div` ครอบ canvas ด้วย `max-h-[60vh] overflow-y-auto` |
-| ขยาย canvas | Save imageData เดิม -> เพิ่ม height +400 -> restore imageData -> วาด grid ส่วนใหม่ |
-| Clear | Reset `canvasHeight` กลับ 400 แล้ว `clearCanvas()` ตามปกติ |
+- เพิ่ม retry limit (สูงสุด 2 ครั้ง) เพื่อป้องกัน infinite loop
+- เพิ่ม state `autoGenAttempted` เพื่อ track ว่าเคยลองแล้วหรือยัง ถ้าลองแล้ว error ให้หยุด ไม่ลองซ้ำ
 
+## รายละเอียดทางเทคนิค
+
+| ไฟล์ | การเปลี่ยนแปลง |
+|------|----------------|
+| `src/hooks/useTrainingCalendar.ts` | ใช้ optional chaining `data.mission?.skill_name` และ fallback ไป `data.missions?.[0]?.skill_name` |
+| `src/pages/Profile.tsx` | เพิ่ม `useRef` สำหรับ retry count, จำกัดการ auto-generate ไม่เกิน 2 ครั้ง, reset เมื่อ missions สำเร็จ |
