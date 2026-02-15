@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
@@ -143,15 +143,23 @@ const Profile = () => {
   const totalStarsToday = todayMissions.reduce((sum, m) => sum + (m.stars_earned || 0), 0);
 
   // Auto-generate missions on login if fewer than 3 exist for today
+  const autoGenAttempts = useRef(0);
+  const MAX_AUTO_GEN_ATTEMPTS = 2;
+
   useEffect(() => {
     const autoGenerateOnLogin = async () => {
-      // Skip if loading, generating, or no userId
       if (missionsLoading || isGenerating || !calendarUserId) return;
-      
-      // Check if today has fewer than 3 missions
+      if (autoGenAttempts.current >= MAX_AUTO_GEN_ATTEMPTS) return;
+
       if (todayMissions.length < 3) {
-        console.log('🚀 Profile: Auto-generating missions (', todayMissions.length, '/3)');
-        await generateTodayMission();
+        console.log('🚀 Profile: Auto-generating missions (', todayMissions.length, '/3), attempt:', autoGenAttempts.current + 1);
+        autoGenAttempts.current += 1;
+        const result = await generateTodayMission();
+        if (!result?.success) {
+          console.log('⚠️ Profile: Auto-generate failed, attempts used:', autoGenAttempts.current);
+        }
+      } else {
+        autoGenAttempts.current = 0;
       }
     };
     

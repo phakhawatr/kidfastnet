@@ -730,16 +730,19 @@ export const useTrainingCalendar = () => {
       }
 
       if (data?.success) {
+        const mission = data.mission ?? data.missions?.[0];
+        const skillName = mission?.skill_name ?? 'ภารกิจใหม่';
+        const difficulty = mission?.difficulty ?? '';
         toast({
           title: 'สร้างภารกิจใหม่สำเร็จ! 🎯',
-          description: `${data.mission.skill_name} (${data.mission.difficulty})`,
+          description: `${skillName}${difficulty ? ` (${difficulty})` : ''}`,
         });
 
         // Refresh missions
         const today = new Date();
         await fetchMissions(today.getMonth() + 1, today.getFullYear());
 
-        return { success: true, mission: data.mission };
+        return { success: true, mission };
       } else {
         throw new Error(data?.error || 'Unknown error');
       }
