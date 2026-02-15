@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react';
-import { Trash2, Sun, Moon, PlusCircle } from 'lucide-react';
+import { Trash2, Sun, Moon, PlusCircle, Palette } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 
@@ -13,12 +13,23 @@ interface ScratchPadProps {
 const INITIAL_HEIGHT = 400;
 const PAGE_INCREMENT = 400;
 
+const PEN_COLORS = [
+  { id: 'default', label: 'ค่าเริ่มต้น', dark: '#93c5fd', light: '#1e3a5f' },
+  { id: 'red', label: 'แดง', dark: '#f87171', light: '#dc2626' },
+  { id: 'blue', label: 'น้ำเงิน', dark: '#60a5fa', light: '#2563eb' },
+  { id: 'green', label: 'เขียว', dark: '#4ade80', light: '#16a34a' },
+  { id: 'black', label: 'ดำ', dark: '#e2e8f0', light: '#111827' },
+  { id: 'orange', label: 'ส้ม', dark: '#fb923c', light: '#ea580c' },
+  { id: 'purple', label: 'ม่วง', dark: '#c084fc', light: '#9333ea' },
+];
+
 const ScratchPad: React.FC<ScratchPadProps> = ({ open, onClose, questionNumber, questionText }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const isDrawing = useRef(false);
   const lastPos = useRef<{ x: number; y: number } | null>(null);
   const [penSize, setPenSize] = useState(3);
+  const [penColor, setPenColor] = useState<string>('default');
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [canvasHeight, setCanvasHeight] = useState(INITIAL_HEIGHT);
 
@@ -51,13 +62,14 @@ const ScratchPad: React.FC<ScratchPadProps> = ({ open, onClose, questionNumber, 
     ctx.beginPath();
     ctx.moveTo(lastPos.current.x, lastPos.current.y);
     ctx.lineTo(pos.x, pos.y);
-    ctx.strokeStyle = isDarkMode ? '#93c5fd' : '#1e3a5f';
+    const colorObj = PEN_COLORS.find(c => c.id === penColor) || PEN_COLORS[0];
+    ctx.strokeStyle = isDarkMode ? colorObj.dark : colorObj.light;
     ctx.lineWidth = penSize;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.stroke();
     lastPos.current = pos;
-  }, [getPos, penSize, isDarkMode]);
+  }, [getPos, penSize, isDarkMode, penColor]);
 
   const stopDraw = useCallback(() => {
     isDrawing.current = false;
@@ -182,24 +194,43 @@ const ScratchPad: React.FC<ScratchPadProps> = ({ open, onClose, questionNumber, 
             <PlusCircle size={14} /> เพิ่มกระดาษ
           </button>
         </div>
-        <div className="flex items-center justify-between gap-2 mt-1">
-          <div className="flex items-center gap-2">
-            <span className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-gray-500'}`}>เส้น:</span>
-            {[2, 4, 6].map(s => (
-              <button
-                key={s}
-                onClick={() => setPenSize(s)}
-                className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
-                  penSize === s
-                    ? 'bg-purple-500 text-white'
-                    : isDarkMode
-                      ? 'bg-slate-700 text-slate-400 hover:bg-slate-600'
-                      : 'bg-gray-200 text-gray-500 hover:bg-gray-300'
-                }`}
-              >
-                <div className="rounded-full bg-current" style={{ width: s + 2, height: s + 2 }} />
-              </button>
-            ))}
+        <div className="flex flex-wrap items-center justify-between gap-2 mt-1">
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-gray-500'}`}>เส้น:</span>
+              {[2, 4, 6].map(s => (
+                <button
+                  key={s}
+                  onClick={() => setPenSize(s)}
+                  className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+                    penSize === s
+                      ? 'bg-purple-500 text-white'
+                      : isDarkMode
+                        ? 'bg-slate-700 text-slate-400 hover:bg-slate-600'
+                        : 'bg-gray-200 text-gray-500 hover:bg-gray-300'
+                  }`}
+                >
+                  <div className="rounded-full bg-current" style={{ width: s + 2, height: s + 2 }} />
+                </button>
+              ))}
+            </div>
+            <div className={`w-px h-5 ${isDarkMode ? 'bg-slate-600' : 'bg-gray-300'}`} />
+            <div className="flex items-center gap-1.5">
+              <Palette size={14} className={isDarkMode ? 'text-slate-400' : 'text-gray-500'} />
+              {PEN_COLORS.map(color => (
+                <button
+                  key={color.id}
+                  onClick={() => setPenColor(color.id)}
+                  title={color.label}
+                  className={`w-6 h-6 rounded-full border-2 transition-all ${
+                    penColor === color.id
+                      ? 'scale-110 ring-2 ring-offset-1 ' + (isDarkMode ? 'ring-white/50 ring-offset-slate-800' : 'ring-gray-400 ring-offset-white')
+                      : 'hover:scale-105'
+                  } ${isDarkMode ? 'border-slate-600' : 'border-gray-300'}`}
+                  style={{ backgroundColor: isDarkMode ? color.dark : color.light }}
+                />
+              ))}
+            </div>
           </div>
           <div className="flex gap-2">
             <Button
