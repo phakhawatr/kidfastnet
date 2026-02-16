@@ -48,6 +48,7 @@ export const PREMIUM_ONLY_APPS = [
   '/area-model',
   '/money',
   '/word-problems',
+  '/mixed-math',
   '/stem',
   '/coding-basics',
   '/science-lab',
