@@ -4,6 +4,7 @@ import { Check, Clock, Brain, Calculator, BookOpen, Lightbulb, FunctionSquare, P
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ScratchPad from '@/components/ScratchPad';
+import { twoOpTemplates, threeOpTemplates, pickTemplates } from '@/utils/mixedMathTemplates';
 
 interface MathConfig {
   questionCount: number;
@@ -66,7 +67,28 @@ const hasBorrow = (a: number, b: number): boolean => {
   return false;
 };
 
+// Track used template indices to prevent repeats within a set
+let usedTwoOpIndices = new Set<number>();
+let usedThreeOpIndices = new Set<number>();
+
 const generate2OpStory = (inputNums: number[], allowedOps: string[], allowCarry: boolean): Omit<Question, 'id'> => {
+  // Try to pick from template pool first
+  const opMap: Record<string, string> = { '+': '+', '-': '-', '*': '*', '/': '/' };
+  const mapped = allowedOps.map(op => opMap[op] || op);
+  const picks = pickTemplates(twoOpTemplates, 1, mapped, usedTwoOpIndices);
+  
+  if (picks.length > 0) {
+    const { result } = picks[0];
+    return {
+      question: result.question,
+      answer: result.answer,
+      symbolic: result.symbolic,
+      symbolicAlt: result.symbolicAlt,
+      hint: result.hint,
+    };
+  }
+
+  // Fallback to original generation
   const validOps = [...allowedOps];
   let attempts = 0;
   let selectedOp = '';
@@ -130,6 +152,22 @@ const generate2OpStory = (inputNums: number[], allowedOps: string[], allowCarry:
 };
 
 const generate3OpStory = (inputNums: number[], allowedOps: string[], allowCarry: boolean): Omit<Question, 'id'> => {
+  // Try template pool first
+  const opMap: Record<string, string> = { '+': '+', '-': '-', '*': '*', '/': '/' };
+  const mapped = allowedOps.map(op => opMap[op] || op);
+  const picks = pickTemplates(threeOpTemplates, 1, mapped, usedThreeOpIndices);
+  
+  if (picks.length > 0) {
+    const { result } = picks[0];
+    return {
+      question: result.question,
+      answer: result.answer,
+      symbolic: result.symbolic,
+      symbolicAlt: result.symbolicAlt,
+      hint: result.hint,
+    };
+  }
+
   interface Template {
     ops: string[];
     gen: () => { q: string; sym: string; symAlt?: string; h: string; a: number };
@@ -379,6 +417,9 @@ const MixedMathPracticeApp = () => {
   }, [config]);
 
   const generateQuestions = () => {
+    // Reset template tracking to prevent cross-set dedup
+    usedTwoOpIndices = new Set<number>();
+    usedThreeOpIndices = new Set<number>();
     const newQs = Array.from({ length: config.questionCount }, () => generateSingleQuestion());
     setQuestions(newQs);
     setUserAnswers({});
