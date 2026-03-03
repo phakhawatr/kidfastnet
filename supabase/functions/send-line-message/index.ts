@@ -31,6 +31,7 @@ serve(async (req) => {
       accountNumber,
       skillBreakdown,
       isAssessment,
+      chartImageUrl,
     } = requestData;
     
     const actualScore = correctAnswers ?? rawScore ?? 0;
@@ -107,7 +108,7 @@ serve(async (req) => {
           exerciseType, nickname: actualNickname,
           score: actualScore, total: actualTotal,
           percentage: actualPercentage, timeSpent: actualTimeSpent,
-          skillBreakdown,
+          skillBreakdown, chartImageUrl,
         });
       } else {
         await sendLineFlexMessage(lineUserId, {
@@ -147,7 +148,7 @@ serve(async (req) => {
 // Assessment-specific Flex Message with skill breakdown (radar-chart style)
 async function sendAssessmentFlexMessage(lineUserId: string, data: any) {
   const channelAccessToken = Deno.env.get('LINE_CHANNEL_ACCESS_TOKEN');
-  const { exerciseType, nickname, score, total, percentage, timeSpent, skillBreakdown } = data;
+  const { exerciseType, nickname, score, total, percentage, timeSpent, skillBreakdown, chartImageUrl } = data;
 
   // Determine overall status
   let headerColor = '#22c55e'; // green
@@ -291,10 +292,21 @@ async function sendAssessmentFlexMessage(lineUserId: string, data: any) {
     },
   };
 
+  // Build messages array: flex message + optional chart image
+  const messages: any[] = [flexMessage];
+  
+  if (chartImageUrl) {
+    messages.push({
+      type: 'image',
+      originalContentUrl: chartImageUrl,
+      previewImageUrl: chartImageUrl,
+    });
+  }
+
   const response = await fetch('https://api.line.me/v2/bot/message/push', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${channelAccessToken}` },
-    body: JSON.stringify({ to: lineUserId, messages: [flexMessage] }),
+    body: JSON.stringify({ to: lineUserId, messages }),
   });
 
   if (!response.ok) {
