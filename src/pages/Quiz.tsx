@@ -1374,7 +1374,7 @@ const Quiz = () => {
             </div>
 
             {/* Button to open detail dialog */}
-            {skillBreakdown.length >= 3 && (
+            {skillBreakdown.length > 0 && (
               <Button
                 onClick={() => setShowDetailDialog(true)}
                 className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white flex items-center justify-center gap-2"

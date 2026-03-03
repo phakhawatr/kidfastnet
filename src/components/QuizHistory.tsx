@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Trophy, TrendingUp, Calendar, Target, Award, Hash } from 'lucide-react';
+import { Trophy, TrendingUp, Calendar, Target, Award, Hash, BarChart3, BookOpen, Sparkles } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import CompetencyRadarChart from '@/components/CompetencyRadarChart';
 import type { SkillDataItem } from '@/components/CompetencyRadarChart';
@@ -80,6 +82,7 @@ function computeSkillBreakdown(assessmentData: any): SkillDataItem[] {
 }
 
 const QuizHistory = ({ userId, compact = false }: QuizHistoryProps) => {
+  const navigate = useNavigate();
   const [assessments, setAssessments] = useState<AssessmentRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedAssessment, setSelectedAssessment] = useState<AssessmentRecord | null>(null);
@@ -496,6 +499,44 @@ const QuizHistory = ({ userId, compact = false }: QuizHistoryProps) => {
                   </div>
                 </div>
               )}
+
+              {/* Practice button */}
+              {selectedSkillData.some(s => s.percentage < 85) && (
+                <div className="space-y-3 pt-2 border-t">
+                  <h4 className="font-semibold text-amber-800 flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-amber-600" />
+                    🎯 แนะนำทักษะที่ควรฝึกเพิ่ม
+                  </h4>
+                  <div className="space-y-2">
+                    {selectedSkillData
+                      .filter(s => s.percentage < 85)
+                      .sort((a, b) => a.percentage - b.percentage)
+                      .map((s) => (
+                        <div key={s.skill} className="flex items-center justify-between bg-amber-50 p-2 rounded-lg border border-amber-200">
+                          <div className="flex items-center gap-2">
+                            <span className={`w-2 h-2 rounded-full ${s.percentage < 50 ? 'bg-red-500' : 'bg-yellow-500'}`} />
+                            <span className="text-sm font-medium">{s.skill}</span>
+                            <span className={`text-xs font-bold ${s.percentage < 50 ? 'text-red-600' : 'text-yellow-600'}`}>
+                              {s.percentage.toFixed(0)}%
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+
+              <Button
+                onClick={() => {
+                  setSelectedAssessment(null);
+                  navigate('/quiz');
+                }}
+                className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white flex items-center justify-center gap-2"
+                size="lg"
+              >
+                <BarChart3 className="w-5 h-5" />
+                ดูรายละเอียดและฝึกทักษะเพิ่ม
+              </Button>
             </div>
           )}
         </DialogContent>
