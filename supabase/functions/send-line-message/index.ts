@@ -235,7 +235,7 @@ async function sendAssessmentFlexMessage(lineUserId: string, data: any) {
             url: chartImageUrl,
             size: 'full',
             aspectMode: 'fit',
-            aspectRatio: '4:3',
+            aspectRatio: '1:1',
             margin: 'md',
           },
         ] : []),
