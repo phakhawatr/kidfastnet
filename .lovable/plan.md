@@ -1,28 +1,34 @@
 
 
-## Problem
+## Plan: Show All Assessment History
 
-The "ดูรายละเอียดและฝึกทักษะเพิ่ม" button in `QuizHistory` navigates to `/quiz` with state, but the user is **already on `/quiz`**. React Router does not remount the component when navigating to the same route, so:
-- `useState` initializers don't re-run → `screen` stays at current value
-- `useEffect(() => {}, [])` doesn't re-fire → `historyMode` never gets set
+Currently `QuizHistory` is rendered with `compact` prop in `Quiz.tsx` (line 1013), which limits display to 3 items via `assessments.slice(0, 3)`.
 
-## Fix
+### Changes
 
-**`src/pages/Quiz.tsx`** — Change the `useEffect` dependency from `[]` to `[location.state]` (or `[locationState]`) so it re-runs when navigation state changes. Also explicitly set `screen` to `'results'` inside that effect:
+**`src/components/QuizHistory.tsx`**
+- Add a `showAll` state (default `false`) when `compact` is true
+- When `compact` and not `showAll`, show 3 items + a "ดูทั้งหมด (X รายการ)" button
+- When `showAll` is toggled, show all assessments with a "ย่อ" collapse button
+- This keeps the compact layout by default but lets users expand to see everything
+
+### Technical Detail
 
 ```typescript
-useEffect(() => {
-  const ls = location.state as typeof locationState;
-  if (ls?.showResults && ls.assessmentRecord) {
-    const rec = ls.assessmentRecord;
-    // ... existing skill breakdown computation ...
-    setHistoryData({ ... });
-    setHistoryMode(true);
-    setScreen('results');  // Explicitly switch screen
-    window.history.replaceState({}, document.title);
-  }
-}, [location.state]);  // React to state changes
+const [showAll, setShowAll] = useState(false);
+const displayAssessments = compact && !showAll 
+  ? assessments.slice(0, 3) 
+  : assessments;
 ```
 
-This single change ensures that when navigating from QuizHistory (same page), the effect fires again and switches to the results view with the historical data.
+Add a button after the assessment cards grid:
+```tsx
+{compact && assessments.length > 3 && (
+  <Button variant="outline" onClick={() => setShowAll(!showAll)}>
+    {showAll ? 'ย่อ' : `ดูทั้งหมด (${assessments.length} รายการ)`}
+  </Button>
+)}
+```
+
+**File:** `src/components/QuizHistory.tsx` only
 
