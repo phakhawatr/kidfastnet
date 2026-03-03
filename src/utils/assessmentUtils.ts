@@ -4131,6 +4131,60 @@ export const generateAssessmentQuestions = async (
   return generateSemesterQuestionsWithAI(config, totalQuestions);
 };
 
+/**
+ * Generate practice questions for a specific skill
+ */
+export const generateSkillPracticeQuestions = (
+  skill: string,
+  grade: number,
+  semester: number,
+  count: number = 10
+): AssessmentQuestion[] => {
+  // Find skill config from curriculum
+  const gradeKey = `grade${grade}`;
+  const semesterKey = `semester${semester}`;
+  const configs = curriculumConfig[gradeKey]?.[semesterKey] || [];
+  const baseConfig = configs.find(c => c.skill === skill);
+
+  const skillConfig: SkillConfig = baseConfig
+    ? { ...baseConfig, count }
+    : { skill, difficulty: 'medium' as const, count, range: [0, 100] };
+
+  // Reuse the same generator switch used in generateSemesterQuestionsWithAI
+  let questions: AssessmentQuestion[] = [];
+  switch (skill) {
+    case 'counting': questions = generateCountingQuestions(skillConfig); break;
+    case 'comparing': questions = generateComparingQuestions(skillConfig); break;
+    case 'ordering': questions = generateOrderingQuestions(skillConfig); break;
+    case 'placeValue': questions = generatePlaceValueQuestions(skillConfig); break;
+    case 'addition': questions = generateAdditionQuestions(skillConfig); break;
+    case 'subtraction': questions = generateSubtractionQuestions(skillConfig); break;
+    case 'patterns': questions = generatePatternsQuestions(skillConfig); break;
+    case 'shapes': questions = generateShapesQuestions(skillConfig); break;
+    case 'measurement': questions = generateMeasurementQuestions(skillConfig); break;
+    case 'pictograph': questions = generatePictographQuestions(skillConfig); break;
+    case 'multiplication': questions = generateMultiplicationQuestions(skillConfig); break;
+    case 'money': questions = generateMoneyQuestions(skillConfig); break;
+    case 'weighing': questions = generateWeighingQuestions(skillConfig); break;
+    case 'time': questions = generateTimeQuestions(skillConfig); break;
+    case 'volume': questions = generateVolumeQuestions(skillConfig); break;
+    case 'mixedOperations': questions = generateMixedOperationsQuestions(skillConfig); break;
+    case 'division': questions = generateDivisionQuestions(skillConfig); break;
+    case 'fractions': questions = generateFractionsQuestions(skillConfig); break;
+    case 'average': questions = generateAverageQuestions(skillConfig); break;
+    case 'decimals': questions = generateDecimalsQuestions(skillConfig); break;
+    case 'angles': questions = generateAnglesQuestions(skillConfig); break;
+    case 'rectangles': questions = generateRectanglesQuestions(skillConfig); break;
+    case 'dataPresentaton': questions = generateDataPresentationQuestions(skillConfig); break;
+    case 'estimation': questions = generateEstimationQuestions(skillConfig); break;
+    case 'mixedProblems': questions = generateMixedProblemsQuestions(skillConfig); break;
+    case 'quadrilaterals': questions = generateQuadrilateralsQuestions(skillConfig); break;
+    case 'graphReading': questions = generateGraphReadingQuestions(skillConfig); break;
+    default: questions = generatePlaceholderQuestions(skillConfig);
+  }
+  return shuffleArray(questions).slice(0, count);
+};
+
 export const evaluateAssessment = (score: number): {
   level: string;
   message: string;
