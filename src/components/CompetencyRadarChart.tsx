@@ -71,7 +71,7 @@ const CompetencyRadarChart = ({ skillData, size = 'md', showLabels = true, avera
             เฉลี่ย {avg.toFixed(0)}%
           </span>
           <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: fill, color: stroke, border: `1px solid ${stroke}` }}>
-            {avg >= 85 ? 'ดีมาก' : avg >= 50 ? 'พอใช้' : 'ควรปรับปรุง'}
+            {avg >= 85 ? 'ดีมาก' : avg >= 50 ? 'ต้องปรับปรุง' : 'ควรปรับปรุง'}
           </span>
         </div>
       )}
