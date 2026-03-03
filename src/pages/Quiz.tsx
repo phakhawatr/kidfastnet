@@ -19,6 +19,7 @@ import type { ComparisonSkillItem } from '@/components/ComparisonRadarChart';
 import { ClockDisplay } from '@/components/ClockDisplay';
 import { ReadAloudButton } from '@/components/ReadAloudButton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
@@ -46,6 +47,7 @@ const Quiz = () => {
   const [isSendingLine, setIsSendingLine] = useState(false);
   const [lineSent, setLineSent] = useState(false);
   const [showCertificate, setShowCertificate] = useState(false);
+  const [showDetailDialog, setShowDetailDialog] = useState(false);
   const [newAchievements, setNewAchievements] = useState<any[]>([]);
   const certificateRef = useRef<HTMLDivElement>(null);
   const radarChartRef = useRef<HTMLDivElement>(null);
@@ -1370,6 +1372,123 @@ const Quiz = () => {
                 <span className="font-mono font-semibold">{Math.floor(timeTaken / 60)} นาที {timeTaken % 60} วินาที</span>
               </div>
             </div>
+
+            {/* Button to open detail dialog */}
+            {skillBreakdown.length >= 3 && (
+              <Button
+                onClick={() => setShowDetailDialog(true)}
+                className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white flex items-center justify-center gap-2"
+                size="lg"
+              >
+                <BarChart3 className="w-5 h-5" />
+                ดูรายละเอียดและฝึกทักษะเพิ่ม
+              </Button>
+            )}
+
+            {/* Detail & Practice Dialog */}
+            <Dialog open={showDetailDialog} onOpenChange={setShowDetailDialog}>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="text-xl font-bold text-purple-600 flex items-center gap-2">
+                    <BarChart3 className="w-6 h-6" />
+                    ผลการทดสอบวัดระดับความรู้
+                  </DialogTitle>
+                </DialogHeader>
+                
+                <div className="space-y-6">
+                  {/* Radar Chart */}
+                  <div className="flex justify-center bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                    <CompetencyRadarChart
+                      skillData={skillBreakdown.map(s => ({
+                        skill: skillNamesTh[s.skill] || s.skill,
+                        percentage: s.percentage,
+                      }))}
+                      size="lg"
+                      averageScore={score}
+                    />
+                  </div>
+                  <div className="flex justify-center gap-4 text-xs">
+                    <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-green-500 inline-block" /> ≥85%</span>
+                    <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-yellow-500 inline-block" /> 50-84%</span>
+                    <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-red-500 inline-block" /> &lt;50%</span>
+                  </div>
+
+                  {/* Skill Breakdown with Progress Bars */}
+                  <div className="space-y-3">
+                    <h3 className="font-bold text-gray-800 dark:text-gray-200">คะแนนแยกตามทักษะ</h3>
+                    {skillBreakdown.map((item) => (
+                      <div key={item.skill} className="space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-sm text-gray-700 dark:text-gray-300">
+                            {skillNamesTh[item.skill] || item.skill}
+                          </span>
+                          <span className={`font-bold text-sm ${
+                            item.percentage >= 85 ? 'text-green-600' :
+                            item.percentage >= 50 ? 'text-yellow-600' :
+                            'text-red-600'
+                          }`}>
+                            {item.percentage.toFixed(0)}%
+                          </span>
+                        </div>
+                        <Progress
+                          value={item.percentage}
+                          className="h-3"
+                          indicatorClassName={getSkillColor(item.percentage)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Weak Skills Practice Recommendations */}
+                  {(() => {
+                    const weakSkills = skillBreakdown
+                      .filter(s => s.percentage < 85)
+                      .sort((a, b) => a.percentage - b.percentage);
+                    if (weakSkills.length === 0) return (
+                      <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+                        <p className="text-sm text-green-800 dark:text-green-300 flex items-center gap-2">
+                          <Sparkles className="w-4 h-4" />
+                          🎉 ยอดเยี่ยม! ทุกทักษะได้คะแนน 85% ขึ้นไป
+                        </p>
+                      </div>
+                    );
+                    return (
+                      <div className="space-y-3">
+                        <h3 className="font-bold text-amber-800 dark:text-amber-300 flex items-center gap-2">
+                          <Sparkles className="w-5 h-5" />
+                          🎯 แนะนำทักษะที่ควรฝึกเพิ่ม ({weakSkills.length} ทักษะ)
+                        </h3>
+                        <div className="space-y-2">
+                          {weakSkills.map((s) => (
+                            <div key={s.skill} className="flex items-center justify-between bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200 dark:border-amber-800">
+                              <div className="flex items-center gap-2">
+                                <span className={`w-2 h-2 rounded-full ${s.percentage < 50 ? 'bg-red-500' : 'bg-yellow-500'}`} />
+                                <span className="font-medium text-sm">{skillNamesTh[s.skill] || s.skill}</span>
+                                <span className={`text-xs font-bold ${s.percentage < 50 ? 'text-red-600' : 'text-yellow-600'}`}>
+                                  {s.percentage.toFixed(0)}%
+                                </span>
+                              </div>
+                              <Button
+                                size="sm"
+                                className="text-xs bg-amber-500 hover:bg-amber-600 text-white h-7 px-3"
+                                onClick={() => {
+                                  setShowDetailDialog(false);
+                                  handleStartPractice(s.skill);
+                                }}
+                                disabled={practiceLoading}
+                              >
+                                <BookOpen className="w-3 h-3 mr-1" />
+                                ฝึกเลย
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </DialogContent>
+            </Dialog>
 
             {/* Achievement Badges Section */}
             {userAchievements.length > 0 && (
