@@ -275,6 +275,27 @@ const Quiz = () => {
       const correctAnswers = calculateCorrectAnswers();
       const score = questions.length > 0 ? (correctAnswers / questions.length) * 100 : 0;
       
+      // Compute skill breakdown for LINE message
+      const skillStats: Record<string, { correct: number; total: number }> = {};
+      questions.forEach((q, i) => {
+        const skill = q.skill || 'unknown';
+        if (!skillStats[skill]) skillStats[skill] = { correct: 0, total: 0 };
+        skillStats[skill].total++;
+        const userAnswerIndex = answers.get(i);
+        if (userAnswerIndex !== undefined) {
+          const userAnswerValue = q.choices[userAnswerIndex];
+          if (userAnswerValue === q.correctAnswer || String(userAnswerValue) === String(q.correctAnswer)) {
+            skillStats[skill].correct++;
+          }
+        }
+      });
+      const skillBreakdown = Object.entries(skillStats).map(([skill, s]) => ({
+        skill: skillNamesTh[skill] || skill,
+        percentage: s.total > 0 ? Math.round((s.correct / s.total) * 100) : 0,
+        correct: s.correct,
+        total: s.total,
+      }));
+
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-line-message`, {
         method: 'POST',
         headers: {
@@ -283,12 +304,14 @@ const Quiz = () => {
         },
         body: JSON.stringify({
           userId,
-          exerciseType: `แบบทดสอบชั้น ป.${selectedGrade} เทอม ${selectedSemester}`,
-          nickname: 'นักเรียน',
+          exerciseType: `แบบทดสอบวัดระดับ ป.${selectedGrade} เทอม ${selectedSemester}`,
+          nickname: profile?.nickname || 'นักเรียน',
           correctAnswers,
           totalQuestions: questions.length,
           percentage: Math.round(score),
           timeTaken: `${Math.floor(timeTaken / 60)} นาที ${timeTaken % 60} วินาที`,
+          skillBreakdown,
+          isAssessment: true,
         }),
       });
 
@@ -730,6 +753,23 @@ const Quiz = () => {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* Quiz History Preview on Test Tab */}
+        {(user?.id || registrationId) && (
+          <div className="mt-8">
+            <Card className="border-2 border-indigo-200 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-indigo-700 text-lg">
+                  <BarChart3 className="w-5 h-5" />
+                  📋 ประวัติการทำแบบทดสอบล่าสุด
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <QuizHistory userId={user?.id || registrationId || ''} compact />
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         <TabsContent value="history">
           <QuizHistory userId={user?.id || registrationId || ''} />

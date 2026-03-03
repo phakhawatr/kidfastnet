@@ -35,6 +35,7 @@ interface AssessmentRecord {
 
 interface QuizHistoryProps {
   userId: string;
+  compact?: boolean;
 }
 
 function computeSkillBreakdown(assessmentData: any): SkillDataItem[] {
@@ -56,7 +57,7 @@ function computeSkillBreakdown(assessmentData: any): SkillDataItem[] {
   }));
 }
 
-const QuizHistory = ({ userId }: QuizHistoryProps) => {
+const QuizHistory = ({ userId, compact = false }: QuizHistoryProps) => {
   const [assessments, setAssessments] = useState<AssessmentRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedAssessment, setSelectedAssessment] = useState<AssessmentRecord | null>(null);
@@ -145,9 +146,11 @@ const QuizHistory = ({ userId }: QuizHistoryProps) => {
     );
   }
 
+  const displayAssessments = compact ? assessments.slice(0, 3) : assessments;
+
   return (
     <div className="space-y-6">
-      {/* Stats Cards */}
+      {!compact && (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white">
           <CardContent className="pt-6">
@@ -196,8 +199,10 @@ const QuizHistory = ({ userId }: QuizHistoryProps) => {
           </CardContent>
         </Card>
       </div>
+      )}
 
       {/* Assessment History Cards with Mini Radar */}
+      {!compact && (
       <Card className="border-2 border-indigo-200">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-indigo-700">
@@ -218,7 +223,6 @@ const QuizHistory = ({ userId }: QuizHistoryProps) => {
                 >
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">
-                      {/* Mini Radar Chart */}
                       <div className="flex-shrink-0">
                         {hasRadar ? (
                           <CompetencyRadarChart skillData={skillData} size="sm" showLabels={false} averageScore={a.score} />
@@ -228,7 +232,6 @@ const QuizHistory = ({ userId }: QuizHistoryProps) => {
                           </div>
                         )}
                       </div>
-                      {/* Info */}
                       <div className="flex-1 min-w-0">
                         <h4 className="font-bold text-gray-800 truncate">
                           {a.assessment_type === 'nt' ? 'NT ป.3' : `ป.${a.grade} เทอม ${a.semester}`}
@@ -261,7 +264,57 @@ const QuizHistory = ({ userId }: QuizHistoryProps) => {
           </div>
         </CardContent>
       </Card>
+      )}
 
+      {/* Compact mode: show recent assessments as small cards */}
+      {compact && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {displayAssessments.map((a) => {
+            const skillData = computeSkillBreakdown(a.assessment_data);
+            const hasRadar = skillData.length >= 3;
+            return (
+              <Card
+                key={a.id}
+                className="border hover:shadow-lg transition-shadow cursor-pointer hover:border-indigo-400"
+                onClick={() => setSelectedAssessment(a)}
+              >
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex-shrink-0">
+                      {hasRadar ? (
+                        <CompetencyRadarChart skillData={skillData} size="sm" showLabels={false} averageScore={a.score} />
+                      ) : (
+                        <div className="w-[80px] h-[80px] bg-gray-100 rounded-lg flex items-center justify-center">
+                          <Target className="w-6 h-6 text-gray-300" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-gray-800 text-sm truncate">
+                        {a.assessment_type === 'nt' ? 'NT ป.3' : `ป.${a.grade} เทอม ${a.semester}`}
+                      </h4>
+                      <p className="text-xs text-gray-500">
+                        {new Date(a.created_at).toLocaleDateString('th-TH', {
+                          day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+                        })}
+                      </p>
+                      <span className={`text-lg font-bold ${
+                        a.score >= 85 ? 'text-green-600' :
+                        a.score >= 50 ? 'text-yellow-600' :
+                        'text-red-600'
+                      }`}>
+                        {a.score?.toFixed(0)}%
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+      {!compact && (
+      <>
       {/* Score Progress Chart */}
       <Card className="border-2 border-purple-200">
         <CardHeader>
@@ -326,7 +379,8 @@ const QuizHistory = ({ userId }: QuizHistoryProps) => {
           </CardContent>
         </Card>
       )}
-
+      </>
+      )}
       {/* Detail Dialog */}
       <Dialog open={!!selectedAssessment} onOpenChange={(open) => !open && setSelectedAssessment(null)}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
