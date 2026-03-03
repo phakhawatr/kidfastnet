@@ -1,50 +1,18 @@
 
-
-# เพิ่ม Radar Chart ผลการสอบ และประวัติการสอบพร้อมภาพ Radar Chart ขนาดเล็ก
+# เพิ่มปุ่ม "ฝึกใหม่" สำหรับฝึกทักษะเฉพาะด้าน
 
 ## สิ่งที่จะทำ
-
-### 1. เพิ่ม Radar Chart ในหน้าผลการสอบ (Results Screen)
-- หลังส่งคำตอบเสร็จ สร้าง **Radar Chart** แสดงคะแนนแยกตามทักษะ (ตามหัวข้อการสอบของแต่ละระดับชั้น/เทอม)
-- ใช้เกณฑ์สี 3 ระดับ:
-  - **สีเขียว** ≥ 85%
-  - **สีเหลือง** 50% - 84.9%
-  - **สีแดง** < 50%
-- Radar Chart จะแสดงชื่อทักษะภาษาไทยรอบๆ กราฟ พร้อมคะแนนเฉลี่ยรวม
-- ใช้ Recharts `RadarChart` component ที่มีอยู่ใน dependencies แล้ว
-
-### 2. เพิ่มประวัติผลการทดสอบพร้อม Radar Chart ขนาดเล็ก
-- ปรับ `QuizHistory.tsx` เพิ่มส่วนแสดง **การ์ดประวัติ** ที่มี:
-  - ชื่อแบบทดสอบ (เช่น "ป.1 เทอม 1")
-  - วัน-เวลาที่ทำ
-  - **Radar Chart ขนาดเล็ก** (thumbnail ~120x120px) แสดงภาพรวมผลสอบ
-  - คะแนน % และจำนวนข้อถูก/ผิด
-- คลิกที่การ์ดแต่ละอัน → เปิด **Dialog** แสดงรายละเอียดเต็ม พร้อม Radar Chart ขนาดใหญ่ + ข้อมูลแยกตามทักษะ
-- ข้อมูลมาจาก `assessment_data` ที่เก็บใน `level_assessments` table อยู่แล้ว (มี questions + answers + skill)
+เพิ่มปุ่ม "ฝึกใหม่" ในแต่ละแถวทักษะของหน้าผลสอบ เมื่อกดจะเข้าสู่โหมดฝึกทำโจทย์ 10 ข้อเฉพาะทักษะนั้น ทำทีละข้อจนครบ แล้วแสดงคะแนน
 
 ## รายละเอียดทางเทคนิค
 
 | ไฟล์ | การเปลี่ยนแปลง |
 |------|----------------|
-| `src/components/CompetencyRadarChart.tsx` | **ไฟล์ใหม่** — Reusable Radar Chart component รับ skillBreakdown data แสดงกราฟสี 3 ระดับ รองรับ size prop (sm/md/lg) |
-| `src/pages/Quiz.tsx` | เพิ่ม `CompetencyRadarChart` ในหน้า results (บรรทัด ~966) แสดงก่อน skill breakdown bars |
-| `src/components/QuizHistory.tsx` | ปรับเป็นการ์ดพร้อม mini radar chart, เพิ่ม Dialog สำหรับดูรายละเอียด, คำนวณ skill breakdown จาก `assessment_data` |
+| `src/utils/assessmentUtils.ts` | Export ฟังก์ชัน `generateSkillPracticeQuestions(skill, grade, semester, count)` ที่สร้างโจทย์ 10 ข้อเฉพาะทักษะ โดยใช้ switch-case เดียวกับ `generateSemesterQuestionsWithAI` |
+| `src/pages/Quiz.tsx` | เพิ่ม state สำหรับ "practice mode" (`practiceSkill`, `practiceQuestions`, `practiceIndex`, `practiceAnswers`, `practiceSubmitted`) พร้อม UI แสดงโจทย์ทีละข้อ + ปุ่ม "ฝึกใหม่" ในแต่ละแถวทักษะ (ส่วน Skill Breakdown ~line 1192-1229) |
 
-### โครงสร้าง CompetencyRadarChart
-
-```text
-Props:
-  - skillData: { skill: string, percentage: number }[]
-  - size: 'sm' | 'md' | 'lg'  (120px / 300px / 400px)
-  - showLabels: boolean
-  - averageScore: number
-
-Logic:
-  - แต่ละ skill วาดเป็นจุดบน radar
-  - Fill color ตาม averageScore:
-    ≥85% → green fill
-    50-84.9% → yellow fill
-    <50% → red fill
-  - แต่ละแกน data point ใช้สีตาม % ของทักษะนั้นๆ
-```
-
+### Flow
+1. ผู้ใช้กดปุ่ม "ฝึกใหม่" ที่แถวทักษะ → เรียก `generateSkillPracticeQuestions` สร้างโจทย์ 10 ข้อ
+2. แสดง screen ฝึก: ชื่อทักษะ + progress + โจทย์ทีละข้อ + ตัวเลือก 4 ข้อ
+3. ตอบแล้วกด "ข้อถัดไป" จนครบ 10 ข้อ → กด "ดูผลคะแนน"
+4. แสดงคะแนน (เช่น 8/10 = 80%) พร้อมปุ่ม "กลับดูผลสอบ" หรือ "ฝึกอีกครั้ง"
