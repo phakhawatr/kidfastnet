@@ -12,6 +12,7 @@ import QuizHistory from '@/components/QuizHistory';
 import CertificateCard from '@/components/CertificateCard';
 import AchievementBadge from '@/components/AchievementBadge';
 import AchievementNotification from '@/components/AchievementNotification';
+import CompetencyRadarChart from '@/components/CompetencyRadarChart';
 import { ClockDisplay } from '@/components/ClockDisplay';
 import { ReadAloudButton } from '@/components/ReadAloudButton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -1115,6 +1116,31 @@ const Quiz = () => {
                 </div>
               )}
             </div>
+
+            {/* Competency Radar Chart */}
+            {skillBreakdown.length >= 3 && (
+              <div className="border-t-2 border-indigo-200 pt-6">
+                <div className="flex items-center gap-2 text-xl font-bold text-purple-600 mb-4">
+                  <BarChart3 className="w-6 h-6" />
+                  <span>ผลการทดสอบวัดระดับความรู้</span>
+                </div>
+                <div className="flex justify-center">
+                  <CompetencyRadarChart
+                    skillData={skillBreakdown.map(s => ({
+                      skill: skillNamesTh[s.skill] || s.skill,
+                      percentage: s.percentage,
+                    }))}
+                    size="lg"
+                    averageScore={score}
+                  />
+                </div>
+                <div className="flex justify-center gap-4 mt-3 text-xs">
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-green-500 inline-block" /> ≥85% ดีมาก</span>
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-yellow-500 inline-block" /> 50-84% พอใช้</span>
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-red-500 inline-block" /> &lt;50% ควรปรับปรุง</span>
+                </div>
+              </div>
+            )}
 
             {/* Skill Breakdown Section */}
             <div className="space-y-4 border-t pt-6">
