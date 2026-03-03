@@ -1,29 +1,30 @@
 
 
-# เพิ่มการเปรียบเทียบผลสอบ 2 ครั้งล่าสุด พร้อม Radar Chart ซ้อนทับ
+## Plan: Navigate from QuizHistory to Quiz Results Screen
 
-## สิ่งที่จะทำ
-เพิ่มส่วนเปรียบเทียบในหน้าผลสอบ (results screen) ที่แสดง:
-1. **Radar Chart ซ้อนทับ 2 ครั้ง** - ครั้งก่อนหน้า (สีเทา) vs ครั้งล่าสุด (สีหลัก)
-2. **บทวิเคราะห์การพัฒนา** - แสดงทักษะที่ดีขึ้น/แย่ลง พร้อม % เปลี่ยนแปลง
-3. **แนะนำการฝึกทักษะ** - จากผลวิเคราะห์ แนะนำทักษะที่ควรฝึกเพิ่ม
+The issue is that the "ดูรายละเอียดและฝึกทักษะเพิ่ม" button in QuizHistory currently navigates to `/quiz` which shows the **selection screen**. Instead, it should navigate to `/quiz` and directly display the **results screen** (`screen = 'results'`) with the data from that specific historical assessment.
 
-## รายละเอียดทางเทคนิค
+### Changes
 
-| ไฟล์ | การเปลี่ยนแปลง |
-|------|----------------|
-| `src/components/ComparisonRadarChart.tsx` | **สร้างใหม่** - Recharts RadarChart ที่แสดง 2 Radar ซ้อนกัน (ครั้งก่อน = สีเทาจาง, ครั้งล่าสุด = สีตามคะแนน) พร้อม Legend |
-| `src/pages/Quiz.tsx` | เพิ่ม logic ดึงผลสอบครั้งก่อนหน้าจาก `level_assessments` (เฉพาะ grade+semester เดียวกัน) แล้วคำนวณ skill breakdown ของครั้งก่อน → แสดงส่วนเปรียบเทียบใต้ Radar Chart ปัจจุบัน |
+**1. `src/components/QuizHistory.tsx`**
+- Update the button's `onClick` to pass the full assessment data (score, correct answers, total questions, time taken, assessment_data, grade, semester) via `location.state` with a flag like `showResults: true`.
 
-### ComparisonRadarChart Component
-- รับ `currentData` และ `previousData` (array ของ `{skill, percentage}`)
-- ใช้ Recharts RadarChart เดียว แต่มี 2 `<Radar>`: ครั้งก่อน (fill สีเทา, opacity ต่ำ) และครั้งล่าสุด (fill สีตามคะแนนเฉลี่ย)
-- แสดง Legend "ครั้งก่อน" vs "ครั้งล่าสุด"
+**2. `src/pages/Quiz.tsx`**
+- On mount, check `location.state` for `showResults: true`.
+- If present, populate the results-related state variables (`score`, `correctAnswers`, `questions`, `timeTaken`, `skillBreakdown`, `selectedGrade`, `selectedSemester`, etc.) from the passed data.
+- Set `screen` to `'results'` immediately so the results view renders with that assessment's data.
+- Clear the location state after consuming it to prevent stale data on refresh.
 
-### บทวิเคราะห์ใน Quiz.tsx
-- Fetch ครั้งก่อนหน้าด้วย: `level_assessments` WHERE `user_id` = current, `grade` = selected, `semester` = selected, ORDER BY `created_at` DESC LIMIT 1 OFFSET 1
-- คำนวณ `computeSkillBreakdown` จาก `assessment_data` ของครั้งก่อน (ใช้ logic เดียวกับ QuizHistory)
-- แสดงตาราง: ทักษะ | ครั้งก่อน% | ครั้งนี้% | เปลี่ยนแปลง (▲/▼)
-- สรุปภาพรวม: จำนวนทักษะที่ดีขึ้น/แย่ลง/คงที่
-- แนะนำฝึก: ทักษะที่ยังต่ำกว่า 85% หรือลดลง พร้อมปุ่ม "ฝึกเลย"
+### Technical Detail
+
+The key state variables to populate from `locationState`:
+- `score` = assessment record's `score`
+- `correctAnswers` = `correct_answers`
+- `questions` = reconstructed from `assessment_data` (to get `questions.length`)
+- `timeTaken` = `time_taken`
+- `skillBreakdown` = computed via the existing `computeSkillBreakdown`-like logic already in Quiz.tsx
+- `selectedGrade`, `selectedSemester` from the record
+- `screen` = `'results'`
+
+This way clicking the button shows the exact same results page the user sees after completing an exam, with the radar chart, score, skill breakdown, and "ดูรายละเอียดและฝึกทักษะเพิ่ม" popup all working correctly.
 
