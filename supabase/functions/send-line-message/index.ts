@@ -32,6 +32,7 @@ serve(async (req) => {
       skillBreakdown,
       isAssessment,
       chartImageUrl,
+      comparisonData,
     } = requestData;
     
     const actualScore = correctAnswers ?? rawScore ?? 0;
@@ -108,7 +109,7 @@ serve(async (req) => {
           exerciseType, nickname: actualNickname,
           score: actualScore, total: actualTotal,
           percentage: actualPercentage, timeSpent: actualTimeSpent,
-          skillBreakdown, chartImageUrl,
+          skillBreakdown, chartImageUrl, comparisonData,
         });
       } else {
         await sendLineFlexMessage(lineUserId, {
@@ -148,20 +149,17 @@ serve(async (req) => {
 // Assessment-specific Flex Message with skill breakdown (radar-chart style)
 async function sendAssessmentFlexMessage(lineUserId: string, data: any) {
   const channelAccessToken = Deno.env.get('LINE_CHANNEL_ACCESS_TOKEN');
-  const { exerciseType, nickname, score, total, percentage, timeSpent, skillBreakdown, chartImageUrl } = data;
+  const { exerciseType, nickname, score, total, percentage, timeSpent, skillBreakdown, chartImageUrl, comparisonData } = data;
 
   // Determine overall status
-  let headerColor = '#22c55e'; // green
+  let headerColor = '#22c55e';
   let statusText = '🌟 ดีมาก!';
-  let statusEmoji = '🟢';
   if (percentage < 50) {
     headerColor = '#ef4444';
     statusText = '💪 ควรปรับปรุง';
-    statusEmoji = '🔴';
   } else if (percentage < 85) {
     headerColor = '#eab308';
     statusText = '📝 ต้องปรับปรุง';
-    statusEmoji = '🟡';
   }
 
   // Build skill breakdown rows
@@ -172,8 +170,7 @@ async function sendAssessmentFlexMessage(lineUserId: string, data: any) {
     else if (s.percentage < 85) { skillEmoji = '🟡'; skillColor = '#eab308'; }
     
     return {
-      type: 'box',
-      layout: 'horizontal',
+      type: 'box', layout: 'horizontal',
       contents: [
         { type: 'text', text: `${skillEmoji} ${s.skill}`, size: 'xs', color: '#555555', flex: 5 },
         { type: 'text', text: `${s.correct}/${s.total}`, size: 'xs', color: '#888888', flex: 2, align: 'center' },
@@ -183,117 +180,171 @@ async function sendAssessmentFlexMessage(lineUserId: string, data: any) {
     };
   });
 
-  // Legend row
   const legendRow = {
-    type: 'box',
-    layout: 'horizontal',
+    type: 'box', layout: 'horizontal',
     contents: [
       { type: 'text', text: '🟢 ≥85%', size: 'xxs', color: '#22c55e', flex: 1 },
       { type: 'text', text: '🟡 50-84%', size: 'xxs', color: '#eab308', flex: 1, align: 'center' },
       { type: 'text', text: '🔴 <50%', size: 'xxs', color: '#ef4444', flex: 1, align: 'end' },
     ],
-    margin: 'lg',
-    paddingTop: 'sm',
-    borderWidth: 'normal',
-    borderColor: '#eeeeee',
+    margin: 'lg', paddingTop: 'sm', borderWidth: 'normal', borderColor: '#eeeeee',
   };
 
-  const flexMessage = {
-    type: 'flex',
-    altText: `${nickname} ผลสอบวัดระดับ ${exerciseType} - ${percentage}%`,
-    contents: {
-      type: 'bubble',
-      size: 'mega',
-      hero: {
-        type: 'box',
-        layout: 'vertical',
+  const mainBubble = {
+    type: 'bubble', size: 'mega',
+    hero: {
+      type: 'box', layout: 'vertical',
+      contents: [
+        { type: 'text', text: '📊', size: '4xl', align: 'center', margin: 'sm' },
+        { type: 'text', text: 'ผลการทดสอบวัดระดับความรู้', weight: 'bold', size: 'lg', align: 'center', color: '#FFFFFF' },
+        { type: 'text', text: String(exerciseType), size: 'sm', align: 'center', color: '#FFFFFFCC', margin: 'xs' },
+      ],
+      backgroundColor: headerColor, paddingAll: 'lg',
+    },
+    body: {
+      type: 'box', layout: 'vertical',
+      contents: [
+        { type: 'box', layout: 'vertical', contents: [
+          { type: 'text', text: `${percentage}%`, size: '3xl', weight: 'bold', align: 'center', color: headerColor },
+          { type: 'text', text: statusText, size: 'md', align: 'center', color: '#555555', margin: 'xs' },
+        ]},
+        { type: 'box', layout: 'horizontal', contents: [
+          { type: 'box', layout: 'vertical', flex: 1, contents: [
+            { type: 'text', text: String(score), size: 'xl', weight: 'bold', align: 'center', color: '#22c55e' },
+            { type: 'text', text: 'คำตอบถูก', size: 'xxs', align: 'center', color: '#888888' },
+          ], backgroundColor: '#f0fdf4', cornerRadius: 'md', paddingAll: 'sm' },
+          { type: 'box', layout: 'vertical', flex: 1, contents: [
+            { type: 'text', text: String(total - score), size: 'xl', weight: 'bold', align: 'center', color: '#ef4444' },
+            { type: 'text', text: 'คำตอบผิด', size: 'xxs', align: 'center', color: '#888888' },
+          ], backgroundColor: '#fef2f2', cornerRadius: 'md', paddingAll: 'sm' },
+        ], spacing: 'md', margin: 'lg' },
+        { type: 'box', layout: 'horizontal', contents: [
+          { type: 'text', text: '⏱️ เวลาที่ใช้:', size: 'xs', color: '#888888', flex: 0 },
+          { type: 'text', text: String(timeSpent), size: 'xs', color: '#555555', align: 'end', weight: 'bold' },
+        ], margin: 'md' },
+        { type: 'separator', margin: 'lg', color: '#eeeeee' },
+        { type: 'text', text: '📋 ผลแยกตามทักษะ', size: 'sm', weight: 'bold', color: '#333333', margin: 'lg' },
+        ...skillRows,
+        legendRow,
+      ],
+      paddingAll: 'lg',
+    },
+    footer: {
+      type: 'box', layout: 'vertical', spacing: 'sm',
+      contents: [
+        { type: 'text', text: `👤 ${nickname}`, color: '#888888', size: 'xs', align: 'center' },
+        { type: 'text', text: '🎓 ข้อมูลจาก KidFastAI.com', color: '#aaaaaa', size: 'xxs', align: 'center' },
+        { type: 'text', text: new Date().toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' }), color: '#aaaaaa', size: 'xxs', align: 'center' },
+      ], flex: 0,
+    },
+  };
+
+  // Build comparison bubble if comparison data exists
+  let comparisonBubble: any = null;
+  if (comparisonData && comparisonData.items && comparisonData.items.length > 0) {
+    const compRows = comparisonData.items.map((item: any) => {
+      let changeText = '-';
+      let changeColor = '#888888';
+      let changeEmoji = '➖';
+      if (item.change !== null) {
+        if (item.change > 0) { changeText = `+${item.change}%`; changeColor = '#22c55e'; changeEmoji = '📈'; }
+        else if (item.change < 0) { changeText = `${item.change}%`; changeColor = '#ef4444'; changeEmoji = '📉'; }
+        else { changeText = '0%'; changeColor = '#888888'; changeEmoji = '➖'; }
+      }
+      return {
+        type: 'box', layout: 'horizontal',
         contents: [
-          { type: 'text', text: '📊', size: '4xl', align: 'center', margin: 'sm' },
-          { type: 'text', text: 'ผลการทดสอบวัดระดับความรู้', weight: 'bold', size: 'lg', align: 'center', color: '#FFFFFF' },
-          { type: 'text', text: String(exerciseType), size: 'sm', align: 'center', color: '#FFFFFFCC', margin: 'xs' },
+          { type: 'text', text: item.skill, size: 'xxs', color: '#555555', flex: 4, wrap: true },
+          { type: 'text', text: item.previousPct !== null ? `${item.previousPct}%` : '-', size: 'xxs', color: '#888888', flex: 2, align: 'center' },
+          { type: 'text', text: `${item.currentPct}%`, size: 'xxs', color: '#333333', flex: 2, align: 'center', weight: 'bold' },
+          { type: 'text', text: `${changeEmoji}${changeText}`, size: 'xxs', color: changeColor, flex: 3, align: 'end', weight: 'bold' },
         ],
-        backgroundColor: headerColor,
-        paddingAll: 'lg',
+        margin: 'sm',
+      };
+    });
+
+    // Recommendations: skills below 85% or declined
+    const weakSkills = comparisonData.items
+      .filter((item: any) => item.currentPct < 85 || (item.change !== null && item.change < 0))
+      .sort((a: any, b: any) => (a.currentPct) - (b.currentPct));
+
+    const recommendationRows = weakSkills.slice(0, 3).map((item: any) => {
+      const reason = item.change !== null && item.change < 0 
+        ? `ลดลง ${Math.abs(item.change)}%` 
+        : `ยังต่ำกว่า 85% (${item.currentPct}%)`;
+      return {
+        type: 'box', layout: 'vertical',
+        contents: [
+          { type: 'text', text: `🎯 ${item.skill}`, size: 'xs', color: '#333333', weight: 'bold' },
+          { type: 'text', text: reason, size: 'xxs', color: '#888888' },
+        ],
+        margin: 'sm', paddingAll: 'sm', backgroundColor: '#fff7ed', cornerRadius: 'md',
+      };
+    });
+
+    const summaryText = `ดีขึ้น ${comparisonData.improved} ทักษะ | ลดลง ${comparisonData.declined} ทักษะ | คงที่ ${comparisonData.stable} ทักษะ`;
+
+    comparisonBubble = {
+      type: 'bubble', size: 'mega',
+      hero: {
+        type: 'box', layout: 'vertical',
+        contents: [
+          { type: 'text', text: '📊 บทวิเคราะห์เปรียบเทียบ', weight: 'bold', size: 'md', align: 'center', color: '#FFFFFF' },
+          { type: 'text', text: 'เทียบกับการสอบครั้งก่อน', size: 'xs', align: 'center', color: '#FFFFFFCC', margin: 'xs' },
+        ],
+        backgroundColor: '#6366f1', paddingAll: 'lg',
       },
       body: {
-        type: 'box',
-        layout: 'vertical',
+        type: 'box', layout: 'vertical',
         contents: [
-          // Score section
-          {
-            type: 'box',
-            layout: 'vertical',
-            contents: [
-              { type: 'text', text: `${percentage}%`, size: '3xl', weight: 'bold', align: 'center', color: headerColor },
-              { type: 'text', text: statusText, size: 'md', align: 'center', color: '#555555', margin: 'xs' },
-            ],
-          },
-          // Info row
-          {
-            type: 'box',
-            layout: 'horizontal',
-            contents: [
-              {
-                type: 'box', layout: 'vertical', flex: 1,
-                contents: [
-                  { type: 'text', text: String(score), size: 'xl', weight: 'bold', align: 'center', color: '#22c55e' },
-                  { type: 'text', text: 'คำตอบถูก', size: 'xxs', align: 'center', color: '#888888' },
-                ],
-                backgroundColor: '#f0fdf4',
-                cornerRadius: 'md',
-                paddingAll: 'sm',
-              },
-              {
-                type: 'box', layout: 'vertical', flex: 1,
-                contents: [
-                  { type: 'text', text: String(total - score), size: 'xl', weight: 'bold', align: 'center', color: '#ef4444' },
-                  { type: 'text', text: 'คำตอบผิด', size: 'xxs', align: 'center', color: '#888888' },
-                ],
-                backgroundColor: '#fef2f2',
-                cornerRadius: 'md',
-                paddingAll: 'sm',
-              },
-            ],
-            spacing: 'md',
-            margin: 'lg',
-          },
-          // Time
-          {
-            type: 'box',
-            layout: 'horizontal',
-            contents: [
-              { type: 'text', text: '⏱️ เวลาที่ใช้:', size: 'xs', color: '#888888', flex: 0 },
-              { type: 'text', text: String(timeSpent), size: 'xs', color: '#555555', align: 'end', weight: 'bold' },
-            ],
-            margin: 'md',
-          },
-          // Divider
-          { type: 'separator', margin: 'lg', color: '#eeeeee' },
-          // Skill breakdown header
-          { type: 'text', text: '📋 ผลแยกตามทักษะ', size: 'sm', weight: 'bold', color: '#333333', margin: 'lg' },
-          // Skill rows
-          ...skillRows,
-          // Legend
-          legendRow,
+          // Summary
+          { type: 'text', text: summaryText, size: 'xs', color: '#6366f1', align: 'center', weight: 'bold' },
+          { type: 'separator', margin: 'md', color: '#eeeeee' },
+          // Header row
+          { type: 'box', layout: 'horizontal', margin: 'md', contents: [
+            { type: 'text', text: 'ทักษะ', size: 'xxs', color: '#888888', flex: 4, weight: 'bold' },
+            { type: 'text', text: 'ก่อน', size: 'xxs', color: '#888888', flex: 2, align: 'center', weight: 'bold' },
+            { type: 'text', text: 'ล่าสุด', size: 'xxs', color: '#888888', flex: 2, align: 'center', weight: 'bold' },
+            { type: 'text', text: 'เปลี่ยน', size: 'xxs', color: '#888888', flex: 3, align: 'end', weight: 'bold' },
+          ]},
+          ...compRows,
+          // Recommendations section
+          ...(recommendationRows.length > 0 ? [
+            { type: 'separator', margin: 'lg', color: '#eeeeee' },
+            { type: 'text', text: '💡 แนะนำฝึกเพิ่มเติม', size: 'sm', weight: 'bold', color: '#333333', margin: 'md' },
+            ...recommendationRows,
+          ] : []),
         ],
         paddingAll: 'lg',
       },
       footer: {
-        type: 'box',
-        layout: 'vertical',
-        spacing: 'sm',
+        type: 'box', layout: 'vertical',
         contents: [
-          { type: 'text', text: `👤 ${nickname}`, color: '#888888', size: 'xs', align: 'center' },
-          { type: 'text', text: '🎓 ข้อมูลจาก KidFastAI.com', color: '#aaaaaa', size: 'xxs', align: 'center' },
-          { type: 'text', text: new Date().toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' }), color: '#aaaaaa', size: 'xxs', align: 'center' },
-        ],
-        flex: 0,
+          { type: 'text', text: `👤 ${nickname} | 🎓 KidFastAI.com`, color: '#aaaaaa', size: 'xxs', align: 'center' },
+        ], flex: 0,
       },
-    },
-  };
+    };
+  }
 
-  // Build messages array: flex message + optional chart image
-  const messages: any[] = [flexMessage];
+  // Build messages: use carousel if comparison exists
+  const messages: any[] = [];
+  
+  if (comparisonBubble) {
+    messages.push({
+      type: 'flex',
+      altText: `${nickname} ผลสอบวัดระดับ ${exerciseType} - ${percentage}% พร้อมบทวิเคราะห์`,
+      contents: {
+        type: 'carousel',
+        contents: [mainBubble, comparisonBubble],
+      },
+    });
+  } else {
+    messages.push({
+      type: 'flex',
+      altText: `${nickname} ผลสอบวัดระดับ ${exerciseType} - ${percentage}%`,
+      contents: mainBubble,
+    });
+  }
   
   if (chartImageUrl) {
     messages.push({

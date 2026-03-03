@@ -441,6 +441,35 @@ const Quiz = () => {
         }
       }
 
+      // Build comparison data for LINE message
+      let comparisonData: any = null;
+      if (previousSkillBreakdown && previousSkillBreakdown.length > 0) {
+        // Convert previous breakdown to Thai skill names
+        const prevBreakdownTh = previousSkillBreakdown.map(s => ({
+          skill: skillNamesTh[s.skill] || s.skill,
+          percentage: s.percentage,
+        }));
+        
+        // Build comparison items
+        const comparisonItems = skillBreakdown.map(current => {
+          const prev = prevBreakdownTh.find(p => p.skill === current.skill);
+          const prevPct = prev ? prev.percentage : null;
+          const change = prevPct !== null ? current.percentage - prevPct : null;
+          return {
+            skill: current.skill,
+            currentPct: current.percentage,
+            previousPct: prevPct,
+            change,
+          };
+        });
+
+        const improved = comparisonItems.filter(c => c.change !== null && c.change > 0).length;
+        const declined = comparisonItems.filter(c => c.change !== null && c.change < 0).length;
+        const stable = comparisonItems.filter(c => c.change !== null && c.change === 0).length;
+
+        comparisonData = { items: comparisonItems, improved, declined, stable };
+      }
+
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-line-message`, {
         method: 'POST',
         headers: {
@@ -458,6 +487,7 @@ const Quiz = () => {
           skillBreakdown,
           isAssessment: true,
           chartImageUrl,
+          comparisonData,
         }),
       });
 
