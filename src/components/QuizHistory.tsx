@@ -529,7 +529,7 @@ const QuizHistory = ({ userId, compact = false }: QuizHistoryProps) => {
               <Button
                 onClick={() => {
                   setSelectedAssessment(null);
-                  navigate('/quiz');
+                  navigate('/quiz', { state: { scrollToResults: true, grade: selectedAssessment?.grade, semester: selectedAssessment?.semester } });
                 }}
                 className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white flex items-center justify-center gap-2"
                 size="lg"

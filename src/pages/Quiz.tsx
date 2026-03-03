@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -33,11 +33,13 @@ import { downloadCertificate, shareCertificate } from '@/utils/certificateUtils'
 const Quiz = () => {
   const { user, registrationId, profile } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation(['quiz', 'common']);
   const { toast } = useToast();
+  const locationState = location.state as { grade?: number; semester?: number } | null;
   const [screen, setScreen] = useState<'select' | 'assessment' | 'results'>('select');
-  const [selectedGrade, setSelectedGrade] = useState<number>(1);
-  const [selectedSemester, setSelectedSemester] = useState<number>(1);
+  const [selectedGrade, setSelectedGrade] = useState<number>(locationState?.grade || 1);
+  const [selectedSemester, setSelectedSemester] = useState<number>(locationState?.semester || 1);
   const [assessmentType, setAssessmentType] = useState<'semester1' | 'semester2' | 'nt'>('semester1');
   const [selectedNTYear, setSelectedNTYear] = useState<string>('mixed');
   const [showTopicOutline, setShowTopicOutline] = useState(false);
