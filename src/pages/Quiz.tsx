@@ -149,9 +149,10 @@ const Quiz = () => {
       setHistoryMode(true);
       
       // Clear location state to prevent stale data on refresh
+      setScreen('results');
       window.history.replaceState({}, document.title);
     }
-  }, []);
+  }, [location.state]);
 
   useEffect(() => {
     if (screen !== 'results') return;
