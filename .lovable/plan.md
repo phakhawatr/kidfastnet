@@ -1,48 +1,50 @@
 
 
-# ปรับปรุงโจทย์ Mixed Math ไม่ให้ซ้ำประธานและกริยา
+# เพิ่ม Radar Chart ผลการสอบ และประวัติการสอบพร้อมภาพ Radar Chart ขนาดเล็ก
 
-## ปัญหาปัจจุบัน
-- โจทย์ 2 ตัวดำเนินการ (2-op) มีแค่ **1 แม่แบบต่อ 1 เครื่องหมาย** เช่น บวก = "มี...ซื้อมาเพิ่ม" ทุกข้อ, ลบ = "มีเงิน...ซื้อของไป" ทุกข้อ
-- ทำให้ประธานและกริยาซ้ำกันทุกข้อตามที่เห็นในภาพ
+## สิ่งที่จะทำ
 
-## แนวทางแก้ไข
+### 1. เพิ่ม Radar Chart ในหน้าผลการสอบ (Results Screen)
+- หลังส่งคำตอบเสร็จ สร้าง **Radar Chart** แสดงคะแนนแยกตามทักษะ (ตามหัวข้อการสอบของแต่ละระดับชั้น/เทอม)
+- ใช้เกณฑ์สี 3 ระดับ:
+  - **สีเขียว** ≥ 85%
+  - **สีเหลือง** 50% - 84.9%
+  - **สีแดง** < 50%
+- Radar Chart จะแสดงชื่อทักษะภาษาไทยรอบๆ กราฟ พร้อมคะแนนเฉลี่ยรวม
+- ใช้ Recharts `RadarChart` component ที่มีอยู่ใน dependencies แล้ว
 
-สร้างไฟล์ข้อมูลโจทย์ใหม่ `src/utils/mixedMathTemplates.ts` เก็บชุดโจทย์ที่ผู้ใช้ให้มา 90+ ข้อ แล้วปรับ `MixedMathPracticeApp.tsx` ให้สุ่มจากชุดข้อมูลนี้
+### 2. เพิ่มประวัติผลการทดสอบพร้อม Radar Chart ขนาดเล็ก
+- ปรับ `QuizHistory.tsx` เพิ่มส่วนแสดง **การ์ดประวัติ** ที่มี:
+  - ชื่อแบบทดสอบ (เช่น "ป.1 เทอม 1")
+  - วัน-เวลาที่ทำ
+  - **Radar Chart ขนาดเล็ก** (thumbnail ~120x120px) แสดงภาพรวมผลสอบ
+  - คะแนน % และจำนวนข้อถูก/ผิด
+- คลิกที่การ์ดแต่ละอัน → เปิด **Dialog** แสดงรายละเอียดเต็ม พร้อม Radar Chart ขนาดใหญ่ + ข้อมูลแยกตามทักษะ
+- ข้อมูลมาจาก `assessment_data` ที่เก็บใน `level_assessments` table อยู่แล้ว (มี questions + answers + skill)
 
-### 1. สร้างไฟล์ `src/utils/mixedMathTemplates.ts`
-
-เก็บโจทย์แบ่งตามหมวด:
-- **อาชีพ** (พนักงานไปรษณีย์, ชาวประมง, เชฟ, วิศวกร, ช่างตัดผม ฯลฯ)
-- **สัตว์/นิทาน** (กระรอก, แม่ไก่, ผึ้ง, มังกร, นางเงือก ฯลฯ)
-- **โรงเรียน** (คุณครู, ภารโรง, นักเรียน, ลูกเสือ ฯลฯ)
-- **ครอบครัว** (คุณยาย, คุณปู่, น้องบี, พี่เอก ฯลฯ)
-- **อาหาร/ร้านค้า** (คนทำขนมปัง, บาริสต้า, แม่บ้าน ฯลฯ)
-- **ท่องเที่ยว/ยานพาหนะ** (ไกด์, กัปตัน, คนขับแท็กซี่ ฯลฯ)
-- **เกษตรกร** (ชาวนา, ชาวสวนทุเรียน, คนปลูกผัก ฯลฯ)
-
-แต่ละโจทย์จะเก็บเป็น template function ที่รับตัวเลขเข้าไปแล้วสร้างโจทย์พร้อม answer, symbolic, hint
-
-### 2. ปรับ `src/pages/MixedMathPracticeApp.tsx`
-
-- **`generate2OpStory`**: แทนที่แม่แบบเดิมที่ hardcode ด้วยการสุ่มจาก template pool โดยกรองตาม operation ที่เลือก
-- **`generate3OpStory`**: เพิ่ม template จากชุดข้อมูลที่ผู้ใช้ให้มาสำหรับโจทย์ 3 ขั้นตอน
-- **ป้องกันซ้ำ**: ใช้ Set เก็บ index ของ template ที่ใช้แล้ว ไม่ให้สุ่มซ้ำภายในชุดเดียวกัน
-
-### รายละเอียดทางเทคนิค
+## รายละเอียดทางเทคนิค
 
 | ไฟล์ | การเปลี่ยนแปลง |
 |------|----------------|
-| `src/utils/mixedMathTemplates.ts` | ไฟล์ใหม่ -- เก็บ 90+ template functions แบ่งตามหมวดหมู่และ operation type (+, -, mixed) |
-| `src/pages/MixedMathPracticeApp.tsx` | ปรับ `generate2OpStory` และ `generate3OpStory` ให้สุ่มจาก template pool แทน hardcode + เพิ่มระบบ tracking ไม่ให้สุ่มซ้ำในชุดเดียวกัน |
+| `src/components/CompetencyRadarChart.tsx` | **ไฟล์ใหม่** — Reusable Radar Chart component รับ skillBreakdown data แสดงกราฟสี 3 ระดับ รองรับ size prop (sm/md/lg) |
+| `src/pages/Quiz.tsx` | เพิ่ม `CompetencyRadarChart` ในหน้า results (บรรทัด ~966) แสดงก่อน skill breakdown bars |
+| `src/components/QuizHistory.tsx` | ปรับเป็นการ์ดพร้อม mini radar chart, เพิ่ม Dialog สำหรับดูรายละเอียด, คำนวณ skill breakdown จาก `assessment_data` |
 
-### โครงสร้าง Template
+### โครงสร้าง CompetencyRadarChart
 
-แต่ละ template จะเป็น function ที่รับตัวเลขตาม digit config แล้วคืนค่า:
-- `question`: ข้อความโจทย์ภาษาไทย
-- `answer`: คำตอบ (number)
-- `symbolic`: สมการ เช่น "500 - 120 - 150 = ?"
-- `symbolicAlt`: สมการรูปแบบอื่น (ถ้ามี)
-- `hint`: คำใบ้
-- `ops`: เครื่องหมายที่ใช้ เช่น ['+', '-']
+```text
+Props:
+  - skillData: { skill: string, percentage: number }[]
+  - size: 'sm' | 'md' | 'lg'  (120px / 300px / 400px)
+  - showLabels: boolean
+  - averageScore: number
+
+Logic:
+  - แต่ละ skill วาดเป็นจุดบน radar
+  - Fill color ตาม averageScore:
+    ≥85% → green fill
+    50-84.9% → yellow fill
+    <50% → red fill
+  - แต่ละแกน data point ใช้สีตาม % ของทักษะนั้นๆ
+```
 
