@@ -528,8 +528,23 @@ const QuizHistory = ({ userId, compact = false }: QuizHistoryProps) => {
 
               <Button
                 onClick={() => {
+                  const assessment = selectedAssessment;
                   setSelectedAssessment(null);
-                  navigate('/quiz', { state: { scrollToResults: true, grade: selectedAssessment?.grade, semester: selectedAssessment?.semester } });
+                  navigate('/quiz', { 
+                    state: { 
+                      showResults: true, 
+                      assessmentRecord: {
+                        score: assessment?.score,
+                        correct_answers: assessment?.correct_answers,
+                        total_questions: assessment?.total_questions,
+                        time_taken: assessment?.time_taken,
+                        grade: assessment?.grade,
+                        semester: assessment?.semester,
+                        assessment_data: assessment?.assessment_data,
+                        assessment_type: assessment?.assessment_type,
+                      }
+                    } 
+                  });
                 }}
                 className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white flex items-center justify-center gap-2"
                 size="lg"

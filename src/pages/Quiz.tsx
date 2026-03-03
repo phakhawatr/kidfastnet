@@ -36,10 +36,32 @@ const Quiz = () => {
   const location = useLocation();
   const { t } = useTranslation(['quiz', 'common']);
   const { toast } = useToast();
-  const locationState = location.state as { grade?: number; semester?: number } | null;
-  const [screen, setScreen] = useState<'select' | 'assessment' | 'results'>('select');
-  const [selectedGrade, setSelectedGrade] = useState<number>(locationState?.grade || 1);
-  const [selectedSemester, setSelectedSemester] = useState<number>(locationState?.semester || 1);
+  const locationState = location.state as { 
+    grade?: number; semester?: number; 
+    showResults?: boolean; 
+    assessmentRecord?: {
+      score: number; correct_answers: number; total_questions: number;
+      time_taken: number; grade: number; semester: number;
+      assessment_data: any; assessment_type?: string;
+    };
+  } | null;
+
+  // Historical results override (when navigating from QuizHistory)
+  const [historyMode, setHistoryMode] = useState(false);
+  const [historyData, setHistoryData] = useState<{
+    score: number; correctAnswers: number; totalQuestions: number;
+    timeTaken: number; skillBreakdown: { skill: string; correct: number; total: number; percentage: number }[];
+  } | null>(null);
+
+  const [screen, setScreen] = useState<'select' | 'assessment' | 'results'>(
+    locationState?.showResults ? 'results' : 'select'
+  );
+  const [selectedGrade, setSelectedGrade] = useState<number>(
+    locationState?.assessmentRecord?.grade || locationState?.grade || 1
+  );
+  const [selectedSemester, setSelectedSemester] = useState<number>(
+    locationState?.assessmentRecord?.semester || locationState?.semester || 1
+  );
   const [assessmentType, setAssessmentType] = useState<'semester1' | 'semester2' | 'nt'>('semester1');
   const [selectedNTYear, setSelectedNTYear] = useState<string>('mixed');
   const [showTopicOutline, setShowTopicOutline] = useState(false);
@@ -88,7 +110,49 @@ const Quiz = () => {
     assessmentType === 'nt' ? selectedNTYear : undefined
   );
 
-  // Fetch previous assessment for comparison when results screen is shown
+  // Populate history mode from location state
+  useEffect(() => {
+    if (locationState?.showResults && locationState.assessmentRecord) {
+      const rec = locationState.assessmentRecord;
+      
+      // Compute skill breakdown from assessment_data
+      const assessmentData = rec.assessment_data;
+      const qList = Array.isArray(assessmentData) ? assessmentData : assessmentData?.questions;
+      const skillStats: Record<string, { correct: number; total: number }> = {};
+      
+      if (Array.isArray(qList)) {
+        qList.forEach((q: any) => {
+          const skill = q.skill || 'unknown';
+          if (!skillStats[skill]) skillStats[skill] = { correct: 0, total: 0 };
+          skillStats[skill].total++;
+          if (q.isCorrect || q.is_correct || 
+              (q.userAnswer !== undefined && String(q.userAnswer) === String(q.correctAnswer))) {
+            skillStats[skill].correct++;
+          }
+        });
+      }
+      
+      const breakdown = Object.entries(skillStats).map(([skill, s]) => ({
+        skill,
+        correct: s.correct,
+        total: s.total,
+        percentage: s.total > 0 ? (s.correct / s.total) * 100 : 0,
+      })).sort((a, b) => b.percentage - a.percentage);
+      
+      setHistoryData({
+        score: rec.score,
+        correctAnswers: rec.correct_answers,
+        totalQuestions: rec.total_questions,
+        timeTaken: rec.time_taken,
+        skillBreakdown: breakdown,
+      });
+      setHistoryMode(true);
+      
+      // Clear location state to prevent stale data on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, []);
+
   useEffect(() => {
     if (screen !== 'results') return;
     const userId = user?.id || registrationId;
@@ -1118,13 +1182,19 @@ const Quiz = () => {
     );
   }
 
-  // Results Screen
-  const correctAnswers = calculateCorrectAnswers();
-  const score = questions.length > 0 ? (correctAnswers / questions.length) * 100 : 0;
-  const evaluation = evaluateAssessment(score);
+  // Results Screen - use history data if available, otherwise compute from quiz state
+  const correctAnswers = historyMode && historyData ? historyData.correctAnswers : calculateCorrectAnswers();
+  const totalQuestions = historyMode && historyData ? historyData.totalQuestions : questions.length;
+  const score = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
+  const displayScore = historyMode && historyData ? historyData.score : score;
+  const displayTimeTaken = historyMode && historyData ? historyData.timeTaken : timeTaken;
+  const evaluation = evaluateAssessment(displayScore);
 
   // Calculate skill breakdown
   const calculateSkillBreakdown = () => {
+    if (historyMode && historyData) {
+      return historyData.skillBreakdown;
+    }
     const skillStats: Record<string, { correct: number; total: number }> = {};
     
     questions.forEach((q, idx) => {
@@ -1337,6 +1407,16 @@ const Quiz = () => {
       <div className="container mx-auto px-4 py-12">
         <Card className="max-w-4xl mx-auto shadow-lg">
           <CardHeader>
+            {historyMode && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="mb-2 w-fit"
+                onClick={() => navigate(-1)}
+              >
+                <ChevronLeft className="w-4 h-4 mr-1" /> กลับหน้าประวัติ
+              </Button>
+            )}
             <CardTitle className="text-3xl text-center flex items-center justify-center gap-3 text-purple-600">
               <Award className="w-8 h-8 text-yellow-500" />
               ผลการสอบ
@@ -1345,7 +1425,7 @@ const Quiz = () => {
           <CardContent className="space-y-6">
             <div className="text-center py-6">
               <div className="text-6xl font-bold text-purple-600 mb-4">
-                {score.toFixed(1)}%
+                {displayScore.toFixed(1)}%
               </div>
               <div className="text-3xl mb-3">
                 {'⭐'.repeat(evaluation.stars)}
@@ -1362,7 +1442,7 @@ const Quiz = () => {
               </Card>
               <Card className="border-2 border-red-200 bg-red-50">
                 <CardContent className="pt-6 text-center">
-                  <div className="text-4xl font-bold text-red-600 mb-2">{questions.length - correctAnswers}</div>
+                  <div className="text-4xl font-bold text-red-600 mb-2">{totalQuestions - correctAnswers}</div>
                   <div className="text-sm text-red-700 font-medium">คำตอบผิด</div>
                 </CardContent>
               </Card>
@@ -1371,7 +1451,7 @@ const Quiz = () => {
             <div className="bg-gray-50 p-4 rounded-lg border">
               <div className="flex items-center justify-between text-sm text-gray-600">
                 <span>เวลาที่ใช้:</span>
-                <span className="font-mono font-semibold">{Math.floor(timeTaken / 60)} นาที {timeTaken % 60} วินาที</span>
+                <span className="font-mono font-semibold">{Math.floor(displayTimeTaken / 60)} นาที {displayTimeTaken % 60} วินาที</span>
               </div>
             </div>
 
@@ -1406,7 +1486,7 @@ const Quiz = () => {
                         percentage: s.percentage,
                       }))}
                       size="lg"
-                      averageScore={score}
+                      averageScore={displayScore}
                     />
                   </div>
                   <div className="flex justify-center gap-4 text-xs">
@@ -1626,7 +1706,7 @@ const Quiz = () => {
                       percentage: s.percentage,
                     }))}
                     size="lg"
-                    averageScore={score}
+                    averageScore={displayScore}
                   />
                 </div>
                 <div className="flex justify-center gap-4 mt-3 text-xs">
