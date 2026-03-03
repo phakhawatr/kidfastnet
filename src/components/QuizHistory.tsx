@@ -171,7 +171,8 @@ const QuizHistory = ({ userId, compact = false }: QuizHistoryProps) => {
     );
   }
 
-  const displayAssessments = compact ? assessments.slice(0, 3) : assessments;
+  const [showAll, setShowAll] = useState(false);
+  const displayAssessments = compact && !showAll ? assessments.slice(0, 3) : assessments;
 
   return (
     <div className="space-y-6">
@@ -293,50 +294,59 @@ const QuizHistory = ({ userId, compact = false }: QuizHistoryProps) => {
 
       {/* Compact mode: show recent assessments as small cards */}
       {compact && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {displayAssessments.map((a) => {
-            const skillData = computeSkillBreakdown(a.assessment_data);
-            const hasRadar = skillData.length >= 3;
-            return (
-              <Card
-                key={a.id}
-                className="border hover:shadow-lg transition-shadow cursor-pointer hover:border-indigo-400"
-                onClick={() => setSelectedAssessment(a)}
-              >
-                <CardContent className="p-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex-shrink-0">
-                      {hasRadar ? (
-                        <CompetencyRadarChart skillData={skillData} size="sm" showLabels={false} averageScore={a.score} />
-                      ) : (
-                        <div className="w-[80px] h-[80px] bg-gray-100 rounded-lg flex items-center justify-center">
-                          <Target className="w-6 h-6 text-gray-300" />
-                        </div>
-                      )}
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {displayAssessments.map((a) => {
+              const skillData = computeSkillBreakdown(a.assessment_data);
+              const hasRadar = skillData.length >= 3;
+              return (
+                <Card
+                  key={a.id}
+                  className="border hover:shadow-lg transition-shadow cursor-pointer hover:border-indigo-400"
+                  onClick={() => setSelectedAssessment(a)}
+                >
+                  <CardContent className="p-3">
+                    <div className="flex items-center gap-3">
+                      <div className="flex-shrink-0">
+                        {hasRadar ? (
+                          <CompetencyRadarChart skillData={skillData} size="sm" showLabels={false} averageScore={a.score} />
+                        ) : (
+                          <div className="w-[80px] h-[80px] bg-gray-100 rounded-lg flex items-center justify-center">
+                            <Target className="w-6 h-6 text-gray-300" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-gray-800 text-sm truncate">
+                          {a.assessment_type === 'nt' ? 'NT ป.3' : `ป.${a.grade} เทอม ${a.semester}`}
+                        </h4>
+                        <p className="text-xs text-gray-500">
+                          {new Date(a.created_at).toLocaleDateString('th-TH', {
+                            day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+                          })}
+                        </p>
+                        <span className={`text-lg font-bold ${
+                          a.score >= 85 ? 'text-green-600' :
+                          a.score >= 50 ? 'text-yellow-600' :
+                          'text-red-600'
+                        }`}>
+                          {a.score?.toFixed(0)}%
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-gray-800 text-sm truncate">
-                        {a.assessment_type === 'nt' ? 'NT ป.3' : `ป.${a.grade} เทอม ${a.semester}`}
-                      </h4>
-                      <p className="text-xs text-gray-500">
-                        {new Date(a.created_at).toLocaleDateString('th-TH', {
-                          day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
-                        })}
-                      </p>
-                      <span className={`text-lg font-bold ${
-                        a.score >= 85 ? 'text-green-600' :
-                        a.score >= 50 ? 'text-yellow-600' :
-                        'text-red-600'
-                      }`}>
-                        {a.score?.toFixed(0)}%
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+          {assessments.length > 3 && (
+            <div className="flex justify-center mt-4">
+              <Button variant="outline" size="sm" onClick={() => setShowAll(!showAll)}>
+                {showAll ? 'ย่อ' : `ดูทั้งหมด (${assessments.length} รายการ)`}
+              </Button>
+            </div>
+          )}
+        </>
       )}
       {!compact && (
       <>
