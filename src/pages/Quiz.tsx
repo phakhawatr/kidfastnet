@@ -1,7 +1,8 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { useAssessment } from '@/hooks/useAssessment';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useToast } from '@/hooks/use-toast';
@@ -45,6 +46,7 @@ const Quiz = () => {
   const [showCertificate, setShowCertificate] = useState(false);
   const [newAchievements, setNewAchievements] = useState<any[]>([]);
   const certificateRef = useRef<HTMLDivElement>(null);
+  const radarChartRef = useRef<HTMLDivElement>(null);
 
   // Practice mode state
   const [practiceSkill, setPracticeSkill] = useState<string | null>(null);
@@ -338,6 +340,37 @@ const Quiz = () => {
         total: s.total,
       }));
 
+      // Capture radar chart as image and upload to storage
+      let chartImageUrl: string | undefined;
+      if (radarChartRef.current) {
+        try {
+          const html2canvas = (await import('html2canvas')).default;
+          const canvas = await html2canvas(radarChartRef.current, {
+            backgroundColor: '#ffffff',
+            scale: 2,
+            useCORS: true,
+          });
+          const blob = await new Promise<Blob>((resolve) => 
+            canvas.toBlob((b) => resolve(b!), 'image/png', 0.9)
+          );
+          const fileName = `radar_${userId}_${Date.now()}.png`;
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('chart-images')
+            .upload(fileName, blob, { contentType: 'image/png', upsert: true });
+          
+          if (!uploadError && uploadData) {
+            const { data: urlData } = supabase.storage
+              .from('chart-images')
+              .getPublicUrl(fileName);
+            chartImageUrl = urlData.publicUrl;
+          } else {
+            console.warn('Chart upload failed:', uploadError);
+          }
+        } catch (captureErr) {
+          console.warn('Chart capture failed:', captureErr);
+        }
+      }
+
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-line-message`, {
         method: 'POST',
         headers: {
@@ -354,6 +387,7 @@ const Quiz = () => {
           timeTaken: `${Math.floor(timeTaken / 60)} นาที ${timeTaken % 60} วินาที`,
           skillBreakdown,
           isAssessment: true,
+          chartImageUrl,
         }),
       });
 
@@ -1333,7 +1367,7 @@ const Quiz = () => {
                   <BarChart3 className="w-6 h-6" />
                   <span>ผลการทดสอบวัดระดับความรู้</span>
                 </div>
-                <div className="flex justify-center">
+              <div ref={radarChartRef} className="flex justify-center bg-white p-4 rounded-lg">
                   <CompetencyRadarChart
                     skillData={skillBreakdown.map(s => ({
                       skill: skillNamesTh[s.skill] || s.skill,
