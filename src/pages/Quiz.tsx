@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
@@ -14,6 +14,8 @@ import CertificateCard from '@/components/CertificateCard';
 import AchievementBadge from '@/components/AchievementBadge';
 import AchievementNotification from '@/components/AchievementNotification';
 import CompetencyRadarChart from '@/components/CompetencyRadarChart';
+import ComparisonRadarChart from '@/components/ComparisonRadarChart';
+import type { ComparisonSkillItem } from '@/components/ComparisonRadarChart';
 import { ClockDisplay } from '@/components/ClockDisplay';
 import { ReadAloudButton } from '@/components/ReadAloudButton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,7 +24,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ClipboardPen, Clock, Award, ChevronLeft, ChevronRight, BookOpen, Send, Eye, CheckCircle, XCircle, TrendingUp, TrendingDown, Minus, Hash, Scale, ArrowUpDown, Grid3x3, Plus, Sparkles, Shapes, Ruler, BarChart2, LucideIcon, BarChart3, Download, Share2, Facebook, MessageCircle, Twitter, Trophy } from 'lucide-react';
+import { ClipboardPen, Clock, Award, ChevronLeft, ChevronRight, BookOpen, Send, Eye, CheckCircle, XCircle, TrendingUp, TrendingDown, Minus, Hash, Scale, ArrowUpDown, Grid3x3, Plus, Sparkles, Shapes, Ruler, BarChart2, LucideIcon, BarChart3, Download, Share2, Facebook, MessageCircle, Twitter, Trophy, GitCompareArrows } from 'lucide-react';
 import { getGradeOptions, getSemesterOptions, curriculumConfig } from '@/config/curriculum';
 import { evaluateAssessment, generateSkillPracticeQuestions, AssessmentQuestion } from '@/utils/assessmentUtils';
 import { downloadCertificate, shareCertificate } from '@/utils/certificateUtils';
@@ -47,6 +49,10 @@ const Quiz = () => {
   const [newAchievements, setNewAchievements] = useState<any[]>([]);
   const certificateRef = useRef<HTMLDivElement>(null);
   const radarChartRef = useRef<HTMLDivElement>(null);
+  
+  // Comparison state for previous assessment
+  const [previousSkillBreakdown, setPreviousSkillBreakdown] = useState<{skill: string; percentage: number}[] | null>(null);
+  const [comparisonLoading, setComparisonLoading] = useState(false);
 
   // Practice mode state
   const [practiceSkill, setPracticeSkill] = useState<string | null>(null);
@@ -77,6 +83,70 @@ const Quiz = () => {
     undefined,
     assessmentType === 'nt' ? selectedNTYear : undefined
   );
+
+  // Fetch previous assessment for comparison when results screen is shown
+  useEffect(() => {
+    if (screen !== 'results') return;
+    const userId = user?.id || registrationId;
+    if (!userId) return;
+    
+    const fetchPreviousAssessment = async () => {
+      setComparisonLoading(true);
+      try {
+        // Get the 2nd most recent assessment for same grade & semester
+        const semesterVal = assessmentType === 'nt' ? null : selectedSemester;
+        let query = supabase
+          .from('level_assessments')
+          .select('assessment_data')
+          .eq('user_id', userId)
+          .eq('grade', selectedGrade)
+          .order('created_at', { ascending: false })
+          .range(1, 1); // skip the latest (index 0), get index 1
+        
+        if (semesterVal !== null) {
+          query = query.eq('semester', semesterVal);
+        }
+        
+        const { data, error } = await query;
+        
+        if (error || !data || data.length === 0) {
+          setPreviousSkillBreakdown(null);
+          return;
+        }
+        
+        const prevData = data[0].assessment_data as any;
+        if (!prevData || !Array.isArray(prevData)) {
+          setPreviousSkillBreakdown(null);
+          return;
+        }
+        
+        // Compute skill breakdown from previous assessment_data
+        const skillStats: Record<string, { correct: number; total: number }> = {};
+        prevData.forEach((item: any) => {
+          const skill = item.skill || 'unknown';
+          if (!skillStats[skill]) skillStats[skill] = { correct: 0, total: 0 };
+          skillStats[skill].total++;
+          if (item.isCorrect) {
+            skillStats[skill].correct++;
+          }
+        });
+        
+        const breakdown = Object.entries(skillStats).map(([skill, s]) => ({
+          skill,
+          percentage: s.total > 0 ? Math.round((s.correct / s.total) * 100) : 0,
+        }));
+        
+        setPreviousSkillBreakdown(breakdown);
+      } catch (err) {
+        console.error('Failed to fetch previous assessment:', err);
+        setPreviousSkillBreakdown(null);
+      } finally {
+        setComparisonLoading(false);
+      }
+    };
+    
+    fetchPreviousAssessment();
+  }, [screen, user?.id, registrationId, selectedGrade, selectedSemester, assessmentType]);
 
   const handleStartAssessment = () => {
     const userId = user?.id || registrationId;
@@ -1414,7 +1484,156 @@ const Quiz = () => {
               </div>
             )}
 
-            {/* Skill Breakdown Section */}
+            {/* Comparison with Previous Assessment */}
+            {previousSkillBreakdown && previousSkillBreakdown.length > 0 && skillBreakdown.length >= 3 && (() => {
+              // Build comparison data
+              const comparisonData: ComparisonSkillItem[] = skillBreakdown.map(current => {
+                const prev = previousSkillBreakdown.find(p => p.skill === current.skill);
+                return {
+                  skill: skillNamesTh[current.skill] || current.skill,
+                  current: current.percentage,
+                  previous: prev ? prev.percentage : 0,
+                };
+              });
+              
+              const currentAvg = comparisonData.reduce((s, d) => s + d.current, 0) / comparisonData.length;
+              const previousAvg = comparisonData.reduce((s, d) => s + d.previous, 0) / comparisonData.length;
+              
+              const improved = comparisonData.filter(d => d.current > d.previous);
+              const declined = comparisonData.filter(d => d.current < d.previous);
+              const stable = comparisonData.filter(d => d.current === d.previous);
+
+              // Skills to recommend: below 85% or declined
+              const recommendSkills = comparisonData
+                .filter(d => d.current < 85 || d.current < d.previous)
+                .sort((a, b) => a.current - b.current);
+              
+              return (
+                <div className="border-t-2 border-blue-200 pt-6 space-y-4">
+                  <div className="flex items-center gap-2 text-xl font-bold text-blue-600">
+                    <GitCompareArrows className="w-6 h-6" />
+                    <span>เปรียบเทียบกับการสอบครั้งก่อน</span>
+                  </div>
+                  
+                  {/* Overlapping Radar Chart */}
+                  <div className="bg-white p-4 rounded-lg border">
+                    <ComparisonRadarChart
+                      data={comparisonData}
+                      currentAvg={currentAvg}
+                      previousAvg={previousAvg}
+                    />
+                  </div>
+                  
+                  {/* Analysis Summary */}
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                      <BarChart3 className="w-5 h-5" />
+                      บทวิเคราะห์การพัฒนา
+                    </h4>
+                    <div className="grid grid-cols-3 gap-3 mb-4">
+                      <div className="text-center bg-green-50 p-3 rounded-lg border border-green-200">
+                        <div className="text-2xl font-bold text-green-600">{improved.length}</div>
+                        <div className="text-xs text-green-700">ดีขึ้น ▲</div>
+                      </div>
+                      <div className="text-center bg-gray-50 p-3 rounded-lg border border-gray-200">
+                        <div className="text-2xl font-bold text-gray-600">{stable.length}</div>
+                        <div className="text-xs text-gray-700">คงที่ =</div>
+                      </div>
+                      <div className="text-center bg-red-50 p-3 rounded-lg border border-red-200">
+                        <div className="text-2xl font-bold text-red-600">{declined.length}</div>
+                        <div className="text-xs text-red-700">ลดลง ▼</div>
+                      </div>
+                    </div>
+                    
+                    {/* Detailed comparison table */}
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-blue-200">
+                            <th className="text-left py-2 px-2 text-blue-800">ทักษะ</th>
+                            <th className="text-center py-2 px-2 text-gray-500">ครั้งก่อน</th>
+                            <th className="text-center py-2 px-2 text-blue-700">ครั้งนี้</th>
+                            <th className="text-center py-2 px-2">เปลี่ยนแปลง</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {comparisonData.map((d, i) => {
+                            const diff = d.current - d.previous;
+                            return (
+                              <tr key={i} className="border-b border-blue-100">
+                                <td className="py-2 px-2 font-medium text-gray-800">{d.skill}</td>
+                                <td className="text-center py-2 px-2 text-gray-500">{d.previous}%</td>
+                                <td className="text-center py-2 px-2 font-semibold">{d.current}%</td>
+                                <td className={`text-center py-2 px-2 font-bold ${
+                                  diff > 0 ? 'text-green-600' : diff < 0 ? 'text-red-600' : 'text-gray-400'
+                                }`}>
+                                  {diff > 0 ? `▲ +${diff}%` : diff < 0 ? `▼ ${diff}%` : '='}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  
+                  {/* Practice Recommendations from comparison */}
+                  {recommendSkills.length > 0 && (
+                    <div className="bg-gradient-to-r from-orange-50 to-amber-50 p-4 rounded-lg border border-orange-200 space-y-3">
+                      <h4 className="font-semibold text-orange-900 flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-orange-600" />
+                        🎯 แนะนำทักษะที่ควรฝึกเพิ่ม (จากบทวิเคราะห์)
+                        <span className="ml-auto text-xs bg-orange-200 text-orange-800 px-2 py-0.5 rounded-full">
+                          {recommendSkills.length} ทักษะ
+                        </span>
+                      </h4>
+                      <p className="text-xs text-orange-700">ทักษะที่ต่ำกว่า 85% หรือลดลงจากครั้งก่อน</p>
+                      <div className="space-y-2">
+                        {recommendSkills.map((s, i) => {
+                          const diff = s.current - s.previous;
+                          // Find original skill key for practice
+                          const originalSkill = skillBreakdown.find(
+                            sb => (skillNamesTh[sb.skill] || sb.skill) === s.skill
+                          )?.skill || s.skill;
+                          return (
+                            <div key={i} className="flex items-center justify-between bg-white p-3 rounded-lg border border-orange-100">
+                              <div className="flex items-center gap-2 flex-1">
+                                {s.current < 50 ? (
+                                  <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
+                                ) : (
+                                  <span className="w-2 h-2 rounded-full bg-yellow-500 flex-shrink-0" />
+                                )}
+                                <span className="font-medium text-sm text-gray-800">{s.skill}</span>
+                                <span className={`text-xs font-bold ${
+                                  s.current < 50 ? 'text-red-600' : 'text-yellow-600'
+                                }`}>
+                                  {s.current}%
+                                </span>
+                                {diff !== 0 && (
+                                  <span className={`text-xs ${diff > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                    ({diff > 0 ? '+' : ''}{diff}%)
+                                  </span>
+                                )}
+                              </div>
+                              <Button
+                                size="sm"
+                                className="text-xs bg-orange-500 hover:bg-orange-600 text-white h-7 px-3"
+                                onClick={() => handleStartPractice(originalSkill)}
+                                disabled={practiceLoading}
+                              >
+                                <BookOpen className="w-3 h-3 mr-1" />
+                                ฝึกเลย
+                              </Button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
             <div className="space-y-4 border-t pt-6">
               <div className="flex items-center gap-2 text-xl font-bold text-purple-600">
                 <Award className="w-6 h-6" />
