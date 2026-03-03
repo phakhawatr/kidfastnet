@@ -23,7 +23,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ClipboardPen, Clock, Award, ChevronLeft, ChevronRight, BookOpen, Send, Eye, CheckCircle, XCircle, TrendingUp, TrendingDown, Minus, Hash, Scale, ArrowUpDown, Grid3x3, Plus, Sparkles, Shapes, Ruler, BarChart2, LucideIcon, BarChart3, Download, Share2, Facebook, MessageCircle, Twitter, Trophy } from 'lucide-react';
 import { getGradeOptions, getSemesterOptions, curriculumConfig } from '@/config/curriculum';
-import { evaluateAssessment } from '@/utils/assessmentUtils';
+import { evaluateAssessment, generateSkillPracticeQuestions, AssessmentQuestion } from '@/utils/assessmentUtils';
 import { downloadCertificate, shareCertificate } from '@/utils/certificateUtils';
 
 const Quiz = () => {
@@ -45,6 +45,14 @@ const Quiz = () => {
   const [showCertificate, setShowCertificate] = useState(false);
   const [newAchievements, setNewAchievements] = useState<any[]>([]);
   const certificateRef = useRef<HTMLDivElement>(null);
+
+  // Practice mode state
+  const [practiceSkill, setPracticeSkill] = useState<string | null>(null);
+  const [practiceQuestions, setPracticeQuestions] = useState<AssessmentQuestion[]>([]);
+  const [practiceIndex, setPracticeIndex] = useState(0);
+  const [practiceAnswers, setPracticeAnswers] = useState<Map<number, number>>(new Map());
+  const [practiceSubmitted, setPracticeSubmitted] = useState(false);
+  const [practiceLoading, setPracticeLoading] = useState(false);
   
   const { achievements: allAchievements, userAchievements } = useAchievements(user?.id || registrationId || null);
 
@@ -157,6 +165,40 @@ const Quiz = () => {
     setNewAchievements([]);
     setSelectedNTYear('mixed');
   };
+
+  // Practice mode handlers
+  const handleStartPractice = (skill: string) => {
+    setPracticeLoading(true);
+    try {
+      const qs = generateSkillPracticeQuestions(skill, selectedGrade, selectedSemester, 10);
+      setPracticeQuestions(qs);
+      setPracticeSkill(skill);
+      setPracticeIndex(0);
+      setPracticeAnswers(new Map());
+      setPracticeSubmitted(false);
+    } finally {
+      setPracticeLoading(false);
+    }
+  };
+
+  const handleExitPractice = () => {
+    setPracticeSkill(null);
+    setPracticeQuestions([]);
+    setPracticeIndex(0);
+    setPracticeAnswers(new Map());
+    setPracticeSubmitted(false);
+  };
+
+  const practiceCorrectCount = (() => {
+    let count = 0;
+    practiceQuestions.forEach((q, i) => {
+      const ans = practiceAnswers.get(i);
+      if (ans !== undefined && (q.choices[ans] === q.correctAnswer || String(q.choices[ans]) === String(q.correctAnswer))) {
+        count++;
+      }
+    });
+    return count;
+  })();
 
   const handleDownloadCertificate = async () => {
     try {
@@ -995,6 +1037,134 @@ const Quiz = () => {
         />
       )}
       
+      {/* Practice Mode Overlay */}
+      {practiceSkill && (
+        <div className="container mx-auto px-4 py-12">
+          <Card className="max-w-2xl mx-auto shadow-lg">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-2xl flex items-center gap-2 text-purple-600">
+                  <BookOpen className="w-6 h-6" />
+                  ฝึกทักษะ: {skillNamesTh[practiceSkill] || practiceSkill}
+                </CardTitle>
+                <Button variant="ghost" size="sm" onClick={handleExitPractice}>
+                  ✕
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {!practiceSubmitted ? (
+                <>
+                  <div className="flex items-center justify-between text-sm text-gray-600">
+                    <span>ข้อที่ {practiceIndex + 1} / {practiceQuestions.length}</span>
+                    <span>{practiceAnswers.size} ตอบแล้ว</span>
+                  </div>
+                  <Progress value={((practiceIndex + 1) / practiceQuestions.length) * 100} className="h-2" />
+
+                  {practiceQuestions[practiceIndex] && (
+                    <div className="space-y-4">
+                      <div className="p-4 bg-purple-50 rounded-lg">
+                        {renderQuestionText(practiceQuestions[practiceIndex].question)}
+                      </div>
+
+                      {practiceQuestions[practiceIndex].clockDisplay && (
+                        <div className="flex justify-center">
+                          <ClockDisplay
+                            hour={practiceQuestions[practiceIndex].clockDisplay!.hour}
+                            minute={practiceQuestions[practiceIndex].clockDisplay!.minute}
+                            size={120}
+                          />
+                        </div>
+                      )}
+
+                      <RadioGroup
+                        value={practiceAnswers.get(practiceIndex)?.toString() || ''}
+                        onValueChange={(v) => {
+                          const newMap = new Map(practiceAnswers);
+                          newMap.set(practiceIndex, parseInt(v));
+                          setPracticeAnswers(newMap);
+                        }}
+                      >
+                        <div className="grid gap-2">
+                          {practiceQuestions[practiceIndex].choices.map((choice, idx) => (
+                            <div
+                              key={idx}
+                              className={`flex items-center space-x-3 p-3 border-2 rounded-lg hover:bg-purple-50 transition-all cursor-pointer ${
+                                practiceAnswers.get(practiceIndex) === idx ? 'border-purple-500 bg-purple-50' : 'border-gray-200'
+                              }`}
+                            >
+                              <RadioGroupItem value={String(idx)} id={`practice-${practiceIndex}-${idx}`} />
+                              <Label htmlFor={`practice-${practiceIndex}-${idx}`} className="flex-1 cursor-pointer text-lg">
+                                {renderChoice(choice)}
+                              </Label>
+                            </div>
+                          ))}
+                        </div>
+                      </RadioGroup>
+
+                      <div className="flex justify-between pt-4">
+                        <Button
+                          variant="outline"
+                          onClick={() => setPracticeIndex(Math.max(0, practiceIndex - 1))}
+                          disabled={practiceIndex === 0}
+                        >
+                          <ChevronLeft className="w-4 h-4 mr-1" /> ข้อก่อนหน้า
+                        </Button>
+                        {practiceIndex === practiceQuestions.length - 1 ? (
+                          <Button
+                            className="bg-green-600 hover:bg-green-700"
+                            onClick={() => setPracticeSubmitted(true)}
+                            disabled={practiceAnswers.get(practiceIndex) === undefined}
+                          >
+                            ดูผลคะแนน
+                          </Button>
+                        ) : (
+                          <Button
+                            onClick={() => setPracticeIndex(practiceIndex + 1)}
+                            disabled={practiceAnswers.get(practiceIndex) === undefined}
+                          >
+                            ข้อถัดไป <ChevronRight className="w-4 h-4 ml-1" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                // Practice Results
+                <div className="text-center space-y-6">
+                  <div className="text-6xl">
+                    {practiceCorrectCount >= 8 ? '🎉' : practiceCorrectCount >= 5 ? '👍' : '📚'}
+                  </div>
+                  <div>
+                    <p className="text-3xl font-bold text-purple-600">
+                      {practiceCorrectCount}/{practiceQuestions.length}
+                    </p>
+                    <p className="text-lg text-gray-600 mt-1">
+                      {Math.round((practiceCorrectCount / practiceQuestions.length) * 100)}% ถูกต้อง
+                    </p>
+                  </div>
+                  <p className="text-gray-600">
+                    {practiceCorrectCount >= 8 ? 'ยอดเยี่ยม! คุณเข้าใจทักษะนี้ดีมาก' :
+                     practiceCorrectCount >= 5 ? 'ดี! แต่ยังมีจุดที่ควรฝึกเพิ่ม' :
+                     'ควรทบทวนและฝึกฝนเพิ่มเติม'}
+                  </p>
+                  <div className="flex gap-3 justify-center">
+                    <Button variant="outline" onClick={handleExitPractice}>
+                      กลับดูผลสอบ
+                    </Button>
+                    <Button onClick={() => handleStartPractice(practiceSkill)}>
+                      ฝึกอีกครั้ง
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {!practiceSkill && (
       <div className="container mx-auto px-4 py-12">
         <Card className="max-w-4xl mx-auto shadow-lg">
           <CardHeader>
@@ -1218,10 +1388,22 @@ const Quiz = () => {
                         className="h-3"
                         indicatorClassName={getSkillColor(item.percentage)}
                       />
-                      <div className="mt-2 text-xs text-gray-500">
-                        {item.percentage >= 80 && '✨ ยอดเยี่ยม! เข้าใจดีมาก'}
-                        {item.percentage >= 50 && item.percentage < 80 && '👍 ดี แต่ควรฝึกเพิ่มเติม'}
-                        {item.percentage < 50 && '📚 ควรทบทวนและฝึกฝนเพิ่มเติม'}
+                      <div className="mt-2 flex items-center justify-between">
+                        <span className="text-xs text-gray-500">
+                          {item.percentage >= 80 && '✨ ยอดเยี่ยม! เข้าใจดีมาก'}
+                          {item.percentage >= 50 && item.percentage < 80 && '👍 ดี แต่ควรฝึกเพิ่มเติม'}
+                          {item.percentage < 50 && '📚 ควรทบทวนและฝึกฝนเพิ่มเติม'}
+                        </span>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-xs border-purple-300 text-purple-600 hover:bg-purple-50"
+                          onClick={() => handleStartPractice(item.skill)}
+                          disabled={practiceLoading}
+                        >
+                          <BookOpen className="w-3 h-3 mr-1" />
+                          ฝึกใหม่
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -1389,6 +1571,7 @@ const Quiz = () => {
           </CardContent>
         </Card>
       </div>
+      )}
       <Footer />
     </div>
   );
