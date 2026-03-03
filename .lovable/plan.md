@@ -1,18 +1,29 @@
 
-# เพิ่มปุ่ม "ฝึกใหม่" สำหรับฝึกทักษะเฉพาะด้าน
+
+# เพิ่มการเปรียบเทียบผลสอบ 2 ครั้งล่าสุด พร้อม Radar Chart ซ้อนทับ
 
 ## สิ่งที่จะทำ
-เพิ่มปุ่ม "ฝึกใหม่" ในแต่ละแถวทักษะของหน้าผลสอบ เมื่อกดจะเข้าสู่โหมดฝึกทำโจทย์ 10 ข้อเฉพาะทักษะนั้น ทำทีละข้อจนครบ แล้วแสดงคะแนน
+เพิ่มส่วนเปรียบเทียบในหน้าผลสอบ (results screen) ที่แสดง:
+1. **Radar Chart ซ้อนทับ 2 ครั้ง** - ครั้งก่อนหน้า (สีเทา) vs ครั้งล่าสุด (สีหลัก)
+2. **บทวิเคราะห์การพัฒนา** - แสดงทักษะที่ดีขึ้น/แย่ลง พร้อม % เปลี่ยนแปลง
+3. **แนะนำการฝึกทักษะ** - จากผลวิเคราะห์ แนะนำทักษะที่ควรฝึกเพิ่ม
 
 ## รายละเอียดทางเทคนิค
 
 | ไฟล์ | การเปลี่ยนแปลง |
 |------|----------------|
-| `src/utils/assessmentUtils.ts` | Export ฟังก์ชัน `generateSkillPracticeQuestions(skill, grade, semester, count)` ที่สร้างโจทย์ 10 ข้อเฉพาะทักษะ โดยใช้ switch-case เดียวกับ `generateSemesterQuestionsWithAI` |
-| `src/pages/Quiz.tsx` | เพิ่ม state สำหรับ "practice mode" (`practiceSkill`, `practiceQuestions`, `practiceIndex`, `practiceAnswers`, `practiceSubmitted`) พร้อม UI แสดงโจทย์ทีละข้อ + ปุ่ม "ฝึกใหม่" ในแต่ละแถวทักษะ (ส่วน Skill Breakdown ~line 1192-1229) |
+| `src/components/ComparisonRadarChart.tsx` | **สร้างใหม่** - Recharts RadarChart ที่แสดง 2 Radar ซ้อนกัน (ครั้งก่อน = สีเทาจาง, ครั้งล่าสุด = สีตามคะแนน) พร้อม Legend |
+| `src/pages/Quiz.tsx` | เพิ่ม logic ดึงผลสอบครั้งก่อนหน้าจาก `level_assessments` (เฉพาะ grade+semester เดียวกัน) แล้วคำนวณ skill breakdown ของครั้งก่อน → แสดงส่วนเปรียบเทียบใต้ Radar Chart ปัจจุบัน |
 
-### Flow
-1. ผู้ใช้กดปุ่ม "ฝึกใหม่" ที่แถวทักษะ → เรียก `generateSkillPracticeQuestions` สร้างโจทย์ 10 ข้อ
-2. แสดง screen ฝึก: ชื่อทักษะ + progress + โจทย์ทีละข้อ + ตัวเลือก 4 ข้อ
-3. ตอบแล้วกด "ข้อถัดไป" จนครบ 10 ข้อ → กด "ดูผลคะแนน"
-4. แสดงคะแนน (เช่น 8/10 = 80%) พร้อมปุ่ม "กลับดูผลสอบ" หรือ "ฝึกอีกครั้ง"
+### ComparisonRadarChart Component
+- รับ `currentData` และ `previousData` (array ของ `{skill, percentage}`)
+- ใช้ Recharts RadarChart เดียว แต่มี 2 `<Radar>`: ครั้งก่อน (fill สีเทา, opacity ต่ำ) และครั้งล่าสุด (fill สีตามคะแนนเฉลี่ย)
+- แสดง Legend "ครั้งก่อน" vs "ครั้งล่าสุด"
+
+### บทวิเคราะห์ใน Quiz.tsx
+- Fetch ครั้งก่อนหน้าด้วย: `level_assessments` WHERE `user_id` = current, `grade` = selected, `semester` = selected, ORDER BY `created_at` DESC LIMIT 1 OFFSET 1
+- คำนวณ `computeSkillBreakdown` จาก `assessment_data` ของครั้งก่อน (ใช้ logic เดียวกับ QuizHistory)
+- แสดงตาราง: ทักษะ | ครั้งก่อน% | ครั้งนี้% | เปลี่ยนแปลง (▲/▼)
+- สรุปภาพรวม: จำนวนทักษะที่ดีขึ้น/แย่ลง/คงที่
+- แนะนำฝึก: ทักษะที่ยังต่ำกว่า 85% หรือลดลง พร้อมปุ่ม "ฝึกเลย"
+
