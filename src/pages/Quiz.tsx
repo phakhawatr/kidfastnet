@@ -417,8 +417,10 @@ const Quiz = () => {
           const html2canvas = (await import('html2canvas')).default;
           const canvas = await html2canvas(radarChartRef.current, {
             backgroundColor: '#ffffff',
-            scale: 2,
+            scale: 4,
             useCORS: true,
+            width: radarChartRef.current.scrollWidth,
+            height: radarChartRef.current.scrollHeight,
           });
           const blob = await new Promise<Blob>((resolve) => 
             canvas.toBlob((b) => resolve(b!), 'image/png', 0.9)
