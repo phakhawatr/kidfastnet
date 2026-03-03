@@ -89,6 +89,7 @@ const QuizHistory = ({ userId, compact = false }: QuizHistoryProps) => {
   const [stats, setStats] = useState({
     totalTests: 0, averageScore: 0, bestScore: 0, totalCorrect: 0, totalQuestions: 0,
   });
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     const fetchAssessments = async () => {
@@ -171,7 +172,6 @@ const QuizHistory = ({ userId, compact = false }: QuizHistoryProps) => {
     );
   }
 
-  const [showAll, setShowAll] = useState(false);
   const displayAssessments = compact && !showAll ? assessments.slice(0, 3) : assessments;
 
   return (
