@@ -226,6 +226,27 @@ async function sendAssessmentFlexMessage(lineUserId: string, data: any) {
         { type: 'text', text: '📋 ผลแยกตามทักษะ', size: 'sm', weight: 'bold', color: '#333333', margin: 'lg' },
         ...skillRows,
         legendRow,
+        // Embed radar chart image inside the bubble if available
+        ...(chartImageUrl ? [
+          { type: 'separator', margin: 'lg', color: '#eeeeee' },
+          { type: 'text', text: '📈 กราฟความสามารถรายทักษะ', size: 'sm', weight: 'bold', color: '#333333', margin: 'md' },
+          {
+            type: 'box', layout: 'vertical',
+            contents: [
+              {
+                type: 'image',
+                url: chartImageUrl,
+                size: 'full',
+                aspectMode: 'fit',
+                aspectRatio: '1:1',
+              },
+            ],
+            margin: 'md',
+            backgroundColor: '#f9fafb',
+            cornerRadius: 'lg',
+            paddingAll: 'sm',
+          },
+        ] : []),
       ],
       paddingAll: 'lg',
     },
@@ -346,13 +367,7 @@ async function sendAssessmentFlexMessage(lineUserId: string, data: any) {
     });
   }
   
-  if (chartImageUrl) {
-    messages.push({
-      type: 'image',
-      originalContentUrl: chartImageUrl,
-      previewImageUrl: chartImageUrl,
-    });
-  }
+  // Chart image is now embedded inside the main bubble — no separate image message
 
   const response = await fetch('https://api.line.me/v2/bot/message/push', {
     method: 'POST',
