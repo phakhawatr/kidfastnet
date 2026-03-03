@@ -1147,7 +1147,36 @@ const Quiz = () => {
                         {practiceIndex === practiceQuestions.length - 1 ? (
                           <Button
                             className="bg-green-600 hover:bg-green-700"
-                            onClick={() => setPracticeSubmitted(true)}
+                            onClick={async () => {
+                              setPracticeSubmitted(true);
+                              // Save practice result to Supabase
+                              const userId = user?.id || registrationId;
+                              if (userId && practiceSkill) {
+                                const correct = (() => {
+                                  let c = 0;
+                                  practiceQuestions.forEach((q, i) => {
+                                    const ans = practiceAnswers.get(i);
+                                    if (ans !== undefined && (q.choices[ans] === q.correctAnswer || String(q.choices[ans]) === String(q.correctAnswer))) c++;
+                                  });
+                                  return c;
+                                })();
+                                const accuracy = Math.round((correct / practiceQuestions.length) * 100);
+                                try {
+                                  await supabase.from('practice_sessions').insert({
+                                    user_id: userId,
+                                    skill_name: practiceSkill,
+                                    difficulty: 'mixed',
+                                    problems_attempted: practiceQuestions.length,
+                                    problems_correct: correct,
+                                    accuracy,
+                                    time_spent: 0,
+                                    hints_used: 0,
+                                  });
+                                } catch (err) {
+                                  console.error('Failed to save practice session:', err);
+                                }
+                              }
+                            }}
                             disabled={practiceAnswers.get(practiceIndex) === undefined}
                           >
                             ดูผลคะแนน
@@ -1444,12 +1473,63 @@ const Quiz = () => {
                 ))}
               </div>
 
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mt-4">
-                <h4 className="font-semibold text-blue-900 mb-2">💡 คำแนะนำ</h4>
-                <p className="text-sm text-blue-800">
-                  ทักษะที่ได้คะแนนต่ำกว่า 50% ควรฝึกฝนเพิ่มเติมโดยเข้าไปเล่นเกมฝึกทักษะในหน้าหลัก
-                </p>
-              </div>
+              {/* Auto Skill Recommendations - skills below 85% */}
+              {(() => {
+                const weakSkills = skillBreakdown
+                  .filter(s => s.percentage < 85)
+                  .sort((a, b) => a.percentage - b.percentage);
+                if (weakSkills.length === 0) return (
+                  <div className="bg-green-50 p-4 rounded-lg border border-green-200 mt-4">
+                    <h4 className="font-semibold text-green-900 mb-2 flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-green-600" />
+                      🎉 ยอดเยี่ยม!
+                    </h4>
+                    <p className="text-sm text-green-800">ทุกทักษะได้คะแนน 85% ขึ้นไป ไม่มีทักษะที่ต้องฝึกเพิ่ม</p>
+                  </div>
+                );
+                return (
+                  <div className="bg-amber-50 p-4 rounded-lg border border-amber-200 mt-4 space-y-3">
+                    <h4 className="font-semibold text-amber-900 flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-amber-600" />
+                      🎯 แนะนำทักษะที่ควรฝึกเพิ่ม
+                      <span className="ml-auto text-xs font-normal text-amber-700 bg-amber-200 px-2 py-0.5 rounded-full">
+                        {weakSkills.length} ทักษะ
+                      </span>
+                    </h4>
+                    <p className="text-xs text-amber-700">ทักษะที่ได้คะแนนต่ำกว่า 85% ควรฝึกฝนเพิ่มเติม</p>
+                    <div className="space-y-2">
+                      {weakSkills.map((s) => (
+                        <div key={s.skill} className="flex items-center justify-between bg-white p-3 rounded-lg border border-amber-100">
+                          <div className="flex items-center gap-2">
+                            {s.percentage < 50 ? (
+                              <span className="w-2 h-2 rounded-full bg-red-500" />
+                            ) : (
+                              <span className="w-2 h-2 rounded-full bg-yellow-500" />
+                            )}
+                            <span className="font-medium text-sm text-gray-800">
+                              {skillNamesTh[s.skill] || s.skill}
+                            </span>
+                            <span className={`text-xs font-bold ${
+                              s.percentage < 50 ? 'text-red-600' : 'text-yellow-600'
+                            }`}>
+                              {s.percentage.toFixed(0)}%
+                            </span>
+                          </div>
+                          <Button
+                            size="sm"
+                            className="text-xs bg-amber-500 hover:bg-amber-600 text-white h-7 px-3"
+                            onClick={() => handleStartPractice(s.skill)}
+                            disabled={practiceLoading}
+                          >
+                            <BookOpen className="w-3 h-3 mr-1" />
+                            ฝึกเลย
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Answer Review Section */}
