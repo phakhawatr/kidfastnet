@@ -43,12 +43,34 @@ function computeSkillBreakdown(assessmentData: any): SkillDataItem[] {
   const questions = Array.isArray(assessmentData) ? assessmentData : assessmentData?.questions;
   if (!Array.isArray(questions) || questions.length === 0) return [];
 
+  const answersMap = new Map<number, number>();
+  if (Array.isArray(assessmentData?.answers)) {
+    assessmentData.answers.forEach((entry: any) => {
+      if (Array.isArray(entry) && entry.length === 2) {
+        answersMap.set(entry[0], entry[1]);
+      }
+    });
+  }
+
   const stats: Record<string, { correct: number; total: number }> = {};
-  questions.forEach((q: any) => {
+  questions.forEach((q: any, idx: number) => {
     const skill = q.skill || 'unknown';
     if (!stats[skill]) stats[skill] = { correct: 0, total: 0 };
     stats[skill].total++;
-    if (q.isCorrect || q.is_correct) stats[skill].correct++;
+
+    // Support new format (isCorrect flag) and old format (compare answers)
+    if (q.isCorrect !== undefined) {
+      if (q.isCorrect) stats[skill].correct++;
+    } else if (q.is_correct !== undefined) {
+      if (q.is_correct) stats[skill].correct++;
+    } else {
+      // Old format: try to determine from userAnswer vs correctAnswer
+      if (q.userAnswer !== undefined && q.userAnswer !== null) {
+        if (String(q.userAnswer) === String(q.correctAnswer)) {
+          stats[skill].correct++;
+        }
+      }
+    }
   });
 
   return Object.entries(stats).map(([skill, s]) => ({

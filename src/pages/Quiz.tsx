@@ -752,24 +752,23 @@ const Quiz = () => {
               )}
             </CardContent>
           </Card>
+          {/* Quiz History Preview on Test Tab */}
+          {(user?.id || registrationId) && (
+            <div className="mt-8">
+              <Card className="border-2 border-indigo-200 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-indigo-700 text-lg">
+                    <BarChart3 className="w-5 h-5" />
+                    📋 ประวัติการทำแบบทดสอบล่าสุด
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <QuizHistory userId={user?.id || registrationId || ''} compact />
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </TabsContent>
-
-        {/* Quiz History Preview on Test Tab */}
-        {(user?.id || registrationId) && (
-          <div className="mt-8">
-            <Card className="border-2 border-indigo-200 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-indigo-700 text-lg">
-                  <BarChart3 className="w-5 h-5" />
-                  📋 ประวัติการทำแบบทดสอบล่าสุด
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <QuizHistory userId={user?.id || registrationId || ''} compact />
-              </CardContent>
-            </Card>
-          </div>
-        )}
 
         <TabsContent value="history">
           <QuizHistory userId={user?.id || registrationId || ''} />
@@ -1176,7 +1175,7 @@ const Quiz = () => {
                 </div>
                 <div className="flex justify-center gap-4 mt-3 text-xs">
                   <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-green-500 inline-block" /> ≥85% ดีมาก</span>
-                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-yellow-500 inline-block" /> 50-84% พอใช้</span>
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-yellow-500 inline-block" /> 50-84% ต้องปรับปรุง</span>
                   <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-red-500 inline-block" /> &lt;50% ควรปรับปรุง</span>
                 </div>
               </div>

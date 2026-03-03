@@ -119,12 +119,21 @@ export const useAssessment = (userId: string, grade: number, semesterOrType: num
         score: parseFloat(score.toFixed(2)),
         time_taken: timeTaken,
         assessment_data: {
-          questions: questions.map(q => ({
-            id: q.id,
-            question: q.question,
-            correctAnswer: q.correctAnswer,
-            skill: q.skill
-          })),
+          questions: questions.map((q, idx) => {
+            const userAnswerIdx = answers.get(idx);
+            const isCorrect = userAnswerIdx !== undefined && (
+              q.choices[userAnswerIdx] === q.correctAnswer ||
+              String(q.choices[userAnswerIdx]) === String(q.correctAnswer)
+            );
+            return {
+              id: q.id,
+              question: q.question,
+              correctAnswer: q.correctAnswer,
+              skill: q.skill,
+              userAnswer: userAnswerIdx !== undefined ? q.choices[userAnswerIdx] : null,
+              isCorrect,
+            };
+          }),
           answers: Array.from(answers.entries())
         },
         completed_at: new Date().toISOString()
