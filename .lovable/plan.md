@@ -1,58 +1,19 @@
 
 
-## Plan: Add Practice App Links to AI Math Tutor Responses
+## Problem
 
-### Concept
-When the AI tutor explains a math concept (e.g., addition, fractions, time), the system will detect relevant topics in the AI response and append clickable practice app links below the message. This creates a complete learning loop: **Ask → Learn → Practice**.
+Missions are created successfully (toast confirms), but the "ภารกิจวันนี้" section shows empty because of **stale cache**.
 
-### Changes
+**Root cause**: The `fetchMissions` function in `useTrainingCalendar.ts` checks localStorage cache first (5-minute TTL for free tier users). After creating a new mission, `fetchMissions` is called to refresh — but it hits the stale cache and returns old data (without the new mission). `invalidateMissionCache()` is only called after mission **completion**, never after mission **generation**.
 
-**1. Create topic-to-app mapping utility (`src/utils/aiAppRecommendations.ts`)**
-- Define a mapping of Thai/English keywords to app registry keys
-- Example: keywords like "บวก", "addition", "รวม" → `addition` app; "เศษส่วน", "fraction" → `fraction-matching`, `fraction-shapes`; "นาฬิกา", "เวลา", "time" → `time` app; "คูณ", "multiplication" → `multiplication`, `multiplication-table`, `flower-math`
-- Export a function `getRecommendedApps(content: string): AppRecommendation[]` that scans the AI response text and returns matching apps from `appRegistry`
+## Fix
 
-**2. Update `AIChatMessage.tsx`**
-- Import the recommendation function and `appRegistry`
-- For assistant messages, call `getRecommendedApps(content)` to find relevant apps
-- Render matched apps as clickable pill/chip buttons below the message bubble (icon + app name + link)
-- Use `useNavigate` to navigate to the app's route on click
-- Only show recommendations section when matches exist
+**`src/hooks/useTrainingCalendar.ts`** — Add `invalidateMissionCache()` before `fetchMissions()` in three places:
 
-**3. No backend changes needed**
-- The keyword matching is purely client-side, scanning the already-received AI response text
-- No changes to the edge function or system prompt required
+1. **`addSingleMission`** (line ~645): Add `invalidateMissionCache()` before `await fetchMissions(...)`
+2. **`generateTodayMission`** (line ~741): Add `invalidateMissionCache()` before `await fetchMissions(...)`
+3. **`regenerateMissions`** (line ~811): Add `invalidateMissionCache()` before `await fetchMissions(...)`
+4. Also in the error/retry paths (~line 760-762) where `fetchMissions` is called after a delay
 
-### Keyword Mapping (examples)
-
-```text
-"บวก", "addition", "รวม", "ผลบวก"     → addition
-"ลบ", "subtraction", "ผลลบ"           → subtraction
-"คูณ", "multiplication", "สูตรคูณ"     → multiplication, multiplication-table, flower-math
-"หาร", "division"                      → division
-"เศษส่วน", "fraction"                  → fraction-matching, fraction-shapes
-"เวลา", "นาฬิกา", "time", "clock"     → time
-"เงิน", "money", "บาท"                → money
-"ชั่ง", "น้ำหนัก", "weighing"          → weighing
-"วัด", "measurement", "ความยาว"        → measurement, length-comparison
-"รูปทรง", "shape"                      → shape-matching, shape-series
-"ค่าประจำหลัก", "place value"          → place-value
-"โจทย์ปัญหา", "word problem"           → word-problems
-```
-
-### UI Design
-Below each assistant message with matches:
-```text
-┌─────────────────────────────────────────┐
-│  AI response text...                    │
-│                                         │
-│  📚 ฝึกทักษะที่เกี่ยวข้อง:               │
-│  [➕ การบวก] [🌸 ดอกไม้คณิต] [⏱️ คิดเร็ว] │
-└─────────────────────────────────────────┘
-```
-Each chip is a colored button that navigates to the practice app.
-
-### Files to create/edit
-- **Create**: `src/utils/aiAppRecommendations.ts`
-- **Edit**: `src/components/AIChatMessage.tsx`
+This ensures that after any mission creation, the cache is cleared so `fetchMissions` fetches fresh data from the database.
 
