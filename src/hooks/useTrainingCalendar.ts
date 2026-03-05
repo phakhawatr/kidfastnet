@@ -642,7 +642,8 @@ export const useTrainingCalendar = () => {
           description: newMission?.skill_name || 'ภารกิจใหม่',
         });
 
-        // Refresh missions
+        // Invalidate cache then refresh missions
+        invalidateMissionCache();
         const today = new Date();
         await fetchMissions(today.getMonth() + 1, today.getFullYear());
 
@@ -738,7 +739,8 @@ export const useTrainingCalendar = () => {
           description: `${skillName}${difficulty ? ` (${difficulty})` : ''}`,
         });
 
-        // Refresh missions
+        // Invalidate cache then refresh missions
+        invalidateMissionCache();
         const today = new Date();
         await fetchMissions(today.getMonth() + 1, today.getFullYear());
 
@@ -758,6 +760,7 @@ export const useTrainingCalendar = () => {
       
       // รอ 2 วินาทีแล้ว fetch missions ใหม่เพื่อตรวจสอบ
       await new Promise(resolve => setTimeout(resolve, 2000));
+      invalidateMissionCache();
       const today = new Date();
       await fetchMissions(today.getMonth() + 1, today.getFullYear());
       
@@ -808,6 +811,7 @@ export const useTrainingCalendar = () => {
       if (functionError) throw functionError;
 
       if (functionData?.success) {
+        invalidateMissionCache();
         await fetchMissions(new Date().getMonth() + 1, new Date().getFullYear());
         return { success: true };
       }
