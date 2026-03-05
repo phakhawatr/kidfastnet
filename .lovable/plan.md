@@ -1,34 +1,58 @@
 
 
-## Plan: Show All Assessment History
+## Plan: Add Practice App Links to AI Math Tutor Responses
 
-Currently `QuizHistory` is rendered with `compact` prop in `Quiz.tsx` (line 1013), which limits display to 3 items via `assessments.slice(0, 3)`.
+### Concept
+When the AI tutor explains a math concept (e.g., addition, fractions, time), the system will detect relevant topics in the AI response and append clickable practice app links below the message. This creates a complete learning loop: **Ask → Learn → Practice**.
 
 ### Changes
 
-**`src/components/QuizHistory.tsx`**
-- Add a `showAll` state (default `false`) when `compact` is true
-- When `compact` and not `showAll`, show 3 items + a "ดูทั้งหมด (X รายการ)" button
-- When `showAll` is toggled, show all assessments with a "ย่อ" collapse button
-- This keeps the compact layout by default but lets users expand to see everything
+**1. Create topic-to-app mapping utility (`src/utils/aiAppRecommendations.ts`)**
+- Define a mapping of Thai/English keywords to app registry keys
+- Example: keywords like "บวก", "addition", "รวม" → `addition` app; "เศษส่วน", "fraction" → `fraction-matching`, `fraction-shapes`; "นาฬิกา", "เวลา", "time" → `time` app; "คูณ", "multiplication" → `multiplication`, `multiplication-table`, `flower-math`
+- Export a function `getRecommendedApps(content: string): AppRecommendation[]` that scans the AI response text and returns matching apps from `appRegistry`
 
-### Technical Detail
+**2. Update `AIChatMessage.tsx`**
+- Import the recommendation function and `appRegistry`
+- For assistant messages, call `getRecommendedApps(content)` to find relevant apps
+- Render matched apps as clickable pill/chip buttons below the message bubble (icon + app name + link)
+- Use `useNavigate` to navigate to the app's route on click
+- Only show recommendations section when matches exist
 
-```typescript
-const [showAll, setShowAll] = useState(false);
-const displayAssessments = compact && !showAll 
-  ? assessments.slice(0, 3) 
-  : assessments;
+**3. No backend changes needed**
+- The keyword matching is purely client-side, scanning the already-received AI response text
+- No changes to the edge function or system prompt required
+
+### Keyword Mapping (examples)
+
+```text
+"บวก", "addition", "รวม", "ผลบวก"     → addition
+"ลบ", "subtraction", "ผลลบ"           → subtraction
+"คูณ", "multiplication", "สูตรคูณ"     → multiplication, multiplication-table, flower-math
+"หาร", "division"                      → division
+"เศษส่วน", "fraction"                  → fraction-matching, fraction-shapes
+"เวลา", "นาฬิกา", "time", "clock"     → time
+"เงิน", "money", "บาท"                → money
+"ชั่ง", "น้ำหนัก", "weighing"          → weighing
+"วัด", "measurement", "ความยาว"        → measurement, length-comparison
+"รูปทรง", "shape"                      → shape-matching, shape-series
+"ค่าประจำหลัก", "place value"          → place-value
+"โจทย์ปัญหา", "word problem"           → word-problems
 ```
 
-Add a button after the assessment cards grid:
-```tsx
-{compact && assessments.length > 3 && (
-  <Button variant="outline" onClick={() => setShowAll(!showAll)}>
-    {showAll ? 'ย่อ' : `ดูทั้งหมด (${assessments.length} รายการ)`}
-  </Button>
-)}
+### UI Design
+Below each assistant message with matches:
+```text
+┌─────────────────────────────────────────┐
+│  AI response text...                    │
+│                                         │
+│  📚 ฝึกทักษะที่เกี่ยวข้อง:               │
+│  [➕ การบวก] [🌸 ดอกไม้คณิต] [⏱️ คิดเร็ว] │
+└─────────────────────────────────────────┘
 ```
+Each chip is a colored button that navigates to the practice app.
 
-**File:** `src/components/QuizHistory.tsx` only
+### Files to create/edit
+- **Create**: `src/utils/aiAppRecommendations.ts`
+- **Edit**: `src/components/AIChatMessage.tsx`
 
