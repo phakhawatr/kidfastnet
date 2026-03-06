@@ -663,6 +663,45 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
                   <Button
                     variant="outline"
                     size="sm"
+                    disabled={bulkGeneratingImages}
+                    onClick={async () => {
+                      const questionsWithoutImages = filteredQuestions.filter(
+                        q => selectedQuestions.has(q.id) && (!q.image_urls || q.image_urls.length === 0)
+                      );
+                      if (questionsWithoutImages.length === 0) {
+                        toast.info('ข้อสอบที่เลือกมีภาพแล้วทั้งหมด');
+                        return;
+                      }
+                      setBulkGeneratingImages(true);
+                      let successCount = 0;
+                      for (const q of questionsWithoutImages) {
+                        setGeneratingImageIds(prev => new Set(prev).add(q.id));
+                        try {
+                          const url = await generateAIImage(q.id, q.question_text, q.skill_name);
+                          if (url) successCount++;
+                        } finally {
+                          setGeneratingImageIds(prev => {
+                            const next = new Set(prev);
+                            next.delete(q.id);
+                            return next;
+                          });
+                        }
+                      }
+                      setBulkGeneratingImages(false);
+                      toast.success(`สร้างภาพ AI สำเร็จ ${successCount}/${questionsWithoutImages.length} ข้อ`);
+                    }}
+                    className="text-purple-600 border-purple-200 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-800"
+                  >
+                    {bulkGeneratingImages ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Sparkles className="w-4 h-4 mr-2" />
+                    )}
+                    {bulkGeneratingImages ? 'กำลังสร้างภาพ...' : '🎨 สร้างภาพ AI ทั้งหมด'}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => setSelectedQuestions(new Set())}
                   >
                     ยกเลิก
