@@ -19,6 +19,7 @@ import { Search, Download, Eye, Copy, FileText, Sparkles, Users, AlertTriangle, 
 import { useQuestionBank } from '@/hooks/useQuestionBank';
 import QuestionTextRenderer from '@/components/QuestionTextRenderer';
 import ChoiceRenderer from '@/components/ChoiceRenderer';
+import { normalizeQuestion, questionNeedsNormalization } from '@/utils/questionNormalizer';
 
 interface SharedQuestionsBrowserProps {
   teacherId: string;
@@ -260,24 +261,30 @@ export default function SharedQuestionsBrowser({ teacherId, onImportSuccess }: S
                       )}
 
                       <div className="grid grid-cols-2 gap-2 text-sm">
-                        {Array.isArray(question.choices) &&
-                          question.choices.map((choice: string, idx: number) => (
-                            <div
-                              key={idx}
-                              className={`p-3 rounded border flex items-center gap-2 ${
-                                choice === question.correct_answer
-                                  ? 'border-green-500 bg-green-50'
-                                  : 'border-border'
-                              }`}
-                            >
-                              <span className="text-sm font-light text-gray-500 dark:text-gray-400">{idx + 1})</span>
-                              <ChoiceRenderer 
-                                choice={choice} 
-                                size={56}
-                                className="text-lg font-semibold text-blue-600 dark:text-blue-400"
-                              />
-                            </div>
-                          ))}
+                      {(() => {
+                        const normalized = normalizeQuestion({
+                          choices: Array.isArray(question.choices) ? question.choices : [],
+                          correct_answer: question.correct_answer,
+                        });
+                        
+                        return normalized.choices.map((choice: string, idx: number) => (
+                          <div
+                            key={idx}
+                            className={`p-3 rounded border flex items-center gap-2 ${
+                              choice === normalized.correct_answer
+                                ? 'border-green-500 bg-green-50'
+                                : 'border-border'
+                            }`}
+                          >
+                            <span className="text-sm font-light text-gray-500 dark:text-gray-400">{idx + 1})</span>
+                            <ChoiceRenderer 
+                              choice={choice} 
+                              size={56}
+                              className="text-lg font-semibold text-blue-600 dark:text-blue-400"
+                            />
+                          </div>
+                        ));
+                      })()}
                       </div>
 
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">

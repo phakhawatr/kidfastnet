@@ -24,6 +24,7 @@ import TagInput from '@/components/ui/tag-input';
 import { toast } from 'sonner';
 import QuestionTextRenderer from '@/components/QuestionTextRenderer';
 import ChoiceRenderer from '@/components/ChoiceRenderer';
+import { normalizeQuestion, questionNeedsNormalization } from '@/utils/questionNormalizer';
 
 interface SystemQuestionsBrowserProps {
   teacherId: string;
@@ -516,37 +517,50 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
                   )}
 
                   <div className="grid grid-cols-2 gap-2">
-                    {Array.isArray(question.choices) && question.choices.map((choice: string, idx: number) => {
-                      // Remove the A), B), C), D) prefix for cleaner display
-                      const displayChoice = choice.replace(/^[A-D]\)\s*/, '');
+                    {(() => {
+                      // Normalize question for display
+                      const normalized = normalizeQuestion({
+                        choices: Array.isArray(question.choices) ? question.choices : [],
+                        correct_answer: question.correct_answer,
+                      });
                       
-                      // Extract the letter prefix from choice (e.g., "A" from "A) 6 ตัว")
-                      const choiceLetter = choice.match(/^([A-D])\)/)?.[1];
-                      const isCorrect = choiceLetter === question.correct_answer || choice === question.correct_answer;
-                      
-                      return (
-                        <div
-                          key={idx}
-                          className={`p-3 rounded border flex items-center justify-between ${
-                            isCorrect
-                              ? 'border-green-500 bg-green-50 dark:bg-green-950/20'
-                              : 'border-border'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-light text-gray-500 dark:text-gray-400">{idx + 1})</span>
-                            <ChoiceRenderer 
-                              choice={displayChoice} 
-                              size={56}
-                              className="text-lg font-semibold text-blue-600 dark:text-blue-400"
-                            />
+                      return normalized.choices.map((choice: string, idx: number) => {
+                        const isCorrect = choice === normalized.correct_answer;
+                        
+                        return (
+                          <div
+                            key={idx}
+                            className={`p-3 rounded border flex items-center justify-between ${
+                              isCorrect
+                                ? 'border-green-500 bg-green-50 dark:bg-green-950/20'
+                                : 'border-border'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-light text-gray-500 dark:text-gray-400">{idx + 1})</span>
+                              <ChoiceRenderer 
+                                choice={choice} 
+                                size={56}
+                                className="text-lg font-semibold text-blue-600 dark:text-blue-400"
+                              />
+                            </div>
+                            {isCorrect && (
+                              <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
+                            )}
                           </div>
-                          {isCorrect && (
-                            <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
-                          )}
-                        </div>
-                      );
-                    })}
+                        );
+                      });
+                    })()}
+                    
+                    {/* Warning badge for questions that needed normalization */}
+                    {questionNeedsNormalization({ choices: question.choices, correct_answer: question.correct_answer }) && (
+                      <div className="col-span-2">
+                        <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-800">
+                          <AlertTriangle className="w-3 h-3 mr-1" />
+                          ข้อสอบนี้ถูกปรับรูปแบบอัตโนมัติ
+                        </Badge>
+                      </div>
+                    )}
                   </div>
 
                   {question.explanation && (

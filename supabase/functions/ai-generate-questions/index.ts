@@ -122,17 +122,51 @@ ${range ? `- ช่วงตัวเลขที่ใช้: ${range[0]}-${ran
       );
     }
 
-    // Add metadata
-    const enrichedQuestions = questions.map((q: any) => ({
-      ...q,
-      grade,
-      semester,
-      assessment_type: assessmentType,
-      topic,
-      difficulty,
-      description,
-      ai_generated: true,
-    }));
+    // Normalize and validate each question
+    const enrichedQuestions = questions.map((q: any) => {
+      // Ensure choices is an array with exactly 4 items
+      let choices = Array.isArray(q.choices) ? q.choices.map((c: any) => String(c ?? '')) : [];
+      let correctAnswer = q.correct_answer?.toString() || '';
+
+      // Strip A), B), C), D) prefixes if present
+      const hasPrefix = choices.some((c: string) => /^[A-Da-d]\)\s*/.test(c));
+      if (hasPrefix) {
+        choices = choices.map((c: string) => c.replace(/^[A-Da-d]\)\s*/, '').trim());
+        if (/^[A-Da-d]$/.test(correctAnswer)) {
+          const idx = correctAnswer.toUpperCase().charCodeAt(0) - 65;
+          if (idx >= 0 && idx < choices.length) correctAnswer = choices[idx];
+        } else {
+          correctAnswer = correctAnswer.replace(/^[A-Da-d]\)\s*/, '').trim();
+        }
+      } else if (/^[A-Da-d]$/.test(correctAnswer)) {
+        const idx = correctAnswer.toUpperCase().charCodeAt(0) - 65;
+        if (idx >= 0 && idx < choices.length) correctAnswer = choices[idx];
+      }
+
+      // Pad to 4 choices if needed
+      while (choices.length < 4) choices.push(`ตัวเลือก ${choices.length + 1}`);
+      choices = choices.slice(0, 4);
+
+      // Validate correct_answer matches a choice
+      if (!choices.includes(correctAnswer)) {
+        const match = choices.find((c: string) => c.includes(correctAnswer) || correctAnswer.includes(c));
+        if (match) correctAnswer = match;
+        else if (choices.length > 0) correctAnswer = choices[0];
+      }
+
+      return {
+        ...q,
+        choices,
+        correct_answer: correctAnswer,
+        grade,
+        semester,
+        assessment_type: assessmentType,
+        topic,
+        difficulty,
+        description,
+        ai_generated: true,
+      };
+    });
 
     return new Response(
       JSON.stringify({ questions: enrichedQuestions }),

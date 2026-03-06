@@ -9,6 +9,7 @@ import { Search, Check } from 'lucide-react';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
 import QuestionTextRenderer from './QuestionTextRenderer';
 import ChoiceRenderer from './ChoiceRenderer';
+import { normalizeQuestion } from '@/utils/questionNormalizer';
 
 interface QuestionBankSelectorProps {
   teacherId: string;
@@ -171,23 +172,30 @@ export default function QuestionBankSelector({
                 <QuestionTextRenderer text={question.question_text} className="font-medium" />
 
                 <div className="grid grid-cols-2 gap-2 text-sm">
-                  {question.choices.map((choice: string, idx: number) => (
-                    <div
-                      key={idx}
-                      className={`p-3 rounded border flex items-center gap-2 ${
-                        choice === question.correct_answer
-                          ? 'border-green-500 bg-green-50 dark:bg-green-950/20'
-                          : 'border-border'
-                      }`}
-                    >
-                      <span className="text-sm font-light text-gray-500 dark:text-gray-400">{idx + 1})</span>
-                      <ChoiceRenderer 
-                        choice={choice} 
-                        size={56}
-                        className="text-lg font-semibold text-blue-600 dark:text-blue-400"
-                      />
-                    </div>
-                  ))}
+                  {(() => {
+                    const normalized = normalizeQuestion({
+                      choices: Array.isArray(question.choices) ? question.choices : [],
+                      correct_answer: question.correct_answer,
+                    });
+                    
+                    return normalized.choices.map((choice: string, idx: number) => (
+                      <div
+                        key={idx}
+                        className={`p-3 rounded border flex items-center gap-2 ${
+                          choice === normalized.correct_answer
+                            ? 'border-green-500 bg-green-50 dark:bg-green-950/20'
+                            : 'border-border'
+                        }`}
+                      >
+                        <span className="text-sm font-light text-gray-500 dark:text-gray-400">{idx + 1})</span>
+                        <ChoiceRenderer 
+                          choice={choice} 
+                          size={56}
+                          className="text-lg font-semibold text-blue-600 dark:text-blue-400"
+                        />
+                      </div>
+                    ));
+                  })()}
                 </div>
               </div>
             </div>

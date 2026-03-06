@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { curriculumConfig } from '@/config/curriculum';
 import { useTranslation } from 'react-i18next';
+import { normalizeQuestion } from '@/utils/questionNormalizer';
 
 export interface QuestionBankItem {
   id: string;
@@ -180,14 +181,20 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
       // Components already set these correctly based on whether admin is creating the question
       const isAdminQuestion = !!question.admin_id;
       
+      // Normalize choices and correct_answer before saving
+      const normalized = normalizeQuestion({
+        choices: question.choices || [],
+        correct_answer: question.correct_answer || '',
+      });
+
       const { data, error } = await supabase
         .from('question_bank')
         .insert([{
           teacher_id: isAdminQuestion ? null : teacherId,
           admin_id: question.admin_id || null,
           is_system_question: question.is_system_question || false,
-          choices: question.choices || [],
-          correct_answer: question.correct_answer || '',
+          choices: normalized.choices,
+          correct_answer: normalized.correct_answer,
           difficulty: question.difficulty || 'medium',
           grade: question.grade || 1,
           question_text: question.question_text || '',
@@ -582,6 +589,12 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
 
       if (fetchError) throw fetchError;
 
+      // Normalize choices and correct_answer before copying
+      const normalized = normalizeQuestion({
+        choices: originalQuestion.choices,
+        correct_answer: originalQuestion.correct_answer,
+      });
+
       // Create copy with new teacher_id
       const { data: newQuestion, error: createError } = await supabase
         .from('question_bank')
@@ -592,6 +605,8 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
           created_at: undefined,
           updated_at: undefined,
           times_used: 0,
+          choices: normalized.choices,
+          correct_answer: normalized.correct_answer,
         }])
         .select()
         .single();
@@ -722,6 +737,12 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
 
       if (fetchError) throw fetchError;
 
+      // Normalize choices and correct_answer before copying
+      const normalized = normalizeQuestion({
+        choices: originalQuestion.choices,
+        correct_answer: originalQuestion.correct_answer,
+      });
+
       // Create a copy for the teacher
       const { data: copiedQuestion, error: insertError } = await supabase
         .from('question_bank')
@@ -729,8 +750,8 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
           teacher_id: teacherId,
           admin_id: null,
           is_system_question: false,
-          choices: originalQuestion.choices,
-          correct_answer: originalQuestion.correct_answer,
+          choices: normalized.choices,
+          correct_answer: normalized.correct_answer,
           difficulty: originalQuestion.difficulty,
           grade: originalQuestion.grade,
           question_text: originalQuestion.question_text,

@@ -142,16 +142,52 @@ ${parsedText}
 
     console.log(`Successfully processed ${questions.length} questions`);
 
-    // Enrich with metadata
-    const enrichedQuestions = questions.map((q: any) => ({
-      ...q,
-      grade,
-      semester,
-      assessment_type: assessmentType,
-      ai_generated: true,
-      is_from_pdf: true,
-      confidence_score: q.confidence_score || 0.5,
-    }));
+    // Normalize and enrich with metadata
+    const enrichedQuestions = questions.map((q: any) => {
+      // Ensure choices is an array
+      let choices = Array.isArray(q.choices) ? q.choices.map((c: any) => String(c ?? '')) : [];
+      let correctAnswer = q.correct_answer?.toString() || '';
+
+      // Strip A), B), C), D) prefixes from choices
+      const hasPrefix = choices.some((c: string) => /^[A-Da-d]\)\s*/.test(c));
+      if (hasPrefix) {
+        choices = choices.map((c: string) => c.replace(/^[A-Da-d]\)\s*/, '').trim());
+      }
+
+      // Convert letter-only correct_answer to actual choice text
+      if (/^[A-Da-d]$/.test(correctAnswer)) {
+        const idx = correctAnswer.toUpperCase().charCodeAt(0) - 65;
+        if (idx >= 0 && idx < choices.length) {
+          correctAnswer = choices[idx];
+        }
+      } else if (hasPrefix) {
+        correctAnswer = correctAnswer.replace(/^[A-Da-d]\)\s*/, '').trim();
+      }
+
+      // Ensure exactly 4 choices
+      while (choices.length < 4) choices.push(`ตัวเลือก ${choices.length + 1}`);
+      choices = choices.slice(0, 4);
+
+      // Validate correct_answer
+      if (correctAnswer && !choices.includes(correctAnswer)) {
+        const match = choices.find((c: string) => c.includes(correctAnswer) || correctAnswer.includes(c));
+        if (match) correctAnswer = match;
+        else correctAnswer = choices[0];
+      }
+      if (!correctAnswer) correctAnswer = choices[0];
+
+      return {
+        ...q,
+        choices,
+        correct_answer: correctAnswer,
+        grade,
+        semester,
+        assessment_type: assessmentType,
+        ai_generated: true,
+        is_from_pdf: true,
+        confidence_score: q.confidence_score || 0.5,
+      };
+    });
 
     return new Response(JSON.stringify({ 
       questions: enrichedQuestions,
