@@ -1128,12 +1128,12 @@ const Quiz = () => {
                     {showAIImages && currentQuestion.imagePrompt && (
                       <div className="flex justify-center mb-4">
                         {aiImageLoading ? (
-                          <Skeleton className="w-48 h-48 rounded-xl" />
+                          <Skeleton className="w-72 h-72 sm:w-80 sm:h-80 rounded-2xl" />
                         ) : aiImageUrl ? (
                           <img 
                             src={aiImageUrl} 
                             alt="ภาพประกอบโจทย์" 
-                            className="w-48 h-48 object-contain rounded-xl shadow-md border border-border"
+                            className="w-72 h-72 sm:w-80 sm:h-80 object-contain rounded-2xl shadow-lg border-2 border-purple-200"
                           />
                         ) : null}
                       </div>
