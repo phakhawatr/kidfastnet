@@ -1111,18 +1111,6 @@ const Quiz = () => {
                     })()}
                   </div>
 
-                  {/* AI Image Toggle */}
-                  <div className="flex items-center justify-end gap-2 mb-2">
-                    <ImageIcon className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">ภาพ AI</span>
-                    <Switch 
-                      checked={showAIImages} 
-                      onCheckedChange={(v) => {
-                        setShowAIImages(v);
-                        localStorage.setItem('quiz-ai-images', String(v));
-                      }}
-                    />
-                  </div>
 
                   <div className="bg-white p-6 rounded-lg border-2 border-purple-200 space-y-4">
                     {/* Pre-stored Image (from Question Bank) */}
