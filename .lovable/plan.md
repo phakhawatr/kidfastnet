@@ -1,111 +1,91 @@
 
 
-## Plan: Generate AI Images for Quiz Questions
+## Plan: Fix Question Bank Import Completeness Issues
 
-### Concept
+### Root Problem
 
-Use the Lovable AI Gateway with `google/gemini-3-pro-image-preview` (Nano Banana Pro) to generate illustrative images for quiz questions. The `AssessmentQuestion` interface already has an `imagePrompt` field that many questions populate with emoji-based descriptions -- we can use these as prompts for image generation.
+There are two inconsistent data formats for questions in the database:
 
-### Architecture
+1. **AI-generated questions**: `choices: ["5", "6", "7", "8"]`, `correct_answer: "5"`
+2. **PDF-imported questions**: `choices: ["A) 5", "B) 6", "C) 7", "D) 8"]`, `correct_answer: "A"`
 
-```text
-Quiz.tsx                    Edge Function                  Gemini Image API
-   |                             |                              |
-   |-- POST /generate-quiz-image |                              |
-   |   { imagePrompt, skill }   -->  Build child-friendly      |
-   |                             |   prompt + call gateway  --> |
-   |                             |                              |
-   |                             | <-- base64 image ---------- |
-   |                             |                              |
-   | <-- { imageUrl } --------- |   Upload to Supabase Storage |
-   |                             |   return public URL          |
-   |   Display image above       |                              |
-   |   question text             |                              |
-```
+When these are imported/copied between banks or used in exams, mismatches occur — choices may appear incomplete, correct answers don't match, and display is inconsistent.
 
 ### Changes
 
-**1. Create Edge Function `supabase/functions/generate-quiz-image/index.ts`**
+**1. Add validation/normalization utility (`src/utils/questionNormalizer.ts` — new file)**
 
-- Accepts `{ imagePrompt, questionText, skill }` 
-- Builds a child-friendly image prompt: "Cute cartoon illustration for a Thai elementary math quiz. Topic: [skill]. Scene: [imagePrompt]. Style: colorful, simple, kid-friendly, no text in image."
-- Calls `google/gemini-3-pro-image-preview` via Lovable AI Gateway with `modalities: ["image", "text"]`
-- Receives base64 image, uploads to Supabase Storage bucket `quiz-images`
-- Returns the public URL
-- Includes caching: check if an image for the same prompt already exists before generating
+Create a function `normalizeQuestion(question)` that:
+- Ensures `choices` array always has exactly 4 items (pads with empty or trims)
+- Strips `A)`, `B)`, `C)`, `D)` prefixes from choices if present
+- Converts letter-only `correct_answer` (e.g., "A") to actual choice text
+- Ensures `correct_answer` matches one of the normalized choices
+- Flags questions that can't be fixed (returns `{ normalized, warnings }`)
 
-**2. Create `src/hooks/useQuizImage.ts`**
+**2. Apply normalization in `useQuestionBank.ts`**
 
-- Custom hook that takes an `imagePrompt` string
-- Calls the edge function, manages loading/error state
-- Uses a local Map cache to avoid re-fetching for same prompts within a session
-- Returns `{ imageUrl, isLoading }`
+- In `copySystemQuestion`: normalize before insert
+- In `copySharedQuestion`: normalize before insert
+- In `createQuestion`: normalize before insert
+- In `fetchQuestions` / `fetchSystemQuestions`: normalize after fetch for display consistency
 
-**3. Update `src/pages/Quiz.tsx`**
+**3. Apply normalization in `ai-generate-questions/index.ts` (edge function)**
 
-- Import `useQuizImage` hook
-- When `currentQuestion.imagePrompt` exists, show generated image above the question text
-- Display a loading skeleton while the image generates
-- Add a toggle button so users can enable/disable image generation (to save costs/time)
-- Store preference in localStorage
+- After parsing AI response, validate each question has exactly 4 choices
+- Ensure `correct_answer` matches one of the choices
+- Fill missing choices if fewer than 4
 
-**4. Create Supabase Storage bucket**
+**4. Apply normalization in `ai-import-pdf-questions/index.ts` (edge function)**
 
-- Bucket name: `quiz-images`, public access for reading
+- After parsing, strip "A) / B) / C) / D)" prefixes from choices
+- Convert letter-only `correct_answer` to actual choice text
+- Ensure exactly 4 choices per question
 
-**5. Update `supabase/config.toml`**
+**5. Update display components for safety**
 
-- Add the new edge function entry
+- In `QuestionBankSelector.tsx`, `SystemQuestionsBrowser.tsx`, `SharedQuestionsBrowser.tsx`, `PublicExam.tsx`, `Quiz.tsx`: add a safety check so if `choices` has fewer than 4 items, pad with placeholder or show a warning badge
 
-### Edge Function Implementation Detail
-
-```typescript
-// Key logic in generate-quiz-image/index.ts
-const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-  method: "POST",
-  headers: {
-    Authorization: `Bearer ${LOVABLE_API_KEY}`,
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    model: "google/gemini-3-pro-image-preview",
-    messages: [{
-      role: "user",
-      content: `Create a cute, colorful cartoon illustration for a Thai elementary school math quiz. 
-Topic: ${skill}. Scene: ${imagePrompt}. 
-Style: simple shapes, bright colors, kid-friendly, NO text or numbers in the image.`
-    }],
-    modalities: ["image", "text"]
-  })
-});
-
-// Extract base64 -> upload to storage -> return URL
-```
-
-### Quiz.tsx Rendering
+### Technical Detail — Normalizer
 
 ```typescript
-// Above question text, when imagePrompt exists and images enabled:
-{showImages && currentQuestion.imagePrompt && (
-  <div className="flex justify-center mb-4">
-    {imageLoading ? (
-      <Skeleton className="w-48 h-48 rounded-xl" />
-    ) : imageUrl ? (
-      <img src={imageUrl} alt="ภาพประกอบโจทย์" className="w-48 h-48 object-contain rounded-xl shadow-md" />
-    ) : null}
-  </div>
-)}
+export function normalizeQuestion(q: { choices: string[], correct_answer: string }) {
+  let choices = [...(q.choices || [])];
+  let correctAnswer = q.correct_answer || '';
+
+  // Strip A), B), C), D) prefixes
+  choices = choices.map(c => typeof c === 'string' ? c.replace(/^[A-D]\)\s*/, '').trim() : String(c));
+
+  // Convert letter-only correct_answer to choice text
+  if (/^[A-D]$/.test(correctAnswer)) {
+    const idx = correctAnswer.charCodeAt(0) - 65;
+    if (idx >= 0 && idx < choices.length) {
+      correctAnswer = choices[idx];
+    }
+  } else {
+    correctAnswer = correctAnswer.replace(/^[A-D]\)\s*/, '').trim();
+  }
+
+  // Ensure exactly 4 choices
+  while (choices.length < 4) choices.push('');
+  choices = choices.slice(0, 4);
+
+  // Validate correct_answer is in choices
+  if (!choices.includes(correctAnswer) && choices.length > 0) {
+    // Try fuzzy match
+    const match = choices.find(c => c.includes(correctAnswer) || correctAnswer.includes(c));
+    if (match) correctAnswer = match;
+  }
+
+  return { choices, correct_answer: correctAnswer };
+}
 ```
-
-### Cost Consideration
-
-- Image generation is optional, controlled by a toggle (default: off)
-- Images are cached in Supabase Storage so the same prompt won't regenerate
-- Only generates when `imagePrompt` field is non-empty
 
 ### Files to create/edit
-- **Create**: `supabase/functions/generate-quiz-image/index.ts`
-- **Create**: `src/hooks/useQuizImage.ts`
-- **Edit**: `src/pages/Quiz.tsx` (add image display + toggle)
-- **Edit**: `supabase/config.toml` (add function entry)
+- **Create**: `src/utils/questionNormalizer.ts`
+- **Edit**: `src/hooks/useQuestionBank.ts` (normalize in copy/create/fetch functions)
+- **Edit**: `supabase/functions/ai-generate-questions/index.ts` (post-parse validation)
+- **Edit**: `supabase/functions/ai-import-pdf-questions/index.ts` (post-parse normalization)
+- **Edit**: `src/components/SystemQuestionsBrowser.tsx` (safety display check)
+- **Edit**: `src/components/SharedQuestionsBrowser.tsx` (safety display check)
+- **Edit**: `src/components/QuestionBankSelector.tsx` (safety display check)
 

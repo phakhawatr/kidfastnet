@@ -25,7 +25,10 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ClipboardPen, Clock, Award, ChevronLeft, ChevronRight, BookOpen, Send, Eye, CheckCircle, XCircle, TrendingUp, TrendingDown, Minus, Hash, Scale, ArrowUpDown, Grid3x3, Plus, Sparkles, Shapes, Ruler, BarChart2, LucideIcon, BarChart3, Download, Share2, Facebook, MessageCircle, Twitter, Trophy, GitCompareArrows } from 'lucide-react';
+import { ClipboardPen, Clock, Award, ChevronLeft, ChevronRight, BookOpen, Send, Eye, CheckCircle, XCircle, TrendingUp, TrendingDown, Minus, Hash, Scale, ArrowUpDown, Grid3x3, Plus, Sparkles, Shapes, Ruler, BarChart2, LucideIcon, BarChart3, Download, Share2, Facebook, MessageCircle, Twitter, Trophy, GitCompareArrows, ImageIcon } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Switch } from '@/components/ui/switch';
+import { useQuizImage } from '@/hooks/useQuizImage';
 import { getGradeOptions, getSemesterOptions, curriculumConfig } from '@/config/curriculum';
 import { evaluateAssessment, generateSkillPracticeQuestions, AssessmentQuestion } from '@/utils/assessmentUtils';
 import { downloadCertificate, shareCertificate } from '@/utils/certificateUtils';
@@ -87,6 +90,11 @@ const Quiz = () => {
   const [practiceAnswers, setPracticeAnswers] = useState<Map<number, number>>(new Map());
   const [practiceSubmitted, setPracticeSubmitted] = useState(false);
   const [practiceLoading, setPracticeLoading] = useState(false);
+
+  // AI Image generation toggle
+  const [showAIImages, setShowAIImages] = useState(() => {
+    return localStorage.getItem('quiz-ai-images') === 'true';
+  });
   
   const { achievements: allAchievements, userAchievements } = useAchievements(user?.id || registrationId || null);
 
@@ -108,6 +116,14 @@ const Quiz = () => {
     hasStarted ? (assessmentType === 'nt' ? 'nt' : selectedSemester) : 0,
     undefined,
     assessmentType === 'nt' ? selectedNTYear : undefined
+  );
+
+  // AI image generation for current question
+  const currentQ = questions[currentIndex];
+  const { imageUrl: aiImageUrl, isLoading: aiImageLoading } = useQuizImage(
+    currentQ?.imagePrompt,
+    currentQ?.skill,
+    showAIImages && screen === 'assessment' && !isSubmitted
   );
 
   // Populate history mode from location state
@@ -1094,7 +1110,34 @@ const Quiz = () => {
                     })()}
                   </div>
 
+                  {/* AI Image Toggle */}
+                  <div className="flex items-center justify-end gap-2 mb-2">
+                    <ImageIcon className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">ภาพ AI</span>
+                    <Switch 
+                      checked={showAIImages} 
+                      onCheckedChange={(v) => {
+                        setShowAIImages(v);
+                        localStorage.setItem('quiz-ai-images', String(v));
+                      }}
+                    />
+                  </div>
+
                   <div className="bg-white p-6 rounded-lg border-2 border-purple-200 space-y-4">
+                    {/* AI Generated Image */}
+                    {showAIImages && currentQuestion.imagePrompt && (
+                      <div className="flex justify-center mb-4">
+                        {aiImageLoading ? (
+                          <Skeleton className="w-48 h-48 rounded-xl" />
+                        ) : aiImageUrl ? (
+                          <img 
+                            src={aiImageUrl} 
+                            alt="ภาพประกอบโจทย์" 
+                            className="w-48 h-48 object-contain rounded-xl shadow-md border border-border"
+                          />
+                        ) : null}
+                      </div>
+                    )}
                     {currentQuestion.clockDisplay && (
                       <ClockDisplay 
                         hour={currentQuestion.clockDisplay.hour} 
