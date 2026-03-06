@@ -3884,15 +3884,20 @@ async function fetchQuestionsFromBank(
         (choice) => String(choice) === String(normalized.correct_answer)
       );
       
+      const skillName = topicToSkillMap[item.topic || ''] || item.skill_name || 'counting';
+      
+      // Generate imagePrompt: use image_urls if available, otherwise auto-generate from question content
+      const autoImagePrompt = generateImagePromptFromQuestion(item.question_text, skillName);
+      
       const question: AssessmentQuestion = {
         id: item.id,
-        skill: topicToSkillMap[item.topic || ''] || item.skill_name || 'counting',
+        skill: skillName,
         question: item.question_text,
         choices: choices,
         correctAnswer: correctAnswerIndex >= 0 ? correctAnswerIndex : 0,
         difficulty: item.difficulty as 'easy' | 'medium' | 'hard',
         explanation: item.explanation || undefined,
-        imagePrompt: item.image_urls?.[0] || undefined
+        imagePrompt: item.image_urls?.[0] || autoImagePrompt || undefined
       };
       
       // Randomize choices to prevent memorization
