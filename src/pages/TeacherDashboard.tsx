@@ -590,19 +590,25 @@ const TeacherDashboard = () => {
         : 1;
 
       // Insert questions into exam
-      const examQuestions = questions.map((q, index) => ({
-        exam_link_id: selectedExamForQuestions.id,
-        question_number: startNumber + index,
-        question_text: q.question_text,
-        choices: q.choices,
-        correct_answer: q.correct_answer,
-        difficulty: q.difficulty,
-        skill_name: q.skill_name,
-        explanation: q.explanation,
-        visual_elements: q.visual_elements,
-        is_from_bank: true,
-        question_bank_id: q.id,
-      }));
+      const examQuestions = questions.map((q, index) => {
+        const normalized = normalizeQuestion({
+          choices: Array.isArray(q.choices) ? q.choices : [],
+          correct_answer: q.correct_answer
+        });
+        return {
+          exam_link_id: selectedExamForQuestions.id,
+          question_number: startNumber + index,
+          question_text: q.question_text,
+          choices: normalized.choices,
+          correct_answer: normalized.correct_answer,
+          difficulty: q.difficulty,
+          skill_name: q.skill_name,
+          explanation: q.explanation,
+          visual_elements: q.visual_elements,
+          is_from_bank: true,
+          question_bank_id: q.id,
+        };
+      });
 
       const { error: insertError } = await supabase
         .from('exam_questions')
