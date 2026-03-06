@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from './use-toast';
+import { normalizeQuestion } from '@/utils/questionNormalizer';
 
 export interface ExamLink {
   id: string;
