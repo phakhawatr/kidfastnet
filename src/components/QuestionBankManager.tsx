@@ -815,7 +815,7 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
                       className="mt-1"
                     />
                     <div className="flex-1">
-                      <div className="flex items-start gap-2 mb-2 flex-wrap">
+                      <div className="flex items-start gap-2 mb-2 flex-wrap justify-between">
                         <span className="text-sm font-medium text-muted-foreground">
                           ข้อ {index + 1}
                         </span>
