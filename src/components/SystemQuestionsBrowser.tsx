@@ -596,6 +596,37 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
                       </Button>
                     </>
                   )}
+                  {/* AI Image Generation Button */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={generatingImageIds.has(question.id)}
+                    onClick={async () => {
+                      setGeneratingImageIds(prev => new Set(prev).add(question.id));
+                      try {
+                        const url = await generateAIImage(question.id, question.question_text, question.skill_name);
+                        if (url) {
+                          toast.success('สร้างภาพ AI สำเร็จ');
+                          // Update local state
+                          setSystemQuestions(prev => prev.map(q => q.id === question.id ? { ...q, image_urls: [url] } : q));
+                        }
+                      } finally {
+                        setGeneratingImageIds(prev => {
+                          const next = new Set(prev);
+                          next.delete(question.id);
+                          return next;
+                        });
+                      }
+                    }}
+                    className="w-full text-purple-600 border-purple-200 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-800 dark:hover:bg-purple-950"
+                  >
+                    {generatingImageIds.has(question.id) ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Sparkles className="w-4 h-4 mr-2" />
+                    )}
+                    {generatingImageIds.has(question.id) ? 'กำลังสร้าง...' : '🎨 สร้างภาพ AI'}
+                  </Button>
                   <Button
                     onClick={() => handleImportQuestion(question.id, question)}
                     size="sm"
