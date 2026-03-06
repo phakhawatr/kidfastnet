@@ -106,6 +106,23 @@ Style: vibrant colors, detailed kawaii/chibi style, cute characters, soft shadin
     }
 
     const data = await response.json();
+    
+    // Check for embedded errors (e.g., rate limit error inside SSE stream)
+    const choiceError = data.choices?.[0]?.error;
+    if (choiceError) {
+      const errorCode = choiceError.code || 500;
+      const errorType = choiceError.metadata?.error_type || "unknown";
+      console.error("AI gateway embedded error:", errorCode, errorType, choiceError.message);
+      
+      if (errorCode === 429 || errorType === "rate_limit_exceeded") {
+        return new Response(
+          JSON.stringify({ error: "AI กำลังยุ่ง กรุณาลองใหม่ในอีกสักครู่" }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      throw new Error(`AI error: ${choiceError.message || "Unknown"}`);
+    }
+
     const imageData = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
 
     if (!imageData) {

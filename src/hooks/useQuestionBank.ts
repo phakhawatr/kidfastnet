@@ -1232,7 +1232,20 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
         body: { imagePrompt: questionText, skill: skillName },
       });
 
-      if (error) throw error;
+      // Handle rate limit / payment errors from edge function
+      if (error) {
+        // supabase.functions.invoke wraps non-2xx as FunctionsHttpError
+        const msg = data?.error || error.message;
+        if (msg?.includes('ยุ่ง') || msg?.includes('rate') || msg?.includes('429')) {
+          toast({
+            title: 'AI กำลังยุ่ง',
+            description: 'กรุณารอสักครู่แล้วลองใหม่อีกครั้ง',
+            variant: 'destructive',
+          });
+          return null;
+        }
+        throw new Error(msg);
+      }
 
       if (data?.imageUrl) {
         // Save the URL to the question's image_urls field
