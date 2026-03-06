@@ -40,7 +40,10 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
     deleteQuestion,
     fetchAvailableTags,
     checkDuplicateQuestion,
+    generateAIImage,
   } = useQuestionBank(teacherId, isAdmin);
+
+  const [generatingImageIds, setGeneratingImageIds] = useState<Set<string>>(new Set());
 
   const [systemQuestions, setSystemQuestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
