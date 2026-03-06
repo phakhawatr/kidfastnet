@@ -1525,6 +1525,41 @@ const generateSubtractionQuestions = (config: SkillConfig): AssessmentQuestion[]
   return questions;
 };
 
+/**
+ * Generate an imagePrompt from question text and skill for AI image generation
+ */
+function generateImagePromptFromQuestion(questionText: string, skill: string): string {
+  // Extract key visual elements from the question text
+  const skillEmojis: Record<string, string> = {
+    counting: '🔢',
+    addition: '➕',
+    subtraction: '➖',
+    multiplication: '✖️',
+    division: '➗',
+    fractions: '🍕',
+    shapes: '🔷',
+    measurement: '📏',
+    time: '⏰',
+    money: '💰',
+    weighing: '⚖️',
+    comparison: '📊',
+    patterns: '🔄',
+    place_value: '🏠',
+    number_line: '📐',
+    data: '📊',
+    geometry: '📐',
+  };
+  
+  const emoji = skillEmojis[skill] || '📚';
+  
+  // Truncate question to first 40 chars for a concise prompt
+  const shortQuestion = questionText.length > 60 
+    ? questionText.substring(0, 60) + '...' 
+    : questionText;
+  
+  return `${emoji} ${shortQuestion}`;
+}
+
 
 const generateMultiplicationQuestions = (config: SkillConfig): AssessmentQuestion[] => {
   const questions: AssessmentQuestion[] = [];
