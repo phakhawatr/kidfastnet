@@ -1226,6 +1226,43 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
     }
   };
 
+  const generateAIImage = async (questionId: string, questionText: string, skillName: string): Promise<string | null> => {
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-quiz-image', {
+        body: { imagePrompt: questionText, skill: skillName },
+      });
+
+      if (error) throw error;
+
+      if (data?.imageUrl) {
+        // Save the URL to the question's image_urls field
+        const { error: updateError } = await supabase
+          .from('question_bank')
+          .update({ image_urls: [data.imageUrl] })
+          .eq('id', questionId);
+
+        if (updateError) throw updateError;
+
+        // Update local state
+        setQuestions(prev => prev.map(q => 
+          q.id === questionId ? { ...q, image_urls: [data.imageUrl] } : q
+        ));
+
+        return data.imageUrl;
+      }
+
+      return null;
+    } catch (error: any) {
+      console.error('AI image generation error:', error);
+      toast({
+        title: 'สร้างภาพไม่สำเร็จ',
+        description: error.message || 'เกิดข้อผิดพลาดในการสร้างภาพ AI',
+        variant: 'destructive',
+      });
+      return null;
+    }
+  };
+
   return {
     questions,
     topics,
@@ -1258,5 +1295,6 @@ export function useQuestionBank(teacherId: string | null, isAdmin: boolean = fal
     updateTagColor,
     checkSharedQuestions,
     checkDuplicateQuestion,
+    generateAIImage,
   };
 }

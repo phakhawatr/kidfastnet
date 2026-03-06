@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Search, BookOpen, Pencil, Sparkles, FileText, Trash2, Share2, Users, Trophy, FileUp, Database, CheckCircle2, X, Tag, ImageIcon, ZoomIn, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, BookOpen, Pencil, Sparkles, FileText, Trash2, Share2, Users, Trophy, FileUp, Database, CheckCircle2, X, Tag, ImageIcon, ZoomIn, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { useQuestionBank, QuestionBankItem } from '@/hooks/useQuestionBank';
 import { useTranslation } from 'react-i18next';
 import { curriculumConfig } from '@/config/curriculum';
@@ -69,6 +69,8 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [generatingImageIds, setGeneratingImageIds] = useState<Set<string>>(new Set());
+  const [bulkGeneratingImages, setBulkGeneratingImages] = useState(false);
   
   const {
     questions,
@@ -82,6 +84,7 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
     checkSharedQuestions,
     updateQuestion,
     fetchAvailableTags,
+    generateAIImage,
   } = useQuestionBank(teacherId || adminId, !!adminId);
 
   useEffect(() => {
@@ -660,6 +663,45 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
                   <Button
                     variant="outline"
                     size="sm"
+                    disabled={bulkGeneratingImages}
+                    onClick={async () => {
+                      const questionsWithoutImages = filteredQuestions.filter(
+                        q => selectedQuestions.has(q.id) && (!q.image_urls || q.image_urls.length === 0)
+                      );
+                      if (questionsWithoutImages.length === 0) {
+                        toast.info('ข้อสอบที่เลือกมีภาพแล้วทั้งหมด');
+                        return;
+                      }
+                      setBulkGeneratingImages(true);
+                      let successCount = 0;
+                      for (const q of questionsWithoutImages) {
+                        setGeneratingImageIds(prev => new Set(prev).add(q.id));
+                        try {
+                          const url = await generateAIImage(q.id, q.question_text, q.skill_name);
+                          if (url) successCount++;
+                        } finally {
+                          setGeneratingImageIds(prev => {
+                            const next = new Set(prev);
+                            next.delete(q.id);
+                            return next;
+                          });
+                        }
+                      }
+                      setBulkGeneratingImages(false);
+                      toast.success(`สร้างภาพ AI สำเร็จ ${successCount}/${questionsWithoutImages.length} ข้อ`);
+                    }}
+                    className="text-purple-600 border-purple-200 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-800"
+                  >
+                    {bulkGeneratingImages ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Sparkles className="w-4 h-4 mr-2" />
+                    )}
+                    {bulkGeneratingImages ? 'กำลังสร้างภาพ...' : '🎨 สร้างภาพ AI ทั้งหมด'}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => setSelectedQuestions(new Set())}
                   >
                     ยกเลิก
@@ -901,6 +943,37 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
                       </div>
                     </div>
                     <div className="flex flex-col gap-2">
+                      {/* AI Image Generation Button */}
+                      {(!question.image_urls || question.image_urls.length === 0) && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={generatingImageIds.has(question.id)}
+                          onClick={async () => {
+                            setGeneratingImageIds(prev => new Set(prev).add(question.id));
+                            try {
+                              const url = await generateAIImage(question.id, question.question_text, question.skill_name);
+                              if (url) {
+                                toast.success('สร้างภาพ AI สำเร็จ');
+                              }
+                            } finally {
+                              setGeneratingImageIds(prev => {
+                                const next = new Set(prev);
+                                next.delete(question.id);
+                                return next;
+                              });
+                            }
+                          }}
+                          className="justify-start text-purple-600 border-purple-200 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-800 dark:hover:bg-purple-950"
+                        >
+                          {generatingImageIds.has(question.id) ? (
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          ) : (
+                            <Sparkles className="w-4 h-4 mr-2" />
+                          )}
+                          {generatingImageIds.has(question.id) ? 'กำลังสร้าง...' : '🎨 สร้างภาพ AI'}
+                        </Button>
+                      )}
                       <Button
                         variant="outline"
                         size="sm"

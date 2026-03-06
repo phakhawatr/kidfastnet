@@ -118,12 +118,13 @@ const Quiz = () => {
     assessmentType === 'nt' ? selectedNTYear : undefined
   );
 
-  // AI image generation for current question
+  // AI image generation for current question (only if no pre-stored image)
   const currentQ = questions[currentIndex];
+  const hasPreStoredImage = currentQ?.imagePrompt?.startsWith('http');
   const { imageUrl: aiImageUrl, isLoading: aiImageLoading } = useQuizImage(
-    currentQ?.imagePrompt,
+    hasPreStoredImage ? undefined : currentQ?.imagePrompt,
     currentQ?.skill,
-    showAIImages && screen === 'assessment' && !isSubmitted
+    showAIImages && screen === 'assessment' && !isSubmitted && !hasPreStoredImage
   );
 
   // Populate history mode from location state
@@ -1124,8 +1125,18 @@ const Quiz = () => {
                   </div>
 
                   <div className="bg-white p-6 rounded-lg border-2 border-purple-200 space-y-4">
-                    {/* AI Generated Image */}
-                    {showAIImages && currentQuestion.imagePrompt && (
+                    {/* Pre-stored Image (from Question Bank) */}
+                    {currentQuestion.imagePrompt?.startsWith('http') && (
+                      <div className="flex justify-center mb-4">
+                        <img 
+                          src={currentQuestion.imagePrompt} 
+                          alt="ภาพประกอบโจทย์" 
+                          className="w-72 h-72 sm:w-80 sm:h-80 object-contain rounded-2xl shadow-lg border-2 border-purple-200"
+                        />
+                      </div>
+                    )}
+                    {/* AI Generated Image (fallback for questions without pre-stored images) */}
+                    {showAIImages && currentQuestion.imagePrompt && !currentQuestion.imagePrompt.startsWith('http') && (
                       <div className="flex justify-center mb-4">
                         {aiImageLoading ? (
                           <Skeleton className="w-72 h-72 sm:w-80 sm:h-80 rounded-2xl" />
