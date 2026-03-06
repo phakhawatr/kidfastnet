@@ -1131,7 +1131,7 @@ const Quiz = () => {
                         <img 
                           src={currentQuestion.imagePrompt} 
                           alt="ภาพประกอบโจทย์" 
-                          className="w-72 h-72 sm:w-80 sm:h-80 object-contain rounded-2xl shadow-lg border-2 border-purple-200"
+                          className="w-full max-w-2xl object-contain rounded-2xl shadow-lg border-2 border-purple-200"
                         />
                       </div>
                     )}
@@ -1139,12 +1139,12 @@ const Quiz = () => {
                     {showAIImages && currentQuestion.imagePrompt && !currentQuestion.imagePrompt.startsWith('http') && (
                       <div className="flex justify-center mb-4">
                         {aiImageLoading ? (
-                          <Skeleton className="w-72 h-72 sm:w-80 sm:h-80 rounded-2xl" />
+                          <Skeleton className="w-full max-w-2xl h-80 rounded-2xl" />
                         ) : aiImageUrl ? (
                           <img 
                             src={aiImageUrl} 
                             alt="ภาพประกอบโจทย์" 
-                            className="w-72 h-72 sm:w-80 sm:h-80 object-contain rounded-2xl shadow-lg border-2 border-purple-200"
+                            className="w-full max-w-2xl object-contain rounded-2xl shadow-lg border-2 border-purple-200"
                           />
                         ) : null}
                       </div>
