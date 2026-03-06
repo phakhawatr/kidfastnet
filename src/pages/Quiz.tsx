@@ -1144,7 +1144,7 @@ const Quiz = () => {
                           <img 
                             src={aiImageUrl} 
                             alt="ภาพประกอบโจทย์" 
-                            className="w-72 h-72 sm:w-80 sm:h-80 object-contain rounded-2xl shadow-lg border-2 border-purple-200"
+                            className="w-full max-w-2xl object-contain rounded-2xl shadow-lg border-2 border-purple-200"
                           />
                         ) : null}
                       </div>
