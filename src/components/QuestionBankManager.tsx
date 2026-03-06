@@ -815,105 +815,137 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
                       className="mt-1"
                     />
                     <div className="flex-1">
-                      <div className="flex items-start gap-2 mb-2 flex-wrap">
-                        <span className="text-sm font-medium text-muted-foreground">
-                          ข้อ {index + 1}
-                        </span>
-                        
-                        {/* 1. ชั้น */}
-                        <Badge variant="outline" className="text-xs font-normal bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800">
-                          ป.{question.grade}
-                        </Badge>
-                        
-                        {/* 2. เทอม */}
-                        {question.semester && (
-                          <Badge variant="outline" className="text-xs font-normal bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
-                            เทอม {question.semester}
+                      <div className="flex items-start gap-2 mb-2 justify-between">
+                        <div className="flex items-start gap-2 flex-wrap flex-1">
+                          <span className="text-sm font-medium text-muted-foreground">
+                            ข้อ {index + 1}
+                          </span>
+                          
+                          {/* 1. ชั้น */}
+                          <Badge variant="outline" className="text-xs font-normal bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800">
+                            ป.{question.grade}
                           </Badge>
-                        )}
-                        {question.assessment_type === 'nt' && (
-                          <Badge variant="outline" className="text-xs font-normal bg-yellow-50 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800">
-                            🏆 NT
-                          </Badge>
-                        )}
-                        
-                        {/* 3. สร้างจาก (PDF/AI/Template/ระบบ) */}
-                        {question.tags && question.tags.includes('PDF') && (
-                          <Badge variant="outline" className="text-xs font-normal bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800">
-                            <FileUp className="w-3 h-3 inline mr-1" />
-                            PDF
-                          </Badge>
-                        )}
-                        {question.ai_generated && !question.tags?.includes('PDF') && (
-                          <Badge variant="outline" className="text-xs font-normal bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800">
-                            <Sparkles className="w-3 h-3 inline mr-1" />
-                            AI
-                          </Badge>
-                        )}
-                        {question.is_system_question && (
-                          <Badge variant="outline" className="text-xs font-normal bg-cyan-50 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800">
-                            🔧 ระบบ
-                          </Badge>
-                        )}
-                        {question.is_template && (
-                          <Badge variant="outline" className="text-xs font-normal bg-teal-50 dark:bg-teal-950 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800">
-                            <FileText className="w-3 h-3 inline mr-1" />
-                            Template
-                          </Badge>
-                        )}
-                        
-                        {/* 4. ความยาก */}
-                        <Badge variant="outline" className={`text-xs font-normal ${
-                          question.difficulty === 'easy' 
-                            ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-800' :
-                          question.difficulty === 'medium' 
-                            ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950 dark:text-yellow-300 dark:border-yellow-800' :
-                            'bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-300 dark:border-red-800'
-                        }`}>
-                          {question.difficulty === 'easy' ? 'ง่าย' :
-                           question.difficulty === 'medium' ? 'ปานกลาง' : 'ยาก'}
-                        </Badge>
-                        
-                        {/* 5. หัวข้อ */}
-                        {question.skill_name && (
-                          <Badge variant="outline" className="text-xs font-normal bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800">
-                            {t(`skills:skills.${question.skill_name}.title`, question.skill_name)}
-                          </Badge>
-                        )}
-                        
-                        {/* 6. อธิบายหัวข้อ */}
-                        {question.skill_name && (() => {
-                          const description = getSkillDescription(
-                            question.grade,
-                            question.semester,
-                            question.assessment_type,
-                            question.skill_name
-                          );
-                          return description ? (
-                            <Badge variant="outline" className="text-xs font-normal bg-violet-50 dark:bg-violet-950 text-violet-700 dark:text-violet-300 border-violet-200 dark:border-violet-800 max-w-md truncate">
-                              {description}
+                          
+                          {/* 2. เทอม */}
+                          {question.semester && (
+                            <Badge variant="outline" className="text-xs font-normal bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
+                              เทอม {question.semester}
                             </Badge>
-                          ) : null;
-                        })()}
-
-                        {/* 7. Custom Tags */}
-                        {question.tags && question.tags.filter(tag => !['PDF', 'AI'].includes(tag)).map((tag) => (
-                          <Badge
-                            key={tag}
-                            variant="secondary"
-                            className="text-xs font-normal bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800"
-                          >
-                            {tag}
+                          )}
+                          {question.assessment_type === 'nt' && (
+                            <Badge variant="outline" className="text-xs font-normal bg-yellow-50 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800">
+                              🏆 NT
+                            </Badge>
+                          )}
+                          
+                          {/* 3. สร้างจาก */}
+                          {question.tags && question.tags.includes('PDF') && (
+                            <Badge variant="outline" className="text-xs font-normal bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800">
+                              <FileUp className="w-3 h-3 inline mr-1" />
+                              PDF
+                            </Badge>
+                          )}
+                          {question.ai_generated && !question.tags?.includes('PDF') && (
+                            <Badge variant="outline" className="text-xs font-normal bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800">
+                              <Sparkles className="w-3 h-3 inline mr-1" />
+                              AI
+                            </Badge>
+                          )}
+                          {question.is_system_question && (
+                            <Badge variant="outline" className="text-xs font-normal bg-cyan-50 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800">
+                              🔧 ระบบ
+                            </Badge>
+                          )}
+                          {question.is_template && (
+                            <Badge variant="outline" className="text-xs font-normal bg-teal-50 dark:bg-teal-950 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800">
+                              <FileText className="w-3 h-3 inline mr-1" />
+                              Template
+                            </Badge>
+                          )}
+                          
+                          {/* 4. ความยาก */}
+                          <Badge variant="outline" className={`text-xs font-normal ${
+                            question.difficulty === 'easy' 
+                              ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-800' :
+                            question.difficulty === 'medium' 
+                              ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950 dark:text-yellow-300 dark:border-yellow-800' :
+                              'bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-300 dark:border-red-800'
+                          }`}>
+                            {question.difficulty === 'easy' ? 'ง่าย' :
+                             question.difficulty === 'medium' ? 'ปานกลาง' : 'ยาก'}
                           </Badge>
-                        ))}
+                          
+                          {/* 5. หัวข้อ */}
+                          {question.skill_name && (
+                            <Badge variant="outline" className="text-xs font-normal bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800">
+                              {t(`skills:skills.${question.skill_name}.title`, question.skill_name)}
+                            </Badge>
+                          )}
+                          
+                          {/* 6. อธิบายหัวข้อ */}
+                          {question.skill_name && (() => {
+                            const description = getSkillDescription(
+                              question.grade,
+                              question.semester,
+                              question.assessment_type,
+                              question.skill_name
+                            );
+                            return description ? (
+                              <Badge variant="outline" className="text-xs font-normal bg-violet-50 dark:bg-violet-950 text-violet-700 dark:text-violet-300 border-violet-200 dark:border-violet-800 max-w-md truncate">
+                                {description}
+                              </Badge>
+                            ) : null;
+                          })()}
 
-                        {/* 8. Image Indicator */}
-                        {question.image_urls && question.image_urls.length > 0 && (
-                          <Badge variant="outline" className="text-xs font-normal bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
-                            <ImageIcon className="w-3 h-3 mr-1" />
-                            {question.image_urls.length} รูป
-                          </Badge>
-                        )}
+                          {/* 7. Custom Tags */}
+                          {question.tags && question.tags.filter(tag => !['PDF', 'AI'].includes(tag)).map((tag) => (
+                            <Badge
+                              key={tag}
+                              variant="secondary"
+                              className="text-xs font-normal bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800"
+                            >
+                              {tag}
+                            </Badge>
+                          ))}
+
+                          {/* 8. Image Indicator */}
+                          {question.image_urls && question.image_urls.length > 0 && (
+                            <Badge variant="outline" className="text-xs font-normal bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
+                              <ImageIcon className="w-3 h-3 mr-1" />
+                              {question.image_urls.length} รูป
+                            </Badge>
+                          )}
+                        </div>
+
+                        {/* AI Image Generation Button - top right of card */}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={generatingImageIds.has(question.id)}
+                          onClick={async () => {
+                            setGeneratingImageIds(prev => new Set(prev).add(question.id));
+                            try {
+                              const url = await generateAIImage(question.id, question.question_text, question.skill_name);
+                              if (url) {
+                                toast.success('สร้างภาพ AI สำเร็จ');
+                              }
+                            } finally {
+                              setGeneratingImageIds(prev => {
+                                const next = new Set(prev);
+                                next.delete(question.id);
+                                return next;
+                              });
+                            }
+                          }}
+                          className="shrink-0 text-purple-600 border-purple-200 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-800 dark:hover:bg-purple-950"
+                        >
+                          {generatingImageIds.has(question.id) ? (
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          ) : (
+                            <Sparkles className="w-4 h-4 mr-2" />
+                          )}
+                          {generatingImageIds.has(question.id) ? 'กำลังสร้าง...' : '🎨 สร้างภาพ AI'}
+                        </Button>
                       </div>
                       <div className="font-medium mb-2">
                         <QuestionTextRenderer text={question.question_text} />
@@ -990,37 +1022,6 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
                         <div className="w-20 h-20 rounded border border-border overflow-hidden cursor-pointer" onClick={() => { setLightboxImages(question.image_urls!); setCurrentImageIndex(0); setLightboxOpen(true); }}>
                           <img src={question.image_urls[0]} alt="AI" className="w-full h-full object-cover" />
                         </div>
-                      )}
-                      {/* AI Image Generation Button - always visible when no image */}
-                      {(!question.image_urls || question.image_urls.length === 0) && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={generatingImageIds.has(question.id)}
-                          onClick={async () => {
-                            setGeneratingImageIds(prev => new Set(prev).add(question.id));
-                            try {
-                              const url = await generateAIImage(question.id, question.question_text, question.skill_name);
-                              if (url) {
-                                toast.success('สร้างภาพ AI สำเร็จ');
-                              }
-                            } finally {
-                              setGeneratingImageIds(prev => {
-                                const next = new Set(prev);
-                                next.delete(question.id);
-                                return next;
-                              });
-                            }
-                          }}
-                          className="justify-start text-purple-600 border-purple-200 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-800 dark:hover:bg-purple-950"
-                        >
-                          {generatingImageIds.has(question.id) ? (
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          ) : (
-                            <Sparkles className="w-4 h-4 mr-2" />
-                          )}
-                          {generatingImageIds.has(question.id) ? 'กำลังสร้าง...' : '🎨 สร้างภาพ AI'}
-                        </Button>
                       )}
                       <Button
                         variant="outline"
