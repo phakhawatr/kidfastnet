@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useTeacherExams, ExamSession } from '@/hooks/useTeacherExams';
 import { supabase } from '@/integrations/supabase/client';
 import { generateAssessmentQuestions, AssessmentQuestion } from '@/utils/assessmentUtils';
+import { normalizeQuestion } from '@/utils/questionNormalizer';
 import { compressImage } from '@/utils/imageCompression';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -324,18 +325,24 @@ const TeacherDashboard = () => {
       
       // Save all questions to exam_questions table
       console.log('💾 Saving questions to database...');
-      const questionsData = previewMode.questions.map((q, idx) => ({
-        exam_link_id: link.id,
-        question_number: idx + 1,
-        question_text: q.question,
-        choices: q.choices,
-        correct_answer: String(q.correctAnswer),
-        difficulty: q.difficulty,
-        skill_name: q.skill,
-        is_edited: false,
-        explanation: q.explanation,
-        visual_elements: q.visualElements
-      }));
+      const questionsData = previewMode.questions.map((q, idx) => {
+        const normalized = normalizeQuestion({
+          choices: Array.isArray(q.choices) ? q.choices : [],
+          correct_answer: String(q.correctAnswer)
+        });
+        return {
+          exam_link_id: link.id,
+          question_number: idx + 1,
+          question_text: q.question,
+          choices: normalized.choices,
+          correct_answer: normalized.correct_answer,
+          difficulty: q.difficulty,
+          skill_name: q.skill,
+          is_edited: false,
+          explanation: q.explanation,
+          visual_elements: q.visualElements
+        };
+      });
       
       const { error: questionsError } = await supabase
         .from('exam_questions')
@@ -583,19 +590,25 @@ const TeacherDashboard = () => {
         : 1;
 
       // Insert questions into exam
-      const examQuestions = questions.map((q, index) => ({
-        exam_link_id: selectedExamForQuestions.id,
-        question_number: startNumber + index,
-        question_text: q.question_text,
-        choices: q.choices,
-        correct_answer: q.correct_answer,
-        difficulty: q.difficulty,
-        skill_name: q.skill_name,
-        explanation: q.explanation,
-        visual_elements: q.visual_elements,
-        is_from_bank: true,
-        question_bank_id: q.id,
-      }));
+      const examQuestions = questions.map((q, index) => {
+        const normalized = normalizeQuestion({
+          choices: Array.isArray(q.choices) ? q.choices : [],
+          correct_answer: q.correct_answer
+        });
+        return {
+          exam_link_id: selectedExamForQuestions.id,
+          question_number: startNumber + index,
+          question_text: q.question_text,
+          choices: normalized.choices,
+          correct_answer: normalized.correct_answer,
+          difficulty: q.difficulty,
+          skill_name: q.skill_name,
+          explanation: q.explanation,
+          visual_elements: q.visual_elements,
+          is_from_bank: true,
+          question_bank_id: q.id,
+        };
+      });
 
       const { error: insertError } = await supabase
         .from('exam_questions')

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from './use-toast';
+import { normalizeQuestion } from '@/utils/questionNormalizer';
 
 export interface ExamLink {
   id: string;
@@ -293,7 +294,17 @@ export const useTeacherExams = (teacherId: string | null) => {
       return [];
     }
     
-    return (data || []) as ExamQuestion[];
+    return (data || []).map(q => {
+      const normalized = normalizeQuestion({
+        choices: Array.isArray(q.choices) ? q.choices : [],
+        correct_answer: q.correct_answer
+      });
+      return {
+        ...q,
+        choices: normalized.choices,
+        correct_answer: normalized.correct_answer,
+      } as ExamQuestion;
+    });
   };
 
   const updateExamQuestion = async (questionId: string, updates: Partial<ExamQuestion> & { image_urls?: string[] | null }) => {

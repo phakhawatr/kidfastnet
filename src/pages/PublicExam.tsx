@@ -16,6 +16,7 @@ import QuestionTextRenderer from '@/components/QuestionTextRenderer';
 import ChoiceRenderer from '@/components/ChoiceRenderer';
 import { ClockDisplay } from '@/components/ClockDisplay';
 import { isTimeQuestion, extractTimeFromThaiFormat } from '@/utils/timeQuestionUtils';
+import { normalizeQuestion } from '@/utils/questionNormalizer';
 
 interface ExamLinkData {
   id: string;
@@ -185,17 +186,23 @@ const PublicExam = () => {
         return;
       }
 
-      const formattedQuestions = data.map(q => ({
-        id: q.id,
-        skill: q.skill_name,
-        question: q.question_text,
-        correctAnswer: q.correct_answer,
-        choices: q.choices,
-        difficulty: q.difficulty,
-        explanation: q.explanation,
-        visualElements: q.visual_elements,
-        imageUrls: q.image_urls
-      }));
+      const formattedQuestions = data.map(q => {
+        const normalized = normalizeQuestion({
+          choices: Array.isArray(q.choices) ? q.choices : [],
+          correct_answer: q.correct_answer
+        });
+        return {
+          id: q.id,
+          skill: q.skill_name,
+          question: q.question_text,
+          correctAnswer: normalized.correct_answer,
+          choices: normalized.choices,
+          difficulty: q.difficulty,
+          explanation: q.explanation,
+          visualElements: q.visual_elements,
+          imageUrls: q.image_urls
+        };
+      });
 
       console.log('✅ Custom questions loaded:', formattedQuestions.length, 'questions');
       setCustomQuestions(formattedQuestions);
