@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Download, Database, Sparkles, CheckCircle2, FileUp, Pencil, Trash2, AlertTriangle, Info } from 'lucide-react';
+import { Search, Download, Database, Sparkles, CheckCircle2, FileUp, Pencil, Trash2, AlertTriangle, Info, Loader2 } from 'lucide-react';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
@@ -40,7 +40,10 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
     deleteQuestion,
     fetchAvailableTags,
     checkDuplicateQuestion,
+    generateAIImage,
   } = useQuestionBank(teacherId, isAdmin);
+
+  const [generatingImageIds, setGeneratingImageIds] = useState<Set<string>>(new Set());
 
   const [systemQuestions, setSystemQuestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -593,6 +596,37 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
                       </Button>
                     </>
                   )}
+                  {/* AI Image Generation Button */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={generatingImageIds.has(question.id)}
+                    onClick={async () => {
+                      setGeneratingImageIds(prev => new Set(prev).add(question.id));
+                      try {
+                        const url = await generateAIImage(question.id, question.question_text, question.skill_name);
+                        if (url) {
+                          toast.success('สร้างภาพ AI สำเร็จ');
+                          // Update local state
+                          setSystemQuestions(prev => prev.map(q => q.id === question.id ? { ...q, image_urls: [url] } : q));
+                        }
+                      } finally {
+                        setGeneratingImageIds(prev => {
+                          const next = new Set(prev);
+                          next.delete(question.id);
+                          return next;
+                        });
+                      }
+                    }}
+                    className="w-full text-purple-600 border-purple-200 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-800 dark:hover:bg-purple-950"
+                  >
+                    {generatingImageIds.has(question.id) ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Sparkles className="w-4 h-4 mr-2" />
+                    )}
+                    {generatingImageIds.has(question.id) ? 'กำลังสร้าง...' : '🎨 สร้างภาพ AI'}
+                  </Button>
                   <Button
                     onClick={() => handleImportQuestion(question.id, question)}
                     size="sm"
