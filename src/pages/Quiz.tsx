@@ -118,6 +118,14 @@ const Quiz = () => {
     assessmentType === 'nt' ? selectedNTYear : undefined
   );
 
+  // AI image generation for current question
+  const currentQ = questions[currentIndex];
+  const { imageUrl: aiImageUrl, isLoading: aiImageLoading } = useQuizImage(
+    currentQ?.imagePrompt,
+    currentQ?.skill,
+    showAIImages && screen === 'assessment' && !isSubmitted
+  );
+
   // Populate history mode from location state
   useEffect(() => {
     if (locationState?.showResults && locationState.assessmentRecord) {
