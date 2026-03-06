@@ -601,7 +601,7 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
                   )}
                 </div>
                 
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 min-w-[140px]">
                   {isAdmin && (
                     <>
                       <Button
