@@ -325,18 +325,24 @@ const TeacherDashboard = () => {
       
       // Save all questions to exam_questions table
       console.log('💾 Saving questions to database...');
-      const questionsData = previewMode.questions.map((q, idx) => ({
-        exam_link_id: link.id,
-        question_number: idx + 1,
-        question_text: q.question,
-        choices: q.choices,
-        correct_answer: String(q.correctAnswer),
-        difficulty: q.difficulty,
-        skill_name: q.skill,
-        is_edited: false,
-        explanation: q.explanation,
-        visual_elements: q.visualElements
-      }));
+      const questionsData = previewMode.questions.map((q, idx) => {
+        const normalized = normalizeQuestion({
+          choices: Array.isArray(q.choices) ? q.choices : [],
+          correct_answer: String(q.correctAnswer)
+        });
+        return {
+          exam_link_id: link.id,
+          question_number: idx + 1,
+          question_text: q.question,
+          choices: normalized.choices,
+          correct_answer: normalized.correct_answer,
+          difficulty: q.difficulty,
+          skill_name: q.skill,
+          is_edited: false,
+          explanation: q.explanation,
+          visual_elements: q.visualElements
+        };
+      });
       
       const { error: questionsError } = await supabase
         .from('exam_questions')
