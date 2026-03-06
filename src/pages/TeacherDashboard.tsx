@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useTeacherExams, ExamSession } from '@/hooks/useTeacherExams';
 import { supabase } from '@/integrations/supabase/client';
 import { generateAssessmentQuestions, AssessmentQuestion } from '@/utils/assessmentUtils';
+import { normalizeQuestion } from '@/utils/questionNormalizer';
 import { compressImage } from '@/utils/imageCompression';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
