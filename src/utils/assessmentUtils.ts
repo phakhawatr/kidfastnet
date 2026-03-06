@@ -1,4 +1,5 @@
 import { curriculumConfig, SkillConfig } from '@/config/curriculum';
+import { normalizeQuestion } from './questionNormalizer';
 import { generateSubtractionProblems } from './subtractionUtils';
 import { generateMoneyProblems } from './moneyUtils';
 import {
