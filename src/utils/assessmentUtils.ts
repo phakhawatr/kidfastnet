@@ -1,4 +1,5 @@
 import { curriculumConfig, SkillConfig } from '@/config/curriculum';
+import { normalizeQuestion } from './questionNormalizer';
 import { generateSubtractionProblems } from './subtractionUtils';
 import { generateMoneyProblems } from './moneyUtils';
 import {
@@ -73,6 +74,21 @@ const generateChoices = (
         }
       }
     }
+  } else if (type === 'text') {
+    // For text answers, generate placeholder wrong choices
+    const textFallbacks = ['ตัวเลือก ก', 'ตัวเลือก ข', 'ตัวเลือก ค', 'ตัวเลือก ง'];
+    let fallbackIdx = 0;
+    while (choices.length < 4 && fallbackIdx < textFallbacks.length) {
+      if (!choices.includes(textFallbacks[fallbackIdx])) {
+        choices.push(textFallbacks[fallbackIdx]);
+      }
+      fallbackIdx++;
+    }
+  }
+  
+  // Final safety: ensure exactly 4 choices
+  while (choices.length < 4) {
+    choices.push(`ตัวเลือก ${choices.length + 1}`);
   }
   
   return shuffleArray(choices);
@@ -3855,11 +3871,17 @@ async function fetchQuestionsFromBank(
     
     // Transform to AssessmentQuestion format
     const transformedQuestions: AssessmentQuestion[] = selectedQuestions.map((item) => {
-      const choices = Array.isArray(item.choices) 
-        ? (item.choices as Array<string | number>) 
-        : [];
+      // Normalize choices to ensure exactly 4 items and correct_answer matches
+      const normalized = normalizeQuestion({
+        choices: Array.isArray(item.choices) 
+          ? (item.choices as string[]).map(c => String(c))
+          : [],
+        correct_answer: String(item.correct_answer || '')
+      });
+      
+      const choices = normalized.choices as Array<string | number>;
       const correctAnswerIndex = choices.findIndex(
-        (choice) => String(choice) === String(item.correct_answer)
+        (choice) => String(choice) === String(normalized.correct_answer)
       );
       
       const question: AssessmentQuestion = {

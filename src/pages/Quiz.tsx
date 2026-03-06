@@ -1121,7 +1121,10 @@ const Quiz = () => {
                     }}
                   >
                     <div className="space-y-3">
-                      {currentQuestion.choices.map((choice, idx) => {
+                      {(currentQuestion.choices.length >= 4 
+                        ? currentQuestion.choices 
+                        : [...currentQuestion.choices, ...Array(4 - currentQuestion.choices.length).fill('ตัวเลือก')].slice(0, 4)
+                      ).map((choice, idx) => {
                         const isSelected = answers.get(currentIndex) === idx;
                         return (
                           <div 
