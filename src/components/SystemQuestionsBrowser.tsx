@@ -655,8 +655,33 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
                     )}
                     {generatingImageIds.has(question.id) ? 'กำลังสร้าง...' : '🎨 สร้างภาพ AI'}
                   </Button>
+                  {/* Manual Image Upload Button */}
                   <Button
-                    onClick={() => handleImportQuestion(question.id, question)}
+                    variant="outline"
+                    size="sm"
+                    disabled={uploadingImageIds.has(question.id)}
+                    onClick={() => {
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.accept = 'image/*';
+                      input.onchange = (e) => {
+                        const file = (e.target as HTMLInputElement).files?.[0];
+                        if (file) {
+                          handleManualImageUpload(question.id, file);
+                        }
+                      };
+                      input.click();
+                    }}
+                    className="w-full text-blue-600 border-blue-200 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-950"
+                  >
+                    {uploadingImageIds.has(question.id) ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <ImagePlus className="w-4 h-4 mr-2" />
+                    )}
+                    {uploadingImageIds.has(question.id) ? 'กำลังอัปโหลด...' : '📷 Upload ภาพ'}
+                  </Button>
+                  <Button
                     size="sm"
                     className="w-full"
                   >
