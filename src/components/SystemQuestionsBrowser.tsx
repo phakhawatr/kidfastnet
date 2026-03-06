@@ -41,9 +41,37 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
     fetchAvailableTags,
     checkDuplicateQuestion,
     generateAIImage,
+    uploadImage,
   } = useQuestionBank(teacherId, isAdmin);
 
   const [generatingImageIds, setGeneratingImageIds] = useState<Set<string>>(new Set());
+  const [uploadingImageIds, setUploadingImageIds] = useState<Set<string>>(new Set());
+
+  const handleManualImageUpload = async (questionId: string, file: File) => {
+    setUploadingImageIds(prev => new Set(prev).add(questionId));
+    try {
+      const url = await uploadImage(file);
+      if (url) {
+        // Update the question's image_urls in database
+        const { supabase } = await import('@/integrations/supabase/client');
+        await supabase
+          .from('question_bank')
+          .update({ image_urls: [url] })
+          .eq('id', questionId);
+
+        toast.success('อัปโหลดภาพสำเร็จ');
+        setSystemQuestions(prev => prev.map(q => q.id === questionId ? { ...q, image_urls: [url] } : q));
+      }
+    } catch (err) {
+      toast.error('อัปโหลดภาพล้มเหลว');
+    } finally {
+      setUploadingImageIds(prev => {
+        const next = new Set(prev);
+        next.delete(questionId);
+        return next;
+      });
+    }
+  };
 
   const [systemQuestions, setSystemQuestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
