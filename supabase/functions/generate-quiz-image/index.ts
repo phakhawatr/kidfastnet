@@ -66,10 +66,10 @@ serve(async (req) => {
 
     // Generate image via Lovable AI Gateway
     console.log("Generating image for:", skill, imagePrompt);
-    const prompt = `Create a cute, colorful cartoon illustration for a Thai elementary school math quiz.
+    const prompt = `Create a beautiful, high-quality cartoon illustration for a Thai elementary school math quiz.
 Topic: ${skill || "math"}.
 Scene: ${imagePrompt}.
-Style: simple shapes, bright colors, kid-friendly, kawaii style, NO text, NO numbers, NO letters in the image. Clean white background.`;
+Style: vibrant colors, detailed kawaii/chibi style, cute characters, soft shading, professional children's book illustration quality. NO text, NO numbers, NO letters, NO words in the image. Clean soft pastel background with subtle gradient.`;
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
@@ -80,7 +80,7 @@ Style: simple shapes, bright colors, kid-friendly, kawaii style, NO text, NO num
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash-image",
+          model: "google/gemini-3-pro-image-preview",
           messages: [{ role: "user", content: prompt }],
           modalities: ["image", "text"],
         }),
