@@ -985,7 +985,13 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
                       </div>
                     </div>
                     <div className="flex flex-col gap-2">
-                      {/* AI Image Generation Button */}
+                      {/* AI Image Thumbnail */}
+                      {question.image_urls && question.image_urls.length > 0 && (
+                        <div className="w-20 h-20 rounded border border-border overflow-hidden cursor-pointer" onClick={() => { setLightboxImages(question.image_urls!); setCurrentImageIndex(0); setLightboxOpen(true); }}>
+                          <img src={question.image_urls[0]} alt="AI" className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                      {/* AI Image Generation Button - always visible when no image */}
                       {(!question.image_urls || question.image_urls.length === 0) && (
                         <Button
                           variant="outline"
