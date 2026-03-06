@@ -1110,7 +1110,34 @@ const Quiz = () => {
                     })()}
                   </div>
 
+                  {/* AI Image Toggle */}
+                  <div className="flex items-center justify-end gap-2 mb-2">
+                    <ImageIcon className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">ภาพ AI</span>
+                    <Switch 
+                      checked={showAIImages} 
+                      onCheckedChange={(v) => {
+                        setShowAIImages(v);
+                        localStorage.setItem('quiz-ai-images', String(v));
+                      }}
+                    />
+                  </div>
+
                   <div className="bg-white p-6 rounded-lg border-2 border-purple-200 space-y-4">
+                    {/* AI Generated Image */}
+                    {showAIImages && currentQuestion.imagePrompt && (
+                      <div className="flex justify-center mb-4">
+                        {aiImageLoading ? (
+                          <Skeleton className="w-48 h-48 rounded-xl" />
+                        ) : aiImageUrl ? (
+                          <img 
+                            src={aiImageUrl} 
+                            alt="ภาพประกอบโจทย์" 
+                            className="w-48 h-48 object-contain rounded-xl shadow-md border border-border"
+                          />
+                        ) : null}
+                      </div>
+                    )}
                     {currentQuestion.clockDisplay && (
                       <ClockDisplay 
                         hour={currentQuestion.clockDisplay.hour} 
