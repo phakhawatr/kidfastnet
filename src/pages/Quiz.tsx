@@ -1125,8 +1125,18 @@ const Quiz = () => {
                   </div>
 
                   <div className="bg-white p-6 rounded-lg border-2 border-purple-200 space-y-4">
-                    {/* AI Generated Image */}
-                    {showAIImages && currentQuestion.imagePrompt && (
+                    {/* Pre-stored Image (from Question Bank) */}
+                    {currentQuestion.imagePrompt?.startsWith('http') && (
+                      <div className="flex justify-center mb-4">
+                        <img 
+                          src={currentQuestion.imagePrompt} 
+                          alt="ภาพประกอบโจทย์" 
+                          className="w-72 h-72 sm:w-80 sm:h-80 object-contain rounded-2xl shadow-lg border-2 border-purple-200"
+                        />
+                      </div>
+                    )}
+                    {/* AI Generated Image (fallback for questions without pre-stored images) */}
+                    {showAIImages && currentQuestion.imagePrompt && !currentQuestion.imagePrompt.startsWith('http') && (
                       <div className="flex justify-center mb-4">
                         {aiImageLoading ? (
                           <Skeleton className="w-72 h-72 sm:w-80 sm:h-80 rounded-2xl" />
