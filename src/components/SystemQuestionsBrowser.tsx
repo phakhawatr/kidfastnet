@@ -624,7 +624,7 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
                       </Button>
                     </>
                   )}
-                  {/* AI Image Generation Button */}
+                  {/* AI Image Generation & Upload Buttons */}
                   <Button
                     variant="outline"
                     size="sm"
