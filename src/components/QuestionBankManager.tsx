@@ -721,9 +721,51 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
 
           {!loading && filteredQuestions.length > 0 && (
             <div className="flex items-center justify-between flex-wrap gap-2 px-2">
-              <p className="text-sm text-gray-200">
-                พบ <span className="font-bold text-white">{filteredQuestions.length}</span> ข้อสอบ
-              </p>
+              <div className="flex items-center gap-3">
+                <p className="text-sm text-gray-200">
+                  พบ <span className="font-bold text-white">{filteredQuestions.length}</span> ข้อสอบ
+                </p>
+                {/* Standalone Bulk AI Image Generate Button - always visible */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={bulkGeneratingImages}
+                  onClick={async () => {
+                    const questionsWithoutImages = filteredQuestions.filter(
+                      q => !q.image_urls || q.image_urls.length === 0
+                    );
+                    if (questionsWithoutImages.length === 0) {
+                      toast.info('ข้อสอบทั้งหมดมีภาพแล้ว');
+                      return;
+                    }
+                    setBulkGeneratingImages(true);
+                    let successCount = 0;
+                    for (const q of questionsWithoutImages) {
+                      setGeneratingImageIds(prev => new Set(prev).add(q.id));
+                      try {
+                        const url = await generateAIImage(q.id, q.question_text, q.skill_name);
+                        if (url) successCount++;
+                      } finally {
+                        setGeneratingImageIds(prev => {
+                          const next = new Set(prev);
+                          next.delete(q.id);
+                          return next;
+                        });
+                      }
+                    }
+                    setBulkGeneratingImages(false);
+                    toast.success(`สร้างภาพ AI สำเร็จ ${successCount}/${questionsWithoutImages.length} ข้อ`);
+                  }}
+                  className="text-purple-600 border-purple-200 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-800"
+                >
+                  {bulkGeneratingImages ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-4 h-4 mr-2" />
+                  )}
+                  {bulkGeneratingImages ? 'กำลังสร้างภาพ...' : '🎨 สร้างภาพ AI ทั้งหมด'}
+                </Button>
+              </div>
               
               {/* Active Filters Summary */}
               {(selectedDifficulty !== 'all' || selectedTopic !== 'all' || selectedTags.length > 0) && (
