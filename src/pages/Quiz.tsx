@@ -118,12 +118,13 @@ const Quiz = () => {
     assessmentType === 'nt' ? selectedNTYear : undefined
   );
 
-  // AI image generation for current question
+  // AI image generation for current question (only if no pre-stored image)
   const currentQ = questions[currentIndex];
+  const hasPreStoredImage = currentQ?.imagePrompt?.startsWith('http');
   const { imageUrl: aiImageUrl, isLoading: aiImageLoading } = useQuizImage(
-    currentQ?.imagePrompt,
+    hasPreStoredImage ? undefined : currentQ?.imagePrompt,
     currentQ?.skill,
-    showAIImages && screen === 'assessment' && !isSubmitted
+    showAIImages && screen === 'assessment' && !isSubmitted && !hasPreStoredImage
   );
 
   // Populate history mode from location state
