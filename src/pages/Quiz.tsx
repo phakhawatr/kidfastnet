@@ -90,6 +90,11 @@ const Quiz = () => {
   const [practiceAnswers, setPracticeAnswers] = useState<Map<number, number>>(new Map());
   const [practiceSubmitted, setPracticeSubmitted] = useState(false);
   const [practiceLoading, setPracticeLoading] = useState(false);
+
+  // AI Image generation toggle
+  const [showAIImages, setShowAIImages] = useState(() => {
+    return localStorage.getItem('quiz-ai-images') === 'true';
+  });
   
   const { achievements: allAchievements, userAchievements } = useAchievements(user?.id || registrationId || null);
 
