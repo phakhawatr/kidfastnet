@@ -1,27 +1,91 @@
 
 
-## Investigation Results: AI Image Generation Not Working
+## Plan: Fix Question Bank Import Completeness Issues
 
-### Root Cause Found
+### Root Problem
 
-The Edge Function `generate-quiz-image` was **not deployed** to Supabase. The code was correct in the repository, but it had never been deployed to the server, so all calls from the frontend were failing silently.
+There are two inconsistent data formats for questions in the database:
 
-### Fix Applied
+1. **AI-generated questions**: `choices: ["5", "6", "7", "8"]`, `correct_answer: "5"`
+2. **PDF-imported questions**: `choices: ["A) 5", "B) 6", "C) 7", "D) 8"]`, `correct_answer: "A"`
 
-I have already deployed the function using the Supabase deployment tool. The function is now live and working correctly.
+When these are imported/copied between banks or used in exams, mismatches occur — choices may appear incomplete, correct answers don't match, and display is inconsistent.
 
-**Test result**: I tested the function directly with a sample prompt (`🚌 รถบัสสีเหลือง`, skill: `division`) and it returned a successful response with a cached image URL:
+### Changes
+
+**1. Add validation/normalization utility (`src/utils/questionNormalizer.ts` — new file)**
+
+Create a function `normalizeQuestion(question)` that:
+- Ensures `choices` array always has exactly 4 items (pads with empty or trims)
+- Strips `A)`, `B)`, `C)`, `D)` prefixes from choices if present
+- Converts letter-only `correct_answer` (e.g., "A") to actual choice text
+- Ensures `correct_answer` matches one of the normalized choices
+- Flags questions that can't be fixed (returns `{ normalized, warnings }`)
+
+**2. Apply normalization in `useQuestionBank.ts`**
+
+- In `copySystemQuestion`: normalize before insert
+- In `copySharedQuestion`: normalize before insert
+- In `createQuestion`: normalize before insert
+- In `fetchQuestions` / `fetchSystemQuestions`: normalize after fetch for display consistency
+
+**3. Apply normalization in `ai-generate-questions/index.ts` (edge function)**
+
+- After parsing AI response, validate each question has exactly 4 choices
+- Ensure `correct_answer` matches one of the choices
+- Fill missing choices if fewer than 4
+
+**4. Apply normalization in `ai-import-pdf-questions/index.ts` (edge function)**
+
+- After parsing, strip "A) / B) / C) / D)" prefixes from choices
+- Convert letter-only `correct_answer` to actual choice text
+- Ensure exactly 4 choices per question
+
+**5. Update display components for safety**
+
+- In `QuestionBankSelector.tsx`, `SystemQuestionsBrowser.tsx`, `SharedQuestionsBrowser.tsx`, `PublicExam.tsx`, `Quiz.tsx`: add a safety check so if `choices` has fewer than 4 items, pad with placeholder or show a warning badge
+
+### Technical Detail — Normalizer
+
+```typescript
+export function normalizeQuestion(q: { choices: string[], correct_answer: string }) {
+  let choices = [...(q.choices || [])];
+  let correctAnswer = q.correct_answer || '';
+
+  // Strip A), B), C), D) prefixes
+  choices = choices.map(c => typeof c === 'string' ? c.replace(/^[A-D]\)\s*/, '').trim() : String(c));
+
+  // Convert letter-only correct_answer to choice text
+  if (/^[A-D]$/.test(correctAnswer)) {
+    const idx = correctAnswer.charCodeAt(0) - 65;
+    if (idx >= 0 && idx < choices.length) {
+      correctAnswer = choices[idx];
+    }
+  } else {
+    correctAnswer = correctAnswer.replace(/^[A-D]\)\s*/, '').trim();
+  }
+
+  // Ensure exactly 4 choices
+  while (choices.length < 4) choices.push('');
+  choices = choices.slice(0, 4);
+
+  // Validate correct_answer is in choices
+  if (!choices.includes(correctAnswer) && choices.length > 0) {
+    // Try fuzzy match
+    const match = choices.find(c => c.includes(correctAnswer) || correctAnswer.includes(c));
+    if (match) correctAnswer = match;
+  }
+
+  return { choices, correct_answer: correctAnswer };
+}
 ```
-https://yxvuivtnyrcrtiqxhbkl.supabase.co/storage/v1/object/public/quiz-images/quiz-img-yndfky.png
-```
 
-### What You Need to Do
-
-1. **Refresh the quiz page** in the preview
-2. **Start a new quiz** (e.g., NT Grade 3)
-3. **Toggle "ภาพ AI" on** — images should now appear above each question
-
-### No Code Changes Required
-
-The frontend code (`Quiz.tsx`, `useQuizImage.ts`) and the edge function code were already correct. The only issue was deployment.
+### Files to create/edit
+- **Create**: `src/utils/questionNormalizer.ts`
+- **Edit**: `src/hooks/useQuestionBank.ts` (normalize in copy/create/fetch functions)
+- **Edit**: `supabase/functions/ai-generate-questions/index.ts` (post-parse validation)
+- **Edit**: `supabase/functions/ai-import-pdf-questions/index.ts` (post-parse normalization)
+- **Edit**: `src/components/SystemQuestionsBrowser.tsx` (safety display check)
+- **Edit**: `src/components/SharedQuestionsBrowser.tsx` (safety display check)
+- **Edit**: `src/components/QuestionBankSelector.tsx` (safety display check)
 

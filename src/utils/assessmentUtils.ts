@@ -1525,6 +1525,41 @@ const generateSubtractionQuestions = (config: SkillConfig): AssessmentQuestion[]
   return questions;
 };
 
+/**
+ * Generate an imagePrompt from question text and skill for AI image generation
+ */
+function generateImagePromptFromQuestion(questionText: string, skill: string): string {
+  // Extract key visual elements from the question text
+  const skillEmojis: Record<string, string> = {
+    counting: '🔢',
+    addition: '➕',
+    subtraction: '➖',
+    multiplication: '✖️',
+    division: '➗',
+    fractions: '🍕',
+    shapes: '🔷',
+    measurement: '📏',
+    time: '⏰',
+    money: '💰',
+    weighing: '⚖️',
+    comparison: '📊',
+    patterns: '🔄',
+    place_value: '🏠',
+    number_line: '📐',
+    data: '📊',
+    geometry: '📐',
+  };
+  
+  const emoji = skillEmojis[skill] || '📚';
+  
+  // Truncate question to first 40 chars for a concise prompt
+  const shortQuestion = questionText.length > 60 
+    ? questionText.substring(0, 60) + '...' 
+    : questionText;
+  
+  return `${emoji} ${shortQuestion}`;
+}
+
 
 const generateMultiplicationQuestions = (config: SkillConfig): AssessmentQuestion[] => {
   const questions: AssessmentQuestion[] = [];
@@ -3884,15 +3919,20 @@ async function fetchQuestionsFromBank(
         (choice) => String(choice) === String(normalized.correct_answer)
       );
       
+      const skillName = topicToSkillMap[item.topic || ''] || item.skill_name || 'counting';
+      
+      // Generate imagePrompt: use image_urls if available, otherwise auto-generate from question content
+      const autoImagePrompt = generateImagePromptFromQuestion(item.question_text, skillName);
+      
       const question: AssessmentQuestion = {
         id: item.id,
-        skill: topicToSkillMap[item.topic || ''] || item.skill_name || 'counting',
+        skill: skillName,
         question: item.question_text,
         choices: choices,
         correctAnswer: correctAnswerIndex >= 0 ? correctAnswerIndex : 0,
         difficulty: item.difficulty as 'easy' | 'medium' | 'hard',
         explanation: item.explanation || undefined,
-        imagePrompt: item.image_urls?.[0] || undefined
+        imagePrompt: item.image_urls?.[0] || autoImagePrompt || undefined
       };
       
       // Randomize choices to prevent memorization
