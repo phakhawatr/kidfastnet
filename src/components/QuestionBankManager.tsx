@@ -1023,37 +1023,6 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
                           <img src={question.image_urls[0]} alt="AI" className="w-full h-full object-cover" />
                         </div>
                       )}
-                      {/* AI Image Generation Button - always visible when no image */}
-                      {(!question.image_urls || question.image_urls.length === 0) && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={generatingImageIds.has(question.id)}
-                          onClick={async () => {
-                            setGeneratingImageIds(prev => new Set(prev).add(question.id));
-                            try {
-                              const url = await generateAIImage(question.id, question.question_text, question.skill_name);
-                              if (url) {
-                                toast.success('สร้างภาพ AI สำเร็จ');
-                              }
-                            } finally {
-                              setGeneratingImageIds(prev => {
-                                const next = new Set(prev);
-                                next.delete(question.id);
-                                return next;
-                              });
-                            }
-                          }}
-                          className="justify-start text-purple-600 border-purple-200 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-800 dark:hover:bg-purple-950"
-                        >
-                          {generatingImageIds.has(question.id) ? (
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          ) : (
-                            <Sparkles className="w-4 h-4 mr-2" />
-                          )}
-                          {generatingImageIds.has(question.id) ? 'กำลังสร้าง...' : '🎨 สร้างภาพ AI'}
-                        </Button>
-                      )}
                       <Button
                         variant="outline"
                         size="sm"
