@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Download, Database, Sparkles, CheckCircle2, FileUp, Pencil, Trash2, AlertTriangle, Info, Loader2 } from 'lucide-react';
+import { Search, Download, Database, Sparkles, CheckCircle2, FileUp, Pencil, Trash2, AlertTriangle, Info, Loader2, ImagePlus } from 'lucide-react';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
@@ -41,9 +41,37 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
     fetchAvailableTags,
     checkDuplicateQuestion,
     generateAIImage,
+    uploadImage,
   } = useQuestionBank(teacherId, isAdmin);
 
   const [generatingImageIds, setGeneratingImageIds] = useState<Set<string>>(new Set());
+  const [uploadingImageIds, setUploadingImageIds] = useState<Set<string>>(new Set());
+
+  const handleManualImageUpload = async (questionId: string, file: File) => {
+    setUploadingImageIds(prev => new Set(prev).add(questionId));
+    try {
+      const url = await uploadImage(file);
+      if (url) {
+        // Update the question's image_urls in database
+        const { supabase } = await import('@/integrations/supabase/client');
+        await supabase
+          .from('question_bank')
+          .update({ image_urls: [url] })
+          .eq('id', questionId);
+
+        toast.success('อัปโหลดภาพสำเร็จ');
+        setSystemQuestions(prev => prev.map(q => q.id === questionId ? { ...q, image_urls: [url] } : q));
+      }
+    } catch (err) {
+      toast.error('อัปโหลดภาพล้มเหลว');
+    } finally {
+      setUploadingImageIds(prev => {
+        const next = new Set(prev);
+        next.delete(questionId);
+        return next;
+      });
+    }
+  };
 
   const [systemQuestions, setSystemQuestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -627,8 +655,33 @@ export default function SystemQuestionsBrowser({ teacherId, onImportSuccess, isA
                     )}
                     {generatingImageIds.has(question.id) ? 'กำลังสร้าง...' : '🎨 สร้างภาพ AI'}
                   </Button>
+                  {/* Manual Image Upload Button */}
                   <Button
-                    onClick={() => handleImportQuestion(question.id, question)}
+                    variant="outline"
+                    size="sm"
+                    disabled={uploadingImageIds.has(question.id)}
+                    onClick={() => {
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.accept = 'image/*';
+                      input.onchange = (e) => {
+                        const file = (e.target as HTMLInputElement).files?.[0];
+                        if (file) {
+                          handleManualImageUpload(question.id, file);
+                        }
+                      };
+                      input.click();
+                    }}
+                    className="w-full text-blue-600 border-blue-200 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-950"
+                  >
+                    {uploadingImageIds.has(question.id) ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <ImagePlus className="w-4 h-4 mr-2" />
+                    )}
+                    {uploadingImageIds.has(question.id) ? 'กำลังอัปโหลด...' : '📷 Upload ภาพ'}
+                  </Button>
+                  <Button
                     size="sm"
                     className="w-full"
                   >
