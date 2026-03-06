@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Download, Database, Sparkles, CheckCircle2, FileUp, Pencil, Trash2, AlertTriangle, Info, Loader2 } from 'lucide-react';
+import { Search, Download, Database, Sparkles, CheckCircle2, FileUp, Pencil, Trash2, AlertTriangle, Info, Loader2, ImagePlus } from 'lucide-react';
 import { useQuestionBank } from '@/hooks/useQuestionBank';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
