@@ -69,6 +69,8 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [generatingImageIds, setGeneratingImageIds] = useState<Set<string>>(new Set());
+  const [bulkGeneratingImages, setBulkGeneratingImages] = useState(false);
   
   const {
     questions,
