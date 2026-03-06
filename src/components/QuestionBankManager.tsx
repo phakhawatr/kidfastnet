@@ -84,6 +84,7 @@ export default function QuestionBankManager({ teacherId, adminId, isAdmin = fals
     checkSharedQuestions,
     updateQuestion,
     fetchAvailableTags,
+    generateAIImage,
   } = useQuestionBank(teacherId || adminId, !!adminId);
 
   useEffect(() => {
