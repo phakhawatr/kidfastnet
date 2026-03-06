@@ -74,6 +74,21 @@ const generateChoices = (
         }
       }
     }
+  } else if (type === 'text') {
+    // For text answers, generate placeholder wrong choices
+    const textFallbacks = ['ตัวเลือก ก', 'ตัวเลือก ข', 'ตัวเลือก ค', 'ตัวเลือก ง'];
+    let fallbackIdx = 0;
+    while (choices.length < 4 && fallbackIdx < textFallbacks.length) {
+      if (!choices.includes(textFallbacks[fallbackIdx])) {
+        choices.push(textFallbacks[fallbackIdx]);
+      }
+      fallbackIdx++;
+    }
+  }
+  
+  // Final safety: ensure exactly 4 choices
+  while (choices.length < 4) {
+    choices.push(`ตัวเลือก ${choices.length + 1}`);
   }
   
   return shuffleArray(choices);
