@@ -16,6 +16,7 @@ import QuestionTextRenderer from '@/components/QuestionTextRenderer';
 import ChoiceRenderer from '@/components/ChoiceRenderer';
 import { ClockDisplay } from '@/components/ClockDisplay';
 import { isTimeQuestion, extractTimeFromThaiFormat } from '@/utils/timeQuestionUtils';
+import { normalizeQuestion } from '@/utils/questionNormalizer';
 
 interface ExamLinkData {
   id: string;
