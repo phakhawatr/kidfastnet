@@ -598,27 +598,31 @@ const AdminSchoolManagement = () => {
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
-      case 'school_admin': return 'bg-purple-100 text-purple-700 border-purple-300';
-      case 'teacher': return 'bg-blue-100 text-blue-700 border-blue-300';
-      case 'student': return 'bg-green-100 text-green-700 border-green-300';
+      case 'school_admin': return 'bg-amber-100 text-amber-700 border-amber-300';
+      case 'teacher': return 'bg-violet-100 text-violet-700 border-violet-300';
+      case 'student': return 'bg-sky-100 text-sky-700 border-sky-300';
       default: return 'bg-gray-100 text-gray-700 border-gray-300';
     }
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center font-sarabun">
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin rounded-full h-14 w-14 border-4 border-purple-200 border-t-purple-600"></div>
+          <p className="text-lg text-purple-600 font-semibold">กำลังโหลด...</p>
+        </div>
       </div>
     );
   }
 
   if (!school) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
-        <Card className="p-8 text-center">
-          <p className="text-gray-600 mb-4">ไม่พบข้อมูลโรงเรียน</p>
-          <Button onClick={() => navigate('/admin/dashboard')}>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center font-sarabun">
+        <Card className="p-8 text-center shadow-xl border-0">
+          <Building2 className="w-16 h-16 mx-auto mb-4 text-purple-300" />
+          <p className="text-xl text-gray-600 mb-4">ไม่พบข้อมูลโรงเรียน</p>
+          <Button onClick={() => navigate('/admin/dashboard')} className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
             กลับหน้าหลัก
           </Button>
         </Card>
@@ -627,52 +631,65 @@ const AdminSchoolManagement = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200">
-      <main className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 font-sarabun">
+      <main className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="mb-6">
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={() => navigate('/admin/dashboard')}
-            className="flex items-center gap-2"
+            className="mb-4 text-purple-700 hover:text-purple-900 hover:bg-purple-100"
           >
-            <ArrowLeft className="w-4 h-4" />
-            กลับ
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            กลับหน้าหลัก
           </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              🏫 {school.name}
-            </h1>
-            <p className="text-gray-600">รหัส: {school.code}</p>
+          <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 rounded-2xl p-6 shadow-xl text-white">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-3xl shadow-lg">
+                🏫
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight">{school.name}</h1>
+                <p className="text-purple-100 text-lg mt-1">รหัสโรงเรียน: <span className="font-semibold text-white bg-white/20 px-3 py-0.5 rounded-full text-base">{school.code}</span></p>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* School Info Card */}
-        <Card className="p-6 mb-6 bg-white/80">
+        <Card className="p-6 mb-6 bg-white/90 backdrop-blur-sm border-0 shadow-lg rounded-2xl border-l-4 border-l-purple-500">
           <div className="flex items-start justify-between">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {school.address && (
-                <div className="flex items-center gap-2 text-gray-600">
-                  <MapPin className="w-4 h-4" />
-                  <span>{school.address} {school.district} {school.province}</span>
+                <div className="flex items-center gap-3 text-gray-700">
+                  <div className="w-9 h-9 rounded-xl bg-rose-100 flex items-center justify-center">
+                    <MapPin className="w-4 h-4 text-rose-600" />
+                  </div>
+                  <span className="text-base">{school.address} {school.district} {school.province}</span>
                 </div>
               )}
               {school.phone && (
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Phone className="w-4 h-4" />
-                  <span>{school.phone}</span>
+                <div className="flex items-center gap-3 text-gray-700">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center">
+                    <Phone className="w-4 h-4 text-emerald-600" />
+                  </div>
+                  <span className="text-base">{school.phone}</span>
                 </div>
               )}
               {school.email && (
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Mail className="w-4 h-4" />
-                  <span>{school.email}</span>
+                <div className="flex items-center gap-3 text-gray-700">
+                  <div className="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center">
+                    <Mail className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <span className="text-base">{school.email}</span>
                 </div>
               )}
               {school.website && (
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Globe className="w-4 h-4" />
-                  <a href={school.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                <div className="flex items-center gap-3 text-gray-700">
+                  <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center">
+                    <Globe className="w-4 h-4 text-amber-600" />
+                  </div>
+                  <a href={school.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-base">
                     {school.website}
                   </a>
                 </div>
@@ -680,7 +697,7 @@ const AdminSchoolManagement = () => {
             </div>
             <Dialog open={showEditSchool} onOpenChange={setShowEditSchool}>
               <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="rounded-xl border-purple-200 text-purple-700 hover:bg-purple-50">
                   <Edit className="w-4 h-4 mr-2" />
                   แก้ไข
                 </Button>
@@ -770,51 +787,56 @@ const AdminSchoolManagement = () => {
         </Card>
 
         {/* Tabs */}
-        <Tabs defaultValue="classes" className="space-y-4">
-          <TabsList className="bg-white/80">
-            <TabsTrigger value="classes" className="data-[state=active]:bg-purple-100">
-              <GraduationCap className="w-4 h-4 mr-2" />
+        <Tabs defaultValue="classes" className="space-y-5">
+          <TabsList className="bg-white/90 backdrop-blur-sm p-1.5 rounded-2xl shadow-md border-0 h-auto gap-1">
+            <TabsTrigger value="classes" className="rounded-xl px-5 py-3 text-base font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
+              <GraduationCap className="w-5 h-5 mr-2" />
               ห้องเรียน ({classes.length})
             </TabsTrigger>
-            <TabsTrigger value="teachers" className="data-[state=active]:bg-purple-100">
-              <GraduationCap className="w-4 h-4 mr-2" />
+            <TabsTrigger value="teachers" className="rounded-xl px-5 py-3 text-base font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
+              <GraduationCap className="w-5 h-5 mr-2" />
               ครู ({members.filter(m => m.role === 'teacher' || m.role === 'school_admin').length})
             </TabsTrigger>
-            <TabsTrigger value="students" className="data-[state=active]:bg-purple-100">
-              <Users className="w-4 h-4 mr-2" />
+            <TabsTrigger value="students" className="rounded-xl px-5 py-3 text-base font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-blue-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
+              <Users className="w-5 h-5 mr-2" />
               นักเรียน ({members.filter(m => m.role === 'student').length})
             </TabsTrigger>
           </TabsList>
 
           {/* Classes Tab */}
           <TabsContent value="classes">
-            <Card className="p-6 bg-white/80">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">ห้องเรียนทั้งหมด</h2>
+            <Card className="p-6 bg-white/90 backdrop-blur-sm border-0 shadow-lg rounded-2xl">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                    <GraduationCap className="w-4 h-4 text-emerald-600" />
+                  </span>
+                  ห้องเรียนทั้งหมด
+                </h2>
                 <Dialog open={showCreateClass} onOpenChange={setShowCreateClass}>
                   <DialogTrigger asChild>
-                    <Button className="bg-purple-600 hover:bg-purple-700">
-                      <Plus className="w-4 h-4 mr-2" />
+                    <Button className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-xl shadow-md text-base">
+                      <Plus className="w-5 h-5 mr-2" />
                       เพิ่มห้องเรียน
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="font-sarabun">
                     <DialogHeader>
-                      <DialogTitle>สร้างห้องเรียนใหม่</DialogTitle>
+                      <DialogTitle className="text-xl">สร้างห้องเรียนใหม่</DialogTitle>
                     </DialogHeader>
                     <div className="grid gap-4 mt-4">
                       <div>
-                        <Label>ชื่อห้องเรียน *</Label>
+                        <Label className="text-base">ชื่อห้องเรียน *</Label>
                         <Input
                           value={newClass.name}
                           onChange={(e) => setNewClass({ ...newClass, name: e.target.value })}
                           placeholder="เช่น ป.1/1"
-                          className="mt-1"
+                          className="mt-1 text-base"
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label>ระดับชั้น</Label>
+                          <Label className="text-base">ระดับชั้น</Label>
                           <Select
                             value={newClass.grade.toString()}
                             onValueChange={(v) => setNewClass({ ...newClass, grade: parseInt(v) })}
@@ -830,7 +852,7 @@ const AdminSchoolManagement = () => {
                           </Select>
                         </div>
                         <div>
-                          <Label>ปีการศึกษา</Label>
+                          <Label className="text-base">ปีการศึกษา</Label>
                           <Input
                             type="number"
                             value={newClass.academic_year}
@@ -841,7 +863,7 @@ const AdminSchoolManagement = () => {
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label>ภาคเรียน</Label>
+                          <Label className="text-base">ภาคเรียน</Label>
                           <Select
                             value={newClass.semester.toString()}
                             onValueChange={(v) => setNewClass({ ...newClass, semester: parseInt(v) })}
@@ -856,7 +878,7 @@ const AdminSchoolManagement = () => {
                           </Select>
                         </div>
                         <div>
-                          <Label>จำนวนนักเรียนสูงสุด</Label>
+                          <Label className="text-base">จำนวนนักเรียนสูงสุด</Label>
                           <Input
                             type="number"
                             value={newClass.max_students}
@@ -867,7 +889,7 @@ const AdminSchoolManagement = () => {
                       </div>
                       {teachers.length > 0 && (
                         <div>
-                          <Label>ครูประจำชั้น</Label>
+                          <Label className="text-base">ครูประจำชั้น</Label>
                           <Select
                             value={newClass.teacher_id}
                             onValueChange={(v) => setNewClass({ ...newClass, teacher_id: v })}
@@ -888,7 +910,7 @@ const AdminSchoolManagement = () => {
                       <Button variant="ghost" onClick={() => setShowCreateClass(false)}>
                         ยกเลิก
                       </Button>
-                      <Button onClick={handleCreateClass} className="bg-purple-600 hover:bg-purple-700">
+                      <Button onClick={handleCreateClass} className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white">
                         สร้างห้องเรียน
                       </Button>
                     </div>
@@ -897,24 +919,30 @@ const AdminSchoolManagement = () => {
               </div>
               
               {classes.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <GraduationCap className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>ยังไม่มีห้องเรียน</p>
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-emerald-50 flex items-center justify-center">
+                    <GraduationCap className="w-10 h-10 text-emerald-300" />
+                  </div>
+                  <p className="text-lg text-gray-500">ยังไม่มีห้องเรียน</p>
+                  <p className="text-sm text-gray-400 mt-1">กดปุ่ม "เพิ่มห้องเรียน" เพื่อเริ่มต้น</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {classes.map(cls => (
                     <Card 
                       key={cls.id} 
-                      className="p-4 border border-gray-200 cursor-pointer hover:border-purple-400 hover:shadow-md transition-all"
+                      className="p-5 border-0 cursor-pointer hover:shadow-xl transition-all duration-300 rounded-2xl bg-gradient-to-br from-white to-emerald-50/50 shadow-md group hover:-translate-y-1 border-t-4 border-t-emerald-400"
                       onClick={() => openClassManagement(cls)}
                     >
                       <div className="flex items-start justify-between">
                         <div>
-                          <h3 className="font-semibold text-gray-900">{cls.name}</h3>
-                          <p className="text-sm text-gray-600">ป.{cls.grade} • ปีการศึกษา {cls.academic_year}</p>
+                          <h3 className="text-lg font-bold text-gray-900 group-hover:text-emerald-700 transition-colors">{cls.name}</h3>
+                          <p className="text-base text-gray-600 mt-1">ป.{cls.grade} • ปีการศึกษา {cls.academic_year}</p>
                           {cls.teacher_name && (
-                            <p className="text-sm text-gray-500">ครู: {cls.teacher_name}</p>
+                            <p className="text-sm text-gray-500 mt-1 flex items-center gap-1">
+                              <GraduationCap className="w-3.5 h-3.5" />
+                              ครู: {cls.teacher_name}
+                            </p>
                           )}
                         </div>
                         <Button
@@ -924,17 +952,19 @@ const AdminSchoolManagement = () => {
                             e.stopPropagation();
                             handleDeleteClass(cls.id, cls.name);
                           }}
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          className="text-red-400 hover:text-red-700 hover:bg-red-50 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
-                      <div className="mt-2 flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-sm text-gray-500">
-                          <Users className="w-4 h-4" />
-                          <span>{cls.student_count || 0} / {cls.max_students || 40} คน</span>
+                      <div className="mt-3 flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-sm">
+                          <div className="flex items-center gap-1.5 bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full">
+                            <Users className="w-3.5 h-3.5" />
+                            <span className="font-semibold">{cls.student_count || 0} / {cls.max_students || 40} คน</span>
+                          </div>
                         </div>
-                        <span className="text-xs text-purple-600">คลิกเพื่อจัดการ →</span>
+                        <span className="text-xs text-emerald-500 font-medium group-hover:text-emerald-700 transition-colors">จัดการ →</span>
                       </div>
                     </Card>
                   ))}
@@ -945,33 +975,38 @@ const AdminSchoolManagement = () => {
 
           {/* Teachers Tab */}
           <TabsContent value="teachers">
-            <Card className="p-6 bg-white/80">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">ครูทั้งหมด</h2>
+            <Card className="p-6 bg-white/90 backdrop-blur-sm border-0 shadow-lg rounded-2xl">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center">
+                    <GraduationCap className="w-4 h-4 text-violet-600" />
+                  </span>
+                  ครูทั้งหมด
+                </h2>
                 <Dialog open={showAddMember} onOpenChange={setShowAddMember}>
                   <DialogTrigger asChild>
-                    <Button className="bg-purple-600 hover:bg-purple-700" onClick={() => setNewMember({ email: '', role: 'teacher' })}>
-                      <UserPlus className="w-4 h-4 mr-2" />
+                    <Button className="bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 text-white rounded-xl shadow-md text-base" onClick={() => setNewMember({ email: '', role: 'teacher' })}>
+                      <UserPlus className="w-5 h-5 mr-2" />
                       เพิ่มครู
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="font-sarabun">
                     <DialogHeader>
-                      <DialogTitle>เพิ่มสมาชิกใหม่</DialogTitle>
+                      <DialogTitle className="text-xl">เพิ่มสมาชิกใหม่</DialogTitle>
                     </DialogHeader>
                     <div className="grid gap-4 mt-4">
                       <div>
-                        <Label>อีเมลผู้ใช้ *</Label>
+                        <Label className="text-base">อีเมลผู้ใช้ *</Label>
                         <Input
                           type="email"
                           value={newMember.email}
                           onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
                           placeholder="user@email.com"
-                          className="mt-1"
+                          className="mt-1 text-base"
                         />
                       </div>
                       <div>
-                        <Label>ตำแหน่ง</Label>
+                        <Label className="text-base">ตำแหน่ง</Label>
                         <Select
                           value={newMember.role}
                           onValueChange={(v) => setNewMember({ ...newMember, role: v as any })}
@@ -991,7 +1026,7 @@ const AdminSchoolManagement = () => {
                       <Button variant="ghost" onClick={() => setShowAddMember(false)}>
                         ยกเลิก
                       </Button>
-                      <Button onClick={handleAddMember} className="bg-purple-600 hover:bg-purple-700">
+                      <Button onClick={handleAddMember} className="bg-gradient-to-r from-violet-500 to-purple-500 text-white">
                         เพิ่มสมาชิก
                       </Button>
                     </div>
@@ -1000,32 +1035,35 @@ const AdminSchoolManagement = () => {
               </div>
               
               {members.filter(m => m.role === 'teacher' || m.role === 'school_admin').length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <GraduationCap className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>ยังไม่มีครู</p>
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-violet-50 flex items-center justify-center">
+                    <GraduationCap className="w-10 h-10 text-violet-300" />
+                  </div>
+                  <p className="text-lg text-gray-500">ยังไม่มีครู</p>
+                  <p className="text-sm text-gray-400 mt-1">กดปุ่ม "เพิ่มครู" เพื่อเพิ่มครูในโรงเรียน</p>
                 </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {members.filter(m => m.role === 'teacher' || m.role === 'school_admin').map(member => (
-                    <div key={member.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 bg-white">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-xl">
+                    <div key={member.id} className="flex items-center justify-between p-4 rounded-2xl border-0 bg-gradient-to-r from-white to-violet-50/50 shadow-sm hover:shadow-md transition-all border-l-4 border-l-violet-400">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center text-2xl shadow-md">
                           {member.user_avatar || '👤'}
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">{member.user_nickname || 'ไม่ระบุชื่อ'}</p>
+                          <p className="text-lg font-semibold text-gray-900">{member.user_nickname || 'ไม่ระบุชื่อ'}</p>
                           <p className="text-sm text-gray-500">{member.user_email}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className={`px-2 py-1 text-xs rounded-full border ${getRoleBadgeColor(member.role)}`}>
+                      <div className="flex items-center gap-3">
+                        <span className={`px-3 py-1.5 text-sm rounded-xl border font-semibold ${getRoleBadgeColor(member.role)}`}>
                           {getRoleLabel(member.role)}
                         </span>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => handleRemoveMember(member.id, member.user_nickname || '')}
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          className="text-red-400 hover:text-red-700 hover:bg-red-50 rounded-xl"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -1039,42 +1077,50 @@ const AdminSchoolManagement = () => {
 
           {/* Students Tab */}
           <TabsContent value="students">
-            <Card className="p-6 bg-white/80">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">นักเรียนทั้งหมด</h2>
-                <Button className="bg-purple-600 hover:bg-purple-700" onClick={() => { setNewMember({ email: '', role: 'student' }); setShowAddMember(true); }}>
-                  <UserPlus className="w-4 h-4 mr-2" />
+            <Card className="p-6 bg-white/90 backdrop-blur-sm border-0 shadow-lg rounded-2xl">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-lg bg-sky-100 flex items-center justify-center">
+                    <Users className="w-4 h-4 text-sky-600" />
+                  </span>
+                  นักเรียนทั้งหมด
+                </h2>
+                <Button className="bg-gradient-to-r from-sky-500 to-blue-500 hover:from-sky-600 hover:to-blue-600 text-white rounded-xl shadow-md text-base" onClick={() => { setNewMember({ email: '', role: 'student' }); setShowAddMember(true); }}>
+                  <UserPlus className="w-5 h-5 mr-2" />
                   เพิ่มนักเรียน
                 </Button>
               </div>
               
               {members.filter(m => m.role === 'student').length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>ยังไม่มีนักเรียน</p>
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-sky-50 flex items-center justify-center">
+                    <Users className="w-10 h-10 text-sky-300" />
+                  </div>
+                  <p className="text-lg text-gray-500">ยังไม่มีนักเรียน</p>
+                  <p className="text-sm text-gray-400 mt-1">กดปุ่ม "เพิ่มนักเรียน" หรือเพิ่มผ่านห้องเรียน</p>
                 </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {members.filter(m => m.role === 'student').map(member => (
-                    <div key={member.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 bg-white">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-xl">
+                    <div key={member.id} className="flex items-center justify-between p-4 rounded-2xl border-0 bg-gradient-to-r from-white to-sky-50/50 shadow-sm hover:shadow-md transition-all border-l-4 border-l-sky-400">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-400 to-blue-500 flex items-center justify-center text-2xl shadow-md">
                           {member.user_avatar || '👤'}
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">{member.user_nickname || 'ไม่ระบุชื่อ'}</p>
+                          <p className="text-lg font-semibold text-gray-900">{member.user_nickname || 'ไม่ระบุชื่อ'}</p>
                           <p className="text-sm text-gray-500">{member.user_email}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className={`px-2 py-1 text-xs rounded-full border ${getRoleBadgeColor(member.role)}`}>
+                      <div className="flex items-center gap-3">
+                        <span className={`px-3 py-1.5 text-sm rounded-xl border font-semibold ${getRoleBadgeColor(member.role)}`}>
                           {getRoleLabel(member.role)}
                         </span>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => handleRemoveMember(member.id, member.user_nickname || '')}
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          className="text-red-400 hover:text-red-700 hover:bg-red-50 rounded-xl"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>

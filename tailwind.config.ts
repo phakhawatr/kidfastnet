@@ -112,6 +112,7 @@ export default {
     			'shake': 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both'
     		},
     		fontFamily: {
+    			sarabun: ['Sarabun', 'THSarabunNew', 'sans-serif'],
     			sans: [
     				'Montserrat',
     				'ui-sans-serif',
