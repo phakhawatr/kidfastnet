@@ -24,7 +24,9 @@ import {
   Globe,
   Edit,
   Save,
-  X
+  X,
+  Upload,
+  ImageIcon
 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
