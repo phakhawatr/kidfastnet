@@ -192,7 +192,7 @@ const AdminSchoolManagement = () => {
       
       setClasses(classesWithDetails);
 
-      // Fetch members
+      // Fetch members from school_memberships
       const { data: membersData, error: membersError } = await supabase
         .from('school_memberships')
         .select('*')
@@ -218,6 +218,47 @@ const AdminSchoolManagement = () => {
           };
         })
       );
+
+      // Also fetch students from class_students for all classes in this school
+      const classIds = (classesData || []).map(c => c.id);
+      const existingMemberUserIds = new Set(membersWithDetails.map(m => m.user_id));
+      
+      if (classIds.length > 0) {
+        const { data: classStudentsData } = await supabase
+          .from('class_students')
+          .select('*')
+          .in('class_id', classIds)
+          .eq('is_active', true);
+        
+        if (classStudentsData && classStudentsData.length > 0) {
+          // Get unique student IDs not already in memberships
+          const uniqueStudentIds = [...new Set(classStudentsData.map(cs => cs.student_id))]
+            .filter(sid => !existingMemberUserIds.has(sid));
+          
+          const studentMembers = await Promise.all(
+            uniqueStudentIds.map(async (studentId) => {
+              const { data: user } = await supabase
+                .from('user_registrations')
+                .select('nickname, parent_email, avatar')
+                .eq('id', studentId)
+                .single();
+              
+              return {
+                id: `class-student-${studentId}`,
+                school_id: schoolId,
+                user_id: studentId,
+                role: 'student' as const,
+                is_active: true,
+                user_nickname: user?.nickname,
+                user_email: user?.parent_email,
+                user_avatar: user?.avatar,
+              };
+            })
+          );
+          
+          membersWithDetails.push(...studentMembers);
+        }
+      }
       
       setMembers(membersWithDetails);
       
