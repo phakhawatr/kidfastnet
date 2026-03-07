@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import kidfastaiLogo from '@/assets/kidfastai-logo-3d.png';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
