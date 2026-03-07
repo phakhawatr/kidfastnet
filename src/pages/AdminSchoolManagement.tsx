@@ -631,52 +631,65 @@ const AdminSchoolManagement = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200">
-      <main className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 font-sarabun">
+      <main className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="mb-6">
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={() => navigate('/admin/dashboard')}
-            className="flex items-center gap-2"
+            className="mb-4 text-purple-700 hover:text-purple-900 hover:bg-purple-100"
           >
-            <ArrowLeft className="w-4 h-4" />
-            กลับ
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            กลับหน้าหลัก
           </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              🏫 {school.name}
-            </h1>
-            <p className="text-gray-600">รหัส: {school.code}</p>
+          <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 rounded-2xl p-6 shadow-xl text-white">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-3xl shadow-lg">
+                🏫
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight">{school.name}</h1>
+                <p className="text-purple-100 text-lg mt-1">รหัสโรงเรียน: <span className="font-semibold text-white bg-white/20 px-3 py-0.5 rounded-full text-base">{school.code}</span></p>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* School Info Card */}
-        <Card className="p-6 mb-6 bg-white/80">
+        <Card className="p-6 mb-6 bg-white/90 backdrop-blur-sm border-0 shadow-lg rounded-2xl border-l-4 border-l-purple-500">
           <div className="flex items-start justify-between">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {school.address && (
-                <div className="flex items-center gap-2 text-gray-600">
-                  <MapPin className="w-4 h-4" />
-                  <span>{school.address} {school.district} {school.province}</span>
+                <div className="flex items-center gap-3 text-gray-700">
+                  <div className="w-9 h-9 rounded-xl bg-rose-100 flex items-center justify-center">
+                    <MapPin className="w-4 h-4 text-rose-600" />
+                  </div>
+                  <span className="text-base">{school.address} {school.district} {school.province}</span>
                 </div>
               )}
               {school.phone && (
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Phone className="w-4 h-4" />
-                  <span>{school.phone}</span>
+                <div className="flex items-center gap-3 text-gray-700">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center">
+                    <Phone className="w-4 h-4 text-emerald-600" />
+                  </div>
+                  <span className="text-base">{school.phone}</span>
                 </div>
               )}
               {school.email && (
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Mail className="w-4 h-4" />
-                  <span>{school.email}</span>
+                <div className="flex items-center gap-3 text-gray-700">
+                  <div className="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center">
+                    <Mail className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <span className="text-base">{school.email}</span>
                 </div>
               )}
               {school.website && (
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Globe className="w-4 h-4" />
-                  <a href={school.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                <div className="flex items-center gap-3 text-gray-700">
+                  <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center">
+                    <Globe className="w-4 h-4 text-amber-600" />
+                  </div>
+                  <a href={school.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-base">
                     {school.website}
                   </a>
                 </div>
@@ -684,7 +697,7 @@ const AdminSchoolManagement = () => {
             </div>
             <Dialog open={showEditSchool} onOpenChange={setShowEditSchool}>
               <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="rounded-xl border-purple-200 text-purple-700 hover:bg-purple-50">
                   <Edit className="w-4 h-4 mr-2" />
                   แก้ไข
                 </Button>
