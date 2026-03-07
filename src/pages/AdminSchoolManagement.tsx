@@ -89,6 +89,8 @@ const AdminSchoolManagement = () => {
   const [showCreateClass, setShowCreateClass] = useState(false);
   const [showAddMember, setShowAddMember] = useState(false);
   const [showEditSchool, setShowEditSchool] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [showClassManagement, setShowClassManagement] = useState(false);
   
   // Class management states
