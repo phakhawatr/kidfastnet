@@ -787,18 +787,18 @@ const AdminSchoolManagement = () => {
         </Card>
 
         {/* Tabs */}
-        <Tabs defaultValue="classes" className="space-y-4">
-          <TabsList className="bg-white/80">
-            <TabsTrigger value="classes" className="data-[state=active]:bg-purple-100">
-              <GraduationCap className="w-4 h-4 mr-2" />
+        <Tabs defaultValue="classes" className="space-y-5">
+          <TabsList className="bg-white/90 backdrop-blur-sm p-1.5 rounded-2xl shadow-md border-0 h-auto gap-1">
+            <TabsTrigger value="classes" className="rounded-xl px-5 py-3 text-base font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
+              <GraduationCap className="w-5 h-5 mr-2" />
               ห้องเรียน ({classes.length})
             </TabsTrigger>
-            <TabsTrigger value="teachers" className="data-[state=active]:bg-purple-100">
-              <GraduationCap className="w-4 h-4 mr-2" />
+            <TabsTrigger value="teachers" className="rounded-xl px-5 py-3 text-base font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
+              <GraduationCap className="w-5 h-5 mr-2" />
               ครู ({members.filter(m => m.role === 'teacher' || m.role === 'school_admin').length})
             </TabsTrigger>
-            <TabsTrigger value="students" className="data-[state=active]:bg-purple-100">
-              <Users className="w-4 h-4 mr-2" />
+            <TabsTrigger value="students" className="rounded-xl px-5 py-3 text-base font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-blue-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
+              <Users className="w-5 h-5 mr-2" />
               นักเรียน ({members.filter(m => m.role === 'student').length})
             </TabsTrigger>
           </TabsList>
