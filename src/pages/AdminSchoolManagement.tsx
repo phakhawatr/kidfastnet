@@ -41,6 +41,7 @@ interface School {
   email: string | null;
   website: string | null;
   logo_url: string | null;
+  background_url: string | null;
 }
 
 interface ClassData {
@@ -91,6 +92,8 @@ const AdminSchoolManagement = () => {
   const [showEditSchool, setShowEditSchool] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [uploadingBackground, setUploadingBackground] = useState(false);
+  const [backgroundPreview, setBackgroundPreview] = useState<string | null>(null);
   const [showClassManagement, setShowClassManagement] = useState(false);
   
   // Class management states
@@ -480,6 +483,58 @@ const AdminSchoolManagement = () => {
       setUploadingLogo(false);
     }
   };
+
+  const handleBackgroundUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !schoolId) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'กรุณาเลือกไฟล์รูปภาพ', variant: 'destructive' });
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast({ title: 'ไฟล์ใหญ่เกินไป (สูงสุด 10MB)', variant: 'destructive' });
+      return;
+    }
+
+    setUploadingBackground(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const filePath = `${schoolId}/background.${ext}`;
+
+      await supabase.storage.from('school-logos').remove([filePath]);
+
+      const { error: uploadError } = await supabase.storage
+        .from('school-logos')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from('school-logos')
+        .getPublicUrl(filePath);
+
+      const bgUrl = urlData.publicUrl + '?t=' + Date.now();
+
+      await supabase.rpc('admin_update_school', {
+        p_school_id: schoolId,
+        p_data: { background_url: bgUrl }
+      });
+
+      setBackgroundPreview(bgUrl);
+      toast({ title: 'อัปโหลดภาพพื้นหลังสำเร็จ' });
+      fetchSchoolData();
+    } catch (error: any) {
+      toast({
+        title: 'อัปโหลดไม่สำเร็จ',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setUploadingBackground(false);
+    }
+  };
+
   const handleUpdateSchool = async () => {
     if (!schoolId) return;
     
@@ -701,8 +756,15 @@ const AdminSchoolManagement = () => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             กลับหน้าหลัก
           </Button>
-          <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 rounded-2xl p-6 shadow-xl text-white">
-            <div className="flex items-center gap-4">
+          <div className="relative bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 rounded-2xl p-6 shadow-xl text-white overflow-hidden">
+            {(backgroundPreview || school.background_url) && (
+              <img 
+                src={backgroundPreview || school.background_url || ''} 
+                alt="พื้นหลัง" 
+                className="absolute inset-0 w-full h-full object-cover rounded-2xl opacity-40"
+              />
+            )}
+            <div className="relative z-10 flex items-center gap-4">
               {school.logo_url ? (
                 <img src={school.logo_url} alt="โลโก้โรงเรียน" className="w-16 h-16 rounded-2xl object-cover bg-white shadow-lg" />
               ) : (
@@ -794,6 +856,34 @@ const AdminSchoolManagement = () => {
                           </span>
                         </label>
                         <p className="text-xs text-gray-400 mt-1">PNG, JPG สูงสุด 5MB</p>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Background Upload */}
+                  <div className="col-span-2">
+                    <Label className="text-base">ภาพพื้นหลัง (Background)</Label>
+                    <div className="mt-2 flex items-center gap-4">
+                      <div className="w-32 h-20 rounded-2xl border-2 border-dashed border-indigo-300 bg-indigo-50 flex items-center justify-center overflow-hidden">
+                        {(backgroundPreview || school?.background_url) ? (
+                          <img src={backgroundPreview || school?.background_url || ''} alt="พื้นหลัง" className="w-full h-full object-cover rounded-2xl" />
+                        ) : (
+                          <ImageIcon className="w-8 h-8 text-indigo-300" />
+                        )}
+                      </div>
+                      <div>
+                        <label className="cursor-pointer">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleBackgroundUpload}
+                            className="hidden"
+                          />
+                          <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${uploadingBackground ? 'bg-gray-200 text-gray-500' : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200 cursor-pointer'}`}>
+                            <Upload className="w-4 h-4" />
+                            {uploadingBackground ? 'กำลังอัปโหลด...' : 'เลือกภาพพื้นหลัง'}
+                          </span>
+                        </label>
+                        <p className="text-xs text-gray-400 mt-1">PNG, JPG สูงสุด 10MB</p>
                       </div>
                     </div>
                   </div>
