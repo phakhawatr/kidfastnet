@@ -753,7 +753,7 @@ const AdminSchoolManagement = () => {
             alt="พื้นหลัง" 
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/80 via-purple-50/80 to-pink-50/80 backdrop-blur-[2px]" />
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/40 via-purple-50/40 to-pink-50/40" />
         </div>
       ) : (
         <div className="fixed inset-0 z-0 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50" />
