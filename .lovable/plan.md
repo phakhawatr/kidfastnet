@@ -1,54 +1,91 @@
 
 
-## Problem Analysis
+## Plan: Fix Question Bank Import Completeness Issues
 
-Preview แสดงโค้ดเก่าเพราะ **PWA Service Worker** cache ไฟล์ไว้อย่างแรง (aggressive caching) ใน `vite.config.ts`:
+### Root Problem
 
-- `globPatterns: ['**/*.{js,css,html,...}']` — cache ทุกไฟล์ JS/CSS/HTML ไว้
-- `CacheFirst` strategy สำหรับรูปภาพ — ใช้ cache ก่อนเสมอ ไม่เช็คเวอร์ชั่นใหม่
-- แม้มี `skipWaiting: true` แต่ Service Worker ยังต้อง activate ก่อนถึงจะใช้โค้ดใหม่ ซึ่งบางครั้งไม่ทันทำงานในตอน preview
+There are two inconsistent data formats for questions in the database:
 
-## Plan
+1. **AI-generated questions**: `choices: ["5", "6", "7", "8"]`, `correct_answer: "5"`
+2. **PDF-imported questions**: `choices: ["A) 5", "B) 6", "C) 7", "D) 8"]`, `correct_answer: "A"`
 
-**File: `vite.config.ts`** — ปรับ PWA config ให้ไม่ cache JS/CSS ใน preview:
+When these are imported/copied between banks or used in exams, mismatches occur — choices may appear incomplete, correct answers don't match, and display is inconsistent.
 
-1. เปลี่ยน `globPatterns` ให้ cache เฉพาะ assets คงที่ (icons, fonts) ไม่รวม JS/CSS/HTML
-2. เพิ่ม runtime caching สำหรับ JS/CSS ด้วย `NetworkFirst` strategy (เช็คเวอร์ชั่นใหม่จาก server ก่อนเสมอ)
-3. เปลี่ยน HTML cache `networkTimeoutSeconds` จาก 3 วิ → 1 วิ ให้ fallback เร็วขึ้น
-4. เพิ่ม `cleanupOutdatedCaches: true` เพื่อลบ cache เก่าอัตโนมัติ
+### Changes
+
+**1. Add validation/normalization utility (`src/utils/questionNormalizer.ts` — new file)**
+
+Create a function `normalizeQuestion(question)` that:
+- Ensures `choices` array always has exactly 4 items (pads with empty or trims)
+- Strips `A)`, `B)`, `C)`, `D)` prefixes from choices if present
+- Converts letter-only `correct_answer` (e.g., "A") to actual choice text
+- Ensures `correct_answer` matches one of the normalized choices
+- Flags questions that can't be fixed (returns `{ normalized, warnings }`)
+
+**2. Apply normalization in `useQuestionBank.ts`**
+
+- In `copySystemQuestion`: normalize before insert
+- In `copySharedQuestion`: normalize before insert
+- In `createQuestion`: normalize before insert
+- In `fetchQuestions` / `fetchSystemQuestions`: normalize after fetch for display consistency
+
+**3. Apply normalization in `ai-generate-questions/index.ts` (edge function)**
+
+- After parsing AI response, validate each question has exactly 4 choices
+- Ensure `correct_answer` matches one of the choices
+- Fill missing choices if fewer than 4
+
+**4. Apply normalization in `ai-import-pdf-questions/index.ts` (edge function)**
+
+- After parsing, strip "A) / B) / C) / D)" prefixes from choices
+- Convert letter-only `correct_answer` to actual choice text
+- Ensure exactly 4 choices per question
+
+**5. Update display components for safety**
+
+- In `QuestionBankSelector.tsx`, `SystemQuestionsBrowser.tsx`, `SharedQuestionsBrowser.tsx`, `PublicExam.tsx`, `Quiz.tsx`: add a safety check so if `choices` has fewer than 4 items, pad with placeholder or show a warning badge
+
+### Technical Detail — Normalizer
 
 ```typescript
-workbox: {
-  maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
-  skipWaiting: true,
-  clientsClaim: true,
-  cleanupOutdatedCaches: true,
-  globPatterns: ['**/*.{ico,png,svg,woff,woff2}'], // ไม่รวม js,css,html
-  navigateFallback: '/index.html',
-  navigateFallbackDenylist: [/^\/api/, /^\/supabase/],
-  runtimeCaching: [
-    {
-      urlPattern: /\.(?:js|css)$/,
-      handler: 'NetworkFirst',
-      options: {
-        cacheName: 'assets-cache',
-        networkTimeoutSeconds: 2,
-        expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 }
-      }
-    },
-    {
-      urlPattern: /^https:\/\/.*\.(?:html)$/,
-      handler: 'NetworkFirst',
-      options: {
-        cacheName: 'html-cache',
-        networkTimeoutSeconds: 1,
-        expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 }
-      }
-    },
-    // keep existing font & image caching rules
-  ]
+export function normalizeQuestion(q: { choices: string[], correct_answer: string }) {
+  let choices = [...(q.choices || [])];
+  let correctAnswer = q.correct_answer || '';
+
+  // Strip A), B), C), D) prefixes
+  choices = choices.map(c => typeof c === 'string' ? c.replace(/^[A-D]\)\s*/, '').trim() : String(c));
+
+  // Convert letter-only correct_answer to choice text
+  if (/^[A-D]$/.test(correctAnswer)) {
+    const idx = correctAnswer.charCodeAt(0) - 65;
+    if (idx >= 0 && idx < choices.length) {
+      correctAnswer = choices[idx];
+    }
+  } else {
+    correctAnswer = correctAnswer.replace(/^[A-D]\)\s*/, '').trim();
+  }
+
+  // Ensure exactly 4 choices
+  while (choices.length < 4) choices.push('');
+  choices = choices.slice(0, 4);
+
+  // Validate correct_answer is in choices
+  if (!choices.includes(correctAnswer) && choices.length > 0) {
+    // Try fuzzy match
+    const match = choices.find(c => c.includes(correctAnswer) || correctAnswer.includes(c));
+    if (match) correctAnswer = match;
+  }
+
+  return { choices, correct_answer: correctAnswer };
 }
 ```
 
-This ensures the browser always fetches the latest JS/CSS/HTML from the server first, only falling back to cache when offline.
+### Files to create/edit
+- **Create**: `src/utils/questionNormalizer.ts`
+- **Edit**: `src/hooks/useQuestionBank.ts` (normalize in copy/create/fetch functions)
+- **Edit**: `supabase/functions/ai-generate-questions/index.ts` (post-parse validation)
+- **Edit**: `supabase/functions/ai-import-pdf-questions/index.ts` (post-parse normalization)
+- **Edit**: `src/components/SystemQuestionsBrowser.tsx` (safety display check)
+- **Edit**: `src/components/SharedQuestionsBrowser.tsx` (safety display check)
+- **Edit**: `src/components/QuestionBankSelector.tsx` (safety display check)
 
