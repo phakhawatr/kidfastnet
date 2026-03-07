@@ -41,6 +41,7 @@ interface School {
   email: string | null;
   website: string | null;
   logo_url: string | null;
+  background_url: string | null;
 }
 
 interface ClassData {
