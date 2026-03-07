@@ -483,6 +483,58 @@ const AdminSchoolManagement = () => {
       setUploadingLogo(false);
     }
   };
+
+  const handleBackgroundUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !schoolId) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'กรุณาเลือกไฟล์รูปภาพ', variant: 'destructive' });
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast({ title: 'ไฟล์ใหญ่เกินไป (สูงสุด 10MB)', variant: 'destructive' });
+      return;
+    }
+
+    setUploadingBackground(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const filePath = `${schoolId}/background.${ext}`;
+
+      await supabase.storage.from('school-logos').remove([filePath]);
+
+      const { error: uploadError } = await supabase.storage
+        .from('school-logos')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from('school-logos')
+        .getPublicUrl(filePath);
+
+      const bgUrl = urlData.publicUrl + '?t=' + Date.now();
+
+      await supabase.rpc('admin_update_school', {
+        p_school_id: schoolId,
+        p_data: { background_url: bgUrl }
+      });
+
+      setBackgroundPreview(bgUrl);
+      toast({ title: 'อัปโหลดภาพพื้นหลังสำเร็จ' });
+      fetchSchoolData();
+    } catch (error: any) {
+      toast({
+        title: 'อัปโหลดไม่สำเร็จ',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setUploadingBackground(false);
+    }
+  };
+
   const handleUpdateSchool = async () => {
     if (!schoolId) return;
     
