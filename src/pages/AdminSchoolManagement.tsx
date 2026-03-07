@@ -698,9 +698,13 @@ const AdminSchoolManagement = () => {
           </Button>
           <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 rounded-2xl p-6 shadow-xl text-white">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-3xl shadow-lg">
-                🏫
-              </div>
+              {school.logo_url ? (
+                <img src={school.logo_url} alt="โลโก้โรงเรียน" className="w-16 h-16 rounded-2xl object-cover bg-white shadow-lg" />
+              ) : (
+                <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-3xl shadow-lg">
+                  🏫
+                </div>
+              )}
               <div>
                 <h1 className="text-3xl font-bold tracking-tight">{school.name}</h1>
                 <p className="text-purple-100 text-lg mt-1">รหัสโรงเรียน: <span className="font-semibold text-white bg-white/20 px-3 py-0.5 rounded-full text-base">{school.code}</span></p>
