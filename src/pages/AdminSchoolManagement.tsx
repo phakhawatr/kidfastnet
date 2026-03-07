@@ -732,9 +732,13 @@ const AdminSchoolManagement = () => {
               <GraduationCap className="w-4 h-4 mr-2" />
               ห้องเรียน ({classes.length})
             </TabsTrigger>
-            <TabsTrigger value="members" className="data-[state=active]:bg-purple-100">
+            <TabsTrigger value="teachers" className="data-[state=active]:bg-purple-100">
+              <GraduationCap className="w-4 h-4 mr-2" />
+              ครู ({members.filter(m => m.role === 'teacher' || m.role === 'school_admin').length})
+            </TabsTrigger>
+            <TabsTrigger value="students" className="data-[state=active]:bg-purple-100">
               <Users className="w-4 h-4 mr-2" />
-              สมาชิก ({members.length})
+              นักเรียน ({members.filter(m => m.role === 'student').length})
             </TabsTrigger>
           </TabsList>
 
@@ -895,16 +899,16 @@ const AdminSchoolManagement = () => {
             </Card>
           </TabsContent>
 
-          {/* Members Tab */}
-          <TabsContent value="members">
+          {/* Teachers Tab */}
+          <TabsContent value="teachers">
             <Card className="p-6 bg-white/80">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">สมาชิกทั้งหมด</h2>
+                <h2 className="text-lg font-semibold text-gray-900">ครูทั้งหมด</h2>
                 <Dialog open={showAddMember} onOpenChange={setShowAddMember}>
                   <DialogTrigger asChild>
-                    <Button className="bg-purple-600 hover:bg-purple-700">
+                    <Button className="bg-purple-600 hover:bg-purple-700" onClick={() => setNewMember({ email: '', role: 'teacher' })}>
                       <UserPlus className="w-4 h-4 mr-2" />
-                      เพิ่มสมาชิก
+                      เพิ่มครู
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
@@ -951,17 +955,66 @@ const AdminSchoolManagement = () => {
                 </Dialog>
               </div>
               
-              {members.length === 0 ? (
+              {members.filter(m => m.role === 'teacher' || m.role === 'school_admin').length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
-                  <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>ยังไม่มีสมาชิก</p>
+                  <GraduationCap className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p>ยังไม่มีครู</p>
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {members.map(member => (
+                  {members.filter(m => m.role === 'teacher' || m.role === 'school_admin').map(member => (
                     <div key={member.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 bg-white">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-xl">
+                          {member.user_avatar || '👤'}
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">{member.user_nickname || 'ไม่ระบุชื่อ'}</p>
+                          <p className="text-sm text-gray-500">{member.user_email}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`px-2 py-1 text-xs rounded-full border ${getRoleBadgeColor(member.role)}`}>
+                          {getRoleLabel(member.role)}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveMember(member.id, member.user_nickname || '')}
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+          </TabsContent>
+
+          {/* Students Tab */}
+          <TabsContent value="students">
+            <Card className="p-6 bg-white/80">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">นักเรียนทั้งหมด</h2>
+                <Button className="bg-purple-600 hover:bg-purple-700" onClick={() => { setNewMember({ email: '', role: 'student' }); setShowAddMember(true); }}>
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  เพิ่มนักเรียน
+                </Button>
+              </div>
+              
+              {members.filter(m => m.role === 'student').length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p>ยังไม่มีนักเรียน</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {members.filter(m => m.role === 'student').map(member => (
+                    <div key={member.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 bg-white">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-xl">
                           {member.user_avatar || '👤'}
                         </div>
                         <div>
