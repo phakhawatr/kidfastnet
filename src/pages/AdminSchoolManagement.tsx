@@ -24,7 +24,9 @@ import {
   Globe,
   Edit,
   Save,
-  X
+  X,
+  Upload,
+  ImageIcon
 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
@@ -38,6 +40,7 @@ interface School {
   phone: string | null;
   email: string | null;
   website: string | null;
+  logo_url: string | null;
 }
 
 interface ClassData {
@@ -86,6 +89,8 @@ const AdminSchoolManagement = () => {
   const [showCreateClass, setShowCreateClass] = useState(false);
   const [showAddMember, setShowAddMember] = useState(false);
   const [showEditSchool, setShowEditSchool] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [showClassManagement, setShowClassManagement] = useState(false);
   
   // Class management states
@@ -152,6 +157,7 @@ const AdminSchoolManagement = () => {
         email: schoolData.email || '',
         website: schoolData.website || '',
       });
+      setLogoPreview(schoolData.logo_url || null);
 
       // Fetch classes
       const { data: classesData, error: classesError } = await supabase
@@ -422,6 +428,54 @@ const AdminSchoolManagement = () => {
     }
   };
 
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !schoolId) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'กรุณาเลือกไฟล์รูปภาพ', variant: 'destructive' });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: 'ไฟล์ใหญ่เกินไป (สูงสุด 5MB)', variant: 'destructive' });
+      return;
+    }
+
+    setUploadingLogo(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const filePath = `${schoolId}/logo.${ext}`;
+
+      // Remove old logo if exists
+      await supabase.storage.from('school-logos').remove([filePath]);
+
+      const { error: uploadError } = await supabase.storage
+        .from('school-logos')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from('school-logos')
+        .getPublicUrl(filePath);
+
+      const logoUrl = urlData.publicUrl + '?t=' + Date.now();
+
+      await supabase.from('schools').update({ logo_url: logoUrl }).eq('id', schoolId);
+
+      setLogoPreview(logoUrl);
+      toast({ title: 'อัปโหลดโลโก้สำเร็จ' });
+      fetchSchoolData();
+    } catch (error: any) {
+      toast({
+        title: 'อัปโหลดไม่สำเร็จ',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
   const handleUpdateSchool = async () => {
     if (!schoolId) return;
     
@@ -645,9 +699,13 @@ const AdminSchoolManagement = () => {
           </Button>
           <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 rounded-2xl p-6 shadow-xl text-white">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-3xl shadow-lg">
-                🏫
-              </div>
+              {school.logo_url ? (
+                <img src={school.logo_url} alt="โลโก้โรงเรียน" className="w-16 h-16 rounded-2xl object-cover bg-white shadow-lg" />
+              ) : (
+                <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-3xl shadow-lg">
+                  🏫
+                </div>
+              )}
               <div>
                 <h1 className="text-3xl font-bold tracking-tight">{school.name}</h1>
                 <p className="text-purple-100 text-lg mt-1">รหัสโรงเรียน: <span className="font-semibold text-white bg-white/20 px-3 py-0.5 rounded-full text-base">{school.code}</span></p>
@@ -707,6 +765,34 @@ const AdminSchoolManagement = () => {
                   <DialogTitle>แก้ไขข้อมูลโรงเรียน</DialogTitle>
                 </DialogHeader>
                 <div className="grid grid-cols-2 gap-4 mt-4">
+                  {/* Logo Upload */}
+                  <div className="col-span-2">
+                    <Label className="text-base">โลโก้โรงเรียน</Label>
+                    <div className="mt-2 flex items-center gap-4">
+                      <div className="w-20 h-20 rounded-2xl border-2 border-dashed border-purple-300 bg-purple-50 flex items-center justify-center overflow-hidden">
+                        {(logoPreview || school?.logo_url) ? (
+                          <img src={logoPreview || school?.logo_url || ''} alt="โลโก้" className="w-full h-full object-cover rounded-2xl" />
+                        ) : (
+                          <ImageIcon className="w-8 h-8 text-purple-300" />
+                        )}
+                      </div>
+                      <div>
+                        <label className="cursor-pointer">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleLogoUpload}
+                            className="hidden"
+                          />
+                          <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${uploadingLogo ? 'bg-gray-200 text-gray-500' : 'bg-purple-100 text-purple-700 hover:bg-purple-200 cursor-pointer'}`}>
+                            <Upload className="w-4 h-4" />
+                            {uploadingLogo ? 'กำลังอัปโหลด...' : 'เลือกรูปโลโก้'}
+                          </span>
+                        </label>
+                        <p className="text-xs text-gray-400 mt-1">PNG, JPG สูงสุด 5MB</p>
+                      </div>
+                    </div>
+                  </div>
                   <div className="col-span-2">
                     <Label>ชื่อโรงเรียน</Label>
                     <Input
