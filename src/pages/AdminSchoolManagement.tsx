@@ -607,18 +607,22 @@ const AdminSchoolManagement = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center font-sarabun">
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin rounded-full h-14 w-14 border-4 border-purple-200 border-t-purple-600"></div>
+          <p className="text-lg text-purple-600 font-semibold">กำลังโหลด...</p>
+        </div>
       </div>
     );
   }
 
   if (!school) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
-        <Card className="p-8 text-center">
-          <p className="text-gray-600 mb-4">ไม่พบข้อมูลโรงเรียน</p>
-          <Button onClick={() => navigate('/admin/dashboard')}>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center font-sarabun">
+        <Card className="p-8 text-center shadow-xl border-0">
+          <Building2 className="w-16 h-16 mx-auto mb-4 text-purple-300" />
+          <p className="text-xl text-gray-600 mb-4">ไม่พบข้อมูลโรงเรียน</p>
+          <Button onClick={() => navigate('/admin/dashboard')} className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
             กลับหน้าหลัก
           </Button>
         </Card>
