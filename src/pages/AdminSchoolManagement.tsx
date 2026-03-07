@@ -40,6 +40,7 @@ interface School {
   phone: string | null;
   email: string | null;
   website: string | null;
+  logo_url: string | null;
 }
 
 interface ClassData {
