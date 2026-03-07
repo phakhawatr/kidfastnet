@@ -461,7 +461,11 @@ const AdminSchoolManagement = () => {
 
       const logoUrl = urlData.publicUrl + '?t=' + Date.now();
 
-      await supabase.from('schools').update({ logo_url: logoUrl }).eq('id', schoolId);
+      // Use security definer function to bypass RLS
+      await supabase.rpc('admin_update_school', {
+        p_school_id: schoolId,
+        p_data: { logo_url: logoUrl }
+      });
 
       setLogoPreview(logoUrl);
       toast({ title: 'อัปโหลดโลโก้สำเร็จ' });
