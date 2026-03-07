@@ -744,7 +744,21 @@ const AdminSchoolManagement = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 font-sarabun">
+    <div className="min-h-screen font-sarabun relative">
+      {/* Background Image */}
+      {(backgroundPreview || school.background_url) ? (
+        <div className="fixed inset-0 z-0">
+          <img 
+            src={backgroundPreview || school.background_url || ''} 
+            alt="พื้นหลัง" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/80 via-purple-50/80 to-pink-50/80 backdrop-blur-[2px]" />
+        </div>
+      ) : (
+        <div className="fixed inset-0 z-0 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50" />
+      )}
+      <div className="relative z-10">
       <main className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
         <div className="mb-6">
