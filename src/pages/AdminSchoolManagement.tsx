@@ -756,8 +756,15 @@ const AdminSchoolManagement = () => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             กลับหน้าหลัก
           </Button>
-          <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 rounded-2xl p-6 shadow-xl text-white">
-            <div className="flex items-center gap-4">
+          <div className="relative bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 rounded-2xl p-6 shadow-xl text-white overflow-hidden">
+            {(backgroundPreview || school.background_url) && (
+              <img 
+                src={backgroundPreview || school.background_url || ''} 
+                alt="พื้นหลัง" 
+                className="absolute inset-0 w-full h-full object-cover rounded-2xl opacity-40"
+              />
+            )}
+            <div className="relative z-10 flex items-center gap-4">
               {school.logo_url ? (
                 <img src={school.logo_url} alt="โลโก้โรงเรียน" className="w-16 h-16 rounded-2xl object-cover bg-white shadow-lg" />
               ) : (
