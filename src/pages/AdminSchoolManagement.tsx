@@ -805,33 +805,38 @@ const AdminSchoolManagement = () => {
 
           {/* Classes Tab */}
           <TabsContent value="classes">
-            <Card className="p-6 bg-white/80">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">ห้องเรียนทั้งหมด</h2>
+            <Card className="p-6 bg-white/90 backdrop-blur-sm border-0 shadow-lg rounded-2xl">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                    <GraduationCap className="w-4 h-4 text-emerald-600" />
+                  </span>
+                  ห้องเรียนทั้งหมด
+                </h2>
                 <Dialog open={showCreateClass} onOpenChange={setShowCreateClass}>
                   <DialogTrigger asChild>
-                    <Button className="bg-purple-600 hover:bg-purple-700">
-                      <Plus className="w-4 h-4 mr-2" />
+                    <Button className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-xl shadow-md text-base">
+                      <Plus className="w-5 h-5 mr-2" />
                       เพิ่มห้องเรียน
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="font-sarabun">
                     <DialogHeader>
-                      <DialogTitle>สร้างห้องเรียนใหม่</DialogTitle>
+                      <DialogTitle className="text-xl">สร้างห้องเรียนใหม่</DialogTitle>
                     </DialogHeader>
                     <div className="grid gap-4 mt-4">
                       <div>
-                        <Label>ชื่อห้องเรียน *</Label>
+                        <Label className="text-base">ชื่อห้องเรียน *</Label>
                         <Input
                           value={newClass.name}
                           onChange={(e) => setNewClass({ ...newClass, name: e.target.value })}
                           placeholder="เช่น ป.1/1"
-                          className="mt-1"
+                          className="mt-1 text-base"
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label>ระดับชั้น</Label>
+                          <Label className="text-base">ระดับชั้น</Label>
                           <Select
                             value={newClass.grade.toString()}
                             onValueChange={(v) => setNewClass({ ...newClass, grade: parseInt(v) })}
@@ -847,7 +852,7 @@ const AdminSchoolManagement = () => {
                           </Select>
                         </div>
                         <div>
-                          <Label>ปีการศึกษา</Label>
+                          <Label className="text-base">ปีการศึกษา</Label>
                           <Input
                             type="number"
                             value={newClass.academic_year}
@@ -858,7 +863,7 @@ const AdminSchoolManagement = () => {
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label>ภาคเรียน</Label>
+                          <Label className="text-base">ภาคเรียน</Label>
                           <Select
                             value={newClass.semester.toString()}
                             onValueChange={(v) => setNewClass({ ...newClass, semester: parseInt(v) })}
@@ -873,7 +878,7 @@ const AdminSchoolManagement = () => {
                           </Select>
                         </div>
                         <div>
-                          <Label>จำนวนนักเรียนสูงสุด</Label>
+                          <Label className="text-base">จำนวนนักเรียนสูงสุด</Label>
                           <Input
                             type="number"
                             value={newClass.max_students}
@@ -884,7 +889,7 @@ const AdminSchoolManagement = () => {
                       </div>
                       {teachers.length > 0 && (
                         <div>
-                          <Label>ครูประจำชั้น</Label>
+                          <Label className="text-base">ครูประจำชั้น</Label>
                           <Select
                             value={newClass.teacher_id}
                             onValueChange={(v) => setNewClass({ ...newClass, teacher_id: v })}
@@ -905,7 +910,7 @@ const AdminSchoolManagement = () => {
                       <Button variant="ghost" onClick={() => setShowCreateClass(false)}>
                         ยกเลิก
                       </Button>
-                      <Button onClick={handleCreateClass} className="bg-purple-600 hover:bg-purple-700">
+                      <Button onClick={handleCreateClass} className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white">
                         สร้างห้องเรียน
                       </Button>
                     </div>
@@ -914,24 +919,30 @@ const AdminSchoolManagement = () => {
               </div>
               
               {classes.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <GraduationCap className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>ยังไม่มีห้องเรียน</p>
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-emerald-50 flex items-center justify-center">
+                    <GraduationCap className="w-10 h-10 text-emerald-300" />
+                  </div>
+                  <p className="text-lg text-gray-500">ยังไม่มีห้องเรียน</p>
+                  <p className="text-sm text-gray-400 mt-1">กดปุ่ม "เพิ่มห้องเรียน" เพื่อเริ่มต้น</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {classes.map(cls => (
                     <Card 
                       key={cls.id} 
-                      className="p-4 border border-gray-200 cursor-pointer hover:border-purple-400 hover:shadow-md transition-all"
+                      className="p-5 border-0 cursor-pointer hover:shadow-xl transition-all duration-300 rounded-2xl bg-gradient-to-br from-white to-emerald-50/50 shadow-md group hover:-translate-y-1 border-t-4 border-t-emerald-400"
                       onClick={() => openClassManagement(cls)}
                     >
                       <div className="flex items-start justify-between">
                         <div>
-                          <h3 className="font-semibold text-gray-900">{cls.name}</h3>
-                          <p className="text-sm text-gray-600">ป.{cls.grade} • ปีการศึกษา {cls.academic_year}</p>
+                          <h3 className="text-lg font-bold text-gray-900 group-hover:text-emerald-700 transition-colors">{cls.name}</h3>
+                          <p className="text-base text-gray-600 mt-1">ป.{cls.grade} • ปีการศึกษา {cls.academic_year}</p>
                           {cls.teacher_name && (
-                            <p className="text-sm text-gray-500">ครู: {cls.teacher_name}</p>
+                            <p className="text-sm text-gray-500 mt-1 flex items-center gap-1">
+                              <GraduationCap className="w-3.5 h-3.5" />
+                              ครู: {cls.teacher_name}
+                            </p>
                           )}
                         </div>
                         <Button
@@ -941,17 +952,19 @@ const AdminSchoolManagement = () => {
                             e.stopPropagation();
                             handleDeleteClass(cls.id, cls.name);
                           }}
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          className="text-red-400 hover:text-red-700 hover:bg-red-50 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
-                      <div className="mt-2 flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-sm text-gray-500">
-                          <Users className="w-4 h-4" />
-                          <span>{cls.student_count || 0} / {cls.max_students || 40} คน</span>
+                      <div className="mt-3 flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-sm">
+                          <div className="flex items-center gap-1.5 bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full">
+                            <Users className="w-3.5 h-3.5" />
+                            <span className="font-semibold">{cls.student_count || 0} / {cls.max_students || 40} คน</span>
+                          </div>
                         </div>
-                        <span className="text-xs text-purple-600">คลิกเพื่อจัดการ →</span>
+                        <span className="text-xs text-emerald-500 font-medium group-hover:text-emerald-700 transition-colors">จัดการ →</span>
                       </div>
                     </Card>
                   ))}
