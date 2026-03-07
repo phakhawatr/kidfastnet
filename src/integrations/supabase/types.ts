@@ -2180,6 +2180,10 @@ export type Database = {
           subscription_tier: string
         }[]
       }
+      admin_update_school: {
+        Args: { p_data: Json; p_school_id: string }
+        Returns: boolean
+      }
       approve_user_registration: {
         Args: { admin_id: string; registration_id: string }
         Returns: boolean
