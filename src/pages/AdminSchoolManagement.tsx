@@ -732,9 +732,13 @@ const AdminSchoolManagement = () => {
               <GraduationCap className="w-4 h-4 mr-2" />
               ห้องเรียน ({classes.length})
             </TabsTrigger>
-            <TabsTrigger value="members" className="data-[state=active]:bg-purple-100">
+            <TabsTrigger value="teachers" className="data-[state=active]:bg-purple-100">
+              <GraduationCap className="w-4 h-4 mr-2" />
+              ครู ({members.filter(m => m.role === 'teacher' || m.role === 'school_admin').length})
+            </TabsTrigger>
+            <TabsTrigger value="students" className="data-[state=active]:bg-purple-100">
               <Users className="w-4 h-4 mr-2" />
-              สมาชิก ({members.length})
+              นักเรียน ({members.filter(m => m.role === 'student').length})
             </TabsTrigger>
           </TabsList>
 
