@@ -475,8 +475,7 @@ const AdminSchoolManagement = () => {
       setUploadingLogo(false);
     }
   };
-
-
+  const handleUpdateSchool = async () => {
     if (!schoolId) return;
     
     try {
