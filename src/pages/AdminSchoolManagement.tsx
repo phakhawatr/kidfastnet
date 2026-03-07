@@ -427,7 +427,56 @@ const AdminSchoolManagement = () => {
     }
   };
 
-  const handleUpdateSchool = async () => {
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !schoolId) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'กรุณาเลือกไฟล์รูปภาพ', variant: 'destructive' });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: 'ไฟล์ใหญ่เกินไป (สูงสุด 5MB)', variant: 'destructive' });
+      return;
+    }
+
+    setUploadingLogo(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const filePath = `${schoolId}/logo.${ext}`;
+
+      // Remove old logo if exists
+      await supabase.storage.from('school-logos').remove([filePath]);
+
+      const { error: uploadError } = await supabase.storage
+        .from('school-logos')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from('school-logos')
+        .getPublicUrl(filePath);
+
+      const logoUrl = urlData.publicUrl + '?t=' + Date.now();
+
+      await supabase.from('schools').update({ logo_url: logoUrl }).eq('id', schoolId);
+
+      setLogoPreview(logoUrl);
+      toast({ title: 'อัปโหลดโลโก้สำเร็จ' });
+      fetchSchoolData();
+    } catch (error: any) {
+      toast({
+        title: 'อัปโหลดไม่สำเร็จ',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
+
     if (!schoolId) return;
     
     try {
