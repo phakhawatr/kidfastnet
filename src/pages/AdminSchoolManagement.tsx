@@ -157,6 +157,7 @@ const AdminSchoolManagement = () => {
         email: schoolData.email || '',
         website: schoolData.website || '',
       });
+      setLogoPreview(schoolData.logo_url || null);
 
       // Fetch classes
       const { data: classesData, error: classesError } = await supabase
