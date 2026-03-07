@@ -975,33 +975,38 @@ const AdminSchoolManagement = () => {
 
           {/* Teachers Tab */}
           <TabsContent value="teachers">
-            <Card className="p-6 bg-white/80">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">ครูทั้งหมด</h2>
+            <Card className="p-6 bg-white/90 backdrop-blur-sm border-0 shadow-lg rounded-2xl">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center">
+                    <GraduationCap className="w-4 h-4 text-violet-600" />
+                  </span>
+                  ครูทั้งหมด
+                </h2>
                 <Dialog open={showAddMember} onOpenChange={setShowAddMember}>
                   <DialogTrigger asChild>
-                    <Button className="bg-purple-600 hover:bg-purple-700" onClick={() => setNewMember({ email: '', role: 'teacher' })}>
-                      <UserPlus className="w-4 h-4 mr-2" />
+                    <Button className="bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 text-white rounded-xl shadow-md text-base" onClick={() => setNewMember({ email: '', role: 'teacher' })}>
+                      <UserPlus className="w-5 h-5 mr-2" />
                       เพิ่มครู
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="font-sarabun">
                     <DialogHeader>
-                      <DialogTitle>เพิ่มสมาชิกใหม่</DialogTitle>
+                      <DialogTitle className="text-xl">เพิ่มสมาชิกใหม่</DialogTitle>
                     </DialogHeader>
                     <div className="grid gap-4 mt-4">
                       <div>
-                        <Label>อีเมลผู้ใช้ *</Label>
+                        <Label className="text-base">อีเมลผู้ใช้ *</Label>
                         <Input
                           type="email"
                           value={newMember.email}
                           onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
                           placeholder="user@email.com"
-                          className="mt-1"
+                          className="mt-1 text-base"
                         />
                       </div>
                       <div>
-                        <Label>ตำแหน่ง</Label>
+                        <Label className="text-base">ตำแหน่ง</Label>
                         <Select
                           value={newMember.role}
                           onValueChange={(v) => setNewMember({ ...newMember, role: v as any })}
@@ -1021,7 +1026,7 @@ const AdminSchoolManagement = () => {
                       <Button variant="ghost" onClick={() => setShowAddMember(false)}>
                         ยกเลิก
                       </Button>
-                      <Button onClick={handleAddMember} className="bg-purple-600 hover:bg-purple-700">
+                      <Button onClick={handleAddMember} className="bg-gradient-to-r from-violet-500 to-purple-500 text-white">
                         เพิ่มสมาชิก
                       </Button>
                     </div>
@@ -1030,32 +1035,35 @@ const AdminSchoolManagement = () => {
               </div>
               
               {members.filter(m => m.role === 'teacher' || m.role === 'school_admin').length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <GraduationCap className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>ยังไม่มีครู</p>
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-violet-50 flex items-center justify-center">
+                    <GraduationCap className="w-10 h-10 text-violet-300" />
+                  </div>
+                  <p className="text-lg text-gray-500">ยังไม่มีครู</p>
+                  <p className="text-sm text-gray-400 mt-1">กดปุ่ม "เพิ่มครู" เพื่อเพิ่มครูในโรงเรียน</p>
                 </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {members.filter(m => m.role === 'teacher' || m.role === 'school_admin').map(member => (
-                    <div key={member.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 bg-white">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-xl">
+                    <div key={member.id} className="flex items-center justify-between p-4 rounded-2xl border-0 bg-gradient-to-r from-white to-violet-50/50 shadow-sm hover:shadow-md transition-all border-l-4 border-l-violet-400">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center text-2xl shadow-md">
                           {member.user_avatar || '👤'}
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">{member.user_nickname || 'ไม่ระบุชื่อ'}</p>
+                          <p className="text-lg font-semibold text-gray-900">{member.user_nickname || 'ไม่ระบุชื่อ'}</p>
                           <p className="text-sm text-gray-500">{member.user_email}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className={`px-2 py-1 text-xs rounded-full border ${getRoleBadgeColor(member.role)}`}>
+                      <div className="flex items-center gap-3">
+                        <span className={`px-3 py-1.5 text-sm rounded-xl border font-semibold ${getRoleBadgeColor(member.role)}`}>
                           {getRoleLabel(member.role)}
                         </span>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => handleRemoveMember(member.id, member.user_nickname || '')}
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          className="text-red-400 hover:text-red-700 hover:bg-red-50 rounded-xl"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -1069,42 +1077,50 @@ const AdminSchoolManagement = () => {
 
           {/* Students Tab */}
           <TabsContent value="students">
-            <Card className="p-6 bg-white/80">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">นักเรียนทั้งหมด</h2>
-                <Button className="bg-purple-600 hover:bg-purple-700" onClick={() => { setNewMember({ email: '', role: 'student' }); setShowAddMember(true); }}>
-                  <UserPlus className="w-4 h-4 mr-2" />
+            <Card className="p-6 bg-white/90 backdrop-blur-sm border-0 shadow-lg rounded-2xl">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-lg bg-sky-100 flex items-center justify-center">
+                    <Users className="w-4 h-4 text-sky-600" />
+                  </span>
+                  นักเรียนทั้งหมด
+                </h2>
+                <Button className="bg-gradient-to-r from-sky-500 to-blue-500 hover:from-sky-600 hover:to-blue-600 text-white rounded-xl shadow-md text-base" onClick={() => { setNewMember({ email: '', role: 'student' }); setShowAddMember(true); }}>
+                  <UserPlus className="w-5 h-5 mr-2" />
                   เพิ่มนักเรียน
                 </Button>
               </div>
               
               {members.filter(m => m.role === 'student').length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>ยังไม่มีนักเรียน</p>
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-sky-50 flex items-center justify-center">
+                    <Users className="w-10 h-10 text-sky-300" />
+                  </div>
+                  <p className="text-lg text-gray-500">ยังไม่มีนักเรียน</p>
+                  <p className="text-sm text-gray-400 mt-1">กดปุ่ม "เพิ่มนักเรียน" หรือเพิ่มผ่านห้องเรียน</p>
                 </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {members.filter(m => m.role === 'student').map(member => (
-                    <div key={member.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 bg-white">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-xl">
+                    <div key={member.id} className="flex items-center justify-between p-4 rounded-2xl border-0 bg-gradient-to-r from-white to-sky-50/50 shadow-sm hover:shadow-md transition-all border-l-4 border-l-sky-400">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-400 to-blue-500 flex items-center justify-center text-2xl shadow-md">
                           {member.user_avatar || '👤'}
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">{member.user_nickname || 'ไม่ระบุชื่อ'}</p>
+                          <p className="text-lg font-semibold text-gray-900">{member.user_nickname || 'ไม่ระบุชื่อ'}</p>
                           <p className="text-sm text-gray-500">{member.user_email}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className={`px-2 py-1 text-xs rounded-full border ${getRoleBadgeColor(member.role)}`}>
+                      <div className="flex items-center gap-3">
+                        <span className={`px-3 py-1.5 text-sm rounded-xl border font-semibold ${getRoleBadgeColor(member.role)}`}>
                           {getRoleLabel(member.role)}
                         </span>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => handleRemoveMember(member.id, member.user_nickname || '')}
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          className="text-red-400 hover:text-red-700 hover:bg-red-50 rounded-xl"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
