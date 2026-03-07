@@ -747,13 +747,15 @@ const AdminSchoolManagement = () => {
     <div className="min-h-screen font-sarabun relative">
       {/* Background Image */}
       {(backgroundPreview || school.background_url) ? (
-        <div className="fixed inset-0 z-0">
+        <div className="fixed inset-0 z-0 overflow-hidden">
           <img 
             src={backgroundPreview || school.background_url || ''} 
             alt="พื้นหลัง" 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover animate-[bgZoom_30s_ease-in-out_infinite_alternate]"
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/40 via-purple-50/40 to-pink-50/40" />
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/30 via-transparent to-pink-50/30 animate-[bgShimmer_8s_ease-in-out_infinite_alternate]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(139,92,246,0.15),transparent_60%)] animate-[bgFloat_12s_ease-in-out_infinite_alternate]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(59,130,246,0.12),transparent_60%)] animate-[bgFloat_15s_ease-in-out_infinite_alternate-reverse]" />
         </div>
       ) : (
         <div className="fixed inset-0 z-0 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50" />
