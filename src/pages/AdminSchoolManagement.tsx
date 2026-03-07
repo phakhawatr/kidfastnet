@@ -484,10 +484,10 @@ const AdminSchoolManagement = () => {
     if (!schoolId) return;
     
     try {
-      const { error } = await supabase
-        .from('schools')
-        .update(editSchoolData)
-        .eq('id', schoolId);
+      const { error } = await supabase.rpc('admin_update_school', {
+        p_school_id: schoolId,
+        p_data: editSchoolData
+      });
       
       if (error) throw error;
       setShowEditSchool(false);
