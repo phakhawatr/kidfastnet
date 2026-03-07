@@ -764,7 +764,34 @@ const AdminSchoolManagement = () => {
                   <DialogTitle>แก้ไขข้อมูลโรงเรียน</DialogTitle>
                 </DialogHeader>
                 <div className="grid grid-cols-2 gap-4 mt-4">
+                  {/* Logo Upload */}
                   <div className="col-span-2">
+                    <Label className="text-base">โลโก้โรงเรียน</Label>
+                    <div className="mt-2 flex items-center gap-4">
+                      <div className="w-20 h-20 rounded-2xl border-2 border-dashed border-purple-300 bg-purple-50 flex items-center justify-center overflow-hidden">
+                        {(logoPreview || school?.logo_url) ? (
+                          <img src={logoPreview || school?.logo_url || ''} alt="โลโก้" className="w-full h-full object-cover rounded-2xl" />
+                        ) : (
+                          <ImageIcon className="w-8 h-8 text-purple-300" />
+                        )}
+                      </div>
+                      <div>
+                        <label className="cursor-pointer">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleLogoUpload}
+                            className="hidden"
+                          />
+                          <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${uploadingLogo ? 'bg-gray-200 text-gray-500' : 'bg-purple-100 text-purple-700 hover:bg-purple-200 cursor-pointer'}`}>
+                            <Upload className="w-4 h-4" />
+                            {uploadingLogo ? 'กำลังอัปโหลด...' : 'เลือกรูปโลโก้'}
+                          </span>
+                        </label>
+                        <p className="text-xs text-gray-400 mt-1">PNG, JPG สูงสุด 5MB</p>
+                      </div>
+                    </div>
+                  </div>
                     <Label>ชื่อโรงเรียน</Label>
                     <Input
                       value={editSchoolData.name}
