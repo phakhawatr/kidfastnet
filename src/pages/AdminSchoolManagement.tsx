@@ -859,6 +859,34 @@ const AdminSchoolManagement = () => {
                       </div>
                     </div>
                   </div>
+                  {/* Background Upload */}
+                  <div className="col-span-2">
+                    <Label className="text-base">ภาพพื้นหลัง (Background)</Label>
+                    <div className="mt-2 flex items-center gap-4">
+                      <div className="w-32 h-20 rounded-2xl border-2 border-dashed border-indigo-300 bg-indigo-50 flex items-center justify-center overflow-hidden">
+                        {(backgroundPreview || school?.background_url) ? (
+                          <img src={backgroundPreview || school?.background_url || ''} alt="พื้นหลัง" className="w-full h-full object-cover rounded-2xl" />
+                        ) : (
+                          <ImageIcon className="w-8 h-8 text-indigo-300" />
+                        )}
+                      </div>
+                      <div>
+                        <label className="cursor-pointer">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleBackgroundUpload}
+                            className="hidden"
+                          />
+                          <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${uploadingBackground ? 'bg-gray-200 text-gray-500' : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200 cursor-pointer'}`}>
+                            <Upload className="w-4 h-4" />
+                            {uploadingBackground ? 'กำลังอัปโหลด...' : 'เลือกภาพพื้นหลัง'}
+                          </span>
+                        </label>
+                        <p className="text-xs text-gray-400 mt-1">PNG, JPG สูงสุด 10MB</p>
+                      </div>
+                    </div>
+                  </div>
                   <div className="col-span-2">
                     <Label>ชื่อโรงเรียน</Label>
                     <Input
