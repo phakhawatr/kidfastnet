@@ -46,19 +46,32 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       workbox: {
-        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10 MB
+        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
         skipWaiting: true,
         clientsClaim: true,
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        cleanupOutdatedCaches: true,
+        globPatterns: ['**/*.{ico,png,svg,woff,woff2}'],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api/, /^\/supabase/],
         runtimeCaching: [
+          {
+            urlPattern: /\.(?:js|css)$/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'assets-cache',
+              networkTimeoutSeconds: 2,
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24
+              }
+            }
+          },
           {
             urlPattern: /^https:\/\/.*\.(?:html)$/,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'html-cache',
-              networkTimeoutSeconds: 3,
+              networkTimeoutSeconds: 1,
               expiration: {
                 maxEntries: 10,
                 maxAgeSeconds: 60 * 60 * 24
