@@ -744,7 +744,21 @@ const AdminSchoolManagement = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 font-sarabun">
+    <div className="min-h-screen font-sarabun relative">
+      {/* Background Image */}
+      {(backgroundPreview || school.background_url) ? (
+        <div className="fixed inset-0 z-0">
+          <img 
+            src={backgroundPreview || school.background_url || ''} 
+            alt="พื้นหลัง" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/80 via-purple-50/80 to-pink-50/80 backdrop-blur-[2px]" />
+        </div>
+      ) : (
+        <div className="fixed inset-0 z-0 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50" />
+      )}
+      <div className="relative z-10">
       <main className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
         <div className="mb-6">
@@ -756,15 +770,8 @@ const AdminSchoolManagement = () => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             กลับหน้าหลัก
           </Button>
-          <div className="relative bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 rounded-2xl p-6 shadow-xl text-white overflow-hidden">
-            {(backgroundPreview || school.background_url) && (
-              <img 
-                src={backgroundPreview || school.background_url || ''} 
-                alt="พื้นหลัง" 
-                className="absolute inset-0 w-full h-full object-cover rounded-2xl opacity-40"
-              />
-            )}
-            <div className="relative z-10 flex items-center gap-4">
+          <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 rounded-2xl p-6 shadow-xl text-white">
+            <div className="flex items-center gap-4">
               {school.logo_url ? (
                 <img src={school.logo_url} alt="โลโก้โรงเรียน" className="w-16 h-16 rounded-2xl object-cover bg-white shadow-lg" />
               ) : (
@@ -1425,6 +1432,7 @@ const AdminSchoolManagement = () => {
           </DialogContent>
         </Dialog>
       </main>
+      </div>
     </div>
   );
 };
