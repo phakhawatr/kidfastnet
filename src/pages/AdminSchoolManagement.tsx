@@ -792,6 +792,7 @@ const AdminSchoolManagement = () => {
                       </div>
                     </div>
                   </div>
+                  <div className="col-span-2">
                     <Label>ชื่อโรงเรียน</Label>
                     <Input
                       value={editSchoolData.name}
