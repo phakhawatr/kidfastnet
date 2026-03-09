@@ -50,33 +50,20 @@ export default defineConfig(({ mode }) => ({
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
+        // Only precache static assets - NEVER cache JS/CSS/HTML in precache
         globPatterns: ['**/*.{ico,png,svg,woff,woff2}'],
-        navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/api/, /^\/supabase/],
+        // Remove navigateFallback to prevent serving stale index.html
+        navigateFallbackDenylist: [/.*/],
         runtimeCaching: [
           {
+            // JS and CSS - NEVER cache, always fetch fresh
             urlPattern: /\.(?:js|css)$/,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'assets-cache',
-              networkTimeoutSeconds: 2,
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24
-              }
-            }
+            handler: 'NetworkOnly',
           },
           {
-            urlPattern: /^https:\/\/.*\.(?:html)$/,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'html-cache',
-              networkTimeoutSeconds: 1,
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24
-              }
-            }
+            // Navigation requests (SPA) - always fetch fresh HTML
+            urlPattern: ({request}) => request.mode === 'navigate',
+            handler: 'NetworkOnly',
           },
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,

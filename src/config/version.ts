@@ -1,9 +1,9 @@
 // Version configuration - อัปเดตทุกครั้งที่ deploy
 export const APP_VERSION = {
   major: 2,
-  build: '001',
-  deployTime: '09.15',
-  deployDate: '4.12.2025',
+  build: '002',
+  deployTime: '09.00',
+  deployDate: '9.3.2026',
 };
 
 export const getVersionString = () => {
