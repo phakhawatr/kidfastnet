@@ -138,7 +138,7 @@ const BatchStudentImport = ({ schoolId, classes, onComplete }: BatchStudentImpor
         // Add to class
         await supabase.from('class_students').insert([{
           class_id: selectedClassId,
-          student_id: user.id,
+          student_id: studentId,
           student_number: studentNumber,
           is_active: true,
         }]);
