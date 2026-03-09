@@ -854,8 +854,8 @@ const SchoolAdminDashboard = () => {
                       </div>
                       
                       <div className="flex items-start gap-4">
-                        <div className="p-3 bg-blue-100 dark:bg-blue-500/20 rounded-xl">
-                          <School className="w-5 h-5 text-blue-600 dark:text-blue-300" />
+                        <div className="p-3 bg-amber-100 dark:bg-amber-500/20 rounded-xl">
+                          <School className="w-5 h-5 text-amber-700 dark:text-amber-300" />
                         </div>
                         <div>
                           <p className={`${textSecondary} text-sm`}>รหัสโรงเรียน</p>
