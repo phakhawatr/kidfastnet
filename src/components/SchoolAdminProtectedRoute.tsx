@@ -8,7 +8,9 @@ interface SchoolAdminProtectedRouteProps {
 const SchoolAdminProtectedRoute = ({ children }: SchoolAdminProtectedRouteProps) => {
   // Get user ID from localStorage (custom auth system)
   const authData = localStorage.getItem('kidfast_auth');
-  const userId = authData ? JSON.parse(authData).registrationId : null;
+  const parsed = authData ? JSON.parse(authData) : null;
+  const userId = parsed?.registrationId || null;
+  const schoolRole = parsed?.schoolRole || null;
   
   const { isSchoolAdmin, isLoading } = useSchoolAdmin(userId);
 
@@ -24,7 +26,8 @@ const SchoolAdminProtectedRoute = ({ children }: SchoolAdminProtectedRouteProps)
     );
   }
 
-  if (!isSchoolAdmin) {
+  // Allow if user is school_admin or teacher (from school login flow)
+  if (!isSchoolAdmin && schoolRole !== 'teacher') {
     return <Navigate to="/profile" replace />;
   }
 

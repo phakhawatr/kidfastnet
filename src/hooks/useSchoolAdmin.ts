@@ -132,9 +132,16 @@ export const useSchoolAdmin = (userId: string | null) => {
 
       setUserSchools(schoolsWithStats);
       
-      // Auto-select first school if none selected
+      // Auto-select school from login context (schoolId in localStorage)
       if (!selectedSchool && schoolsWithStats.length > 0) {
-        setSelectedSchool(schoolsWithStats[0]);
+        const authData = localStorage.getItem('kidfast_auth');
+        const loginSchoolId = authData ? JSON.parse(authData).schoolId : null;
+        
+        const targetSchool = loginSchoolId 
+          ? schoolsWithStats.find(s => s.id === loginSchoolId) || schoolsWithStats[0]
+          : schoolsWithStats[0];
+        
+        setSelectedSchool(targetSchool);
       }
     } catch (error) {
       console.error('Error fetching schools:', error);

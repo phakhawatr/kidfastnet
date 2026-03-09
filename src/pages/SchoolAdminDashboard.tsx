@@ -31,6 +31,8 @@ import {
   Save
 } from 'lucide-react';
 import ManualDownloader from '@/components/ManualDownloader';
+import ClassStudentManager from '@/components/ClassStudentManager';
+import BatchStudentImport from '@/components/BatchStudentImport';
 
 const SchoolAdminDashboard = () => {
   const navigate = useNavigate();
@@ -47,6 +49,9 @@ const SchoolAdminDashboard = () => {
     setSelectedSchool,
     classes,
     members,
+    fetchUserSchools,
+    fetchClasses,
+    fetchMembers,
     createSchool,
     updateSchool,
     createClass,
@@ -61,6 +66,8 @@ const SchoolAdminDashboard = () => {
   const [showCreateClass, setShowCreateClass] = useState(false);
   const [showAddMember, setShowAddMember] = useState(false);
   const [showEditSchool, setShowEditSchool] = useState(false);
+  const [managingClassId, setManagingClassId] = useState<string | null>(null);
+  const [managingClassName, setManagingClassName] = useState('');
   const [teachers, setTeachers] = useState<{id: string; nickname: string}[]>([]);
   
   const [newSchool, setNewSchool] = useState({
@@ -564,10 +571,32 @@ const SchoolAdminDashboard = () => {
 
               {/* Classes Tab */}
               <TabsContent value="classes">
+                {/* Show class student manager if a class is selected */}
+                {managingClassId && selectedSchool ? (
+                  <ClassStudentManager
+                    classId={managingClassId}
+                    className={managingClassName}
+                    schoolId={selectedSchool.id}
+                    onBack={() => setManagingClassId(null)}
+                  />
+                ) : (
                 <Card className="bg-slate-800/80 backdrop-blur border-slate-700">
                   <div className="p-6 border-b border-slate-700 flex items-center justify-between">
                     <h2 className="text-xl font-semibold text-white">ห้องเรียนทั้งหมด</h2>
-                    <Dialog open={showCreateClass} onOpenChange={setShowCreateClass}>
+                    <div className="flex gap-2">
+                      {selectedSchool && (
+                        <BatchStudentImport
+                          schoolId={selectedSchool.id}
+                          classes={classes.map(c => ({ id: c.id, name: c.name, grade: c.grade }))}
+                          onComplete={() => {
+                            // Refresh data
+                            fetchClasses();
+                            fetchMembers();
+                            fetchUserSchools();
+                          }}
+                        />
+                      )}
+                      <Dialog open={showCreateClass} onOpenChange={setShowCreateClass}>
                       <DialogTrigger asChild>
                         <Button className="bg-purple-600 hover:bg-purple-700">
                           <Plus className="w-4 h-4 mr-2" />
@@ -675,6 +704,7 @@ const SchoolAdminDashboard = () => {
                         </div>
                       </DialogContent>
                     </Dialog>
+                    </div>
                   </div>
                   
                   <div className="p-6">
@@ -706,7 +736,7 @@ const SchoolAdminDashboard = () => {
                                 </Button>
                               </div>
                             </div>
-                            <div className="flex items-center justify-between text-sm">
+                            <div className="flex items-center justify-between text-sm mb-3">
                               <div className="flex items-center gap-2 text-slate-400">
                                 <Users className="w-4 h-4" />
                                 <span>{cls.student_count || 0} / {cls.max_students} คน</span>
@@ -715,12 +745,25 @@ const SchoolAdminDashboard = () => {
                                 <span className="text-blue-400">ครู: {cls.teacher_name}</span>
                               )}
                             </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20"
+                              onClick={() => {
+                                setManagingClassId(cls.id);
+                                setManagingClassName(cls.name);
+                              }}
+                            >
+                              <Users className="w-3.5 h-3.5 mr-1.5" />
+                              จัดการนักเรียน
+                            </Button>
                           </Card>
                         ))}
                       </div>
                     )}
                   </div>
                 </Card>
+                )}
               </TabsContent>
 
               {/* Teachers Tab */}
