@@ -865,8 +865,8 @@ const SchoolAdminDashboard = () => {
                       
                       {selectedSchool.email && (
                         <div className="flex items-start gap-4">
-                          <div className="p-3 bg-green-100 dark:bg-green-500/20 rounded-xl">
-                            <Mail className="w-5 h-5 text-green-600 dark:text-green-300" />
+                          <div className="p-3 bg-orange-100 dark:bg-orange-500/20 rounded-xl">
+                            <Mail className="w-5 h-5 text-orange-700 dark:text-orange-300" />
                           </div>
                           <div>
                             <p className={`${textSecondary} text-sm`}>อีเมล</p>
