@@ -1752,6 +1752,21 @@ const Profile = () => {
               </div>
             </div>
 
+            {/* Full Name Input */}
+            <div className="space-y-2">
+              <Label htmlFor="fullName" className="text-base font-semibold">
+                ชื่อ-นามสกุล
+              </Label>
+              <Input
+                id="fullName"
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="กรอกชื่อ-นามสกุล"
+                className="text-base"
+              />
+            </div>
+
             {/* Nickname Input */}
             <div className="space-y-2">
               <Label htmlFor="nickname" className="text-base font-semibold">

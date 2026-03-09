@@ -232,9 +232,9 @@ const ClassStudentManager = ({ classId, className, schoolId, onBack }: ClassStud
                   </span>
                 </div>
                 <div className="col-span-5 flex items-center gap-3">
-                  {student.line_picture_url ? (
+                  {(student.profile_image_url || student.line_picture_url) ? (
                     <img
-                      src={student.line_picture_url}
+                      src={student.profile_image_url || student.line_picture_url!}
                       alt={student.nickname}
                       className="w-8 h-8 rounded-full object-cover"
                     />
@@ -243,7 +243,10 @@ const ClassStudentManager = ({ classId, className, schoolId, onBack }: ClassStud
                       {avatarEmojiMap[student.avatar] || student.avatar || '👨‍🎓'}
                     </div>
                   )}
-                  <span className="text-white font-medium">{student.nickname}</span>
+                  <div className="flex flex-col">
+                    <span className="text-white font-medium">{student.full_name || student.nickname}</span>
+                    {student.full_name && <span className="text-slate-400 text-xs">({student.nickname})</span>}
+                  </div>
                 </div>
                 <div className="col-span-4">
                   <span className="text-slate-400 text-sm">{student.email}</span>
