@@ -701,6 +701,7 @@ const SchoolAdminDashboard = () => {
                         </div>
                       </DialogContent>
                     </Dialog>
+                    </div>
                   </div>
                   
                   <div className="p-6">
