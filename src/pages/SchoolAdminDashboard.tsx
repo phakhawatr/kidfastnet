@@ -314,13 +314,22 @@ const SchoolAdminDashboard = () => {
       <Header />
       
       <main className="container mx-auto px-4 py-8">
-        {/* Header Section */}
+        {/* Header Section with School Branding */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2">
-              🏫 ระบบบริหารจัดการโรงเรียน
-            </h1>
-            <p className="text-slate-400">จัดการโรงเรียน ห้องเรียน และสมาชิก</p>
+          <div className="flex items-center gap-4">
+            {selectedSchool?.logo_url && (
+              <div className="w-14 h-14 rounded-xl overflow-hidden border-2 border-purple-500/30 shadow-lg bg-white/10">
+                <img src={selectedSchool.logo_url} alt={selectedSchool.name} className="w-full h-full object-cover" />
+              </div>
+            )}
+            <div>
+              <h1 className="text-3xl font-bold text-white mb-1">
+                🏫 ระบบบริหารจัดการโรงเรียน
+              </h1>
+              <p className="text-slate-400">
+                {selectedSchool ? selectedSchool.name : 'จัดการโรงเรียน ห้องเรียน และสมาชิก'}
+              </p>
+            </div>
           </div>
           
           {/* Navigation Buttons */}
