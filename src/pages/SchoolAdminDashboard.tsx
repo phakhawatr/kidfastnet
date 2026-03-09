@@ -346,12 +346,12 @@ const SchoolAdminDashboard = () => {
               </div>
             )}
             <div>
-              <h1 className={`text-3xl font-bold ${textPrimary} mb-1`}>
-                🏫 ระบบบริหารจัดการโรงเรียน
-              </h1>
-              <p className={textSecondary}>
-                {selectedSchool ? selectedSchool.name : 'จัดการโรงเรียน ห้องเรียน และสมาชิก'}
+              <p className={`${textSecondary} text-sm mb-0.5`} style={{ fontFamily: "'TH Sarabun New', 'Sarabun', sans-serif" }}>
+                ระบบจัดการองค์รวมระดับโรงเรียน
               </p>
+              <h1 className={`text-3xl font-bold ${textPrimary}`} style={{ fontFamily: "'TH Sarabun New', 'Sarabun', sans-serif" }}>
+                🏫 {selectedSchool ? selectedSchool.name : 'จัดการโรงเรียน ห้องเรียน และสมาชิก'}
+              </h1>
             </div>
           </div>
           
