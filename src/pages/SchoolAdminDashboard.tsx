@@ -439,8 +439,8 @@ const SchoolAdminDashboard = () => {
               
               <Card className={`${cardStyle} p-6`}>
                 <div className="flex items-center gap-4">
-                  <div className="p-3 bg-green-100 dark:bg-green-500/20 rounded-xl">
-                    <GraduationCap className="w-6 h-6 text-green-600 dark:text-green-300" />
+                  <div className="p-3 bg-orange-100 dark:bg-orange-500/20 rounded-xl">
+                    <GraduationCap className="w-6 h-6 text-orange-700 dark:text-orange-300" />
                   </div>
                   <div>
                     <p className={`${textSecondary} text-sm`}>นักเรียนทั้งหมด</p>
