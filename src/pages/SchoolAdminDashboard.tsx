@@ -910,7 +910,7 @@ const SchoolAdminDashboard = () => {
                           </div>
                           <div>
                             <p className={`${textSecondary} text-sm`}>เว็บไซต์</p>
-                            <a href={selectedSchool.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
+                            <a href={selectedSchool.website} target="_blank" rel="noopener noreferrer" className="text-orange-600 dark:text-orange-400 hover:underline">
                               {selectedSchool.website}
                             </a>
                           </div>
