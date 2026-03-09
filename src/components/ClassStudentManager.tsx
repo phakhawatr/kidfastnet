@@ -59,7 +59,7 @@ const ClassStudentManager = ({ classId, className, schoolId, onBack }: ClassStud
         (data || []).map(async (cs) => {
           const { data: user } = await supabase
             .from('user_registrations')
-            .select('nickname, parent_email, avatar, line_picture_url')
+            .select('nickname, full_name, parent_email, avatar, line_picture_url, profile_image_url')
             .eq('id', cs.student_id)
             .single();
 
@@ -68,9 +68,11 @@ const ClassStudentManager = ({ classId, className, schoolId, onBack }: ClassStud
             student_id: cs.student_id,
             student_number: cs.student_number,
             nickname: user?.nickname || 'ไม่ระบุชื่อ',
+            full_name: (user as any)?.full_name || null,
             email: user?.parent_email || '',
             avatar: user?.avatar || '👨‍🎓',
             line_picture_url: user?.line_picture_url || null,
+            profile_image_url: (user as any)?.profile_image_url || null,
           };
         })
       );
