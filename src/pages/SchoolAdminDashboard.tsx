@@ -415,8 +415,8 @@ const SchoolAdminDashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
               <Card className={`${cardStyle} p-6`}>
                 <div className="flex items-center gap-4">
-                  <div className="p-3 bg-purple-100 dark:bg-purple-500/20 rounded-xl">
-                    <Building2 className="w-6 h-6 text-purple-600 dark:text-purple-300" />
+                  <div className="p-3 bg-orange-100 dark:bg-orange-500/20 rounded-xl">
+                    <Building2 className="w-6 h-6 text-orange-700 dark:text-orange-300" />
                   </div>
                   <div>
                     <p className={`${textSecondary} text-sm`}>โรงเรียน</p>
