@@ -186,7 +186,7 @@ const SchoolAdminDashboard = () => {
         return;
       }
       
-      await createClass(newClass);
+      await createClass({ ...newClass, teacher_id: newClass.teacher_id === 'none' ? '' : newClass.teacher_id });
       setShowCreateClass(false);
       setNewClass({
         name: '',
@@ -600,7 +600,7 @@ const SchoolAdminDashboard = () => {
                                 <SelectValue placeholder="เลือกครูประจำชั้น (ไม่บังคับ)" />
                               </SelectTrigger>
                               <SelectContent className={selectContentStyle}>
-                                <SelectItem value="" className={`${selectItemStyle} opacity-60`}>ไม่ระบุ</SelectItem>
+                                <SelectItem value="none" className={`${selectItemStyle} opacity-60`}>ไม่ระบุ</SelectItem>
                                 {teachers.map((teacher) => (
                                   <SelectItem key={teacher.id} value={teacher.id} className={selectItemStyle}>
                                     {teacher.nickname}
