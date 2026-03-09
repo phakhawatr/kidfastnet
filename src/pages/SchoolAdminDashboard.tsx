@@ -804,9 +804,9 @@ const SchoolAdminDashboard = () => {
                     ) : (
                       <div className="space-y-3">
                         {members.filter(m => m.role === 'student').map((member) => (
-                          <div key={member.id} className={`flex items-center justify-between p-4 rounded-lg border ${cardInnerStyle} hover:border-blue-400/50 transition-colors`}>
+                          <div key={member.id} className={`flex items-center justify-between p-4 rounded-lg border ${cardInnerStyle} hover:border-amber-400/50 transition-colors`}>
                             <div className="flex items-center gap-4">
-                              <div className="w-10 h-10 bg-blue-100 dark:bg-blue-500/20 rounded-full flex items-center justify-center">
+                              <div className="w-10 h-10 bg-amber-100 dark:bg-amber-500/20 rounded-full flex items-center justify-center">
                                 <span className="text-lg">{member.user_avatar || '👨‍🎓'}</span>
                               </div>
                               <div>
