@@ -302,32 +302,32 @@ const SchoolAdminDashboard = () => {
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
-      case 'school_admin': return 'bg-purple-600/20 text-purple-200 border-purple-400/40 dark:text-purple-200 dark:border-purple-400/40';
-      case 'teacher': return 'bg-blue-600/20 text-blue-200 border-blue-400/40 dark:text-blue-200 dark:border-blue-400/40';
-      case 'student': return 'bg-green-600/20 text-green-200 border-green-400/40 dark:text-green-200 dark:border-green-400/40';
-      default: return 'bg-slate-600/20 text-slate-200 border-slate-400/40';
+      case 'school_admin': return 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/30 dark:text-amber-200 dark:border-amber-700';
+      case 'teacher': return 'bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900/30 dark:text-orange-200 dark:border-orange-700';
+      case 'student': return 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-200 dark:border-yellow-700';
+      default: return 'bg-neutral-100 text-neutral-800 border-neutral-300 dark:bg-neutral-700 dark:text-neutral-200 dark:border-neutral-600';
     }
   };
 
   // Common style classes for light/dark support
-  const pageBackground = 'bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950';
-  const cardStyle = 'bg-white border-slate-200 shadow-md dark:bg-slate-800/90 dark:border-slate-600 dark:backdrop-blur';
-  const cardInnerStyle = 'bg-slate-50 border-slate-200 dark:bg-slate-900/50 dark:border-slate-700';
-  const textPrimary = 'text-slate-900 dark:text-white';
-  const textSecondary = 'text-slate-600 dark:text-slate-200';
-  const textMuted = 'text-slate-500 dark:text-slate-300';
-  const borderStyle = 'border-slate-200 dark:border-slate-700';
-  const inputStyle = 'bg-white border-slate-300 text-slate-900 dark:bg-slate-900 dark:border-slate-600 dark:text-white';
-  const labelStyle = 'text-slate-700 dark:text-slate-200';
-  const dialogStyle = 'bg-white border-slate-200 dark:bg-slate-800 dark:border-slate-700';
-  const selectContentStyle = 'bg-white border-slate-200 dark:bg-slate-800 dark:border-slate-700';
-  const selectItemStyle = 'text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-700';
-  const cancelBtnStyle = 'text-slate-500 hover:text-slate-700 dark:text-slate-300 dark:hover:text-white';
+  const pageBackground = 'bg-orange-50/50 dark:bg-neutral-950';
+  const cardStyle = 'bg-orange-50 border-orange-200/60 shadow-sm dark:bg-neutral-800 dark:border-neutral-700';
+  const cardInnerStyle = 'bg-white border-orange-200/50 dark:bg-neutral-900 dark:border-neutral-700';
+  const textPrimary = 'text-neutral-900 dark:text-white';
+  const textSecondary = 'text-amber-800 dark:text-neutral-300';
+  const textMuted = 'text-amber-700/60 dark:text-neutral-400';
+  const borderStyle = 'border-orange-200/60 dark:border-neutral-700';
+  const inputStyle = 'bg-white border-orange-300 text-neutral-900 dark:bg-neutral-900 dark:border-neutral-600 dark:text-white';
+  const labelStyle = 'text-amber-900 dark:text-neutral-200';
+  const dialogStyle = 'bg-white border-orange-200 dark:bg-neutral-800 dark:border-neutral-700';
+  const selectContentStyle = 'bg-white border-orange-200 dark:bg-neutral-800 dark:border-neutral-700';
+  const selectItemStyle = 'text-neutral-900 dark:text-white hover:bg-orange-100 dark:hover:bg-neutral-700';
+  const cancelBtnStyle = 'text-amber-700 hover:text-amber-900 dark:text-neutral-400 dark:hover:text-white';
 
   if (isLoading) {
     return (
       <div className={`min-h-screen ${pageBackground} flex items-center justify-center`}>
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-800 dark:border-orange-400"></div>
       </div>
     );
   }
@@ -367,7 +367,7 @@ const SchoolAdminDashboard = () => {
             {selectedSchool && (
               <Button
                 onClick={() => navigate('/school-admin/analytics')}
-                className="bg-slate-700 hover:bg-slate-600 dark:bg-slate-700 dark:hover:bg-slate-600"
+                className="bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-white rounded-full"
               >
                 <BarChart3 className="w-4 h-4 mr-2" />
                 ดูสถิติโรงเรียน
@@ -415,8 +415,8 @@ const SchoolAdminDashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
               <Card className={`${cardStyle} p-6`}>
                 <div className="flex items-center gap-4">
-                  <div className="p-3 bg-purple-100 dark:bg-purple-500/20 rounded-xl">
-                    <Building2 className="w-6 h-6 text-purple-600 dark:text-purple-300" />
+                  <div className="p-3 bg-orange-100 dark:bg-orange-500/20 rounded-xl">
+                    <Building2 className="w-6 h-6 text-orange-700 dark:text-orange-300" />
                   </div>
                   <div>
                     <p className={`${textSecondary} text-sm`}>โรงเรียน</p>
@@ -427,8 +427,8 @@ const SchoolAdminDashboard = () => {
               
               <Card className={`${cardStyle} p-6`}>
                 <div className="flex items-center gap-4">
-                  <div className="p-3 bg-blue-100 dark:bg-blue-500/20 rounded-xl">
-                    <Users className="w-6 h-6 text-blue-600 dark:text-blue-300" />
+                  <div className="p-3 bg-amber-100 dark:bg-amber-500/20 rounded-xl">
+                    <Users className="w-6 h-6 text-amber-700 dark:text-amber-300" />
                   </div>
                   <div>
                     <p className={`${textSecondary} text-sm`}>ครูทั้งหมด</p>
@@ -439,8 +439,8 @@ const SchoolAdminDashboard = () => {
               
               <Card className={`${cardStyle} p-6`}>
                 <div className="flex items-center gap-4">
-                  <div className="p-3 bg-green-100 dark:bg-green-500/20 rounded-xl">
-                    <GraduationCap className="w-6 h-6 text-green-600 dark:text-green-300" />
+                  <div className="p-3 bg-orange-100 dark:bg-orange-500/20 rounded-xl">
+                    <GraduationCap className="w-6 h-6 text-orange-700 dark:text-orange-300" />
                   </div>
                   <div>
                     <p className={`${textSecondary} text-sm`}>นักเรียนทั้งหมด</p>
@@ -467,20 +467,20 @@ const SchoolAdminDashboard = () => {
 
             {/* Tabs */}
             <Tabs defaultValue="classes" className="space-y-6">
-              <TabsList className={`bg-slate-100 border ${borderStyle} dark:bg-slate-800/80`}>
-                <TabsTrigger value="classes" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white">
+              <TabsList className={`bg-orange-100/60 border ${borderStyle} dark:bg-neutral-800`}>
+                <TabsTrigger value="classes" className="data-[state=active]:bg-amber-800 data-[state=active]:text-white">
                   <BookOpen className="w-4 h-4 mr-2" />
                   ห้องเรียน ({classes.length})
                 </TabsTrigger>
-                <TabsTrigger value="teachers" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+                <TabsTrigger value="teachers" className="data-[state=active]:bg-amber-800 data-[state=active]:text-white">
                   <GraduationCap className="w-4 h-4 mr-2" />
                   ครู ({members.filter(m => m.role === 'teacher' || m.role === 'school_admin').length})
                 </TabsTrigger>
-                <TabsTrigger value="students" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+                <TabsTrigger value="students" className="data-[state=active]:bg-amber-800 data-[state=active]:text-white">
                   <Users className="w-4 h-4 mr-2" />
                   นักเรียน ({members.filter(m => m.role === 'student').length})
                 </TabsTrigger>
-                <TabsTrigger value="settings" className="data-[state=active]:bg-slate-600 data-[state=active]:text-white">
+                <TabsTrigger value="settings" className="data-[state=active]:bg-amber-800 data-[state=active]:text-white">
                   <Settings className="w-4 h-4 mr-2" />
                   ตั้งค่า
                 </TabsTrigger>
@@ -514,7 +514,7 @@ const SchoolAdminDashboard = () => {
                       )}
                       <Dialog open={showCreateClass} onOpenChange={setShowCreateClass}>
                       <DialogTrigger asChild>
-                        <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                        <Button className="bg-amber-800 hover:bg-amber-900 dark:bg-amber-700 dark:hover:bg-amber-600 text-white rounded-full">
                           <Plus className="w-4 h-4 mr-2" />
                           เพิ่มห้องเรียน
                         </Button>
@@ -614,7 +614,7 @@ const SchoolAdminDashboard = () => {
                           <Button variant="ghost" onClick={() => setShowCreateClass(false)} className={cancelBtnStyle}>
                             ยกเลิก
                           </Button>
-                          <Button onClick={handleCreateClass} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                          <Button onClick={handleCreateClass} className="bg-amber-800 hover:bg-amber-900 dark:bg-amber-700 dark:hover:bg-amber-600 text-white rounded-full">
                             สร้างห้องเรียน
                           </Button>
                         </div>
@@ -658,13 +658,13 @@ const SchoolAdminDashboard = () => {
                                 <span>{cls.student_count || 0} / {cls.max_students} คน</span>
                               </div>
                               {cls.teacher_name && (
-                                <span className="text-blue-600 dark:text-blue-300">ครู: {cls.teacher_name}</span>
+                                <span className="text-orange-600 dark:text-orange-400">ครู: {cls.teacher_name}</span>
                               )}
                             </div>
                             <Button
                               variant="outline"
                               size="sm"
-                              className="w-full border-emerald-500/40 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-500/30 dark:text-emerald-300 dark:hover:bg-emerald-500/20"
+                              className="w-full border-orange-400/50 text-orange-700 hover:bg-orange-50 dark:border-orange-500/30 dark:text-orange-300 dark:hover:bg-orange-500/20"
                               onClick={() => {
                                 setManagingClassId(cls.id);
                                 setManagingClassName(cls.name);
@@ -689,7 +689,7 @@ const SchoolAdminDashboard = () => {
                     <h2 className={`text-xl font-semibold ${textPrimary}`}>👩‍🏫 ครูและผู้ดูแล</h2>
                     <Dialog open={showAddMember} onOpenChange={setShowAddMember}>
                       <DialogTrigger asChild>
-                        <Button className="bg-purple-600 hover:bg-purple-700 text-white" onClick={() => setNewMember({ email: '', role: 'teacher' })}>
+                        <Button className="bg-amber-800 hover:bg-amber-900 dark:bg-amber-700 dark:hover:bg-amber-600 text-white rounded-full" onClick={() => setNewMember({ email: '', role: 'teacher' })}>
                           <UserPlus className="w-4 h-4 mr-2" />
                           เพิ่มครู
                         </Button>
@@ -731,7 +731,7 @@ const SchoolAdminDashboard = () => {
                           <Button variant="ghost" onClick={() => setShowAddMember(false)} className={cancelBtnStyle}>
                             ยกเลิก
                           </Button>
-                          <Button onClick={handleAddMember} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                          <Button onClick={handleAddMember} className="bg-amber-800 hover:bg-amber-900 dark:bg-amber-700 dark:hover:bg-amber-600 text-white rounded-full">
                             เพิ่มสมาชิก
                           </Button>
                         </div>
@@ -748,9 +748,9 @@ const SchoolAdminDashboard = () => {
                     ) : (
                       <div className="space-y-3">
                         {members.filter(m => m.role === 'teacher' || m.role === 'school_admin').map((member) => (
-                          <div key={member.id} className={`flex items-center justify-between p-4 rounded-lg border ${cardInnerStyle} hover:border-purple-400/50 transition-colors`}>
+                          <div key={member.id} className={`flex items-center justify-between p-4 rounded-lg border ${cardInnerStyle} hover:border-orange-400/50 transition-colors`}>
                             <div className="flex items-center gap-4">
-                              <div className="w-10 h-10 bg-purple-100 dark:bg-purple-500/20 rounded-full flex items-center justify-center">
+                              <div className="w-10 h-10 bg-orange-100 dark:bg-orange-500/20 rounded-full flex items-center justify-center">
                                 <span className="text-lg">{member.user_avatar || '👩‍🏫'}</span>
                               </div>
                               <div>
@@ -786,7 +786,7 @@ const SchoolAdminDashboard = () => {
                 <Card className={cardStyle}>
                   <div className={`p-6 border-b ${borderStyle} flex items-center justify-between`}>
                     <h2 className={`text-xl font-semibold ${textPrimary}`}>👨‍🎓 นักเรียน</h2>
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => {
+                    <Button className="bg-amber-800 hover:bg-amber-900 dark:bg-amber-700 dark:hover:bg-amber-600 text-white rounded-full" onClick={() => {
                       setNewMember({ email: '', role: 'student' });
                       setShowAddMember(true);
                     }}>
@@ -804,9 +804,9 @@ const SchoolAdminDashboard = () => {
                     ) : (
                       <div className="space-y-3">
                         {members.filter(m => m.role === 'student').map((member) => (
-                          <div key={member.id} className={`flex items-center justify-between p-4 rounded-lg border ${cardInnerStyle} hover:border-blue-400/50 transition-colors`}>
+                          <div key={member.id} className={`flex items-center justify-between p-4 rounded-lg border ${cardInnerStyle} hover:border-amber-400/50 transition-colors`}>
                             <div className="flex items-center gap-4">
-                              <div className="w-10 h-10 bg-blue-100 dark:bg-blue-500/20 rounded-full flex items-center justify-center">
+                              <div className="w-10 h-10 bg-amber-100 dark:bg-amber-500/20 rounded-full flex items-center justify-center">
                                 <span className="text-lg">{member.user_avatar || '👨‍🎓'}</span>
                               </div>
                               <div>
@@ -844,8 +844,8 @@ const SchoolAdminDashboard = () => {
                   <div className="p-6 space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="flex items-start gap-4">
-                        <div className="p-3 bg-purple-100 dark:bg-purple-500/20 rounded-xl">
-                          <Building2 className="w-5 h-5 text-purple-600 dark:text-purple-300" />
+                        <div className="p-3 bg-orange-100 dark:bg-orange-500/20 rounded-xl">
+                          <Building2 className="w-5 h-5 text-orange-700 dark:text-orange-300" />
                         </div>
                         <div>
                           <p className={`${textSecondary} text-sm`}>ชื่อโรงเรียน</p>
@@ -854,8 +854,8 @@ const SchoolAdminDashboard = () => {
                       </div>
                       
                       <div className="flex items-start gap-4">
-                        <div className="p-3 bg-blue-100 dark:bg-blue-500/20 rounded-xl">
-                          <School className="w-5 h-5 text-blue-600 dark:text-blue-300" />
+                        <div className="p-3 bg-amber-100 dark:bg-amber-500/20 rounded-xl">
+                          <School className="w-5 h-5 text-amber-700 dark:text-amber-300" />
                         </div>
                         <div>
                           <p className={`${textSecondary} text-sm`}>รหัสโรงเรียน</p>
@@ -865,8 +865,8 @@ const SchoolAdminDashboard = () => {
                       
                       {selectedSchool.email && (
                         <div className="flex items-start gap-4">
-                          <div className="p-3 bg-green-100 dark:bg-green-500/20 rounded-xl">
-                            <Mail className="w-5 h-5 text-green-600 dark:text-green-300" />
+                          <div className="p-3 bg-orange-100 dark:bg-orange-500/20 rounded-xl">
+                            <Mail className="w-5 h-5 text-orange-700 dark:text-orange-300" />
                           </div>
                           <div>
                             <p className={`${textSecondary} text-sm`}>อีเมล</p>
@@ -889,8 +889,8 @@ const SchoolAdminDashboard = () => {
                       
                       {selectedSchool.address && (
                         <div className="flex items-start gap-4 col-span-2">
-                          <div className="p-3 bg-cyan-100 dark:bg-cyan-500/20 rounded-xl">
-                            <MapPin className="w-5 h-5 text-cyan-600 dark:text-cyan-300" />
+                          <div className="p-3 bg-amber-100 dark:bg-amber-500/20 rounded-xl">
+                            <MapPin className="w-5 h-5 text-amber-700 dark:text-amber-300" />
                           </div>
                           <div>
                             <p className={`${textSecondary} text-sm`}>ที่อยู่</p>
@@ -905,12 +905,12 @@ const SchoolAdminDashboard = () => {
                       
                       {selectedSchool.website && (
                         <div className="flex items-start gap-4">
-                          <div className="p-3 bg-pink-100 dark:bg-pink-500/20 rounded-xl">
-                            <Globe className="w-5 h-5 text-pink-600 dark:text-pink-300" />
+                          <div className="p-3 bg-orange-100 dark:bg-orange-500/20 rounded-xl">
+                            <Globe className="w-5 h-5 text-orange-700 dark:text-orange-300" />
                           </div>
                           <div>
                             <p className={`${textSecondary} text-sm`}>เว็บไซต์</p>
-                            <a href={selectedSchool.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
+                            <a href={selectedSchool.website} target="_blank" rel="noopener noreferrer" className="text-orange-600 dark:text-orange-400 hover:underline">
                               {selectedSchool.website}
                             </a>
                           </div>
@@ -921,7 +921,7 @@ const SchoolAdminDashboard = () => {
                     <div className={`pt-6 border-t ${borderStyle}`}>
                       <Dialog open={showEditSchool} onOpenChange={setShowEditSchool}>
                         <DialogTrigger asChild>
-                          <Button variant="outline" className="border-primary/50 text-primary hover:bg-primary/10">
+                          <Button variant="outline" className="border-orange-400/50 text-orange-700 hover:bg-orange-50 dark:border-orange-500/30 dark:text-orange-300 dark:hover:bg-orange-500/20">
                             <Edit className="w-4 h-4 mr-2" />
                             แก้ไขข้อมูลโรงเรียน
                           </Button>
@@ -1001,7 +1001,7 @@ const SchoolAdminDashboard = () => {
                             <Button variant="ghost" onClick={() => setShowEditSchool(false)} className={cancelBtnStyle}>
                               ยกเลิก
                             </Button>
-                            <Button onClick={handleUpdateSchool} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                            <Button onClick={handleUpdateSchool} className="bg-amber-800 hover:bg-amber-900 dark:bg-amber-700 dark:hover:bg-amber-600 text-white rounded-full">
                               <Save className="w-4 h-4 mr-2" />
                               บันทึก
                             </Button>
