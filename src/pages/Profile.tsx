@@ -297,6 +297,7 @@ const Profile = () => {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [showAllMissions, setShowAllMissions] = useState(false);
   const [nickname, setNickname] = useState('');
+  const [fullName, setFullName] = useState('');
   const [studentClass, setStudentClass] = useState('');
   const [schoolName, setSchoolName] = useState('');
   const [profileImage, setProfileImage] = useState<string | null>(null);
