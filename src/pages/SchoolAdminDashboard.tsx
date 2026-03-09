@@ -186,7 +186,7 @@ const SchoolAdminDashboard = () => {
         return;
       }
       
-      await createClass(newClass);
+      await createClass({ ...newClass, teacher_id: newClass.teacher_id === 'none' ? '' : newClass.teacher_id });
       setShowCreateClass(false);
       setNewClass({
         name: '',
