@@ -664,7 +664,7 @@ const SchoolAdminDashboard = () => {
                             <Button
                               variant="outline"
                               size="sm"
-                              className="w-full border-emerald-500/40 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-500/30 dark:text-emerald-300 dark:hover:bg-emerald-500/20"
+                              className="w-full border-orange-400/50 text-orange-700 hover:bg-orange-50 dark:border-orange-500/30 dark:text-orange-300 dark:hover:bg-orange-500/20"
                               onClick={() => {
                                 setManagingClassId(cls.id);
                                 setManagingClassName(cls.name);
