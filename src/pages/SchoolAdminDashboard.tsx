@@ -1001,7 +1001,7 @@ const SchoolAdminDashboard = () => {
                             <Button variant="ghost" onClick={() => setShowEditSchool(false)} className={cancelBtnStyle}>
                               ยกเลิก
                             </Button>
-                            <Button onClick={handleUpdateSchool} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                            <Button onClick={handleUpdateSchool} className="bg-amber-800 hover:bg-amber-900 dark:bg-amber-700 dark:hover:bg-amber-600 text-white rounded-full">
                               <Save className="w-4 h-4 mr-2" />
                               บันทึก
                             </Button>
