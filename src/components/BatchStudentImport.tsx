@@ -40,7 +40,7 @@ const BatchStudentImport = ({ schoolId, classes, onComplete }: BatchStudentImpor
   };
 
   const downloadTemplate = () => {
-    const template = 'email,student_number\nstudent1@gmail.com,1\nstudent2@gmail.com,2\nstudent3@gmail.com,3';
+    const template = 'email,student_number,password\nstudent1@gmail.com,1,123456\nstudent2@gmail.com,2,123456\nstudent3@gmail.com,3,123456';
     const blob = new Blob(['\ufeff' + template], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
