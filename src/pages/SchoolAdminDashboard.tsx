@@ -733,7 +733,7 @@ const SchoolAdminDashboard = () => {
                                 </Button>
                               </div>
                             </div>
-                            <div className="flex items-center justify-between text-sm">
+                            <div className="flex items-center justify-between text-sm mb-3">
                               <div className="flex items-center gap-2 text-slate-400">
                                 <Users className="w-4 h-4" />
                                 <span>{cls.student_count || 0} / {cls.max_students} คน</span>
@@ -742,12 +742,25 @@ const SchoolAdminDashboard = () => {
                                 <span className="text-blue-400">ครู: {cls.teacher_name}</span>
                               )}
                             </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20"
+                              onClick={() => {
+                                setManagingClassId(cls.id);
+                                setManagingClassName(cls.name);
+                              }}
+                            >
+                              <Users className="w-3.5 h-3.5 mr-1.5" />
+                              จัดการนักเรียน
+                            </Button>
                           </Card>
                         ))}
                       </div>
                     )}
                   </div>
                 </Card>
+                )}
               </TabsContent>
 
               {/* Teachers Tab */}
