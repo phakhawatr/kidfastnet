@@ -1931,6 +1931,7 @@ export type Database = {
           avatar: string
           created_at: string
           device_info: string | null
+          full_name: string | null
           grade: string
           id: string
           is_online: boolean | null
@@ -1953,7 +1954,9 @@ export type Database = {
           password_hash: string
           payment_date: string | null
           payment_status: string | null
+          profile_image_url: string | null
           referred_by_code: string | null
+          school_name: string | null
           session_id: string | null
           status: string
           subscription_tier: string | null
@@ -1969,6 +1972,7 @@ export type Database = {
           avatar: string
           created_at?: string
           device_info?: string | null
+          full_name?: string | null
           grade: string
           id?: string
           is_online?: boolean | null
@@ -1991,7 +1995,9 @@ export type Database = {
           password_hash: string
           payment_date?: string | null
           payment_status?: string | null
+          profile_image_url?: string | null
           referred_by_code?: string | null
+          school_name?: string | null
           session_id?: string | null
           status?: string
           subscription_tier?: string | null
@@ -2007,6 +2013,7 @@ export type Database = {
           avatar?: string
           created_at?: string
           device_info?: string | null
+          full_name?: string | null
           grade?: string
           id?: string
           is_online?: boolean | null
@@ -2029,7 +2036,9 @@ export type Database = {
           password_hash?: string
           payment_date?: string | null
           payment_status?: string | null
+          profile_image_url?: string | null
           referred_by_code?: string | null
+          school_name?: string | null
           session_id?: string | null
           status?: string
           subscription_tier?: string | null
