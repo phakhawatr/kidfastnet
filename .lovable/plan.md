@@ -1,91 +1,41 @@
 
 
-## Plan: Fix Question Bank Import Completeness Issues
+# Add Full Name Field and Save Profile Data to Central Database
 
-### Root Problem
+## Problem
+Currently, profile data (nickname, class, school, profile image) is only saved to `localStorage`, making it device-specific. The user wants:
+1. A new "ชื่อ-นามสกุล" (full name) field in the profile edit form
+2. All profile data saved to Supabase so it's consistent across devices and accessible from the school admin dashboard
 
-There are two inconsistent data formats for questions in the database:
+## Plan
 
-1. **AI-generated questions**: `choices: ["5", "6", "7", "8"]`, `correct_answer: "5"`
-2. **PDF-imported questions**: `choices: ["A) 5", "B) 6", "C) 7", "D) 8"]`, `correct_answer: "A"`
+### 1. Database Migration
+Add new columns to `user_registrations`:
+- `full_name` (text, nullable) — ชื่อ-นามสกุล
+- `school_name` (text, nullable) — ชื่อโรงเรียน
+- `profile_image_url` (text, nullable) — URL ของรูปโปรไฟล์ที่อัปโหลด
 
-When these are imported/copied between banks or used in exams, mismatches occur — choices may appear incomplete, correct answers don't match, and display is inconsistent.
+Note: `nickname` and `grade` already exist in the table. `studentClass` from localStorage maps to `grade`.
 
-### Changes
+### 2. Profile Image Storage
+- Create a Supabase Storage bucket `profile-images` for storing student profile photos
+- Upload the image file to storage when saving, and store the public URL in `profile_image_url`
 
-**1. Add validation/normalization utility (`src/utils/questionNormalizer.ts` — new file)**
+### 3. Update Profile Page (`src/pages/Profile.tsx`)
+- Add `fullName` state variable
+- Add "ชื่อ-นามสกุล" input field above the nickname field in the edit dialog
+- Update `loadProfileData` to fetch `full_name`, `school_name`, `profile_image_url` from `user_registrations` (with localStorage as fallback)
+- Update `handleSaveProfile` to:
+  - Upload profile image to Supabase Storage if changed
+  - Save `full_name`, `nickname`, `grade`, `school_name`, `profile_image_url` to `user_registrations` via Supabase update
+  - Keep localStorage sync for offline compatibility
 
-Create a function `normalizeQuestion(question)` that:
-- Ensures `choices` array always has exactly 4 items (pads with empty or trims)
-- Strips `A)`, `B)`, `C)`, `D)` prefixes from choices if present
-- Converts letter-only `correct_answer` (e.g., "A") to actual choice text
-- Ensures `correct_answer` matches one of the normalized choices
-- Flags questions that can't be fixed (returns `{ normalized, warnings }`)
+### 4. Update School Admin Student Display
+- Update `ClassStudentManager.tsx` to also fetch and display `full_name`, `school_name`, `profile_image_url` from `user_registrations`
+- Use `profile_image_url` as an additional fallback for student avatar (after `line_picture_url`)
 
-**2. Apply normalization in `useQuestionBank.ts`**
-
-- In `copySystemQuestion`: normalize before insert
-- In `copySharedQuestion`: normalize before insert
-- In `createQuestion`: normalize before insert
-- In `fetchQuestions` / `fetchSystemQuestions`: normalize after fetch for display consistency
-
-**3. Apply normalization in `ai-generate-questions/index.ts` (edge function)**
-
-- After parsing AI response, validate each question has exactly 4 choices
-- Ensure `correct_answer` matches one of the choices
-- Fill missing choices if fewer than 4
-
-**4. Apply normalization in `ai-import-pdf-questions/index.ts` (edge function)**
-
-- After parsing, strip "A) / B) / C) / D)" prefixes from choices
-- Convert letter-only `correct_answer` to actual choice text
-- Ensure exactly 4 choices per question
-
-**5. Update display components for safety**
-
-- In `QuestionBankSelector.tsx`, `SystemQuestionsBrowser.tsx`, `SharedQuestionsBrowser.tsx`, `PublicExam.tsx`, `Quiz.tsx`: add a safety check so if `choices` has fewer than 4 items, pad with placeholder or show a warning badge
-
-### Technical Detail — Normalizer
-
-```typescript
-export function normalizeQuestion(q: { choices: string[], correct_answer: string }) {
-  let choices = [...(q.choices || [])];
-  let correctAnswer = q.correct_answer || '';
-
-  // Strip A), B), C), D) prefixes
-  choices = choices.map(c => typeof c === 'string' ? c.replace(/^[A-D]\)\s*/, '').trim() : String(c));
-
-  // Convert letter-only correct_answer to choice text
-  if (/^[A-D]$/.test(correctAnswer)) {
-    const idx = correctAnswer.charCodeAt(0) - 65;
-    if (idx >= 0 && idx < choices.length) {
-      correctAnswer = choices[idx];
-    }
-  } else {
-    correctAnswer = correctAnswer.replace(/^[A-D]\)\s*/, '').trim();
-  }
-
-  // Ensure exactly 4 choices
-  while (choices.length < 4) choices.push('');
-  choices = choices.slice(0, 4);
-
-  // Validate correct_answer is in choices
-  if (!choices.includes(correctAnswer) && choices.length > 0) {
-    // Try fuzzy match
-    const match = choices.find(c => c.includes(correctAnswer) || correctAnswer.includes(c));
-    if (match) correctAnswer = match;
-  }
-
-  return { choices, correct_answer: correctAnswer };
-}
-```
-
-### Files to create/edit
-- **Create**: `src/utils/questionNormalizer.ts`
-- **Edit**: `src/hooks/useQuestionBank.ts` (normalize in copy/create/fetch functions)
-- **Edit**: `supabase/functions/ai-generate-questions/index.ts` (post-parse validation)
-- **Edit**: `supabase/functions/ai-import-pdf-questions/index.ts` (post-parse normalization)
-- **Edit**: `src/components/SystemQuestionsBrowser.tsx` (safety display check)
-- **Edit**: `src/components/SharedQuestionsBrowser.tsx` (safety display check)
-- **Edit**: `src/components/QuestionBankSelector.tsx` (safety display check)
+### Files to Change
+- **Database migration**: Add `full_name`, `school_name`, `profile_image_url` columns + create `profile-images` storage bucket
+- **`src/pages/Profile.tsx`**: Add full name field, save to DB, load from DB
+- **`src/components/ClassStudentManager.tsx`**: Fetch and display new fields
 
