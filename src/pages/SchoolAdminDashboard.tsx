@@ -302,10 +302,10 @@ const SchoolAdminDashboard = () => {
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
-      case 'school_admin': return 'bg-purple-600/20 text-purple-200 border-purple-400/40 dark:text-purple-200 dark:border-purple-400/40';
-      case 'teacher': return 'bg-blue-600/20 text-blue-200 border-blue-400/40 dark:text-blue-200 dark:border-blue-400/40';
-      case 'student': return 'bg-green-600/20 text-green-200 border-green-400/40 dark:text-green-200 dark:border-green-400/40';
-      default: return 'bg-slate-600/20 text-slate-200 border-slate-400/40';
+      case 'school_admin': return 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/30 dark:text-amber-200 dark:border-amber-700';
+      case 'teacher': return 'bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900/30 dark:text-orange-200 dark:border-orange-700';
+      case 'student': return 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-200 dark:border-yellow-700';
+      default: return 'bg-neutral-100 text-neutral-800 border-neutral-300 dark:bg-neutral-700 dark:text-neutral-200 dark:border-neutral-600';
     }
   };
 
