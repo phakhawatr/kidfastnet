@@ -40,7 +40,7 @@ const BatchStudentImport = ({ schoolId, classes, onComplete }: BatchStudentImpor
   };
 
   const downloadTemplate = () => {
-    const template = 'email,student_number\nstudent1@gmail.com,1\nstudent2@gmail.com,2\nstudent3@gmail.com,3';
+    const template = 'email,student_number,password\nstudent1@gmail.com,1,123456\nstudent2@gmail.com,2,123456\nstudent3@gmail.com,3,123456';
     const blob = new Blob(['\ufeff' + template], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
@@ -69,6 +69,7 @@ const BatchStudentImport = ({ schoolId, classes, onComplete }: BatchStudentImpor
       const parts = line.split(',').map(p => p.trim().replace(/"/g, ''));
       const email = parts[0];
       const studentNumber = parts[1] ? parseInt(parts[1]) : null;
+      const password = parts[2] || '123456';
 
       if (!email || !email.includes('@')) {
         errors.push(`"${email}" — อีเมลไม่ถูกต้อง`);
@@ -77,17 +78,46 @@ const BatchStudentImport = ({ schoolId, classes, onComplete }: BatchStudentImpor
       }
 
       try {
-        // Find user
+        // Find user by email
         const { data: user } = await supabase
           .from('user_registrations')
           .select('id')
           .eq('parent_email', email)
-          .single();
+          .maybeSingle();
 
-        if (!user) {
-          errors.push(`"${email}" — ไม่พบในระบบ`);
-          failed++;
-          continue;
+        let studentId: string;
+
+        if (user) {
+          studentId = user.id;
+          // Update password if provided
+          if (password) {
+            await supabase
+              .from('user_registrations')
+              .update({ password_hash: password })
+              .eq('id', user.id);
+          }
+        } else {
+          // Create new student registration
+          const { data: newUser, error: createError } = await supabase
+            .from('user_registrations')
+            .insert({
+              parent_email: email,
+              password_hash: password,
+              nickname: email.split('@')[0],
+              age: 7,
+              grade: 'ป.1',
+              avatar: '🧒',
+              status: 'approved',
+            })
+            .select('id')
+            .single();
+
+          if (createError || !newUser) {
+            errors.push(`"${email}" — สร้างบัญชีไม่สำเร็จ: ${createError?.message}`);
+            failed++;
+            continue;
+          }
+          studentId = newUser.id;
         }
 
         // Check duplicate in class
@@ -95,7 +125,7 @@ const BatchStudentImport = ({ schoolId, classes, onComplete }: BatchStudentImpor
           .from('class_students')
           .select('id')
           .eq('class_id', selectedClassId)
-          .eq('student_id', user.id)
+          .eq('student_id', studentId)
           .eq('is_active', true)
           .maybeSingle();
 
@@ -108,7 +138,7 @@ const BatchStudentImport = ({ schoolId, classes, onComplete }: BatchStudentImpor
         // Add to class
         await supabase.from('class_students').insert([{
           class_id: selectedClassId,
-          student_id: user.id,
+          student_id: studentId,
           student_number: studentNumber,
           is_active: true,
         }]);
@@ -118,14 +148,14 @@ const BatchStudentImport = ({ schoolId, classes, onComplete }: BatchStudentImpor
           .from('school_memberships')
           .select('id')
           .eq('school_id', schoolId)
-          .eq('user_id', user.id)
+          .eq('user_id', studentId)
           .eq('role', 'student')
           .maybeSingle();
 
         if (!memberExists) {
           await supabase.from('school_memberships').insert([{
             school_id: schoolId,
-            user_id: user.id,
+            user_id: studentId,
             role: 'student',
             is_active: true,
           }]);
@@ -176,7 +206,7 @@ const BatchStudentImport = ({ schoolId, classes, onComplete }: BatchStudentImpor
           <div className="space-y-5 mt-4">
             {/* Template Download */}
             <div className="p-4 bg-slate-900/50 rounded-lg border border-slate-700">
-              <p className="text-slate-300 text-sm mb-2">รูปแบบไฟล์: <code className="bg-slate-700 px-2 py-0.5 rounded text-emerald-300">email,student_number</code></p>
+              <p className="text-slate-300 text-sm mb-2">รูปแบบไฟล์: <code className="bg-slate-700 px-2 py-0.5 rounded text-emerald-300">email,student_number,password</code></p>
               <Button variant="ghost" size="sm" onClick={downloadTemplate} className="text-emerald-400 hover:text-emerald-300">
                 <Download className="w-4 h-4 mr-1" />
                 ดาวน์โหลดตัวอย่าง
