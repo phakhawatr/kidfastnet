@@ -125,7 +125,7 @@ const BatchStudentImport = ({ schoolId, classes, onComplete }: BatchStudentImpor
           .from('class_students')
           .select('id')
           .eq('class_id', selectedClassId)
-          .eq('student_id', user.id)
+          .eq('student_id', studentId)
           .eq('is_active', true)
           .maybeSingle();
 
