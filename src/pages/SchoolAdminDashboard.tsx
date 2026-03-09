@@ -367,7 +367,7 @@ const SchoolAdminDashboard = () => {
             {selectedSchool && (
               <Button
                 onClick={() => navigate('/school-admin/analytics')}
-                className="bg-slate-700 hover:bg-slate-600 dark:bg-slate-700 dark:hover:bg-slate-600"
+                className="bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-white rounded-full"
               >
                 <BarChart3 className="w-4 h-4 mr-2" />
                 ดูสถิติโรงเรียน
