@@ -374,9 +374,8 @@ const SchoolAdminDashboard = () => {
               </Button>
             )}
           </div>
-          
-          {/* School Selector */}
-          {userSchools.length > 0 && (
+          {/* School Selector - only show if multiple schools */}
+          {userSchools.length > 1 && (
             <div className="mt-4 md:mt-0 flex items-center gap-3">
               <Select
                 value={selectedSchool?.id || ''}
@@ -396,100 +395,6 @@ const SchoolAdminDashboard = () => {
                   ))}
                 </SelectContent>
               </Select>
-              
-              <Dialog open={showCreateSchool} onOpenChange={setShowCreateSchool}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="border-primary/50 text-primary hover:bg-primary/10">
-                    <Plus className="w-4 h-4 mr-2" />
-                    เพิ่มโรงเรียน
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className={`${dialogStyle} max-w-2xl`}>
-                  <DialogHeader>
-                    <DialogTitle className={textPrimary}>สร้างโรงเรียนใหม่</DialogTitle>
-                  </DialogHeader>
-                  <div className="grid grid-cols-2 gap-4 mt-4">
-                    <div className="col-span-2">
-                      <Label className={labelStyle}>ชื่อโรงเรียน *</Label>
-                      <Input
-                        value={newSchool.name}
-                        onChange={(e) => setNewSchool({ ...newSchool, name: e.target.value })}
-                        className={`${inputStyle} mt-1`}
-                        placeholder="โรงเรียน..."
-                      />
-                    </div>
-                    <div>
-                      <Label className={labelStyle}>รหัสโรงเรียน *</Label>
-                      <Input
-                        value={newSchool.code}
-                        onChange={(e) => setNewSchool({ ...newSchool, code: e.target.value.toUpperCase() })}
-                        className={`${inputStyle} mt-1`}
-                        placeholder="SCHOOL001"
-                      />
-                    </div>
-                    <div>
-                      <Label className={labelStyle}>เบอร์โทร</Label>
-                      <Input
-                        value={newSchool.phone}
-                        onChange={(e) => setNewSchool({ ...newSchool, phone: e.target.value })}
-                        className={`${inputStyle} mt-1`}
-                        placeholder="02-xxx-xxxx"
-                      />
-                    </div>
-                    <div>
-                      <Label className={labelStyle}>อีเมล</Label>
-                      <Input
-                        value={newSchool.email}
-                        onChange={(e) => setNewSchool({ ...newSchool, email: e.target.value })}
-                        className={`${inputStyle} mt-1`}
-                        placeholder="school@email.com"
-                      />
-                    </div>
-                    <div>
-                      <Label className={labelStyle}>เว็บไซต์</Label>
-                      <Input
-                        value={newSchool.website}
-                        onChange={(e) => setNewSchool({ ...newSchool, website: e.target.value })}
-                        className={`${inputStyle} mt-1`}
-                        placeholder="https://..."
-                      />
-                    </div>
-                    <div className="col-span-2">
-                      <Label className={labelStyle}>ที่อยู่</Label>
-                      <Input
-                        value={newSchool.address}
-                        onChange={(e) => setNewSchool({ ...newSchool, address: e.target.value })}
-                        className={`${inputStyle} mt-1`}
-                        placeholder="ที่อยู่โรงเรียน"
-                      />
-                    </div>
-                    <div>
-                      <Label className={labelStyle}>อำเภอ/เขต</Label>
-                      <Input
-                        value={newSchool.district}
-                        onChange={(e) => setNewSchool({ ...newSchool, district: e.target.value })}
-                        className={`${inputStyle} mt-1`}
-                      />
-                    </div>
-                    <div>
-                      <Label className={labelStyle}>จังหวัด</Label>
-                      <Input
-                        value={newSchool.province}
-                        onChange={(e) => setNewSchool({ ...newSchool, province: e.target.value })}
-                        className={`${inputStyle} mt-1`}
-                      />
-                    </div>
-                  </div>
-                  <div className="flex justify-end gap-3 mt-6">
-                    <Button variant="ghost" onClick={() => setShowCreateSchool(false)} className={cancelBtnStyle}>
-                      ยกเลิก
-                    </Button>
-                    <Button onClick={handleCreateSchool} className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                      สร้างโรงเรียน
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
             </div>
           )}
         </div>
@@ -498,16 +403,8 @@ const SchoolAdminDashboard = () => {
         {userSchools.length === 0 && (
           <Card className={`${cardStyle} p-12 text-center`}>
             <Building2 className={`w-16 h-16 ${textMuted} mx-auto mb-4`} />
-            <h2 className={`text-xl font-semibold ${textPrimary} mb-2`}>ยังไม่มีโรงเรียน</h2>
-            <p className={`${textSecondary} mb-6`}>สร้างโรงเรียนใหม่เพื่อเริ่มต้นใช้งาน</p>
-            <Dialog open={showCreateSchool} onOpenChange={setShowCreateSchool}>
-              <DialogTrigger asChild>
-                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                  <Plus className="w-4 h-4 mr-2" />
-                  สร้างโรงเรียนใหม่
-                </Button>
-              </DialogTrigger>
-            </Dialog>
+            <h2 className={`text-xl font-semibold ${textPrimary} mb-2`}>ยังไม่มีโรงเรียนที่เชื่อมต่อ</h2>
+            <p className={`${textSecondary} mb-6`}>กรุณาติดต่อผู้ดูแลระบบเพื่อเพิ่มบัญชีของคุณเข้าโรงเรียน</p>
           </Card>
         )}
 
