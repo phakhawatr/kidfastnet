@@ -658,7 +658,7 @@ const SchoolAdminDashboard = () => {
                                 <span>{cls.student_count || 0} / {cls.max_students} คน</span>
                               </div>
                               {cls.teacher_name && (
-                                <span className="text-blue-600 dark:text-blue-300">ครู: {cls.teacher_name}</span>
+                                <span className="text-orange-600 dark:text-orange-400">ครู: {cls.teacher_name}</span>
                               )}
                             </div>
                             <Button
