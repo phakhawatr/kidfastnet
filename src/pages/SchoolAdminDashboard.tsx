@@ -786,7 +786,7 @@ const SchoolAdminDashboard = () => {
                 <Card className={cardStyle}>
                   <div className={`p-6 border-b ${borderStyle} flex items-center justify-between`}>
                     <h2 className={`text-xl font-semibold ${textPrimary}`}>👨‍🎓 นักเรียน</h2>
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => {
+                    <Button className="bg-amber-800 hover:bg-amber-900 dark:bg-amber-700 dark:hover:bg-amber-600 text-white rounded-full" onClick={() => {
                       setNewMember({ email: '', role: 'student' });
                       setShowAddMember(true);
                     }}>
