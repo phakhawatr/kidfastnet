@@ -69,6 +69,7 @@ const BatchStudentImport = ({ schoolId, classes, onComplete }: BatchStudentImpor
       const parts = line.split(',').map(p => p.trim().replace(/"/g, ''));
       const email = parts[0];
       const studentNumber = parts[1] ? parseInt(parts[1]) : null;
+      const password = parts[2] || '123456';
 
       if (!email || !email.includes('@')) {
         errors.push(`"${email}" — อีเมลไม่ถูกต้อง`);
@@ -77,17 +78,46 @@ const BatchStudentImport = ({ schoolId, classes, onComplete }: BatchStudentImpor
       }
 
       try {
-        // Find user
+        // Find user by email
         const { data: user } = await supabase
           .from('user_registrations')
           .select('id')
           .eq('parent_email', email)
-          .single();
+          .maybeSingle();
 
-        if (!user) {
-          errors.push(`"${email}" — ไม่พบในระบบ`);
-          failed++;
-          continue;
+        let studentId: string;
+
+        if (user) {
+          studentId = user.id;
+          // Update password if provided
+          if (password) {
+            await supabase
+              .from('user_registrations')
+              .update({ password_hash: password })
+              .eq('id', user.id);
+          }
+        } else {
+          // Create new student registration
+          const { data: newUser, error: createError } = await supabase
+            .from('user_registrations')
+            .insert({
+              parent_email: email,
+              password_hash: password,
+              nickname: email.split('@')[0],
+              age: 7,
+              grade: 'ป.1',
+              avatar: '🧒',
+              status: 'approved',
+            })
+            .select('id')
+            .single();
+
+          if (createError || !newUser) {
+            errors.push(`"${email}" — สร้างบัญชีไม่สำเร็จ: ${createError?.message}`);
+            failed++;
+            continue;
+          }
+          studentId = newUser.id;
         }
 
         // Check duplicate in class
