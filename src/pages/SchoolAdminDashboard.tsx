@@ -378,6 +378,7 @@ const SchoolAdminDashboard = () => {
           {/* School Selector */}
           {userSchools.length > 0 && (
             <div className="mt-4 md:mt-0 flex items-center gap-3">
+              {userSchools.length > 1 && (
               <Select
                 value={selectedSchool?.id || ''}
                 onValueChange={(value) => {
@@ -396,14 +397,7 @@ const SchoolAdminDashboard = () => {
                   ))}
                 </SelectContent>
               </Select>
-              
-              <Dialog open={showCreateSchool} onOpenChange={setShowCreateSchool}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="border-primary/50 text-primary hover:bg-primary/10">
-                    <Plus className="w-4 h-4 mr-2" />
-                    เพิ่มโรงเรียน
-                  </Button>
-                </DialogTrigger>
+              )}
                 <DialogContent className={`${dialogStyle} max-w-2xl`}>
                   <DialogHeader>
                     <DialogTitle className={textPrimary}>สร้างโรงเรียนใหม่</DialogTitle>
