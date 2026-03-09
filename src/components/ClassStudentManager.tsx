@@ -21,9 +21,11 @@ interface ClassStudent {
   student_id: string;
   student_number: number | null;
   nickname: string;
+  full_name: string | null;
   email: string;
   avatar: string;
   line_picture_url: string | null;
+  profile_image_url: string | null;
 }
 
 interface ClassStudentManagerProps {
