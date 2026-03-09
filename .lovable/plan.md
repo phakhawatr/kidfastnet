@@ -1,112 +1,91 @@
 
 
-# School Version — แผนพัฒนาระบบโรงเรียนแบบครบวงจร
+## Plan: Fix Question Bank Import Completeness Issues
 
-## สรุปภาพรวม
+### Root Problem
 
-ระบบปัจจุบันมี: ตาราง `schools`, `school_memberships`, `classes`, `class_students` พร้อม RLS, หน้า `SchoolAdminDashboard` และ `AdminSchoolManagement` อยู่แล้ว แต่ยังขาด **หน้าแสดงรายชื่อโรงเรียน บน Landing** และ **หน้า Login เฉพาะ School Admin** ที่สวยงาม
+There are two inconsistent data formats for questions in the database:
 
----
+1. **AI-generated questions**: `choices: ["5", "6", "7", "8"]`, `correct_answer: "5"`
+2. **PDF-imported questions**: `choices: ["A) 5", "B) 6", "C) 7", "D) 8"]`, `correct_answer: "A"`
 
-## Phase 1: การ์ดโรงเรียนในเครือข่าย (Landing Page)
+When these are imported/copied between banks or used in exams, mismatches occur — choices may appear incomplete, correct answers don't match, and display is inconsistent.
 
-**สร้าง section "โรงเรียนในเครือข่าย"** บนหน้า Landing ก่อน CTA Section
+### Changes
 
-- ดึงข้อมูลจากตาราง `schools` ที่ `is_active = true`
-- แสดงเป็น **grid cards** แต่ละการ์ดมี: โลโก้โรงเรียน, ชื่อ, จังหวัด, จำนวนครู/นักเรียน
-- การ์ดมี hover animation, gradient border, และ shadow
-- กดการ์ด → นำไปหน้า `/school-login/:schoolId`
+**1. Add validation/normalization utility (`src/utils/questionNormalizer.ts` — new file)**
 
-**ไฟล์ที่แก้ไข:**
-- `src/pages/Landing.tsx` — เพิ่ม section ใหม่
-- สร้าง `src/components/SchoolNetworkSection.tsx` — component แสดง grid การ์ดโรงเรียน
+Create a function `normalizeQuestion(question)` that:
+- Ensures `choices` array always has exactly 4 items (pads with empty or trims)
+- Strips `A)`, `B)`, `C)`, `D)` prefixes from choices if present
+- Converts letter-only `correct_answer` (e.g., "A") to actual choice text
+- Ensures `correct_answer` matches one of the normalized choices
+- Flags questions that can't be fixed (returns `{ normalized, warnings }`)
 
----
+**2. Apply normalization in `useQuestionBank.ts`**
 
-## Phase 2: หน้า School Admin Login
+- In `copySystemQuestion`: normalize before insert
+- In `copySharedQuestion`: normalize before insert
+- In `createQuestion`: normalize before insert
+- In `fetchQuestions` / `fetchSystemQuestions`: normalize after fetch for display consistency
 
-**สร้างหน้า Login เฉพาะโรงเรียน** ที่ `/school-login/:schoolId`
+**3. Apply normalization in `ai-generate-questions/index.ts` (edge function)**
 
-- ดึงข้อมูลโรงเรียนจาก `schools` table → แสดงโลโก้ + ชื่อโรงเรียน
-- Background image จาก `background_url` ของโรงเรียน พร้อม overlay + animation (ใช้แบบเดียวกับ AdminSchoolManagement)
-- ฟอร์ม login ด้วย email + password (ใช้ Supabase Auth หรือ custom auth `kidfast_auth`)
-- หลัง login สำเร็จ → ตรวจสอบ `school_memberships` ว่า user มี role `school_admin` → redirect ไป `/school-admin`
+- After parsing AI response, validate each question has exactly 4 choices
+- Ensure `correct_answer` matches one of the choices
+- Fill missing choices if fewer than 4
 
-**ไฟล์ที่สร้างใหม่:**
-- `src/pages/SchoolLogin.tsx`
-- เพิ่ม Route ใน `src/App.tsx`
+**4. Apply normalization in `ai-import-pdf-questions/index.ts` (edge function)**
 
----
+- After parsing, strip "A) / B) / C) / D)" prefixes from choices
+- Convert letter-only `correct_answer` to actual choice text
+- Ensure exactly 4 choices per question
 
-## Phase 3: ปรับปรุง School Admin Dashboard
+**5. Update display components for safety**
 
-ปรับหน้า `SchoolAdminDashboard` ให้สมบูรณ์และสวยงามยิ่งขึ้น:
+- In `QuestionBankSelector.tsx`, `SystemQuestionsBrowser.tsx`, `SharedQuestionsBrowser.tsx`, `PublicExam.tsx`, `Quiz.tsx`: add a safety check so if `choices` has fewer than 4 items, pad with placeholder or show a warning badge
 
-### 3.1 Dashboard Overview Cards
-- **สถิติรวม**: จำนวนครู, นักเรียน, ห้องเรียน, ข้อสอบ ในรูป stat cards พร้อม icon + animation
+### Technical Detail — Normalizer
 
-### 3.2 จัดการครู (Teacher Management)
-- เพิ่มครูโดย email → สร้าง `school_memberships` role=teacher
-- ดูรายชื่อครู, แก้ไข, ลบ
-- มอบหมายครูประจำชั้น
+```typescript
+export function normalizeQuestion(q: { choices: string[], correct_answer: string }) {
+  let choices = [...(q.choices || [])];
+  let correctAnswer = q.correct_answer || '';
 
-### 3.3 จัดการห้องเรียน (Class Management)
-- สร้างห้อง (ชื่อ, ชั้น, ปีการศึกษา, ครูประจำชั้น)
-- ดูรายชื่อนักเรียนในห้อง
-- เพิ่ม/ลบนักเรียนจากห้อง
+  // Strip A), B), C), D) prefixes
+  choices = choices.map(c => typeof c === 'string' ? c.replace(/^[A-D]\)\s*/, '').trim() : String(c));
 
-### 3.4 จัดการนักเรียน (Student Management)
-- เพิ่มนักเรียนโดย email → สร้าง `school_memberships` role=student + `class_students`
-- Import นักเรียนเป็น batch (CSV/Excel) — **ฟีเจอร์ใหม่**
-- ดูสถิติการเรียนรู้รายบุคคล
+  // Convert letter-only correct_answer to choice text
+  if (/^[A-D]$/.test(correctAnswer)) {
+    const idx = correctAnswer.charCodeAt(0) - 65;
+    if (idx >= 0 && idx < choices.length) {
+      correctAnswer = choices[idx];
+    }
+  } else {
+    correctAnswer = correctAnswer.replace(/^[A-D]\)\s*/, '').trim();
+  }
 
-**ไฟล์ที่แก้ไข:**
-- `src/pages/SchoolAdminDashboard.tsx` — ปรับ UI + เพิ่ม tab/section
+  // Ensure exactly 4 choices
+  while (choices.length < 4) choices.push('');
+  choices = choices.slice(0, 4);
 
----
+  // Validate correct_answer is in choices
+  if (!choices.includes(correctAnswer) && choices.length > 0) {
+    // Try fuzzy match
+    const match = choices.find(c => c.includes(correctAnswer) || correctAnswer.includes(c));
+    if (match) correctAnswer = match;
+  }
 
-## Phase 4: ฟีเจอร์เพิ่มเติมที่แนะนำ (Professional Analysis)
+  return { choices, correct_answer: correctAnswer };
+}
+```
 
-### 4.1 School Branding & Settings
-- อัปโหลดโลโก้ + background image (มีอยู่แล้วบางส่วนใน AdminSchoolManagement)
-- ตั้งค่าสีธีมโรงเรียน
-- แก้ไขข้อมูลโรงเรียน (ที่อยู่, เบอร์, เว็บไซต์)
-
-### 4.2 School Analytics Dashboard
-- ภาพรวมผลการเรียนทั้งโรงเรียน (มี `SchoolAnalyticsDashboard` อยู่แล้ว)
-- เปรียบเทียบระหว่างห้อง
-- กราฟแนวโน้มพัฒนาการรายเดือน
-
-### 4.3 Announcement System (ระบบประกาศ)
-- School Admin สามารถสร้างประกาศถึงครูและนักเรียน
-- ต้องเพิ่มตาราง `school_announcements`
-
-### 4.4 Academic Calendar (ปฏิทินการศึกษา)
-- กำหนดวันสอบ, วันหยุด, กิจกรรม
-- ต้องเพิ่มตาราง `school_events`
-
-### 4.5 Report Generation (รายงาน PDF)
-- สร้างรายงานผลการเรียนรายห้อง/รายบุคคล
-- ใช้ jsPDF ที่มีอยู่แล้ว
-
----
-
-## ลำดับการทำงานที่แนะนำ
-
-| ลำดับ | งาน | ความซับซ้อน |
-|-------|------|------------|
-| 1 | สร้าง SchoolNetworkSection + เพิ่มใน Landing | ต่ำ |
-| 2 | สร้างหน้า SchoolLogin | ปานกลาง |
-| 3 | ปรับปรุง SchoolAdminDashboard UI | ปานกลาง |
-| 4 | เพิ่ม Import นักเรียน batch | ปานกลาง |
-| 5 | ระบบประกาศ + ปฏิทิน (ถ้าต้องการ) | สูง |
-
----
-
-## หมายเหตุทางเทคนิค
-
-- ข้อมูล `schools` มี `logo_url`, `background_url`, `is_active` พร้อมใช้แล้ว
-- `school_memberships` รองรับ role: `school_admin`, `teacher`, `student`
-- ใช้ security definer function `admin_update_school` สำหรับอัปเดตข้อมูลโรงเรียน (เนื่องจาก RLS)
-- Authentication ใช้ระบบ custom auth (`kidfast_auth` ใน localStorage) ร่วมกับ Supabase Auth
+### Files to create/edit
+- **Create**: `src/utils/questionNormalizer.ts`
+- **Edit**: `src/hooks/useQuestionBank.ts` (normalize in copy/create/fetch functions)
+- **Edit**: `supabase/functions/ai-generate-questions/index.ts` (post-parse validation)
+- **Edit**: `supabase/functions/ai-import-pdf-questions/index.ts` (post-parse normalization)
+- **Edit**: `src/components/SystemQuestionsBrowser.tsx` (safety display check)
+- **Edit**: `src/components/SharedQuestionsBrowser.tsx` (safety display check)
+- **Edit**: `src/components/QuestionBankSelector.tsx` (safety display check)
 

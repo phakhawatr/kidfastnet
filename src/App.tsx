@@ -74,6 +74,7 @@ import TeacherProtectedRoute from "./components/TeacherProtectedRoute";
 import SchoolAdminProtectedRoute from "./components/SchoolAdminProtectedRoute";
 import SchoolAdminDashboard from "./pages/SchoolAdminDashboard";
 import AdminSchoolManagement from "./pages/AdminSchoolManagement";
+import SchoolLogin from "./pages/SchoolLogin";
 import SchoolAnalyticsDashboard from "./pages/SchoolAnalyticsDashboard";
 import AILessonPlanner from "./pages/AILessonPlanner";
 import TeacherAssignments from "./pages/TeacherAssignments";
@@ -618,6 +619,9 @@ const App = () => {
               </AdminProtectedRoute>
             } 
           />
+          
+          {/* School Login - Public Route */}
+          <Route path="/school-login/:schoolId" element={<SchoolLogin />} />
           
           {/* Public Exam Route - No authentication required */}
           <Route path="/exam/:linkCode" element={<PublicExam />} />

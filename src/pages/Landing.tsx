@@ -4,6 +4,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SkillsSection from '../components/SkillsSection';
 import PremiumFeaturesShowcase from '../components/PremiumFeaturesShowcase';
+import SchoolNetworkSection from '../components/SchoolNetworkSection';
 import exampleAddition from '../assets/example-addition.jpg';
 import exampleSubtraction from '../assets/example-subtraction.jpg';
 import exampleMultiplication from '../assets/example-multiplication.jpg';
@@ -397,6 +398,9 @@ const Landing = () => {
             </div>
           </div>
         </section>
+
+        {/* School Network Section */}
+        <SchoolNetworkSection />
 
         {/* CTA Section */}
         <section className="text-center">
