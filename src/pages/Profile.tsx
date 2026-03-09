@@ -610,12 +610,53 @@ const Profile = () => {
       // Trim all fields
       const trimmedClass = studentClass.trim();
       const trimmedSchool = schoolName.trim();
+      const trimmedFullName = fullName.trim();
 
+      // Upload profile image to Supabase Storage if changed
+      let profileImageUrl = profileImage;
+      if (imageFile && registrationId) {
+        const fileExt = imageFile.name.split('.').pop();
+        const filePath = `${registrationId}/profile.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('profile-images')
+          .upload(filePath, imageFile, { upsert: true });
+        
+        if (!uploadError) {
+          const { data: urlData } = supabase.storage
+            .from('profile-images')
+            .getPublicUrl(filePath);
+          profileImageUrl = urlData.publicUrl;
+        } else {
+          console.error('Image upload error:', uploadError);
+        }
+      }
+
+      // Save to Supabase database
+      if (registrationId) {
+        const { error: dbError } = await supabase
+          .from('user_registrations')
+          .update({
+            nickname: trimmedNickname,
+            full_name: trimmedFullName,
+            grade: trimmedClass,
+            school_name: trimmedSchool,
+            profile_image_url: profileImageUrl,
+          } as any)
+          .eq('id', registrationId);
+        
+        if (dbError) {
+          console.error('DB update error:', dbError);
+        }
+      }
+
+      // Keep localStorage sync for offline compatibility
       const profileData = {
         nickname: trimmedNickname,
+        fullName: trimmedFullName,
         studentClass: trimmedClass,
         schoolName: trimmedSchool,
-        profileImage
+        profileImage: profileImageUrl
       };
       
       localStorage.setItem('kidfast_profile', JSON.stringify(profileData));
@@ -628,12 +669,14 @@ const Profile = () => {
         localStorage.setItem('kidfast_auth', JSON.stringify(authState));
       }
       
-      // Update state immediately (React will re-render)
+      // Update state immediately
       setNickname(trimmedNickname);
+      setFullName(trimmedFullName);
       setStudentClass(trimmedClass);
       setSchoolName(trimmedSchool);
+      setProfileImage(profileImageUrl);
       
-      // Show success message with beautiful toast
+      // Show success message
       toast({
         title: '✅ ' + t('alerts.saveSuccess'),
         description: 'ข้อมูลของคุณได้รับการอัปเดตเรียบร้อยแล้ว',
