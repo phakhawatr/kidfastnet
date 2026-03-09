@@ -731,7 +731,7 @@ const SchoolAdminDashboard = () => {
                           <Button variant="ghost" onClick={() => setShowAddMember(false)} className={cancelBtnStyle}>
                             ยกเลิก
                           </Button>
-                          <Button onClick={handleAddMember} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                          <Button onClick={handleAddMember} className="bg-amber-800 hover:bg-amber-900 dark:bg-amber-700 dark:hover:bg-amber-600 text-white rounded-full">
                             เพิ่มสมาชิก
                           </Button>
                         </div>
