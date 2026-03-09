@@ -148,14 +148,14 @@ const BatchStudentImport = ({ schoolId, classes, onComplete }: BatchStudentImpor
           .from('school_memberships')
           .select('id')
           .eq('school_id', schoolId)
-          .eq('user_id', user.id)
+          .eq('user_id', studentId)
           .eq('role', 'student')
           .maybeSingle();
 
         if (!memberExists) {
           await supabase.from('school_memberships').insert([{
             school_id: schoolId,
-            user_id: user.id,
+            user_id: studentId,
             role: 'student',
             is_active: true,
           }]);
