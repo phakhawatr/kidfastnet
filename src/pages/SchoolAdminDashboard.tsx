@@ -31,6 +31,8 @@ import {
   Save
 } from 'lucide-react';
 import ManualDownloader from '@/components/ManualDownloader';
+import ClassStudentManager from '@/components/ClassStudentManager';
+import BatchStudentImport from '@/components/BatchStudentImport';
 
 const SchoolAdminDashboard = () => {
   const navigate = useNavigate();
