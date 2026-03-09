@@ -228,9 +228,17 @@ const ClassStudentManager = ({ classId, className, schoolId, onBack }: ClassStud
                   </span>
                 </div>
                 <div className="col-span-5 flex items-center gap-3">
-                  <div className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center text-sm">
-                    {student.avatar}
-                  </div>
+                  {student.line_picture_url ? (
+                    <img
+                      src={student.line_picture_url}
+                      alt={student.nickname}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center text-sm">
+                      {avatarEmojiMap[student.avatar] || student.avatar || '👨‍🎓'}
+                    </div>
+                  )}
                   <span className="text-white font-medium">{student.nickname}</span>
                 </div>
                 <div className="col-span-4">
