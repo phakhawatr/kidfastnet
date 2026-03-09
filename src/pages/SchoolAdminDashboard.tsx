@@ -921,7 +921,7 @@ const SchoolAdminDashboard = () => {
                     <div className={`pt-6 border-t ${borderStyle}`}>
                       <Dialog open={showEditSchool} onOpenChange={setShowEditSchool}>
                         <DialogTrigger asChild>
-                          <Button variant="outline" className="border-primary/50 text-primary hover:bg-primary/10">
+                          <Button variant="outline" className="border-orange-400/50 text-orange-700 hover:bg-orange-50 dark:border-orange-500/30 dark:text-orange-300 dark:hover:bg-orange-500/20">
                             <Edit className="w-4 h-4 mr-2" />
                             แก้ไขข้อมูลโรงเรียน
                           </Button>
