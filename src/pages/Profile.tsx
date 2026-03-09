@@ -297,6 +297,7 @@ const Profile = () => {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [showAllMissions, setShowAllMissions] = useState(false);
   const [nickname, setNickname] = useState('');
+  const [fullName, setFullName] = useState('');
   const [studentClass, setStudentClass] = useState('');
   const [schoolName, setSchoolName] = useState('');
   const [profileImage, setProfileImage] = useState<string | null>(null);
@@ -509,40 +510,56 @@ const Profile = () => {
   useEffect(() => {
     const loadProfileData = async () => {
       try {
-        const stored = localStorage.getItem('kidfast_profile');
-        if (stored) {
-          const profileData = JSON.parse(stored);
-          setNickname(profileData.nickname || username || '');
-          setStudentClass(profileData.studentClass || '');
-          setSchoolName(profileData.schoolName || '');
-          setProfileImage(profileData.profileImage || null);
-        } else {
-          setNickname(username || '');
-        }
-
-        // Load LINE connection status if editing and registration data exists
-        if (isEditingProfile && registrationData) {
-          const authStored = localStorage.getItem('kidfast_auth');
-          if (authStored) {
-            const authState = JSON.parse(authStored);
-            const registrationId = authState.registrationId;
-
-            if (registrationId) {
-              const { data, error } = await supabase
-                .from('user_registrations')
-                .select('line_user_id, line_display_name, line_picture_url, line_user_id_2, line_display_name_2, line_picture_url_2')
-                .eq('id', registrationId)
-                .single();
-
-              if (data && !error) {
-        setLineUserId(data.line_user_id || '');
-        setLineDisplayName(data.line_display_name || '');
-        setLinePictureUrl(data.line_picture_url || '');
-        setLineUserId2(data.line_user_id_2 || '');
-        setLineDisplayName2(data.line_display_name_2 || '');
-        setLinePictureUrl2(data.line_picture_url_2 || '');
+        // First try to load from database
+        const authStored = localStorage.getItem('kidfast_auth');
+        let loadedFromDb = false;
+        
+        if (authStored) {
+          const authState = JSON.parse(authStored);
+          const regId = authState.registrationId || authState.userId;
+          
+          if (regId) {
+            const { data: dbProfile, error } = await supabase
+              .from('user_registrations')
+              .select('nickname, full_name, grade, school_name, profile_image_url, line_user_id, line_display_name, line_picture_url, line_user_id_2, line_display_name_2, line_picture_url_2')
+              .eq('id', regId)
+              .single();
+            
+            if (dbProfile && !error) {
+              loadedFromDb = true;
+              setNickname(dbProfile.nickname || username || '');
+              setFullName((dbProfile as any).full_name || '');
+              setStudentClass(dbProfile.grade || '');
+              setSchoolName((dbProfile as any).school_name || '');
+              if ((dbProfile as any).profile_image_url) {
+                setProfileImage((dbProfile as any).profile_image_url);
+              }
+              
+              // Load LINE data
+              if (isEditingProfile) {
+                setLineUserId(dbProfile.line_user_id || '');
+                setLineDisplayName(dbProfile.line_display_name || '');
+                setLinePictureUrl(dbProfile.line_picture_url || '');
+                setLineUserId2(dbProfile.line_user_id_2 || '');
+                setLineDisplayName2(dbProfile.line_display_name_2 || '');
+                setLinePictureUrl2(dbProfile.line_picture_url_2 || '');
               }
             }
+          }
+        }
+        
+        // Fallback to localStorage if DB didn't load
+        if (!loadedFromDb) {
+          const stored = localStorage.getItem('kidfast_profile');
+          if (stored) {
+            const profileData = JSON.parse(stored);
+            setNickname(profileData.nickname || username || '');
+            setFullName(profileData.fullName || '');
+            setStudentClass(profileData.studentClass || '');
+            setSchoolName(profileData.schoolName || '');
+            setProfileImage(profileData.profileImage || null);
+          } else {
+            setNickname(username || '');
           }
         }
       } catch (e) {
@@ -593,12 +610,53 @@ const Profile = () => {
       // Trim all fields
       const trimmedClass = studentClass.trim();
       const trimmedSchool = schoolName.trim();
+      const trimmedFullName = fullName.trim();
 
+      // Upload profile image to Supabase Storage if changed
+      let profileImageUrl = profileImage;
+      if (imageFile && registrationId) {
+        const fileExt = imageFile.name.split('.').pop();
+        const filePath = `${registrationId}/profile.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('profile-images')
+          .upload(filePath, imageFile, { upsert: true });
+        
+        if (!uploadError) {
+          const { data: urlData } = supabase.storage
+            .from('profile-images')
+            .getPublicUrl(filePath);
+          profileImageUrl = urlData.publicUrl;
+        } else {
+          console.error('Image upload error:', uploadError);
+        }
+      }
+
+      // Save to Supabase database
+      if (registrationId) {
+        const { error: dbError } = await supabase
+          .from('user_registrations')
+          .update({
+            nickname: trimmedNickname,
+            full_name: trimmedFullName,
+            grade: trimmedClass,
+            school_name: trimmedSchool,
+            profile_image_url: profileImageUrl,
+          } as any)
+          .eq('id', registrationId);
+        
+        if (dbError) {
+          console.error('DB update error:', dbError);
+        }
+      }
+
+      // Keep localStorage sync for offline compatibility
       const profileData = {
         nickname: trimmedNickname,
+        fullName: trimmedFullName,
         studentClass: trimmedClass,
         schoolName: trimmedSchool,
-        profileImage
+        profileImage: profileImageUrl
       };
       
       localStorage.setItem('kidfast_profile', JSON.stringify(profileData));
@@ -611,12 +669,14 @@ const Profile = () => {
         localStorage.setItem('kidfast_auth', JSON.stringify(authState));
       }
       
-      // Update state immediately (React will re-render)
+      // Update state immediately
       setNickname(trimmedNickname);
+      setFullName(trimmedFullName);
       setStudentClass(trimmedClass);
       setSchoolName(trimmedSchool);
+      setProfileImage(profileImageUrl);
       
-      // Show success message with beautiful toast
+      // Show success message
       toast({
         title: '✅ ' + t('alerts.saveSuccess'),
         description: 'ข้อมูลของคุณได้รับการอัปเดตเรียบร้อยแล้ว',
@@ -1690,6 +1750,21 @@ const Profile = () => {
                   </Button>
                 </label>
               </div>
+            </div>
+
+            {/* Full Name Input */}
+            <div className="space-y-2">
+              <Label htmlFor="fullName" className="text-base font-semibold">
+                ชื่อ-นามสกุล
+              </Label>
+              <Input
+                id="fullName"
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="กรอกชื่อ-นามสกุล"
+                className="text-base"
+              />
             </div>
 
             {/* Nickname Input */}

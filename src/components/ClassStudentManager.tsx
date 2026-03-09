@@ -21,9 +21,11 @@ interface ClassStudent {
   student_id: string;
   student_number: number | null;
   nickname: string;
+  full_name: string | null;
   email: string;
   avatar: string;
   line_picture_url: string | null;
+  profile_image_url: string | null;
 }
 
 interface ClassStudentManagerProps {
@@ -57,7 +59,7 @@ const ClassStudentManager = ({ classId, className, schoolId, onBack }: ClassStud
         (data || []).map(async (cs) => {
           const { data: user } = await supabase
             .from('user_registrations')
-            .select('nickname, parent_email, avatar, line_picture_url')
+            .select('nickname, full_name, parent_email, avatar, line_picture_url, profile_image_url')
             .eq('id', cs.student_id)
             .single();
 
@@ -66,9 +68,11 @@ const ClassStudentManager = ({ classId, className, schoolId, onBack }: ClassStud
             student_id: cs.student_id,
             student_number: cs.student_number,
             nickname: user?.nickname || 'ไม่ระบุชื่อ',
+            full_name: (user as any)?.full_name || null,
             email: user?.parent_email || '',
             avatar: user?.avatar || '👨‍🎓',
             line_picture_url: user?.line_picture_url || null,
+            profile_image_url: (user as any)?.profile_image_url || null,
           };
         })
       );
@@ -228,9 +232,9 @@ const ClassStudentManager = ({ classId, className, schoolId, onBack }: ClassStud
                   </span>
                 </div>
                 <div className="col-span-5 flex items-center gap-3">
-                  {student.line_picture_url ? (
+                  {(student.profile_image_url || student.line_picture_url) ? (
                     <img
-                      src={student.line_picture_url}
+                      src={student.profile_image_url || student.line_picture_url!}
                       alt={student.nickname}
                       className="w-8 h-8 rounded-full object-cover"
                     />
@@ -239,7 +243,10 @@ const ClassStudentManager = ({ classId, className, schoolId, onBack }: ClassStud
                       {avatarEmojiMap[student.avatar] || student.avatar || '👨‍🎓'}
                     </div>
                   )}
-                  <span className="text-white font-medium">{student.nickname}</span>
+                  <div className="flex flex-col">
+                    <span className="text-white font-medium">{student.full_name || student.nickname}</span>
+                    {student.full_name && <span className="text-slate-400 text-xs">({student.nickname})</span>}
+                  </div>
                 </div>
                 <div className="col-span-4">
                   <span className="text-slate-400 text-sm">{student.email}</span>
