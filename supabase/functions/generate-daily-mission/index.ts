@@ -530,7 +530,7 @@ ${addSingleMission
 
     const { data: newMissions, error: insertError } = await supabase
       .from('daily_missions')
-      .insert(missionsToInsert)
+      .upsert(missionsToInsert, { onConflict: 'user_id,mission_date,mission_option' })
       .select();
 
     if (insertError) {
