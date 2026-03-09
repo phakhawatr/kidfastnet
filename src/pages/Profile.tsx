@@ -510,40 +510,56 @@ const Profile = () => {
   useEffect(() => {
     const loadProfileData = async () => {
       try {
-        const stored = localStorage.getItem('kidfast_profile');
-        if (stored) {
-          const profileData = JSON.parse(stored);
-          setNickname(profileData.nickname || username || '');
-          setStudentClass(profileData.studentClass || '');
-          setSchoolName(profileData.schoolName || '');
-          setProfileImage(profileData.profileImage || null);
-        } else {
-          setNickname(username || '');
-        }
-
-        // Load LINE connection status if editing and registration data exists
-        if (isEditingProfile && registrationData) {
-          const authStored = localStorage.getItem('kidfast_auth');
-          if (authStored) {
-            const authState = JSON.parse(authStored);
-            const registrationId = authState.registrationId;
-
-            if (registrationId) {
-              const { data, error } = await supabase
-                .from('user_registrations')
-                .select('line_user_id, line_display_name, line_picture_url, line_user_id_2, line_display_name_2, line_picture_url_2')
-                .eq('id', registrationId)
-                .single();
-
-              if (data && !error) {
-        setLineUserId(data.line_user_id || '');
-        setLineDisplayName(data.line_display_name || '');
-        setLinePictureUrl(data.line_picture_url || '');
-        setLineUserId2(data.line_user_id_2 || '');
-        setLineDisplayName2(data.line_display_name_2 || '');
-        setLinePictureUrl2(data.line_picture_url_2 || '');
+        // First try to load from database
+        const authStored = localStorage.getItem('kidfast_auth');
+        let loadedFromDb = false;
+        
+        if (authStored) {
+          const authState = JSON.parse(authStored);
+          const regId = authState.registrationId || authState.userId;
+          
+          if (regId) {
+            const { data: dbProfile, error } = await supabase
+              .from('user_registrations')
+              .select('nickname, full_name, grade, school_name, profile_image_url, line_user_id, line_display_name, line_picture_url, line_user_id_2, line_display_name_2, line_picture_url_2')
+              .eq('id', regId)
+              .single();
+            
+            if (dbProfile && !error) {
+              loadedFromDb = true;
+              setNickname(dbProfile.nickname || username || '');
+              setFullName((dbProfile as any).full_name || '');
+              setStudentClass(dbProfile.grade || '');
+              setSchoolName((dbProfile as any).school_name || '');
+              if ((dbProfile as any).profile_image_url) {
+                setProfileImage((dbProfile as any).profile_image_url);
+              }
+              
+              // Load LINE data
+              if (isEditingProfile) {
+                setLineUserId(dbProfile.line_user_id || '');
+                setLineDisplayName(dbProfile.line_display_name || '');
+                setLinePictureUrl(dbProfile.line_picture_url || '');
+                setLineUserId2(dbProfile.line_user_id_2 || '');
+                setLineDisplayName2(dbProfile.line_display_name_2 || '');
+                setLinePictureUrl2(dbProfile.line_picture_url_2 || '');
               }
             }
+          }
+        }
+        
+        // Fallback to localStorage if DB didn't load
+        if (!loadedFromDb) {
+          const stored = localStorage.getItem('kidfast_profile');
+          if (stored) {
+            const profileData = JSON.parse(stored);
+            setNickname(profileData.nickname || username || '');
+            setFullName(profileData.fullName || '');
+            setStudentClass(profileData.studentClass || '');
+            setSchoolName(profileData.schoolName || '');
+            setProfileImage(profileData.profileImage || null);
+          } else {
+            setNickname(username || '');
           }
         }
       } catch (e) {
