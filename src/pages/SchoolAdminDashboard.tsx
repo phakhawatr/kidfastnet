@@ -748,9 +748,9 @@ const SchoolAdminDashboard = () => {
                     ) : (
                       <div className="space-y-3">
                         {members.filter(m => m.role === 'teacher' || m.role === 'school_admin').map((member) => (
-                          <div key={member.id} className={`flex items-center justify-between p-4 rounded-lg border ${cardInnerStyle} hover:border-purple-400/50 transition-colors`}>
+                          <div key={member.id} className={`flex items-center justify-between p-4 rounded-lg border ${cardInnerStyle} hover:border-orange-400/50 transition-colors`}>
                             <div className="flex items-center gap-4">
-                              <div className="w-10 h-10 bg-purple-100 dark:bg-purple-500/20 rounded-full flex items-center justify-center">
+                              <div className="w-10 h-10 bg-orange-100 dark:bg-orange-500/20 rounded-full flex items-center justify-center">
                                 <span className="text-lg">{member.user_avatar || '👩‍🏫'}</span>
                               </div>
                               <div>
