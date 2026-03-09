@@ -8,6 +8,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useToast } from '@/hooks/use-toast';
 import { Users, UserPlus, Trash2, ArrowLeft, Hash } from 'lucide-react';
 
+const avatarEmojiMap: Record<string, string> = {
+  tiger: '🐯', cat: '🐱', dog: '🐶', rabbit: '🐰', bear: '🐻',
+  monkey: '🐵', elephant: '🐘', panda: '🐼', lion: '🦁', fox: '🦊',
+  penguin: '🐧', koala: '🐨', frog: '🐸', unicorn: '🦄', owl: '🦉',
+  dolphin: '🐬', butterfly: '🦋', bee: '🐝', ladybug: '🐞', turtle: '🐢',
+  giraffe: '🦒', whale: '🐋', octopus: '🐙', star: '⭐', rocket: '🚀',
+};
+
 interface ClassStudent {
   id: string;
   student_id: string;
@@ -15,6 +23,7 @@ interface ClassStudent {
   nickname: string;
   email: string;
   avatar: string;
+  line_picture_url: string | null;
 }
 
 interface ClassStudentManagerProps {
@@ -48,7 +57,7 @@ const ClassStudentManager = ({ classId, className, schoolId, onBack }: ClassStud
         (data || []).map(async (cs) => {
           const { data: user } = await supabase
             .from('user_registrations')
-            .select('nickname, parent_email, avatar')
+            .select('nickname, parent_email, avatar, line_picture_url')
             .eq('id', cs.student_id)
             .single();
 
@@ -59,6 +68,7 @@ const ClassStudentManager = ({ classId, className, schoolId, onBack }: ClassStud
             nickname: user?.nickname || 'ไม่ระบุชื่อ',
             email: user?.parent_email || '',
             avatar: user?.avatar || '👨‍🎓',
+            line_picture_url: user?.line_picture_url || null,
           };
         })
       );
@@ -218,9 +228,17 @@ const ClassStudentManager = ({ classId, className, schoolId, onBack }: ClassStud
                   </span>
                 </div>
                 <div className="col-span-5 flex items-center gap-3">
-                  <div className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center text-sm">
-                    {student.avatar}
-                  </div>
+                  {student.line_picture_url ? (
+                    <img
+                      src={student.line_picture_url}
+                      alt={student.nickname}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center text-sm">
+                      {avatarEmojiMap[student.avatar] || student.avatar || '👨‍🎓'}
+                    </div>
+                  )}
                   <span className="text-white font-medium">{student.nickname}</span>
                 </div>
                 <div className="col-span-4">
