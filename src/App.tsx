@@ -620,6 +620,9 @@ const App = () => {
             } 
           />
           
+          {/* School Login - Public Route */}
+          <Route path="/school-login/:schoolId" element={<SchoolLogin />} />
+          
           {/* Public Exam Route - No authentication required */}
           <Route path="/exam/:linkCode" element={<PublicExam />} />
           
