@@ -310,19 +310,19 @@ const SchoolAdminDashboard = () => {
   };
 
   // Common style classes for light/dark support
-  const pageBackground = 'bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950';
-  const cardStyle = 'bg-white border-slate-200 shadow-md dark:bg-slate-800/90 dark:border-slate-600 dark:backdrop-blur';
-  const cardInnerStyle = 'bg-slate-50 border-slate-200 dark:bg-slate-900/50 dark:border-slate-700';
-  const textPrimary = 'text-slate-900 dark:text-white';
-  const textSecondary = 'text-slate-600 dark:text-slate-200';
-  const textMuted = 'text-slate-500 dark:text-slate-300';
-  const borderStyle = 'border-slate-200 dark:border-slate-700';
-  const inputStyle = 'bg-white border-slate-300 text-slate-900 dark:bg-slate-900 dark:border-slate-600 dark:text-white';
-  const labelStyle = 'text-slate-700 dark:text-slate-200';
-  const dialogStyle = 'bg-white border-slate-200 dark:bg-slate-800 dark:border-slate-700';
-  const selectContentStyle = 'bg-white border-slate-200 dark:bg-slate-800 dark:border-slate-700';
-  const selectItemStyle = 'text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-700';
-  const cancelBtnStyle = 'text-slate-500 hover:text-slate-700 dark:text-slate-300 dark:hover:text-white';
+  const pageBackground = 'bg-orange-50/50 dark:bg-neutral-950';
+  const cardStyle = 'bg-orange-50 border-orange-200/60 shadow-sm dark:bg-neutral-800 dark:border-neutral-700';
+  const cardInnerStyle = 'bg-white border-orange-200/50 dark:bg-neutral-900 dark:border-neutral-700';
+  const textPrimary = 'text-neutral-900 dark:text-white';
+  const textSecondary = 'text-amber-800 dark:text-neutral-300';
+  const textMuted = 'text-amber-700/60 dark:text-neutral-400';
+  const borderStyle = 'border-orange-200/60 dark:border-neutral-700';
+  const inputStyle = 'bg-white border-orange-300 text-neutral-900 dark:bg-neutral-900 dark:border-neutral-600 dark:text-white';
+  const labelStyle = 'text-amber-900 dark:text-neutral-200';
+  const dialogStyle = 'bg-white border-orange-200 dark:bg-neutral-800 dark:border-neutral-700';
+  const selectContentStyle = 'bg-white border-orange-200 dark:bg-neutral-800 dark:border-neutral-700';
+  const selectItemStyle = 'text-neutral-900 dark:text-white hover:bg-orange-100 dark:hover:bg-neutral-700';
+  const cancelBtnStyle = 'text-amber-700 hover:text-amber-900 dark:text-neutral-400 dark:hover:text-white';
 
   if (isLoading) {
     return (
