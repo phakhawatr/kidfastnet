@@ -74,6 +74,7 @@ import TeacherProtectedRoute from "./components/TeacherProtectedRoute";
 import SchoolAdminProtectedRoute from "./components/SchoolAdminProtectedRoute";
 import SchoolAdminDashboard from "./pages/SchoolAdminDashboard";
 import AdminSchoolManagement from "./pages/AdminSchoolManagement";
+import SchoolLogin from "./pages/SchoolLogin";
 import SchoolAnalyticsDashboard from "./pages/SchoolAnalyticsDashboard";
 import AILessonPlanner from "./pages/AILessonPlanner";
 import TeacherAssignments from "./pages/TeacherAssignments";

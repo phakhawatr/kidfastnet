@@ -399,6 +399,9 @@ const Landing = () => {
           </div>
         </section>
 
+        {/* School Network Section */}
+        <SchoolNetworkSection />
+
         {/* CTA Section */}
         <section className="text-center">
           <div className="p-8 md:p-12 rounded-2xl border border-white/20 backdrop-blur-sm shadow-[0_8px_30px_hsl(251_100%_69%/0.15)]">
