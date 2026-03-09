@@ -206,7 +206,7 @@ const BatchStudentImport = ({ schoolId, classes, onComplete }: BatchStudentImpor
           <div className="space-y-5 mt-4">
             {/* Template Download */}
             <div className="p-4 bg-slate-900/50 rounded-lg border border-slate-700">
-              <p className="text-slate-300 text-sm mb-2">รูปแบบไฟล์: <code className="bg-slate-700 px-2 py-0.5 rounded text-emerald-300">email,student_number</code></p>
+              <p className="text-slate-300 text-sm mb-2">รูปแบบไฟล์: <code className="bg-slate-700 px-2 py-0.5 rounded text-emerald-300">email,student_number,password</code></p>
               <Button variant="ghost" size="sm" onClick={downloadTemplate} className="text-emerald-400 hover:text-emerald-300">
                 <Download className="w-4 h-4 mr-1" />
                 ดาวน์โหลดตัวอย่าง
