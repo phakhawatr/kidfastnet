@@ -358,12 +358,6 @@ const SchoolAdminDashboard = () => {
           {/* Navigation Buttons + Theme Toggle */}
           <div className="flex items-center gap-2 mt-4 md:mt-0">
             <ThemeToggle />
-            <ManualDownloader 
-              defaultManual="school-admin" 
-              showDropdown={false}
-              buttonVariant="outline"
-              className="border-primary/50 text-primary hover:bg-primary/10"
-            />
             {selectedSchool && (
               <Button
                 onClick={() => navigate('/school-admin/analytics')}
