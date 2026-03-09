@@ -335,7 +335,7 @@ export const useSchoolAdmin = (userId: string | null) => {
           grade: classData.grade,
           academic_year: classData.academic_year,
           semester: classData.semester || 1,
-          teacher_id: classData.teacher_id,
+          teacher_id: classData.teacher_id && classData.teacher_id !== 'none' && classData.teacher_id !== '' ? classData.teacher_id : null,
           max_students: classData.max_students || 40,
           is_active: true,
         }])
