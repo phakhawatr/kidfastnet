@@ -568,9 +568,31 @@ const SchoolAdminDashboard = () => {
 
               {/* Classes Tab */}
               <TabsContent value="classes">
+                {/* Show class student manager if a class is selected */}
+                {managingClassId && selectedSchool ? (
+                  <ClassStudentManager
+                    classId={managingClassId}
+                    className={managingClassName}
+                    schoolId={selectedSchool.id}
+                    onBack={() => setManagingClassId(null)}
+                  />
+                ) : (
                 <Card className="bg-slate-800/80 backdrop-blur border-slate-700">
                   <div className="p-6 border-b border-slate-700 flex items-center justify-between">
                     <h2 className="text-xl font-semibold text-white">ห้องเรียนทั้งหมด</h2>
+                    <div className="flex gap-2">
+                      {selectedSchool && (
+                        <BatchStudentImport
+                          schoolId={selectedSchool.id}
+                          classes={classes.map(c => ({ id: c.id, name: c.name, grade: c.grade }))}
+                          onComplete={() => {
+                            // Refresh data
+                            fetchClasses();
+                            fetchMembers();
+                            fetchUserSchools();
+                          }}
+                        />
+                      )}
                     <Dialog open={showCreateClass} onOpenChange={setShowCreateClass}>
                       <DialogTrigger asChild>
                         <Button className="bg-purple-600 hover:bg-purple-700">
