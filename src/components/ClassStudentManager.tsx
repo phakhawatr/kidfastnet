@@ -8,6 +8,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useToast } from '@/hooks/use-toast';
 import { Users, UserPlus, Trash2, ArrowLeft, Hash } from 'lucide-react';
 
+const avatarEmojiMap: Record<string, string> = {
+  tiger: '🐯', cat: '🐱', dog: '🐶', rabbit: '🐰', bear: '🐻',
+  monkey: '🐵', elephant: '🐘', panda: '🐼', lion: '🦁', fox: '🦊',
+  penguin: '🐧', koala: '🐨', frog: '🐸', unicorn: '🦄', owl: '🦉',
+  dolphin: '🐬', butterfly: '🦋', bee: '🐝', ladybug: '🐞', turtle: '🐢',
+  giraffe: '🦒', whale: '🐋', octopus: '🐙', star: '⭐', rocket: '🚀',
+};
+
 interface ClassStudent {
   id: string;
   student_id: string;
@@ -15,6 +23,7 @@ interface ClassStudent {
   nickname: string;
   email: string;
   avatar: string;
+  line_picture_url: string | null;
 }
 
 interface ClassStudentManagerProps {
