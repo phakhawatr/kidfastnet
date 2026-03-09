@@ -889,8 +889,8 @@ const SchoolAdminDashboard = () => {
                       
                       {selectedSchool.address && (
                         <div className="flex items-start gap-4 col-span-2">
-                          <div className="p-3 bg-cyan-100 dark:bg-cyan-500/20 rounded-xl">
-                            <MapPin className="w-5 h-5 text-cyan-600 dark:text-cyan-300" />
+                          <div className="p-3 bg-amber-100 dark:bg-amber-500/20 rounded-xl">
+                            <MapPin className="w-5 h-5 text-amber-700 dark:text-amber-300" />
                           </div>
                           <div>
                             <p className={`${textSecondary} text-sm`}>ที่อยู่</p>
