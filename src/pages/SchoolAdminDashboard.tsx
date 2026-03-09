@@ -689,7 +689,7 @@ const SchoolAdminDashboard = () => {
                     <h2 className={`text-xl font-semibold ${textPrimary}`}>👩‍🏫 ครูและผู้ดูแล</h2>
                     <Dialog open={showAddMember} onOpenChange={setShowAddMember}>
                       <DialogTrigger asChild>
-                        <Button className="bg-purple-600 hover:bg-purple-700 text-white" onClick={() => setNewMember({ email: '', role: 'teacher' })}>
+                        <Button className="bg-amber-800 hover:bg-amber-900 dark:bg-amber-700 dark:hover:bg-amber-600 text-white rounded-full" onClick={() => setNewMember({ email: '', role: 'teacher' })}>
                           <UserPlus className="w-4 h-4 mr-2" />
                           เพิ่มครู
                         </Button>
