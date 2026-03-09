@@ -63,6 +63,8 @@ const SchoolAdminDashboard = () => {
   const [showCreateClass, setShowCreateClass] = useState(false);
   const [showAddMember, setShowAddMember] = useState(false);
   const [showEditSchool, setShowEditSchool] = useState(false);
+  const [managingClassId, setManagingClassId] = useState<string | null>(null);
+  const [managingClassName, setManagingClassName] = useState('');
   const [teachers, setTeachers] = useState<{id: string; nickname: string}[]>([]);
   
   const [newSchool, setNewSchool] = useState({
