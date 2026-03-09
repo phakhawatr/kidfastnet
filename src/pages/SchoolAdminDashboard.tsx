@@ -905,8 +905,8 @@ const SchoolAdminDashboard = () => {
                       
                       {selectedSchool.website && (
                         <div className="flex items-start gap-4">
-                          <div className="p-3 bg-pink-100 dark:bg-pink-500/20 rounded-xl">
-                            <Globe className="w-5 h-5 text-pink-600 dark:text-pink-300" />
+                          <div className="p-3 bg-orange-100 dark:bg-orange-500/20 rounded-xl">
+                            <Globe className="w-5 h-5 text-orange-700 dark:text-orange-300" />
                           </div>
                           <div>
                             <p className={`${textSecondary} text-sm`}>เว็บไซต์</p>
