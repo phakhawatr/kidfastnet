@@ -723,16 +723,16 @@ const SchoolAdminDashboard = () => {
                 </Card>
               </TabsContent>
 
-              {/* Members Tab */}
-              <TabsContent value="members">
+              {/* Teachers Tab */}
+              <TabsContent value="teachers">
                 <Card className="bg-slate-800/80 backdrop-blur border-slate-700">
                   <div className="p-6 border-b border-slate-700 flex items-center justify-between">
-                    <h2 className="text-xl font-semibold text-white">สมาชิกทั้งหมด</h2>
+                    <h2 className="text-xl font-semibold text-white">👩‍🏫 ครูและผู้ดูแล</h2>
                     <Dialog open={showAddMember} onOpenChange={setShowAddMember}>
                       <DialogTrigger asChild>
-                        <Button className="bg-purple-600 hover:bg-purple-700">
+                        <Button className="bg-purple-600 hover:bg-purple-700" onClick={() => setNewMember({ email: '', role: 'teacher' })}>
                           <UserPlus className="w-4 h-4 mr-2" />
-                          เพิ่มสมาชิก
+                          เพิ่มครู
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="bg-slate-800 border-slate-700">
@@ -747,7 +747,7 @@ const SchoolAdminDashboard = () => {
                               value={newMember.email}
                               onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
                               className="bg-slate-900 border-slate-600 text-white mt-1"
-                              placeholder="user@email.com"
+                              placeholder="teacher@email.com"
                             />
                           </div>
                           <div>
@@ -763,7 +763,6 @@ const SchoolAdminDashboard = () => {
                               </SelectTrigger>
                               <SelectContent className="bg-slate-800 border-slate-700">
                                 <SelectItem value="teacher" className="text-white">ครู</SelectItem>
-                                <SelectItem value="student" className="text-white">นักเรียน</SelectItem>
                                 <SelectItem value="school_admin" className="text-white">ผู้ดูแลโรงเรียน</SelectItem>
                               </SelectContent>
                             </Select>
@@ -782,18 +781,74 @@ const SchoolAdminDashboard = () => {
                   </div>
                   
                   <div className="p-6">
-                    {members.length === 0 ? (
+                    {members.filter(m => m.role === 'teacher' || m.role === 'school_admin').length === 0 ? (
                       <div className="text-center py-12">
-                        <Users className="w-12 h-12 text-slate-500 mx-auto mb-4" />
-                        <p className="text-slate-400">ยังไม่มีสมาชิก</p>
+                        <GraduationCap className="w-12 h-12 text-slate-500 mx-auto mb-4" />
+                        <p className="text-slate-400">ยังไม่มีครูในโรงเรียน</p>
                       </div>
                     ) : (
                       <div className="space-y-3">
-                        {members.map((member) => (
-                          <div key={member.id} className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg border border-slate-700">
+                        {members.filter(m => m.role === 'teacher' || m.role === 'school_admin').map((member) => (
+                          <div key={member.id} className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg border border-purple-500/20 hover:border-purple-500/40 transition-colors">
                             <div className="flex items-center gap-4">
                               <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center">
-                                <span className="text-lg">{member.user_avatar || '👤'}</span>
+                                <span className="text-lg">{member.user_avatar || '👩‍🏫'}</span>
+                              </div>
+                              <div>
+                                <p className="text-white font-medium">{member.user_nickname || 'ไม่ระบุชื่อ'}</p>
+                                <p className="text-slate-400 text-sm">{member.user_email}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <span className={`px-3 py-1 rounded-full text-sm border ${getRoleBadgeColor(member.role)}`}>
+                                {getRoleLabel(member.role)}
+                              </span>
+                              {member.role !== 'school_admin' && (
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-8 w-8 text-slate-400 hover:text-red-400"
+                                  onClick={() => handleRemoveMember(member.id, member.user_nickname || '')}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </Card>
+              </TabsContent>
+
+              {/* Students Tab */}
+              <TabsContent value="students">
+                <Card className="bg-slate-800/80 backdrop-blur border-slate-700">
+                  <div className="p-6 border-b border-slate-700 flex items-center justify-between">
+                    <h2 className="text-xl font-semibold text-white">👨‍🎓 นักเรียน</h2>
+                    <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => {
+                      setNewMember({ email: '', role: 'student' });
+                      setShowAddMember(true);
+                    }}>
+                      <UserPlus className="w-4 h-4 mr-2" />
+                      เพิ่มนักเรียน
+                    </Button>
+                  </div>
+                  
+                  <div className="p-6">
+                    {members.filter(m => m.role === 'student').length === 0 ? (
+                      <div className="text-center py-12">
+                        <Users className="w-12 h-12 text-slate-500 mx-auto mb-4" />
+                        <p className="text-slate-400">ยังไม่มีนักเรียนในโรงเรียน</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {members.filter(m => m.role === 'student').map((member) => (
+                          <div key={member.id} className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg border border-blue-500/20 hover:border-blue-500/40 transition-colors">
+                            <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
+                                <span className="text-lg">{member.user_avatar || '👨‍🎓'}</span>
                               </div>
                               <div>
                                 <p className="text-white font-medium">{member.user_nickname || 'ไม่ระบุชื่อ'}</p>
